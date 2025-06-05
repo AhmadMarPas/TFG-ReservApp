@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.shared.SessionData;
@@ -41,13 +43,6 @@ public class LoginController {
 	private SessionData sessionData;
 
 	/**
-	 * Constructor sin parametros.
-	 */
-//	public LoginController() {
-//		sessionData = new SessionData();
-//	}
-	
-	/**
 	 * Constructor de LoginController.
 	 * 
 	 * @param sessionData Datos de la sesión
@@ -57,17 +52,6 @@ public class LoginController {
 		this.sessionData = sessionData;
 	}
 	
-	/**
-	 * Constructor de LoginController.
-	 * 
-	 * @param userService Servicio de usuario
-	 */
-//	@Autowired
-//	public LoginController(UsuarioService userService) {
-//        this.userService = userService;
-////        sessionData = new SessionData();
-//    }
-
 	@GetMapping("/loginer")
     public String loginForm(Model model) {
 		model.addAttribute("usuario", new Usuario());
@@ -75,7 +59,6 @@ public class LoginController {
     }
 	
 	@PostMapping("/loginer")
-//	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String login(@RequestParam String username, @RequestParam String password, Model model, RedirectAttributes redirectAttributes) {
 		log.info("username: " + username);
 		log.info("password: " + password);
@@ -87,7 +70,7 @@ public class LoginController {
 			usuario = (Usuario) model.getAttribute("Usuario");
 			log.info("Usuario: " + usuario.getNombre());
 			sessionData.setUsuario(usuario);
-			return "menuprincipal";
+			return "redirect:/menuprincipal";
 		} else {
 			log.error("Invalid username and password");
 			model.addAttribute("error", "Usuario o contraseña incorrectos.");
@@ -140,7 +123,7 @@ public class LoginController {
         }
 
         //Encriptar la contraseña
-//        usuario.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
+        usuario.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
         usuario.setId(usuario.getNombre().toLowerCase());
         sessionData.setUsuario(usuario);
         // Registrar el nuevo usuario

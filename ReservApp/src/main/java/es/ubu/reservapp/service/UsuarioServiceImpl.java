@@ -1,5 +1,6 @@
 package es.ubu.reservapp.service;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import es.ubu.reservapp.model.entities.Usuario;
@@ -19,6 +20,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 	 * Repositorio de la entidad Usuario.
 	 */
 	private final UsuarioRepo usuarioRepo;
+	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	/**
 	 * Constructor de la clase.
@@ -27,6 +29,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 	 */
 	public UsuarioServiceImpl(UsuarioRepo usuarioRepo) {
 		this.usuarioRepo = usuarioRepo;
+		this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
 	}
 
 	@Override
@@ -44,8 +47,13 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (username == null || password == null) {
             return null;
         }
-        return usuarioRepo.findUsuarioByIdAndPassword(username, password);
-    }
+        Usuario usuario = usuarioRepo.findUsuarioById(username);
+		if (usuario != null && usuario.getPassword() != null
+				&& bCryptPasswordEncoder.matches(password, usuario.getPassword())) {
+			return usuario;
+		}
+		return null;
+	}
 
 	@Override
 	public boolean existeEmail(String correoUsuario) {
