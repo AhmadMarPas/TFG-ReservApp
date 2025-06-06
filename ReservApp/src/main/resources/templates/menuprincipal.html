@@ -2,7 +2,8 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:layout:decorator="http://www.ultraq.net.nz/thymeleaf/layout/decorator"
-      xmlns:layout:fragment="http://www.ultraq.net.nz/thymeleaf/layout/fragment">
+      xmlns:layout:fragment="http://www.ultraq.net.nz/thymeleaf/layout/fragment"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Menú Principal</title>
@@ -13,6 +14,9 @@
         <div class="alert alert-danger">
             <h2>Opciones de Menú</h2>
             <p>Aquí aparecerán las opciones de menú.</p>
+            <div sec:authorize="hasRole('ADMIN')">
+                <a href="/admin/usuarios" class="btn btn-info">Gestión de Usuarios</a>
+            </div>
             <a href="/logout" class="btn btn-primary">Cerrar sesión</a>
         </div>
     </div>

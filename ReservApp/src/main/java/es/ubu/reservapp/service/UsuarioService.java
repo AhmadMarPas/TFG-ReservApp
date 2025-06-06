@@ -1,6 +1,8 @@
 package es.ubu.reservapp.service;
 
+import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Usuario;
+import java.util.List;
 
 /**
  * Interface que representa el servicio de la entidad Usuario.
@@ -20,4 +22,12 @@ public interface UsuarioService {
 	boolean existeEmail(String correoUsuario);
 
 	boolean existeId(String id);
+
+	List<Usuario> findAll();
+
+	Usuario findUsuarioByCorreo(String correo);
+
+	void blockUser(String id) throws UserNotFoundException;
+
+	void unblockUser(String id) throws UserNotFoundException;
 }

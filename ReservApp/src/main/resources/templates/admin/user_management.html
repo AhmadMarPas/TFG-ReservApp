@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios</title>
+    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Gestión de Usuarios</h1>
+        <p>Lista de usuarios registrados.</p>
+        
+        <!-- Placeholder for user table -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id Usuario</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Admin</th>
+                    <th>Bloqueado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.nombre}"></td>
+                    <td th:text="${user.correo}"></td>
+                    <td th:text="${user.administrador}"></td>
+                    <td th:text="${user.bloqueado}"></td>
+                    <td style="min-width: 180px;"> <!-- Adjusted width for buttons -->
+                        <a th:href="@{/admin/usuarios/editar/{id}(id=${user.id})}" class="btn btn-sm btn-warning" style="margin-right: 5px;">Editar</a>
+                        <form th:action="@{/admin/usuarios/bloquear/{id}(id=${user.id})}" method="post" style="display: inline;" th:if="${!user.bloqueado}">
+                            <button type="submit" class="btn btn-sm btn-danger">Bloquear</button>
+                        </form>
+                        <form th:action="@{/admin/usuarios/desbloquear/{id}(id=${user.id})}" method="post" style="display: inline;" th:if="${user.bloqueado}">
+                            <button type="submit" class="btn btn-sm btn-success">Unblock</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <a th:href="@{/admin/usuarios/nuevo}" class="btn btn-primary">Añadir nuevo usuario</a>
+        <br/><br/>
+        <a href="/menuprincipal" class="btn btn-secondary">Volver al menú principal</a>
+    </div>
+</body>
+</html>

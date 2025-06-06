@@ -2,6 +2,7 @@ package es.ubu.reservapp.model.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
 import es.ubu.reservapp.model.entities.Usuario;
 
@@ -39,8 +40,8 @@ public interface UsuarioRepo extends JpaRepository<Usuario, String> {
 	 * Método que busca un usuario por su correo.
 	 * 
 	 * @param correoUsuario Correo del usuario.
-	 * @return Usuario si existe, null en caso contrario.
+	 * @return Optional<Usuario> si existe, Optional.empty() en caso contrario.
 	 */
-	Usuario findByCorreo(String correoUsuario);
+	Optional<Usuario> findByCorreo(String correoUsuario);
 
 }

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!-- Dynamic Title -->
+    <title th:if="${isEdit}">Editar Usuario</title>
+    <title th:unless="${isEdit}">Crear Usuario</title>
+    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
+</head>
+<body>
+<div class="container mt-5">
+    <!-- Dynamic Heading -->
+    <h1 th:if="${isEdit}">Editar Usuario</h1>
+    <h1 th:unless="${isEdit}">Crear Nuevo Usuario</h1>
+
+    <!-- Flash messages for redirect -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Form errors displayed by Spring/Thymeleaf if not using flash attributes -->
+    <!-- <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+        <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+    </div> -->
+
+    <form th:action="@{/admin/usuarios/guardar}" th:object="${usuario}" method="post">
+        <!-- Hidden input for ID in edit mode if not using th:field on a readonly field,
+             but th:field on a readonly input should submit its value.
+             <input type="hidden" th:if="${isEdit}" th:field="*{id}" /> 
+        -->
+        <div class="mb-3">
+            <label for="id" class="form-label">Username (ID):</label>
+            <!-- ID field: readonly if editing, required if new -->
+            <input type="text" class="form-control" id="id" th:field="*{id}" 
+                   th:readonly="${isEdit}" th:required="${!isEdit}" />
+            <div th:if="${#fields.hasErrors('id')}" th:errors="*{id}" class="text-danger"></div>
+        </div>
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre:</label>
+            <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required="required" />
+            <div th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" class="text-danger"></div>
+        </div>
+        <div class="mb-3">
+            <label for="apellidos" class="form-label">Apellidos:</label>
+            <input type="text" class="form-control" id="apellidos" th:field="*{apellidos}" required="required" />
+            <div th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}" class="text-danger"></div>
+        </div>
+        <div class="mb-3">
+            <label for="correo" class="form-label">Correo Electrónico:</label>
+            <input type="email" class="form-control" id="correo" th:field="*{correo}" required="required" />
+            <div th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}" class="text-danger"></div>
+        </div>
+        <div class="mb-3">
+            <!-- Password field: not required if editing (empty means no change) -->
+            <label for="password" class="form-label">Contraseña:</label>
+            <span th:if="${isEdit}" class="form-text d-block mb-2">(Dejar en blanco para no cambiar)</span>
+            <input type="password" class="form-control" id="password" th:field="*{password}" 
+                   th:required="${!isEdit}" /> <!-- Only required for new users -->
+            <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger"></div>
+        </div>
+        <div class="mb-3">
+            <label for="telefono" class="form-label">Teléfono:</label>
+            <input type="text" class="form-control" id="telefono" th:field="*{telefono}" />
+            <div th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}" class="text-danger"></div>
+        </div>
+        <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="administrador" th:field="*{administrador}" />
+            <label class="form-check-label" for="administrador">Administrador</label>
+        </div>
+         <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="bloqueado" th:field="*{bloqueado}" />
+            <label class="form-check-label" for="bloqueado">Bloqueado</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+        <a th:href="@{/admin/usuarios}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+<script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
