@@ -14,5 +14,10 @@ public class HomeController {
     	model.addAttribute("usuario", new Usuario());
         return "login";
     }
+    
+    @GetMapping("/menuprincipal")
+    public String menuprincipal() {
+        return "menuprincipal";
+    }
 }
 

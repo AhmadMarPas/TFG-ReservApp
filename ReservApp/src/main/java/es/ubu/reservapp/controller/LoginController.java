@@ -34,7 +34,7 @@ public class LoginController {
 	
 	private static final String REDIRECT_REGISTRO = "redirect:/registro";
 	private static final String REDIRECT_LOGIN = "redirect:/login";
-	private static final String REDIRECT_INICIO = "redirect:/inicio";
+	private static final String REDIRECT_INICIO = "redirect:/menuprincipal";
 
 	private UsuarioService userService;
 
@@ -71,7 +71,7 @@ public class LoginController {
 			usuario = (Usuario) model.getAttribute("Usuario");
 			log.info("Usuario: " + usuario.getNombre());
 			sessionData.setUsuario(usuario);
-			return "redirect:/menuprincipal";
+			return REDIRECT_INICIO;
 		} else {
 			log.error("Invalid username and password");
 			model.addAttribute("error", "Usuario o contraseña incorrectos.");
