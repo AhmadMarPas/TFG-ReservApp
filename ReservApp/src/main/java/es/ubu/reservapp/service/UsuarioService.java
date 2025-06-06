@@ -18,4 +18,6 @@ public interface UsuarioService {
 	Usuario validateAuthentication(String id, String password);
 
 	boolean existeEmail(String correoUsuario);
+
+	boolean existeId(String id);
 }

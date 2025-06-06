@@ -60,4 +60,12 @@ public class UsuarioServiceImpl implements UsuarioService {
 		return usuarioRepo.findByCorreo(correoUsuario) != null;
 	}
 
+	@Override
+	public boolean existeId(String id) {
+		if (id == null || id.trim().isEmpty()) {
+			return false; 
+		}
+		return usuarioRepo.findUsuarioById(id) != null;
+	}
+
 }

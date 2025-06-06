@@ -18,6 +18,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,7 +46,9 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@Size(max = 10, message = "El id no puede tener más de 10 caracteres")
+	@NotNull(message = "El nombre de usuario no puede ser nulo")
+	@NotEmpty(message = "El nombre de usuario no puede estar vacío")
+	@Pattern(regexp = "^[a-zA-Z0-9]{3,10}$", message = "El nombre de usuario debe tener entre 3 y 10 caracteres alfanuméricos, sin espacios u otros símbolos.")
 	@Column(name = "id")
 	private String id;
 	
@@ -68,8 +71,8 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
 	private String correo;
 
     @NotNull(message = "La contraseña no puede ser nula")
-	@NotEmpty
-	@Size(min = 5, max = 40, message = "La contraseña debe tener entre 5 y 40 caracteres")
+	@NotEmpty(message = "La contraseña no puede estar vacía")
+//	@Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,40}$", message = "La contraseña debe tener entre 8 y 40 caracteres, incluir al menos una mayúscula, una minúscula, un número y solo caracteres alfanuméricos.")
 	@Column(name = "password")
 	private String password;
 
@@ -89,6 +92,12 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
 	@NotNull
 	@Column(name = "bloqueado")
 	private boolean bloqueado = false;
+
+    @Column(name = "confirmation_token")
+    private String confirmationToken;
+
+    @Column(name = "email_verified")
+    private boolean emailVerified = false;
 
 	@OneToMany
 	@JoinTable(name = "usuario_perfil", 
@@ -111,7 +120,7 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
 	@PrePersist
 	@PreUpdate
 	private void prepareData() {
-		this.correo = correo == null ? null : correo.toLowerCase();
+		this.correo = correo.toLowerCase();
 	}
 
 	@Override

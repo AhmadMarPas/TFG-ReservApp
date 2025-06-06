@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import java.util.UUID;
 
 /**
  * Controlador de Login.
@@ -89,29 +90,16 @@ public class LoginController {
     @PostMapping("/registro")
     public String registro(@Valid @ModelAttribute Usuario usuario, BindingResult bindingResult, @RequestParam String confirmPassword, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            // Si hay errores de validación, vuelve a la página de registro
-            return "registro";
+            // Si hay errores de validación de las anotaciones, vuelve a la página de registro.
+            return "registro"; 
         }
-		if (usuario == null) {
-			redirectAttributes.addFlashAttribute("error", "El Usuario no puede estar vacío");
-			return REDIRECT_REGISTRO;
-		}
-		if (usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "La contraseña no puede estar vacía");
-			return REDIRECT_REGISTRO;
-		}
-		if (usuario.getNombre() == null || usuario.getNombre().isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "El nombre no puede estar vacío");
-			return REDIRECT_REGISTRO;
-		}
-		if (usuario.getApellidos() == null || usuario.getApellidos().isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Los apellidos no pueden estar vacíos");
-			return REDIRECT_REGISTRO;
-		}
-		if (usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "El correo no puede estar vacío");
-			return REDIRECT_REGISTRO;
-		}
+
+        // Se verifica si el ID (nombre de usuario) ya existe
+        if (userService.existeId(usuario.getId())) {
+            redirectAttributes.addFlashAttribute("error", "El nombre de usuario '" + usuario.getId() + "' ya está registrado. Por favor, elige otro.");
+            return REDIRECT_REGISTRO;
+        }
+
 		if (!usuario.getPassword().equals(confirmPassword)) {
 			redirectAttributes.addFlashAttribute("error", "Las contraseñas no coinciden");
 			return REDIRECT_REGISTRO;
@@ -124,12 +112,22 @@ public class LoginController {
 
         //Encriptar la contraseña
         usuario.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
-        usuario.setId(usuario.getNombre().toLowerCase());
+        
+        // Se genera y establece el token de confirmación y estado de verificación de email
+        String token = UUID.randomUUID().toString();
+        usuario.setConfirmationToken(token);
+        usuario.setEmailVerified(false); // Establecer explícitamente, aunque sea el valor por defecto
+
+        // TODO: Quizás es pronto para guardarlo puesto que no está confirmado todavía 
         sessionData.setUsuario(usuario);
+        
         // Registrar el nuevo usuario
         userService.save(usuario);
-        redirectAttributes.addFlashAttribute("success", "Usuario registrado correctamente. Por favor inicia sesión.");
-        return REDIRECT_INICIO;
+        
+        // TODO: Enviar email de confirmación con el token
+        
+        redirectAttributes.addFlashAttribute("success", "Usuario registrado correctamente. Por favor, revisa tu email para confirmar tu cuenta.");
+        return REDIRECT_INICIO; // O redirigir a una página que informe sobre la necesidad de confirmar el email
     }
     
     @GetMapping("/logout")
