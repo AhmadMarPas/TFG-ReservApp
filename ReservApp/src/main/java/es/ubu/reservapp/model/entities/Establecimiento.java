@@ -1,5 +1,6 @@
 package es.ubu.reservapp.model.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -61,6 +62,12 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	 */
 	@OneToMany(mappedBy = "establecimiento", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Reserva> lstReservas;
+
+    /**
+     * Lista de franjas horarias de apertura del establecimiento.
+     */
+    @OneToMany(mappedBy = "establecimiento", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<FranjaHoraria> franjasHorarias = new ArrayList<>();
 
 
 	@Override

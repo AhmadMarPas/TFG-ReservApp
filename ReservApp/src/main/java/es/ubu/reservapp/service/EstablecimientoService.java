@@ -1,7 +1,12 @@
 package es.ubu.reservapp.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import es.ubu.reservapp.model.entities.Establecimiento;
+
 /**
- * Interface que representa el servicio de la entidad Establecimiento.
+ * Interfaz para el servicio de gestión de Establecimientos.
  * 
  * @autor Ahmad Mareie Pascual
  * @version 1.0
@@ -9,4 +14,35 @@ package es.ubu.reservapp.service;
  */
 public interface EstablecimientoService {
 
+    /**
+     * Recupera todos los establecimientos.
+     * 
+     * @return una lista de todos los establecimientos.
+     */
+    List<Establecimiento> findAll();
+
+    /**
+     * Busca un establecimiento por su ID.
+     * 
+     * @param id el ID del establecimiento a buscar.
+     * @return un Optional conteniendo el establecimiento si se encuentra, o un Optional vacío si no.
+     */
+    Optional<Establecimiento> findById(Integer id);
+
+    /**
+     * Guarda o actualiza un establecimiento.
+     * Si el establecimiento tiene un ID nulo, se considera una nueva entidad.
+     * Si tiene un ID, se intenta actualizar la entidad existente.
+     * 
+     * @param establecimiento el establecimiento a guardar.
+     * @return el establecimiento guardado (puede tener el ID actualizado si es nuevo).
+     */
+    Establecimiento save(Establecimiento establecimiento);
+
+    /**
+     * Elimina un establecimiento por su ID.
+     * 
+     * @param id el ID del establecimiento a eliminar.
+     */
+    void deleteById(Integer id);
 }
