@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${establecimiento.id == null ? 'Crear Establecimiento' : 'Editar Establecimiento'}">Formulario de Establecimiento</title>
+    <!-- Podrías enlazar un CSS común si lo tienes -->
+    <style>
+        .container { padding: 20px; max-width: 600px; margin: auto; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input[type="text"],
+        .form-group textarea { width: 100%; padding: 8px; box-sizing: border-box; }
+        .form-group .error-message { color: red; font-size: 0.9em; }
+        .button-save { padding: 10px 15px; background-color: #4CAF50; color: white; text-decoration: none; border: none; border-radius: 5px; cursor: pointer;}
+        .link-cancelar { margin-left: 10px; color: #888; text-decoration: none; }
+        /* Estilo para alertas de error generales */
+        .alert-danger { color: red; border: 1px solid red; padding: 10px; margin-bottom: 15px; }
+        .alert-danger ul { list-style-type: none; padding-left: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 th:text="${establecimiento.id == null ? 'Crear Nuevo Establecimiento' : 'Editar Establecimiento'}">Formulario</h1>
+
+        <form th:action="@{/admin/establecimientos/guardar}" th:object="${establecimiento}" method="post">
+	        <!-- Mostrar errores globales de BindingResult -->
+			<div th:if="${error != null or #fields.hasGlobalErrors()}" class="alert alert-danger">
+				<p th:if="${error != null}" th:text="${error}"></p>
+				<ul th:if="${#fields.hasGlobalErrors()}" style="list-style-type: none; padding-left: 0;">
+					<li th:each="err : ${#fields.globalErrors()}" th:text="${err}">Error global</li>
+				</ul>
+			</div>
+			<!-- Mostrar error general pasado por flash attribute (si existe) -->
+	        <div th:if="${error}" class="alert alert-danger">
+    	        <p th:text="${error}"></p>
+        	</div>
+
+
+            <!-- Campo oculto para el ID (importante para la edición) -->
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" th:field="*{nombre}" id="nombre" />
+                <div th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" class="error-message">Error en Nombre</div>
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion">Descripción:</label>
+                <textarea th:field="*{descripcion}" id="descripcion" rows="3"></textarea>
+                <div th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}" class="error-message">Error en Descripción</div>
+            </div>
+
+            <!-- Sección para Franjas Horarias (Placeholder Básico) -->
+            <fieldset>
+                <legend>Franjas Horarias</legend>
+                <p><em>(La gestión detallada de franjas horarias se implementará en un paso posterior. Por ahora, las franjas existentes se mantendrán si se edita, y se pueden añadir nuevas programáticamente si es necesario para pruebas.)</em></p>
+                
+                <!-- Ejemplo de cómo se podrían listar si ya existen (solo para visualización muy básica) -->
+                <div th:if="${establecimiento.id != null and establecimiento.franjasHorarias != null and !establecimiento.franjasHorarias.isEmpty()}">
+                    <h4>Franjas Existentes (Solo lectura por ahora):</h4>
+                    <ul>
+                        <li th:each="franja, iterStat : *{franjasHorarias}"
+                            th:text="${franja.diaSemana} + ': ' + ${franja.horaInicio} + ' - ' + ${franja.horaFin}">
+                            Franja Horaria
+                        </li>
+                    </ul>
+                </div>
+                <!-- Aquí iría la UI para añadir/editar/eliminar franjas dinámicamente -->
+            </fieldset>
+            <br/>
+
+            <div class="form-group">
+                <button type="submit" class="button-save">Guardar Establecimiento</button>
+                <a th:href="@{/admin/establecimientos/listado}" class="link-cancelar">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

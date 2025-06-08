@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"> <!-- Necesario para th:href con parámetros -->
+<head>
+    <meta charset="UTF-8">
+    <title>Listado de Establecimientos</title>
+    <!-- Podrías enlazar un CSS común si lo tienes, e.g., /css/admin-style.css -->
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .actions a { margin-right: 10px; }
+        .container { padding: 20px; }
+        .button-crear { margin-bottom: 20px; padding: 10px 15px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Establecimientos</h1>
+
+        <p>
+            <a th:href="@{/admin/establecimientos/nuevo}" class="button-crear">Crear Nuevo Establecimiento</a>
+        </p>
+
+        <div th:if="${param.exito}">
+            <p style="color: green;" th:text="${param.exito}"></p>
+        </div>
+        <div th:if="${param.error}">
+            <p style="color: red;" th:text="${param.error}"></p>
+        </div>
+
+        <table th:if="${!establecimientos.isEmpty()}">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="est : ${establecimientos}">
+                    <td th:text="${est.id}">1</td>
+                    <td th:text="${est.nombre}">Nombre del Establecimiento</td>
+                    <td th:text="${est.descripcion}">Descripción del Establecimiento</td>
+                    <td class="actions">
+                        <a th:href="@{/admin/establecimientos/editar/{id}(id=${est.id})}">Editar</a>
+                        <!-- El enlace de eliminar podría ser un GET simple por ahora, o un POST con un mini-formulario -->
+                        <a th:href="@{/admin/establecimientos/eliminar/{id}(id=${est.id})}"
+                           onclick="return confirm('¿Estás seguro de que deseas eliminar este establecimiento?');">Eliminar</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div th:if="${establecimientos.isEmpty()}">
+            <p>No hay establecimientos registrados.</p>
+        </div>
+    </div>
+</body>
+</html>

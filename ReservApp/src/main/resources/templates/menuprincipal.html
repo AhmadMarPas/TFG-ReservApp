@@ -11,13 +11,15 @@
 </head>
 <body>
     <div class="container mt-5">
-        <div class="alert alert-danger">
-            <h2>Opciones de Menú</h2>
-            <p>Aquí aparecerán las opciones de menú.</p>
-            <div sec:authorize="hasRole('ADMIN')">
-                <a href="/admin/usuarios" class="btn btn-info">Gestión de Usuarios</a>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="card-title mb-4">Menú Principal</h1>
+                <div sec:authorize="hasRole('ADMIN')" class="mb-3">
+                    <a href="/admin/usuarios" class="btn btn-info me-2">Gestión de Usuarios</a>
+                    <a href="/admin/establecimientos" class="btn btn-info">Gestión de Establecimientos</a>
+                </div>
+                <a href="/logout" class="btn btn-danger mt-4">Cerrar sesión</a>
             </div>
-            <a href="/logout" class="btn btn-primary">Cerrar sesión</a>
         </div>
     </div>
 </body>
