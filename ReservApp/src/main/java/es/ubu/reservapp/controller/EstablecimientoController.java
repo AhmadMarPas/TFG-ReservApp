@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes; 
 
 import es.ubu.reservapp.model.entities.Establecimiento;
+import es.ubu.reservapp.model.entities.FranjaHoraria;
 import es.ubu.reservapp.service.EstablecimientoService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j; 
@@ -62,7 +63,7 @@ public class EstablecimientoController {
     public String listarEstablecimientos(Model model) {
         List<Establecimiento> establecimientos = establecimientoService.findAll();
         model.addAttribute("establecimientos", establecimientos);
-        return "establecimientos/listado"; 
+        return ESTABLECIMIENTO_LISTADO; 
     }
 
     /**
@@ -119,6 +120,9 @@ public class EstablecimientoController {
         try {
             if (establecimiento.getId() == null && establecimiento.getFranjasHorarias() == null) {
                 establecimiento.setFranjasHorarias(new ArrayList<>());
+            }
+            for (FranjaHoraria franja : establecimiento.getFranjasHorarias()) {
+                franja.setEstablecimiento(establecimiento);
             }
             
             establecimientoService.save(establecimiento);

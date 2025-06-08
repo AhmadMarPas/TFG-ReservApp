@@ -3,6 +3,7 @@ package es.ubu.reservapp.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,11 +40,13 @@ public class EstablecimientoServiceImpl implements EstablecimientoService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Establecimiento> findById(Integer id) {
-        return establecimientoRepo.findById(id);
+        Optional<Establecimiento> establecimientoOptional = establecimientoRepo.findById(id);
+        establecimientoOptional.ifPresent(establecimiento -> Hibernate.initialize(establecimiento.getFranjasHorarias()));
+        return establecimientoOptional;
     }
 
     @Override
-    @Transactional // Transacción de escritura/lectura
+    @Transactional
     public Establecimiento save(Establecimiento establecimiento) {
         return establecimientoRepo.save(establecimiento);
     }
