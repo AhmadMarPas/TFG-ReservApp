@@ -154,9 +154,9 @@
                 campo.name = campo.name.replace(/\[REPLACE_INDEX\]/g, '[' + nuevoIndice + ']');
             }
             // Ejemplo de cómo se actualizarían los IDs si también usaran REPLACE_INDEX
-            // if (campo.id && campo.name.includes('franjasHorarias')) { // Asegurar que solo se afectan los IDs relevantes
-            //     campo.id = campo.id.replace(/REPLACE_INDEX/g, nuevoIndice);
-            // }
+             if (campo.id && campo.name.includes('franjasHorarias')) { // Asegurar que solo se afectan los IDs relevantes
+                 campo.id = campo.id.replace(/REPLACE_INDEX/g, nuevoIndice);
+             }
         });
         // --- FIN DEL NUEVO BLOQUE ---
         
