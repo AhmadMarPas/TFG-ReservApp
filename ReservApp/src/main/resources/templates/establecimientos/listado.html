@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Listado de Establecimientos</title>
-    <!-- Podrías enlazar un CSS común si lo tienes, e.g., /css/admin-style.css -->
+    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
     <style>
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid black; padding: 8px; text-align: left; }
@@ -12,6 +13,7 @@
         .actions a { margin-right: 10px; }
         .container { padding: 20px; }
         .button-crear { margin-bottom: 20px; padding: 10px 15px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;}
+        .button-secondary { margin-bottom: 20px; margin-left: 10px; padding: 10px 15px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px;}
     </style>
 </head>
 <body>
@@ -52,6 +54,10 @@
                 </tr>
             </tbody>
         </table>
+        <div class="mt-4"> <!-- Este div ya existe, solo para referencia contextual -->
+            <a th:href="@{/menuprincipal}" class="btn btn-info ms-2">Volver al Menú Principal</a>
+        </div>
+        
         <div th:if="${establecimientos.isEmpty()}">
             <p>No hay establecimientos registrados.</p>
         </div>
