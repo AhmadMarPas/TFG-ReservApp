@@ -5,32 +5,25 @@
     <meta charset="UTF-8">
     <title>Listado de Establecimientos</title>
     <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
-    <style>
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid black; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .actions a { margin-right: 10px; }
-        .container { padding: 20px; }
-        .button-crear { margin-bottom: 20px; padding: 10px 15px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;}
-        .button-secondary { margin-bottom: 20px; margin-left: 10px; padding: 10px 15px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px;}
-    </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container mt-5">
         <h1>Gestión de Establecimientos</h1>
 
         <p>
-            <a th:href="@{/admin/establecimientos/nuevo}" class="button-crear">Crear Nuevo Establecimiento</a>
+            <a th:href="@{/admin/establecimientos/nuevo}" class="btn btn-primary">Crear Nuevo Establecimiento</a>
         </p>
 
-        <div th:if="${param.exito}">
-            <p style="color: green;" th:text="${param.exito}"></p>
+        <div th:if="${param.exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${param.exito}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <div th:if="${param.error}">
-            <p style="color: red;" th:text="${param.error}"></p>
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${param.error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <table th:if="${!establecimientos.isEmpty()}">
+        <table th:if="${!establecimientos.isEmpty()}" class="table table-striped">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -45,10 +38,9 @@
                     <td th:text="${est.nombre}">Nombre del Establecimiento</td>
                     <td th:text="${est.descripcion}">Descripción del Establecimiento</td>
                     <td class="actions">
-                        <a th:href="@{/admin/establecimientos/editar/{id}(id=${est.id})}">Editar</a>
-                        <!-- El enlace de eliminar podría ser un GET simple por ahora, o un POST con un mini-formulario -->
+                        <a th:href="@{/admin/establecimientos/editar/{id}(id=${est.id})}" class="btn btn-sm btn-warning">Editar</a>
                         <a th:href="@{/admin/establecimientos/eliminar/{id}(id=${est.id})}"
-                           onclick="return confirm('¿Estás seguro de que deseas eliminar este establecimiento?');">Eliminar</a>
+                           onclick="return confirm('¿Estás seguro de que deseas eliminar este establecimiento?');" class="btn btn-sm btn-danger">Eliminar</a>
                     </td>
                 </tr>
             </tbody>
@@ -61,5 +53,6 @@
             <p>No hay establecimientos registrados.</p>
         </div>
     </div>
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
