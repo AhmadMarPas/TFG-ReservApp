@@ -71,20 +71,13 @@ public class UserManagementController {
         boolean isNewUser = usuario.getId() == null || usuario.getId().trim().isEmpty() || !preExistingId(usuario.getId());
 
         if (bindingResult.hasErrors() && !(isNewUser && usuario.getId() == null && bindingResult.getErrorCount() == 1 && bindingResult.hasFieldErrors("id"))) {
-             // The complex condition is to allow an initially empty ID for new users to pass basic @NotNull, 
-             // but still fail if other validation errors exist. ID existence is checked later.
-             // Simplified: if (bindingResult.hasErrors())
             if (!isNewUser && bindingResult.hasFieldErrors("id") && usuario.getId().isEmpty()){
-                 //if it's not a new user, id cannot be empty
-            } else if (isNewUser && usuario.getId() == null && bindingResult.getErrorCount() == 1 && bindingResult.getFieldErrorCount("id") == 1) {
-                // This case might be specific if ID is the *only* error for a new user and it's null from form start
-                // Let custom validation handle it.
-            } else if(bindingResult.hasErrors()) {
-                 model.addAttribute("isEdit", !isNewUser);
-                 return ADMIN_USER;
-            }
-        }
-
+			} else if (isNewUser && usuario.getId() == null && bindingResult.getErrorCount() == 1 && bindingResult.getFieldErrorCount("id") == 1) {
+			} else if (bindingResult.hasErrors()) {
+				model.addAttribute("isEdit", !isNewUser);
+				return ADMIN_USER;
+			}
+		}
 
         if (isNewUser) {
             if (usuario.getId() == null || usuario.getId().trim().isEmpty()) {
@@ -129,16 +122,12 @@ public class UserManagementController {
         }
 
         usuarioService.save(usuario);
-        redirectAttributes.addFlashAttribute("success", "Usuario " + (isNewUser ? "creado" : "actualizado") + " correctamente.");
+        redirectAttributes.addFlashAttribute("exito", "Usuario " + (isNewUser ? "creado" : "actualizado") + " correctamente.");
         return ADMIN_USUARIOS;
     }
     
     private boolean preExistingId(String id) {
         if (id == null || id.trim().isEmpty()) return false;
-        // This check is for the state *before* this submission.
-        // If creating a new user, service.existeId would be false until saved.
-        // If updating, it would be true.
-        // This is a bit redundant with the controller's own logic flow for isNewUser.
         return usuarioService.existeId(id); 
     }
 
@@ -150,7 +139,7 @@ public class UserManagementController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        redirectAttributes.addFlashAttribute("success", "Usuario bloqueado correctamente.");
+        redirectAttributes.addFlashAttribute("exito", "Usuario bloqueado correctamente.");
         return ADMIN_USUARIOS;
     }
 
@@ -162,7 +151,7 @@ public class UserManagementController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        redirectAttributes.addFlashAttribute("success", "Usuario desbloqueado correctamente.");
+        redirectAttributes.addFlashAttribute("exito", "Usuario desbloqueado correctamente.");
         return ADMIN_USUARIOS;
     }
 }

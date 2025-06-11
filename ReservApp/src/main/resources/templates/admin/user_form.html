@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <!-- Dynamic Title -->
-    <title th:if="${isEdit}">Editar Usuario</title>
-    <title th:unless="${isEdit}">Crear Usuario</title>
+    <title th:if="${usuario.id == null}">Crear Usuario</title>
+    <title th:unless="${usuario.id == null}">Editar Usuario</title>
     <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
 </head>
 <body>
 <div class="container mt-5">
     <!-- Dynamic Heading -->
-    <h1 th:if="${isEdit}">Editar Usuario</h1>
-    <h1 th:unless="${isEdit}">Crear Nuevo Usuario</h1>
+    <h1 th:if="${usuario.id == null}">Nuevo Usuario</h1>
+    <h1 th:unless="${usuario.id == null}">Editar Usuario</h1>
 
     <!-- Flash messages for redirect -->
     <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -37,7 +37,7 @@
             <label for="id" class="form-label">Username (ID):</label>
             <!-- ID field: readonly if editing, required if new -->
             <input type="text" class="form-control" id="id" th:field="*{id}" 
-                   th:readonly="${isEdit}" th:required="${!isEdit}" />
+                   th:readonly="${usuario.id != null}" th:required="${usuario.id == null}" />
             <div th:if="${#fields.hasErrors('id')}" th:errors="*{id}" class="text-danger"></div>
         </div>
         <div class="mb-3">
@@ -58,9 +58,9 @@
         <div class="mb-3">
             <!-- Password field: not required if editing (empty means no change) -->
             <label for="password" class="form-label">Contraseña:</label>
-            <span th:if="${isEdit}" class="form-text d-block mb-2">(Dejar en blanco para no cambiar)</span>
+            <span th:if="${usuario.id != null}" class="form-text d-block mb-2">(Dejar en blanco para no cambiar)</span>
             <input type="password" class="form-control" id="password" th:field="*{password}" 
-                   th:required="${!isEdit}" /> <!-- Only required for new users -->
+                   th:required="${usuario.id == null}" /> <!-- Only required for new users -->
             <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger"></div>
         </div>
         <div class="mb-3">

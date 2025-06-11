@@ -54,6 +54,7 @@ public class EstablecimientoServiceImpl implements EstablecimientoService {
     @Override
     @Transactional
     public void deleteById(Integer id) {
+    	// TODO: Manejar excepciones si el establecimiento tiene reservas asociadas
         establecimientoRepo.deleteById(id);
     }
 }

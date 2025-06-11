@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"> <!-- Necesario para th:href con parámetros -->
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Listado de Establecimientos</title>
@@ -10,20 +10,20 @@
     <div class="container mt-5">
         <h1>Gestión de Establecimientos</h1>
 
+        <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${exito}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <p>
             <a th:href="@{/admin/establecimientos/nuevo}" class="btn btn-primary">Crear Nuevo Establecimiento</a>
         </p>
 
-        <div th:if="${param.exito}" class="alert alert-success alert-dismissible fade show" role="alert">
-            <span th:text="${param.exito}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <span th:text="${param.error}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-
-        <table th:if="${!establecimientos.isEmpty()}" class="table table-striped">
+		<table th:if="${!establecimientos.isEmpty()}" class="table table-striped">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -33,7 +33,10 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="est : ${establecimientos}">
+				<tr th:if="${#lists.isEmpty(establecimientos)}">
+					<td colspan="3" class="text-center">No hay establecimientos para mostrar.</td>
+				</tr>
+				<tr th:each="est : ${establecimientos}">
                     <td th:text="${est.id}">1</td>
                     <td th:text="${est.nombre}">Nombre del Establecimiento</td>
                     <td th:text="${est.descripcion}">Descripción del Establecimiento</td>
@@ -45,13 +48,10 @@
                 </tr>
             </tbody>
         </table>
-        <div class="mt-4"> <!-- Este div ya existe, solo para referencia contextual -->
-            <a th:href="@{/menuprincipal}" class="btn btn-info ms-2">Volver al Menú Principal</a>
+        <div class="mt-4">
+            <a th:href="@{/menuprincipal}" class="btn btn-secondary">Volver al Menú Principal</a>
         </div>
-        
-        <div th:if="${establecimientos.isEmpty()}">
-            <p>No hay establecimientos registrados.</p>
-        </div>
+
     </div>
     <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </body>

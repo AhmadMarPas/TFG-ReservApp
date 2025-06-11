@@ -16,7 +16,8 @@
                 <h1 class="card-title mb-4">Menú Principal</h1>
                 <div sec:authorize="hasRole('ADMIN')" class="mb-3">
                     <a href="/admin/usuarios" class="btn btn-info me-2">Gestión de Usuarios</a>
-                    <a href="/admin/establecimientos" class="btn btn-info">Gestión de Establecimientos</a>
+                    <a href="/admin/establecimientos" class="btn btn-info me-2">Gestión de Establecimientos</a>
+                    <a href="/admin/perfiles" class="btn btn-info me-2">Gestión de Perfiles</a>
                 </div>
                 <a href="/logout" class="btn btn-danger mt-4">Cerrar sesión</a>
             </div>

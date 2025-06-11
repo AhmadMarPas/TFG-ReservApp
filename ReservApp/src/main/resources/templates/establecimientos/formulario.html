@@ -109,24 +109,10 @@
             const inputs = filas[i].querySelectorAll('input, select');
             inputs.forEach(input => {
                 if (input.name) {
-                    // Esta regex ahora maneja tanto [REPLACE_INDEX] como índices numéricos (ej. [0], [1], etc.)
+                    // Esta regex maneja tanto [REPLACE_INDEX] como índices numéricos (ej. [0], [1], etc.)
                     input.name = input.name.replace(/\[(REPLACE_INDEX|\d+)\]/, '[' + i + ']');
                 }
-                // Para los campos generados por Thymeleaf que usan th:field, el name se maneja,
-                // pero si se clonan, el name puede ser incorrecto si no se actualiza.
-                // El id de th:field también se genera con índice, ej: franjasHorarias1.diaSemana
-                // y también podría necesitar una actualización similar si se usa para algo en JS.
-                // Por ahora, el problema principal es el 'name' para el binding.
                 if (input.id && input.id.includes('franjasHorarias')) {
-                     // Esta regex asume que los IDs también podrían tener REPLACE_INDEX o un número
-                     // ej: franjasHorariasREPLACE_INDEXdiaSemana o franjasHorarias0diaSemana
-                     // Pero los IDs generados por th:field son del tipo "franjasHorarias0.diaSemana" (con punto)
-                     // Si los IDs clonados de la plantilla no siguen este patrón exacto, esta parte podría necesitar ajuste.
-                     // Sin embargo, el error actual es por el 'name', no por el 'id'.
-                     // La plantilla usa name="franjasHorarias[REPLACE_INDEX].diaSemana", no th:field, así que no genera IDs automáticos con ese patrón.
-                     // Si los IDs de la plantilla se nombraran como "franjasHorarias[REPLACE_INDEX].diaSemana-id", la siguiente línea sería más robusta:
-                     // input.id = input.id.replace(/\[(REPLACE_INDEX|\d+)\]/, '[' + i + ']');
-                     // Por ahora, mantenemos la lógica original de reemplazo de ID si es necesaria.
                      input.id = input.id.replace(/franjasHorarias(REPLACE_INDEX|\d+)/, 'franjasHorarias' + i);
                 }
             });
@@ -141,7 +127,6 @@
     
     function agregarFranja() {
         const plantilla = document.getElementById('plantillaFranja');
-        // Mover la declaración de tablaCuerpo aquí para usarla antes
         const tablaCuerpo = document.getElementById('tablaFranjas').getElementsByTagName('tbody')[0]; 
         const nuevaFila = plantilla.cloneNode(true);
 
@@ -153,7 +138,6 @@
             if (campo.name) {
                 campo.name = campo.name.replace(/\[REPLACE_INDEX\]/g, '[' + nuevoIndice + ']');
             }
-            // Ejemplo de cómo se actualizarían los IDs si también usaran REPLACE_INDEX
              if (campo.id && campo.name.includes('franjasHorarias')) { // Asegurar que solo se afectan los IDs relevantes
                  campo.id = campo.id.replace(/REPLACE_INDEX/g, nuevoIndice);
              }

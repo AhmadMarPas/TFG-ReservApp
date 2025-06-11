@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title th:if="${perfil.id == null}">Nuevo Perfil</title>
+    <title th:unless="${perfil.id == null}">Editar Perfil</title>
+    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
+</head>
+<body>
+<div class="container mt-5">
+    <h1 th:if="${perfil.id == null}">Crear Nuevo Perfil</h1>
+    <h1 th:unless="${perfil.id == null}" th:text="'Editar Perfil: ' + ${perfil.nombre}"></h1>
+
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <form th:action="@{/admin/perfiles/guardar}" th:object="${perfil}" method="post" class="mt-4">
+        <!-- Campo oculto para el ID si es una edición -->
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre del Perfil:</label>
+            <input type="text" th:field="*{nombre}" class="form-control" id="nombre" placeholder="Ej: USUARIO, EDITOR" required autofocus />
+            <!-- Mostrar errores de validación para el campo 'nombre' -->
+            <div class="alert alert-warning mt-2" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}">
+                Error en el nombre
+            </div>
+        </div>
+        
+        <!-- Aquí se podrían añadir otros campos si la entidad Perfil los tuviera, 
+             o la gestión de permisos/menús asociados si se quisiera extender.
+             Por ahora, solo el nombre. -->
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Guardar Perfil</button>
+            <a th:href="@{/admin/perfiles/listado}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
