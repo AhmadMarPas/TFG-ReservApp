@@ -56,7 +56,33 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	@Size(max = 250)
 	@Column(name = "descripcion")
 	private String descripcion;
-	
+
+	@NotNull
+	@NotEmpty
+	@Column(name = "capacidad")
+	private Integer capacidad;
+
+	@Size(max = 80)
+	@Column(name = "tipo")
+	private String tipo;
+
+	@Size(max = 250)
+	@Column(name = "direccion")
+	private String direccion;
+
+	@Size(max = 20)
+	@Column(name = "telefono")
+	private String telefono;
+
+	@Size(max = 100)
+	@Column(name = "email")
+	private String email;
+
+	@NotNull
+	@NotEmpty
+	@Column(name = "activo")
+	private boolean activo = true;
+
 	/**
 	 * Lista de reservas que tiene el establecimiento.
 	 */
@@ -66,7 +92,7 @@ public class Establecimiento extends EntidadInfo<Integer> {
     /**
      * Lista de franjas horarias de apertura del establecimiento.
      */
-    @OneToMany(mappedBy = "establecimiento", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "establecimiento", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<FranjaHoraria> franjasHorarias = new ArrayList<>();
 
 
