@@ -1,5 +1,7 @@
 package es.ubu.reservapp.controller;
 
+import java.util.List;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,8 +17,10 @@ import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.service.UsuarioService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
+@Slf4j
 @RequestMapping("/admin")
 public class UserManagementController {
 	
@@ -39,7 +43,13 @@ public class UserManagementController {
 
     @GetMapping("/usuarios")
     public String listUsers(Model model) {
-        model.addAttribute("users", usuarioService.findAll());
+    	List<Usuario> users = usuarioService.findAll();
+    	long adminCount = users.stream().filter(Usuario::isAdministrador).count();
+    	long blockedCount = users.stream().filter(Usuario::isBloqueado).count();
+    	
+        model.addAttribute("users", users);
+        model.addAttribute("adminCount", adminCount);
+        model.addAttribute("blockedCount", blockedCount);
         return "admin/user_management";
     }
 
