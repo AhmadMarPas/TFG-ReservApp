@@ -58,7 +58,6 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	private String descripcion;
 
 	@NotNull
-	@NotEmpty
 	@Column(name = "capacidad")
 	private Integer capacidad;
 
@@ -78,8 +77,7 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	@Column(name = "email")
 	private String email;
 
-	@NotNull
-	@NotEmpty
+	@NotNull(message = "El campo 'activo' no puede ser nulo")
 	@Column(name = "activo")
 	private boolean activo = true;
 

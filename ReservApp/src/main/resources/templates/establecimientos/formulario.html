@@ -10,86 +10,83 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}" />
     <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            --info-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        }
-
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 20px;
         }
 
         .main-header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
         }
 
         .form-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
         .form-header {
-            background: var(--primary-gradient);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 2rem;
-            border-radius: 20px 20px 0 0;
+            padding: 30px;
             text-align: center;
         }
 
         .form-icon {
             font-size: 3rem;
-            margin-bottom: 1rem;
+            margin-bottom: 15px;
             opacity: 0.9;
         }
 
         .form-body {
-            padding: 2rem;
+            padding: 30px;
         }
 
         .form-section {
             background: #f8f9fa;
             border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            padding: 25px;
+            margin-bottom: 25px;
             border-left: 4px solid #667eea;
         }
 
         .section-title {
             color: #2c3e50;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
+            font-size: 1.2rem;
         }
 
         .section-title i {
-            margin-right: 0.5rem;
+            margin-right: 10px;
             color: #667eea;
         }
 
         .form-label {
             font-weight: 600;
             color: #2c3e50;
-            margin-bottom: 0.5rem;
+            margin-bottom: 8px;
+            display: block;
         }
 
         .form-control, .form-select {
             border: 2px solid #e9ecef;
             border-radius: 10px;
-            padding: 0.75rem 1rem;
+            padding: 12px 15px;
             transition: all 0.3s ease;
             background: white;
+            width: 100%;
         }
 
         .form-control:focus, .form-select:focus {
@@ -105,14 +102,107 @@
             border-radius: 10px 0 0 10px;
         }
 
-        .input-group .form-control {
+        .input-group .form-control,
+        .input-group .form-select {
             border-left: none;
             border-radius: 0 10px 10px 0;
         }
 
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .form-actions {
+            background: #f8f9fa;
+            padding: 25px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+        }
+
+        .btn-primary-custom:hover {
+            transform: scale(1.05);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary-custom {
+            background: #6c757d;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary-custom:hover {
+            transform: scale(1.05);
+            color: white;
+            background: #5a6268;
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+            font-size: 0.875rem;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            color: #6c757d;
+        }
+
+        .breadcrumb-item a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .breadcrumb-item a:hover {
+            text-decoration: underline;
+        }
+
         .form-check {
             background: white;
-            padding: 1rem;
+            padding: 15px;
             border-radius: 10px;
             border: 2px solid #e9ecef;
             transition: all 0.3s ease;
@@ -131,203 +221,32 @@
         .form-check-label {
             font-weight: 500;
             color: #2c3e50;
-            margin-left: 0.5rem;
-        }
-
-        /* Schedule Management Styles */
-        .schedule-container {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            border: 2px solid #e9ecef;
-        }
-
-        .schedule-header {
-            background: var(--info-gradient);
-            color: white;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        .day-schedule {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid #e9ecef;
-        }
-
-        .day-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .day-name {
-            font-weight: 600;
-            color: #2c3e50;
-            display: flex;
-            align-items: center;
-        }
-
-        .day-toggle {
-            margin-left: 1rem;
-        }
-
-        .time-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .time-input-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .time-input-group label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #6c757d;
-            margin-bottom: 0.25rem;
-        }
-
-        .time-input {
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .time-input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.1rem rgba(102, 126, 234, 0.25);
-        }
-
-        .alert {
-            border: none;
-            border-radius: 15px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .alert-danger {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            color: white;
-        }
-
-        .alert-success {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            color: white;
-        }
-
-        .text-danger {
-            color: #dc3545 !important;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-            font-weight: 500;
-        }
-
-        .btn-primary-custom {
-            background: var(--primary-gradient);
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 25px;
-            font-weight: 500;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary-custom:hover {
-            transform: scale(1.05);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary-custom {
-            background: #6c757d;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 25px;
-            font-weight: 500;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary-custom:hover {
-            transform: scale(1.05);
-            color: white;
-            background: #5a6268;
-        }
-
-        .breadcrumb {
-            background: transparent;
-            padding: 0;
-        }
-
-        .breadcrumb-item + .breadcrumb-item::before {
-            color: #6c757d;
-        }
-
-        .required-field::after {
-            content: " *";
-            color: #dc3545;
-            font-weight: bold;
-        }
-
-        .form-actions {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 0 0 20px 20px;
-            text-align: center;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .help-text {
-            background: #e3f2fd;
-            border: 1px solid #bbdefb;
-            border-radius: 10px;
-            padding: 0.75rem;
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
-            color: #1976d2;
+            margin-left: 8px;
         }
 
         @media (max-width: 768px) {
             .form-container {
-                margin: 1rem;
+                margin: 10px;
             }
             
             .form-header {
-                padding: 1.5rem;
+                padding: 20px;
             }
             
             .form-body {
-                padding: 1.5rem;
+                padding: 20px;
             }
             
             .form-section {
-                padding: 1rem;
-            }
-            
-            .time-inputs {
-                grid-template-columns: 1fr;
+                padding: 15px;
             }
         }
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="main-header py-3 mb-4">
-        <div class="container-fluid">
+    <div class="container">
+        <header class="main-header">
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h2 class="mb-0 text-primary">
@@ -335,7 +254,7 @@
                         <span th:if="${isEdit}">Editar Establecimiento</span>
                         <span th:unless="${isEdit}">Crear Nuevo Establecimiento</span>
                     </h2>
-                    <nav aria-label="breadcrumb">
+                    <nav aria-label="breadcrumb" class="mt-2">
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item"><a href="/menuprincipal">Menú Principal</a></li>
                             <li class="breadcrumb-item"><a href="/admin/establecimientos">Gestión de Establecimientos</a></li>
@@ -351,8 +270,8 @@
                     </a>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
+    </div>
 
     <!-- Main Content -->
     <div class="container">
@@ -383,7 +302,10 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
 
-                        <form th:action="@{/admin/establecimientos/guardar}" th:object="${establecimiento}" method="post" novalidate>
+                        <form id="establishmentForm" th:action="@{/admin/establecimientos/guardar}" th:object="${establecimiento}" method="post" novalidate>
+                            <!-- Hidden field for ID (required for updates) -->
+                            <input type="hidden" th:field="*{id}" th:if="${establecimiento.id != null}" />
+                            
                             <!-- Basic Information Section -->
                             <div class="form-section">
                                 <h4 class="section-title">
@@ -508,46 +430,19 @@
                                 </div>
                             </div>
 
-                            <!-- Schedule Section -->
-                            <div class="form-section">
-                                <h4 class="section-title">
-                                    <i class="fas fa-clock"></i>
-                                    Horarios de Atención
-                                </h4>
-                                
-                                <div class="schedule-container">
-                                    <div class="schedule-header">
-                                        <h5 class="mb-0">
-                                            <i class="fas fa-calendar-week me-2"></i>
-                                            Configurar Horarios por Día
-                                        </h5>
-                                        <small class="opacity-75">Define los horarios de apertura y cierre para cada día de la semana</small>
-                                    </div>
-
-                                    <div id="scheduleContainer">
-                                        <!-- Days will be generated by JavaScript -->
-                                    </div>
-
-                                    <div class="help-text">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Activa los días en los que el establecimiento estará abierto y define sus horarios correspondientes.
-                                    </div>
-                                </div>
+                            <!-- Form Actions -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary-custom">
+                                    <i class="fas fa-save me-1"></i>
+                                    <span th:if="${isEdit}">Actualizar Establecimiento</span>
+                                    <span th:unless="${isEdit}">Crear Establecimiento</span>
+                                </button>
+                                <a th:href="@{/admin/establecimientos}" class="btn btn-secondary-custom">
+                                    <i class="fas fa-times me-1"></i>
+                                    Cancelar
+                                </a>
                             </div>
                         </form>
-                    </div>
-
-                    <!-- Form Actions -->
-                    <div class="form-actions">
-                        <button type="submit" form="establishmentForm" class="btn btn-primary-custom me-3">
-                            <i class="fas fa-save me-1"></i>
-                            <span th:if="${isEdit}">Actualizar Establecimiento</span>
-                            <span th:unless="${isEdit}">Crear Establecimiento</span>
-                        </button>
-                        <a th:href="@{/admin/establecimientos}" class="btn btn-secondary-custom">
-                            <i class="fas fa-times me-1"></i>
-                            Cancelar
-                        </a>
                     </div>
                 </div>
             </div>
@@ -557,70 +452,6 @@
     <!-- Scripts -->
     <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <script>
-        // Add form id to the form element
-        document.querySelector('form').id = 'establishmentForm';
-        
-        // Days of the week
-        const daysOfWeek = [
-            { key: 'LUNES', name: 'Lunes', icon: 'fas fa-calendar-day' },
-            { key: 'MARTES', name: 'Martes', icon: 'fas fa-calendar-day' },
-            { key: 'MIERCOLES', name: 'Miércoles', icon: 'fas fa-calendar-day' },
-            { key: 'JUEVES', name: 'Jueves', icon: 'fas fa-calendar-day' },
-            { key: 'VIERNES', name: 'Viernes', icon: 'fas fa-calendar-day' },
-            { key: 'SABADO', name: 'Sábado', icon: 'fas fa-calendar-week' },
-            { key: 'DOMINGO', name: 'Domingo', icon: 'fas fa-calendar-week' }
-        ];
-
-        // Generate schedule interface
-        function generateScheduleInterface() {
-            const container = document.getElementById('scheduleContainer');
-            
-            daysOfWeek.forEach(day => {
-                const dayDiv = document.createElement('div');
-                dayDiv.className = 'day-schedule';
-                dayDiv.innerHTML = `
-                    <div class="day-header">
-                        <div class="day-name">
-                            <i class="${day.icon} me-2"></i>
-                            ${day.name}
-                        </div>
-                        <div class="form-check day-toggle">
-                            <input type="checkbox" class="form-check-input" id="day_${day.key}" 
-                                   onchange="toggleDaySchedule('${day.key}')">
-                            <label class="form-check-label" for="day_${day.key}">
-                                Abierto
-                            </label>
-                        </div>
-                    </div>
-                    <div class="time-inputs" id="times_${day.key}" style="display: none;">
-                        <div class="time-input-group">
-                            <label for="start_${day.key}">Hora de Apertura</label>
-                            <input type="time" class="time-input" id="start_${day.key}" 
-                                   name="horarios[${day.key}].inicio" value="09:00">
-                        </div>
-                        <div class="time-input-group">
-                            <label for="end_${day.key}">Hora de Cierre</label>
-                            <input type="time" class="time-input" id="end_${day.key}" 
-                                   name="horarios[${day.key}].fin" value="18:00">
-                        </div>
-                    </div>
-                `;
-                container.appendChild(dayDiv);
-            });
-        }
-
-        // Toggle day schedule visibility
-        function toggleDaySchedule(day) {
-            const checkbox = document.getElementById(`day_${day}`);
-            const timesDiv = document.getElementById(`times_${day}`);
-            
-            if (checkbox.checked) {
-                timesDiv.style.display = 'grid';
-            } else {
-                timesDiv.style.display = 'none';
-            }
-        }
-
         // Form validation
         document.getElementById('establishmentForm').addEventListener('submit', function(e) {
             const form = this;
@@ -638,11 +469,9 @@
 
             if (!isValid) {
                 e.preventDefault();
+                alert('Por favor, complete todos los campos obligatorios.');
             }
         });
-
-        // Initialize schedule interface
-        generateScheduleInterface();
     </script>
 </body>
 </html>
