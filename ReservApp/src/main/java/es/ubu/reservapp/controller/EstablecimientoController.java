@@ -84,8 +84,9 @@ public class EstablecimientoController {
      * @return el nombre de la vista del formulario.
      */
     @GetMapping("/nuevo")
-    public String mostrarFormularioNuevoEstablecimiento(Model model) {
+    public String mostrarFormularioNuevo(Model model) {
         model.addAttribute(ESTABLECIMIENTO, new Establecimiento());
+        model.addAttribute("isEdit", false);
         return REDIRECT_FORMULARIO;
     }
 
@@ -98,7 +99,7 @@ public class EstablecimientoController {
      * @return el nombre de la vista del formulario o una redirección si no se encuentra.
      */
     @GetMapping("/editar/{id}")
-    public String mostrarFormularioEditarEstablecimiento(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
+    public String mostrarFormularioEditar(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Establecimiento> establecimientoOptional = establecimientoService.findById(id);
 
         if (establecimientoOptional.isPresent()) {
@@ -121,13 +122,13 @@ public class EstablecimientoController {
      */
     @PostMapping("/guardar")
     public String guardarEstablecimiento(@Valid @ModelAttribute("establecimiento") Establecimiento establecimiento,
-                                         BindingResult bindingResult,
-                                         RedirectAttributes redirectAttributes,
-                                         Model model) {
-        if (bindingResult.hasErrors()) {
-            return REDIRECT_FORMULARIO;
-        }
-
+                                       BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+    	if (result.hasErrors()) {
+    		model.addAttribute("isEdit", establecimiento.getId() != null);
+    		model.addAttribute("error", "Por favor, corrija los errores en el formulario");
+    		return REDIRECT_FORMULARIO;
+    	}
+    	boolean isNewUser = establecimiento.getId() == null;
         try {
             if (establecimiento.getId() == null && establecimiento.getFranjasHorarias() == null) {
                 establecimiento.setFranjasHorarias(new ArrayList<>());
@@ -135,13 +136,14 @@ public class EstablecimientoController {
             for (FranjaHoraria franja : establecimiento.getFranjasHorarias()) {
                 franja.setEstablecimiento(establecimiento);
             }
-            
+
             establecimientoService.save(establecimiento);
-            redirectAttributes.addFlashAttribute("exito", "Establecimiento guardado correctamente.");
+            redirectAttributes.addFlashAttribute("exito", "Establecimiento " + (isNewUser ? "creado" : "actualizado") + " correctamente.");
             return REDIRECT_LISTADO;
+
         } catch (Exception e) {
-            log.error("Error al guardar establecimiento: {}", e.getMessage(), e); 
-            model.addAttribute(ESTABLECIMIENTO, establecimiento); 
+            model.addAttribute("isEdit", establecimiento.getId() != null);
+            model.addAttribute(ESTABLECIMIENTO, establecimiento);
             model.addAttribute("error", "Error al guardar el establecimiento: " + e.getMessage());
             return REDIRECT_FORMULARIO;
         }
