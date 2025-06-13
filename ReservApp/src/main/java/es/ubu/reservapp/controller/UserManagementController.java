@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserManagementController {
 	
 	private static final String ADMIN_USUARIOS = "redirect:/admin/usuarios";
-	private static final String ADMIN_USER = "admin/user_form";
+	private static final String ADMIN_FORM = "admin/user_form";
 
 	/** 
 	 * Servicio de usuario para gestionar operaciones relacionadas con usuarios.
@@ -57,7 +57,7 @@ public class UserManagementController {
     public String showCreateUserForm(Model model) {
         model.addAttribute("usuario", new Usuario());
         model.addAttribute("isEdit", false);
-        return ADMIN_USER;
+        return ADMIN_FORM;
     }
 
     @GetMapping("/usuarios/editar/{id}")
@@ -70,7 +70,7 @@ public class UserManagementController {
         usuario.setPassword(null); 
         model.addAttribute("usuario", usuario);
         model.addAttribute("isEdit", true);
-        return ADMIN_USER;
+        return ADMIN_FORM;
     }
 
     @PostMapping("/usuarios/guardar")
@@ -85,7 +85,7 @@ public class UserManagementController {
 			} else if (isNewUser && usuario.getId() == null && bindingResult.getErrorCount() == 1 && bindingResult.getFieldErrorCount("id") == 1) {
 			} else if (bindingResult.hasErrors()) {
 				model.addAttribute("isEdit", !isNewUser);
-				return ADMIN_USER;
+				return ADMIN_FORM;
 			}
 		}
 
@@ -111,7 +111,7 @@ public class UserManagementController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("isEdit", !isNewUser);
-            return ADMIN_USER;
+            return ADMIN_FORM;
         }
 
         if (isNewUser) {
