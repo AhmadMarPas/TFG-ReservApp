@@ -375,12 +375,14 @@
                                                class="btn btn-warning-custom btn-sm" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <button type="button" class="btn btn-danger-custom btn-sm" 
-                                                    th:onclick="'confirmDelete(' + ${perfil.id} + ', \'' + ${perfil.nombre} + '\')'"
-                                                    title="Eliminar">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
+
+											<button type="button" class="btn btn-danger-custom btn-sm"
+												data-id="${perfil.id}" data-nombre="${perfil.nombre}"
+												onclick="handleDelete(this)" title="Eliminar">
+												<i class="fas fa-trash"></i>
+											</button>
+
+										</div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -470,6 +472,14 @@
             const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
             deleteModal.show();
         }
+        
+
+        function handleDelete(button) {
+            const perfilId = button.getAttribute('data-id');
+            const perfilName = button.getAttribute('data-nombre');
+            confirmDelete(perfilId, perfilName);
+        }
+
     </script>
 </body>
 </html>
