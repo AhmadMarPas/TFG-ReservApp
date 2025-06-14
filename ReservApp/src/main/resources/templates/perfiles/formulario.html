@@ -1,370 +1,214 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Dynamic Title -->
-    <title th:if="${isEdit}">ReservApp - Editar Perfil</title>
-    <title th:unless="${isEdit}">ReservApp - Crear Perfil</title>
+    <title th:text="${perfil != null && perfil.id != null ? 'ReservApp - Editar Perfil' : 'ReservApp - Crear Perfil'}">Formulario Perfil</title>
     <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" th:href="@{/css/style.css}" />
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-top: 20px;
-        }
-
+        /* Shared styles from _header.html or main style.css would ideally handle .main-header */
         .main-header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            padding: 20px;
         }
-
-        .form-container {
+        .menu-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            margin-top: 2rem;
+            margin-bottom: 2rem; /* Added margin at bottom */
         }
-
-        .form-header {
+        .menu-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px;
+            padding: 2rem;
+            border-radius: 20px 20px 0 0;
             text-align: center;
+            position: relative; 
         }
-
-        .form-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            opacity: 0.9;
+         .menu-header .btn-outline-light { /* Specific styling for buttons in menu-header */
+            position: absolute;
+            top: 50%;
+            right: 1.5rem;
+            transform: translateY(-50%);
+            color: white;
+            border-color: rgba(255,255,255,0.75);
         }
-
-        .form-body {
-            padding: 30px;
+        .menu-header .btn-outline-light:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
         }
-
-        .form-section {
+        .menu-body {
+            padding: 2rem;
+        }
+        .form-section { /* Copied from original for consistency within this form */
             background: #f8f9fa;
             border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 25px;
+            padding: 1.5rem; /* Adjusted padding */
+            margin-bottom: 1.5rem; /* Adjusted margin */
             border-left: 4px solid #667eea;
         }
-
-        .section-title {
+        .section-title { /* Copied from original */
             color: #2c3e50;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 1rem; /* Adjusted margin */
             display: flex;
             align-items: center;
-            font-size: 1.2rem;
+            font-size: 1.1rem; /* Adjusted font size */
         }
-
         .section-title i {
-            margin-right: 10px;
+            margin-right: 0.75rem; /* Adjusted margin */
             color: #667eea;
         }
-
-        .form-label {
+        .form-label { /* Using Bootstrap's form-label where possible, this is for customization */
             font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
-            display: block;
         }
-
-        .form-control, .form-select {
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 12px 15px;
-            transition: all 0.3s ease;
-            background: white;
-            width: 100%;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-            background: white;
-        }
-
-        .input-group-text {
-            background: #667eea;
-            color: white;
-            border: 2px solid #667eea;
-            border-radius: 10px 0 0 10px;
-        }
-
-        .input-group .form-control,
-        .input-group .form-select {
-            border-left: none;
-            border-radius: 0 10px 10px 0;
-        }
-
-        .required-field::after {
+        .required-field::after { /* Copied from original */
             content: " *";
             color: #dc3545;
             font-weight: bold;
         }
-
-        .form-actions {
-            background: #f8f9fa;
-            padding: 25px;
-            text-align: center;
+        /* Ensure buttons in form-actions are well-styled */
+        .form-actions { 
+            text-align: center; 
+            padding-top: 1.5rem; 
             border-top: 1px solid #e9ecef;
+            margin-top: 1.5rem;
         }
 
-        .btn-primary-custom {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: 500;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-            margin-right: 15px;
-        }
-
-        .btn-primary-custom:hover {
-            transform: scale(1.05);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary-custom {
-            background: #6c757d;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: 500;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary-custom:hover {
-            transform: scale(1.05);
-            color: white;
-            background: #5a6268;
-        }
-
-        .text-danger {
-            color: #dc3545 !important;
-            font-size: 0.875rem;
-            margin-top: 5px;
-            font-weight: 500;
-        }
-
-        .alert {
-            border: none;
-            border-radius: 15px;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-        }
-
-        .alert-danger {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            color: white;
-        }
-
-        .alert-success {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            color: white;
-        }
-
-        .breadcrumb {
-            background: transparent;
-            padding: 0;
-        }
-
-        .breadcrumb-item + .breadcrumb-item::before {
-            color: #6c757d;
-        }
-
-        .breadcrumb-item a {
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .breadcrumb-item a:hover {
-            text-decoration: underline;
-        }
-
-        .form-check {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-            transition: all 0.3s ease;
-        }
-
-        .form-check:hover {
-            border-color: #667eea;
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
-        }
-
-        .form-check-input:checked {
-            background-color: #667eea;
-            border-color: #667eea;
-        }
-
-        .form-check-label {
-            font-weight: 500;
-            color: #2c3e50;
-            margin-left: 8px;
-        }
-
-        @media (max-width: 768px) {
-            .form-container {
-                margin: 10px;
+        @media (max-width: 767px) {
+            .menu-header .btn-outline-light {
+                position: static;
+                transform: none;
+                display: block;
+                margin: 1rem auto 0;
             }
-            
-            .form-header {
-                padding: 20px;
-            }
-            
-            .form-body {
-                padding: 20px;
-            }
-            
-            .form-section {
-                padding: 15px;
-            }
+            .menu-header { padding: 1.5rem; }
+            .menu-body { padding: 1.5rem; }
+            .form-section { padding: 1rem; }
         }
     </style>
 </head>
-<body>
-    <!-- Header -->
-    <div class="container">
-        <header class="main-header">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h2 class="mb-0 text-primary">
-                        <i class="fas fa-user-tag me-2"></i>
-                        <span th:if="${isEdit}">Editar Perfil</span>
-                        <span th:unless="${isEdit}">Crear Nuevo Perfil</span>
-                    </h2>
-                    <nav aria-label="breadcrumb" class="mt-2">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="/menuprincipal">Menú Principal</a></li>
-                            <li class="breadcrumb-item"><a href="/admin/perfiles">Gestión de Perfiles</a></li>
-                            <li class="breadcrumb-item active" th:if="${isEdit}">Editar Perfil</li>
-                            <li class="breadcrumb-item active" th:unless="${isEdit}">Nuevo Perfil</li>
-                        </ol>
-                    </nav>
-                </div>
-                <div class="col-md-4 text-end">
-                    <a th:href="@{/admin/perfiles}" class="btn btn-secondary-custom">
-                        <i class="fas fa-arrow-left me-1"></i>
-                        Volver a la Lista
-                    </a>
-                </div>
+<body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+    <div th:replace="~{fragments/_header :: header}"></div>
+
+    <div class="container mt-4">
+        <div class="menu-container">
+            <div class="menu-header">
+                <h1 class="mb-0" th:text="${perfil != null && perfil.id != null ? 'Editar Perfil' : 'Crear Nuevo Perfil'}">Formulario Perfil</h1>
+                <a th:href="@{/admin/perfiles}" class="btn btn-sm btn-outline-light"> <!-- Adjusted path to /perfiles -->
+                    <i class="fas fa-arrow-left me-1"></i>Volver al Listado
+                </a>
             </div>
-        </header>
-    </div>
-
-    <!-- Main Content -->
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="form-container">
-                    <!-- Form Header -->
-                    <div class="form-header">
-                        <i class="fas fa-user-tag form-icon" th:unless="${isEdit}"></i>
-                        <i class="fas fa-edit form-icon" th:if="${isEdit}"></i>
-                        <h1 class="mb-0" th:if="${isEdit}">Editar Perfil</h1>
-                        <h1 class="mb-0" th:unless="${isEdit}">Crear Nuevo Perfil</h1>
-                        <p class="mb-0 mt-2 opacity-75" th:if="${isEdit}">Modifica la información del perfil seleccionado</p>
-                        <p class="mb-0 mt-2 opacity-75" th:unless="${isEdit}">Completa el formulario para añadir un nuevo perfil</p>
-                    </div>
-
-                    <!-- Form Body -->
-                    <div class="form-body">
-                        <!-- Flash messages -->
-                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <span th:text="${error}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="fas fa-check-circle me-2"></i>
-                            <span th:text="${success}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-
-                        <form id="perfilForm" th:action="@{/admin/perfiles/guardar}" th:object="${perfil}" method="post" novalidate>
-                            <!-- Hidden field for ID (required for updates) -->
-                            <input type="hidden" th:field="*{id}" th:if="${perfil.id != null}" />
-                            
-                            <!-- Basic Information Section -->
-                            <div class="form-section">
-                                <h4 class="section-title">
-                                    <i class="fas fa-info-circle"></i>
-                                    Información del Perfil
-                                </h4>
-                                
-                                <div class="mb-3">
-                                    <label for="nombre" class="form-label required-field">Nombre del Perfil</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">
-                                            <i class="fas fa-user-tag"></i>
-                                        </span>
-                                        <input type="text" class="form-control" id="nombre" th:field="*{nombre}" 
-                                               required="required" placeholder="Nombre del perfil" />
-                                    </div>
-                                    <div th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" class="text-danger"></div>
-                                </div>
-
-                            <!-- Form Actions -->
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary-custom">
-                                    <i class="fas fa-save me-1"></i>
-                                    <span th:if="${isEdit}">Actualizar Perfil</span>
-                                    <span th:unless="${isEdit}">Crear Perfil</span>
-                                </button>
-                                <a th:href="@{/admin/perfiles}" class="btn btn-secondary-custom">
-                                    <i class="fas fa-times me-1"></i>
-                                    Cancelar
-                                </a>
-                            </div>
-                        </form>
-                    </div>
+            <div class="menu-body">
+                <!-- Flash messages -->
+                <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${param.error[0]}">Error</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
+                <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${param.success[0]}">Éxito</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <form id="perfilForm" th:action="@{/admin/perfiles/guardar}" th:object="${perfil}" method="post" novalidate>
+                    <!-- Hidden field for ID if editing -->
+                    <input type="hidden" th:field="*{id}" th:if="${perfil != null && perfil.id != null}" />
+                    
+                    <div class="form-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Información del Perfil
+                        </h4>
+                        
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label required-field">Nombre del Perfil</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
+                                <input type="text" class="form-control" id="nombre" th:field="*{nombre}" 
+                                       required placeholder="Ej: Cliente frecuente, VIP, Estándar" />
+                            </div>
+                            <div th:if="${#fields.hasErrors('nombre')}" class="text-danger mt-1" th:errors="*{nombre}"></div>
+                        </div>
+
+                         <!-- Asignación de Usuario -->
+                        <div class="mb-3" th:if="${isAdmin}"> <!-- Solo mostrar si es admin -->
+                            <label for="usuario" class="form-label">Asignar a Usuario (Opcional)</label>
+                            <select id="usuario" name="usuarioId" class="form-select"> <!-- Changed to name="usuarioId" -->
+                                <option value="">-- No asignar / Mantener actual --</option>
+                                <option th:each="u : ${availableUsers}"
+                                        th:value="${u.id}"
+                                        th:text="${u.nombre + ' ' + u.apellidos + ' (' + u.id + ')'}"
+                                        th:selected="${perfil != null && perfil.usuario != null && perfil.usuario.id == u.id}"></option>
+                            </select>
+                             <small class="form-text text-muted">Si no seleccionas un usuario, el perfil será gestionado por ti (o no tendrá un usuario específico si eres administrador y no lo asignas).</small>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            <span th:text="${perfil != null && perfil.id != null ? 'Actualizar Perfil' : 'Crear Perfil'}">Guardar</span>
+                        </button>
+                        <a th:href="@{/admin/perfiles}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <script>
-        // Form validation
-        document.getElementById('perfilForm').addEventListener('submit', function(e) {
-            const form = this;
-            const requiredInputs = form.querySelectorAll('input[required], select[required], textarea[required]');
-            let isValid = true;
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('perfilForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const requiredInputs = form.querySelectorAll('[required]');
+                    let isValid = true;
+                    requiredInputs.forEach(input => {
+                        if (!input.value.trim()) {
+                            input.classList.add('is-invalid');
+                            isValid = false;
+                        } else {
+                            input.classList.remove('is-invalid');
+                            input.classList.add('is-valid');
+                        }
+                    });
+                    if (!isValid) {
+                        e.preventDefault();
+                        // Optionally, focus the first invalid input or show a general message
+                        const firstInvalid = form.querySelector('.is-invalid');
+                        if(firstInvalid) firstInvalid.focus();
+                    }
+                });
 
-            requiredInputs.forEach(input => {
-                if (!input.value.trim()) {
-                    input.classList.add('is-invalid');
-                    isValid = false;
-                } else {
-                    input.classList.remove('is-invalid');
-                }
-            });
-
-            if (!isValid) {
-                e.preventDefault();
-                alert('Por favor, complete todos los campos obligatorios.');
+                // Real-time validation feedback
+                form.querySelectorAll('[required]').forEach(input => {
+                    input.addEventListener('blur', function() {
+                        if (!this.value.trim()) {
+                            this.classList.add('is-invalid');
+                        } else {
+                            this.classList.remove('is-invalid');
+                            this.classList.add('is-valid');
+                        }
+                    });
+                    input.addEventListener('input', function() {
+                        if (this.classList.contains('is-invalid') && this.value.trim()) {
+                            this.classList.remove('is-invalid');
+                        }
+                    });
+                });
             }
         });
     </script>

@@ -47,7 +47,7 @@ public class UserManagementController {
     	long adminCount = users.stream().filter(Usuario::isAdministrador).count();
     	long blockedCount = users.stream().filter(Usuario::isBloqueado).count();
     	
-        model.addAttribute("users", users);
+        model.addAttribute("usuarios", users);
         model.addAttribute("adminCount", adminCount);
         model.addAttribute("blockedCount", blockedCount);
         return "admin/user_management";

@@ -1,21 +1,74 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:layout:decorator="http://www.ultraq.net.nz/thymeleaf/layout/decorator"
-      xmlns:layout:fragment="http://www.ultraq.net.nz/thymeleaf/layout/fragment">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Error</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error de Inicio de Sesión - ReservApp</title>
     <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        .error-card {
+            background: rgba(255, 255, 255, 0.95); /* Consistent with login/menu cards */
+            backdrop-filter: blur(10px);
+            border-radius: 20px; /* Consistent radius */
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            max-width: 500px; 
+            text-align: center;
+            color: #343a40; /* Darker text for readability on light card */
+        }
+        .error-icon {
+            font-size: 3.5rem; /* Larger icon */
+            color: #dc3545; /* Bootstrap danger color */
+            margin-bottom: 1.5rem; /* More space below icon */
+        }
+        .error-card h2 {
+            color: #dc3545; /* Danger color for title */
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .error-card .lead {
+            font-size: 1.1rem;
+            color: #495057; /* Softer text color */
+            margin-bottom: 1.5rem;
+        }
+        .error-card p {
+            color: #6c757d; /* Standard muted text color */
+            margin-bottom: 1.5rem;
+        }
+        .error-card .btn {
+            margin-top: 0.5rem; /* Space between buttons if they wrap */
+            padding: 0.6rem 1.2rem; /* Consistent button padding */
+            font-weight: 500;
+            border-radius: 50px; /* Pill buttons */
+        }
+        .error-card .btn-primary {
+             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             border: none;
+        }
+         .error-card .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+        }
+    </style>
 </head>
-<body>
-	<div>
-        <p>Error de credenciales <a th:href="@{/login}">Volver al login</a></p>
+<body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="error-card">
+        <i class="fas fa-exclamation-triangle error-icon"></i>
+        <h2>Error de Autenticación</h2>
+        <p class="lead">No hemos podido verificar tus credenciales.</p>
+        <p>Por favor, asegúrate de que tu nombre de usuario y contraseña son correctos e inténtalo de nuevo.</p>
+        <hr class="my-4">
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a th:href="@{/login}" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt me-2"></i>Volver al Login
+            </a>
+            <a th:href="@{/inicio}" class="btn btn-secondary">
+                <i class="fas fa-home me-2"></i>Ir a Inicio
+            </a>
+        </div>
     </div>
-
-	<div>
-		<p>¿No tienes una cuenta? <a th:href="@{/registro}">Regístrate aquí</a></p>
-	</div>
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
