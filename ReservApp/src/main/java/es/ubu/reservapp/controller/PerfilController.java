@@ -62,7 +62,9 @@ public class PerfilController {
     public String listarPerfiles(Model model) {
         try {
             List<Perfil> perfiles = perfilService.findAll();
+            long perfilActivoCount = perfiles.stream().filter(Perfil::getValido).count();
             model.addAttribute("perfiles", perfiles);
+            model.addAttribute("perfilActivoCount", perfilActivoCount);
             return LISTADO_VIEW;
         } catch (Exception e) {
             model.addAttribute("error", "Error al cargar la lista de perfiles: " + e.getMessage());
