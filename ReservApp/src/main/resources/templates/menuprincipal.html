@@ -1,9 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:layout:decorator="http://www.ultraq.net.nz/thymeleaf/layout/decorator"
-      xmlns:layout:fragment="http://www.ultraq.net.nz/thymeleaf/layout/fragment"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,14 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}" />
     <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        }
-
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
@@ -33,12 +21,25 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .welcome-card {
+        .menu-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .menu-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+
+        .menu-body {
+            padding: 2rem;
         }
 
         .menu-section {
@@ -48,124 +49,108 @@
         .section-title {
             color: #2c3e50;
             font-weight: 600;
-            margin-bottom: 1.5rem;
-            position: relative;
-            padding-left: 20px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
         }
 
-        .section-title::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 4px;
-            height: 24px;
-            background: var(--primary-gradient);
-            border-radius: 2px;
+        .section-title i {
+            margin-right: 0.5rem;
+            color: #667eea;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
         }
 
         .menu-card {
             background: white;
-            border: none;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            text-align: center;
             transition: all 0.3s ease;
-            height: 100%;
-            overflow: hidden;
+            border: 2px solid #e9ecef;
+            text-decoration: none;
+            color: inherit;
         }
 
         .menu-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .menu-card-header {
-            padding: 1.5rem;
-            text-align: center;
-            color: white;
-            position: relative;
-        }
-
-        .admin-header {
-            background: var(--primary-gradient);
-        }
-
-        .user-header {
-            background: var(--success-gradient);
-        }
-
-        .reservations-header {
-            background: var(--secondary-gradient);
-        }
-
-        .reports-header {
-            background: var(--warning-gradient);
+            border-color: #667eea;
+            text-decoration: none;
+            color: inherit;
         }
 
         .menu-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            display: block;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #667eea;
         }
 
-        .menu-card-body {
-            padding: 1.5rem;
-        }
-
-        .menu-btn {
-            width: 100%;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 10px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-            transition: all 0.3s ease;
+        .menu-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
             margin-bottom: 0.5rem;
         }
 
-        .btn-admin {
-            background: var(--primary-gradient);
-            color: white;
+        .menu-description {
+            color: #6c757d;
+            font-size: 0.9rem;
         }
 
-        .btn-admin:hover {
-            transform: scale(1.02);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        .admin-section .menu-card {
+            border-color: #dc3545;
         }
 
-        .btn-user {
-            background: var(--success-gradient);
-            color: white;
+        .admin-section .menu-card:hover {
+            border-color: #dc3545;
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.15);
         }
 
-        .btn-user:hover {
-            transform: scale(1.02);
-            color: white;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        .admin-section .menu-icon {
+            color: #dc3545;
         }
 
-        .btn-reservation {
-            background: var(--secondary-gradient);
-            color: white;
+        .user-section .menu-card {
+            border-color: #28a745;
         }
 
-        .btn-reservation:hover {
-            transform: scale(1.02);
-            color: white;
-            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+        .user-section .menu-card:hover {
+            border-color: #28a745;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.15);
+        }
+
+        .user-section .menu-icon {
+            color: #28a745;
+        }
+
+        .profile-section .menu-card {
+            border-color: #17a2b8;
+        }
+
+        .profile-section .menu-card:hover {
+            border-color: #17a2b8;
+            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.15);
+        }
+
+        .profile-section .menu-icon {
+            color: #17a2b8;
         }
 
         .btn-logout {
-            background: var(--danger-gradient);
-            color: white;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
             border: none;
             padding: 0.75rem 2rem;
             border-radius: 25px;
             font-weight: 500;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
             transition: all 0.3s ease;
         }
 
@@ -175,55 +160,41 @@
             box-shadow: 0 4px 15px rgba(250, 112, 154, 0.4);
         }
 
-        .user-info {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 0.5rem 1rem;
-            color: white;
-        }
-
-        .breadcrumb {
-            background: transparent;
-            padding: 0;
-        }
-
-        .breadcrumb-item + .breadcrumb-item::before {
-            color: #6c757d;
-        }
-
         @media (max-width: 768px) {
-            .menu-card {
-                margin-bottom: 1rem;
+            .menu-container {
+                margin: 1rem;
             }
             
-            .main-header .container-fluid {
-                padding: 0.5rem 1rem;
+            .menu-header {
+                padding: 1.5rem;
+            }
+            
+            .menu-body {
+                padding: 1.5rem;
+            }
+            
+            .menu-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="main-header py-3 mb-4">
+    <header class="main-header py-3">
         <div class="container-fluid">
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <h2 class="mb-0 text-primary">
-                        <i class="fas fa-calendar-check me-2"></i>
-                        ReservApp
+                        <i class="fas fa-home me-2"></i>
+                        ReservApp - Panel Principal
                     </h2>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
-                            <li class="breadcrumb-item active">Menú Principal</li>
-                        </ol>
-                    </nav>
                 </div>
                 <div class="col-md-6 text-end">
-                    <div class="user-info d-inline-block me-3">
+                    <span class="me-3">
                         <i class="fas fa-user me-1"></i>
-                        <span sec:authentication="name">Usuario</span>
-                    </div>
+                        Bienvenido, <strong sec:authentication="name">Usuario</strong>
+                    </span>
                     <a href="/logout" class="btn btn-logout">
                         <i class="fas fa-sign-out-alt me-1"></i>
                         Cerrar Sesión
@@ -235,154 +206,103 @@
 
     <!-- Main Content -->
     <div class="container">
-        <div class="welcome-card p-4 mb-4">
-            <div class="text-center mb-4">
-                <h1 class="display-6 text-primary mb-2">
-                    <i class="fas fa-home me-2"></i>
-                    Bienvenido al Panel Principal
-                </h1>
-                <p class="lead text-muted">Selecciona una opción para comenzar a gestionar tu aplicación</p>
+        <div class="menu-container">
+            <!-- Menu Header -->
+            <div class="menu-header">
+                <i class="fas fa-tachometer-alt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.9;"></i>
+                <h1 class="mb-0">Panel de Control</h1>
+                <p class="mb-0 mt-2 opacity-75">Selecciona una opción para continuar</p>
             </div>
 
-            <div class="row">
-                <!-- Administración -->
-                <div sec:authorize="hasRole('ADMIN')" class="col-12">
-                    <div class="menu-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-cog me-2"></i>
-                            Administración
-                        </h3>
-                        <div class="row">
-                            <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="card menu-card">
-                                    <div class="menu-card-header admin-header">
-                                        <i class="fas fa-users menu-icon"></i>
-                                        <h5 class="mb-0">Usuarios</h5>
-                                    </div>
-                                    <div class="menu-card-body">
-                                        <p class="text-muted mb-3">Gestiona usuarios, permisos y roles del sistema</p>
-                                        <a href="/admin/usuarios" class="menu-btn btn-admin">
-                                            <i class="fas fa-user-cog me-1"></i>
-                                            Gestionar Usuarios
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="card menu-card">
-                                    <div class="menu-card-header admin-header">
-                                        <i class="fas fa-building menu-icon"></i>
-                                        <h5 class="mb-0">Establecimientos</h5>
-                                    </div>
-                                    <div class="menu-card-body">
-                                        <p class="text-muted mb-3">Administra establecimientos y sus configuraciones</p>
-                                        <a href="/admin/establecimientos" class="menu-btn btn-admin">
-                                            <i class="fas fa-store me-1"></i>
-                                            Gestionar Establecimientos
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Menu Body -->
+            <div class="menu-body">
+                <!-- Sección de Usuario -->
+                <div class="menu-section user-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Área de Usuario
+                    </h3>
+                    <div class="menu-grid">
+                        <a href="/perfiles" class="menu-card">
+                            <i class="fas fa-user-tag menu-icon"></i>
+                            <div class="menu-title">Mis Perfiles</div>
+                            <div class="menu-description">Gestiona tus perfiles personales</div>
+                        </a>
+                        <a href="/establecimientos" class="menu-card">
+                            <i class="fas fa-building menu-icon"></i>
+                            <div class="menu-title">Establecimientos</div>
+                            <div class="menu-description">Explora establecimientos disponibles</div>
+                        </a>
+                        <a href="/reservas" class="menu-card">
+                            <i class="fas fa-calendar-check menu-icon"></i>
+                            <div class="menu-title">Mis Reservas</div>
+                            <div class="menu-description">Consulta y gestiona tus reservas</div>
+                        </a>
                     </div>
                 </div>
 
-                <!-- Gestión de Reservas -->
-                <div class="col-12">
-                    <div class="menu-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-calendar-alt me-2"></i>
-                            Gestión de Reservas
-                        </h3>
-                        <div class="row">
-                            <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="card menu-card">
-                                    <div class="menu-card-header reservations-header">
-                                        <i class="fas fa-calendar-plus menu-icon"></i>
-                                        <h5 class="mb-0">Nueva Reserva</h5>
-                                    </div>
-                                    <div class="menu-card-body">
-                                        <p class="text-muted mb-3">Crear una nueva reserva en el sistema</p>
-                                        <a href="/reservas/nueva" class="menu-btn btn-reservation">
-                                            <i class="fas fa-plus me-1"></i>
-                                            Crear Reserva
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="card menu-card">
-                                    <div class="menu-card-header reservations-header">
-                                        <i class="fas fa-list menu-icon"></i>
-                                        <h5 class="mb-0">Mis Reservas</h5>
-                                    </div>
-                                    <div class="menu-card-body">
-                                        <p class="text-muted mb-3">Ver y gestionar tus reservas existentes</p>
-                                        <a href="/reservas/mis-reservas" class="menu-btn btn-reservation">
-                                            <i class="fas fa-eye me-1"></i>
-                                            Ver Reservas
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="card menu-card">
-                                    <div class="menu-card-header reservations-header">
-                                        <i class="fas fa-search menu-icon"></i>
-                                        <h5 class="mb-0">Buscar Reservas</h5>
-                                    </div>
-                                    <div class="menu-card-body">
-                                        <p class="text-muted mb-3">Buscar reservas por fecha, establecimiento o usuario</p>
-                                        <a href="/reservas/buscar" class="menu-btn btn-reservation">
-                                            <i class="fas fa-search me-1"></i>
-                                            Buscar
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Sección de Administración (solo para administradores) -->
+                <div class="menu-section admin-section" sec:authorize="hasAuthority('ADMIN')">
+                    <h3 class="section-title">
+                        <i class="fas fa-cogs"></i>
+                        Panel de Administración
+                    </h3>
+                    <div class="menu-grid">
+                        <a href="/admin/usuarios" class="menu-card">
+                            <i class="fas fa-users-cog menu-icon"></i>
+                            <div class="menu-title">Gestión de Usuarios</div>
+                            <div class="menu-description">Administrar cuentas de usuario del sistema</div>
+                        </a>
+                        <a href="/admin/establecimientos" class="menu-card">
+                            <i class="fas fa-store menu-icon"></i>
+                            <div class="menu-title">Gestión de Establecimientos</div>
+                            <div class="menu-description">Administrar establecimientos del sistema</div>
+                        </a>
+                        <a href="/admin/perfiles" class="menu-card">
+                            <i class="fas fa-user-tag menu-icon"></i>
+                            <div class="menu-title">Gestión de Perfiles</div>
+                            <div class="menu-description">Administrar perfiles del sistema</div>
+                        </a>
+                        <a href="/admin/reservas" class="menu-card">
+                            <i class="fas fa-calendar-alt menu-icon"></i>
+                            <div class="menu-title">Gestión de Reservas</div>
+                            <div class="menu-description">Administrar todas las reservas del sistema</div>
+                        </a>
+                        <a href="/admin/reportes" class="menu-card">
+                            <i class="fas fa-chart-bar menu-icon"></i>
+                            <div class="menu-title">Reportes y Estadísticas</div>
+                            <div class="menu-description">Ver estadísticas y generar reportes</div>
+                        </a>
+                        <a href="/admin/configuracion" class="menu-card">
+                            <i class="fas fa-cog menu-icon"></i>
+                            <div class="menu-title">Configuración del Sistema</div>
+                            <div class="menu-description">Configurar parámetros del sistema</div>
+                        </a>
                     </div>
                 </div>
 
-                <!-- Perfil de Usuario -->
-                <div class="col-12">
-                    <div class="menu-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-user me-2"></i>
-                            Mi Perfil
-                        </h3>
-                        <div class="row">
-                            <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="card menu-card">
-                                    <div class="menu-card-header user-header">
-                                        <i class="fas fa-user-edit menu-icon"></i>
-                                        <h5 class="mb-0">Editar Perfil</h5>
-                                    </div>
-                                    <div class="menu-card-body">
-                                        <p class="text-muted mb-3">Actualiza tu información personal</p>
-                                        <a href="/perfil/editar" class="menu-btn btn-user">
-                                            <i class="fas fa-edit me-1"></i>
-                                            Editar Perfil
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="card menu-card">
-                                    <div class="menu-card-header user-header">
-                                        <i class="fas fa-key menu-icon"></i>
-                                        <h5 class="mb-0">Cambiar Contraseña</h5>
-                                    </div>
-                                    <div class="menu-card-body">
-                                        <p class="text-muted mb-3">Modifica tu contraseña de acceso</p>
-                                        <a href="/perfil/cambiar-password" class="menu-btn btn-user">
-                                            <i class="fas fa-lock me-1"></i>
-                                            Cambiar Contraseña
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Sección de Perfil Personal -->
+                <div class="menu-section profile-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-user-circle"></i>
+                        Mi Cuenta
+                    </h3>
+                    <div class="menu-grid">
+                        <a href="/perfil" class="menu-card">
+                            <i class="fas fa-user-edit menu-icon"></i>
+                            <div class="menu-title">Editar Perfil</div>
+                            <div class="menu-description">Actualiza tu información personal</div>
+                        </a>
+                        <a href="/configuracion" class="menu-card">
+                            <i class="fas fa-sliders-h menu-icon"></i>
+                            <div class="menu-title">Configuración</div>
+                            <div class="menu-description">Ajusta tus preferencias</div>
+                        </a>
+                        <a href="/ayuda" class="menu-card">
+                            <i class="fas fa-question-circle menu-icon"></i>
+                            <div class="menu-title">Ayuda y Soporte</div>
+                            <div class="menu-description">Obtén ayuda y soporte técnico</div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -391,20 +311,5 @@
 
     <!-- Scripts -->
     <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
-    <script>
-        // Añadir efectos de animación al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.menu-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                setTimeout(() => {
-                    card.style.transition = 'all 0.5s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-        });
-    </script>
 </body>
 </html>
