@@ -3,9 +3,16 @@ package es.ubu.reservapp.model.entities;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -28,6 +35,10 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @MappedSuperclass
 @EntityListeners(value = EntidadInfoInterceptor.class)
+@SQLDelete(sql = "UPDATE #{#entityName} SET valido = false WHERE id = ?")
+//@SQLRestriction("valido = true")
+//@Where(clause = "valido = true")
+@SoftDelete(strategy = SoftDeleteType.ACTIVE, columnName = "valido")
 public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
 
     /**
@@ -36,10 +47,17 @@ public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
     private static final long serialVersionUID = 1L;
 
     /**
+     * orden
+     */
+    @Column(name = "ORDEN")
+    private Integer orden;
+
+    /**
      * valido
      */
-    @Column(name = "VALIDO")
-    private Boolean valido = true;
+//	@NotNull(message = "El campo 'valido' no puede ser nulo")
+//    @Column(name = "VALIDO")
+//    private Boolean valido = true;
 
     /**
      * usuarioModReg
@@ -64,11 +82,5 @@ public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
      */
     @Column(name = "TST_CREACION")
     private LocalDateTime fechaCreaReg;
-
-    /**
-     * orden
-     */
-    @Column(name = "ORDEN")
-    private Integer orden;
 
 }

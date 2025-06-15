@@ -43,12 +43,12 @@ public class Reserva extends EntidadInfo<Integer> {
 	private Integer id;
 
 	@NotNull
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "id_usuario_fk")
 	private Usuario usuario;
 	
 	@NotNull
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "id_establecimiento_fk")
 	private Establecimiento establecimiento;
 	

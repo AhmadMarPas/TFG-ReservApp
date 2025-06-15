@@ -60,7 +60,7 @@ public class FranjaHoraria extends EntidadInfo<Integer> {
     private LocalTime horaFin;
 
     @NotNull(message = "El establecimiento no puede ser nulo")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "id_establecimiento_fk", nullable = false)
     private Establecimiento establecimiento;
 

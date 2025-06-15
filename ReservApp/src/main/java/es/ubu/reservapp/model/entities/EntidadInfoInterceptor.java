@@ -28,13 +28,12 @@ public class EntidadInfoInterceptor {
 	/**
      * guardar
      * <p>
-     * Pone valido a true, la fecha de creación y el id de usuario quien creó el registro.
+     * Pone la fecha de creación y el id de usuario quien creó el registro.
      *
      * @param entidadInfo
      */
     @PrePersist
 	public void guardar(EntidadInfo<?> entidadInfo) {
-		entidadInfo.setValido(true);
 		entidadInfo.setFechaCreaReg(LocalDateTime.now());
 		entidadInfo.setUsuarioCreaReg(getSessionData().getUsuario().getId());
 	}
