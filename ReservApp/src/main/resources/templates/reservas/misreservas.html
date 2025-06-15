@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Establecimientos para Reservar</title>
+    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #0056b3; }
+        .establecimiento-list { list-style: none; padding: 0; }
+        .establecimiento-item { background-color: #e9ecef; margin-bottom: 10px; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .establecimiento-item:hover { background-color: #d1d9e0; }
+        .establecimiento-info strong { font-size: 1.1em; }
+        .btn-seleccionar { background-color: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; transition: background-color 0.3s; }
+        .btn-seleccionar:hover { background-color: #0056b3; }
+        .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; }
+        .alert-info { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb; }
+        .alert-danger { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
+        /* Añadido para alerta de éxito que estaba en el controlador */
+        .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; } 
+        a.back-link { display: inline-block; margin-top: 20px; color: #007bff; text-decoration: none; }
+        a.back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/_header :: header}"></div>
+
+    <div class="container">
+        <h1>Selecciona un Establecimiento para Reservar</h1>
+
+        <!-- Mensajes Flash desde RedirectAttributes -->
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${exito}" class="alert alert-success" th:text="${exito}"></div>
+        
+        <!-- Mensaje de error específico de la URL (si se usa param.error) -->
+        <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}"></div>
+
+
+        <div th:if="${establecimientos == null || establecimientos.isEmpty()}">
+            <p class="alert alert-info">No tienes establecimientos asignados o ninguno está disponible para reservar en este momento.</p>
+        </div>
+
+        <ul class="establecimiento-list" th:if="${establecimientos != null && !establecimientos.isEmpty()}">
+            <li th:each="est : ${establecimientos}" class="establecimiento-item">
+                <div class="establecimiento-info">
+                    <strong th:text="${est.nombre}">Nombre del Establecimiento</strong><br/>
+                    <span th:text="${est.descripcion}">Descripción</span><br/>
+                    <small th:text="${est.direccion}">Dirección</small>
+                </div>
+                <a th:href="@{/misreservas/establecimiento/{id}(id=${est.id})}" class="btn btn-seleccionar">Seleccionar y Ver Calendario</a>
+            </li>
+        </ul>
+        
+        <a th:href="@{/menuprincipal}" class="back-link">Volver al Menú Principal</a>
+    </div>
+
+</body>
+</html>

@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -99,13 +100,13 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
     @Column(name = "email_verified")
     private boolean emailVerified = false;
 
-	@OneToMany
+	@OneToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "usuario_perfil", 
 		joinColumns = @JoinColumn(name = "id_usuario_pk", referencedColumnName = "id"), 
 		inverseJoinColumns = @JoinColumn(name = "id_perfil_pk", referencedColumnName = "id"))
 	private List<Perfil> perfil;
 
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "usuario_establecimiento", 
 		joinColumns = @JoinColumn(name = "id_usuario_pk", referencedColumnName = "id"), 
 		inverseJoinColumns = @JoinColumn(name = "id_establecimiento_pk", referencedColumnName = "id"))

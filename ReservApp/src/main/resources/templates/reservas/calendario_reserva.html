@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendario de Reserva</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"> <!-- Asumiendo un CSS general -->
+    <!-- Podrías incluir aquí CSS para un datepicker/timepicker si usas uno específico -->
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 700px; margin: auto; }
+        h1, h2 { color: #0056b3; }
+        .establecimiento-details { margin-bottom: 20px; padding: 10px; background-color: #e9ecef; border-radius: 4px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input[type='date'], .form-group input[type='time'], .form-group select {
+            width: calc(100% - 22px); padding: 10px; border: 1px solid #ccc; border-radius: 4px;
+        }
+        .btn-submit { background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s; }
+        .btn-submit:hover { background-color: #218838; }
+        .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; }
+        .alert-danger { color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; }
+        .alert-warning { color: #856404; background-color: #fff3cd; border-color: #ffeeba; }
+        .franjas-horarias { margin-top: 20px; padding: 10px; background-color: #f9f9f9; border-radius: 4px; }
+        .franjas-horarias h3 { margin-top: 0; }
+        .franjas-horarias ul { list-style: none; padding-left: 0; }
+        .franjas-horarias li { background-color: #e2e6ea; margin-bottom: 5px; padding: 8px; border-radius: 3px; font-size: 0.9em; }
+        a.back-link { display: inline-block; margin-top: 20px; color: #007bff; text-decoration: none; }
+        a.back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/_header :: header}"></div>
+
+    <div class="container">
+        <h1>Reservar en <span th:text="${establecimiento.nombre}">Nombre Establecimiento</span></h1>
+
+        <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div> <!-- Para errores desde RedirectAttributes -->
+
+        <div class="establecimiento-details">
+            <h2>Detalles del Establecimiento</h2>
+            <p><strong>Dirección:</strong> <span th:text="${establecimiento.direccion}">Dirección</span></p>
+            <p><strong>Teléfono:</strong> <span th:text="${establecimiento.telefono ?: 'No disponible'}">Teléfono</span></p>
+        </div>
+
+        <div class="franjas-horarias" th:if="${establecimiento.activo && franjasHorarias != null && !franjasHorarias.isEmpty()}">
+            <h3>Horario de Apertura del Establecimiento</h3>
+            <ul>
+                <li th:each="franja : ${franjasHorarias}"
+                    th:text="${T(es.ubu.reservapp.util.FechaUtil).formatearDiaSemana(franja.diaSemana) + ': ' + franja.horaInicio + ' - ' + franja.horaFin}">
+                    Lunes: 09:00 - 17:00
+                </li>
+            </ul>
+        </div>
+         <div class="alert alert-warning" th:if="${!establecimiento.activo || franjasHorarias == null || franjasHorarias.isEmpty()}">
+            Este establecimiento no está activo actualmente o no tiene franjas horarias definidas. No se pueden realizar reservas en este momento.
+        </div>
+
+        <form th:action="@{/reservas/crear}" th:object="${reserva}" method="post" th:if="${establecimiento.activo && franjasHorarias != null && !franjasHorarias.isEmpty()}">
+            <input type="hidden" name="establecimientoId" th:value="${establecimiento.id}" />
+
+            <div class="form-group">
+                <label for="fecha">Fecha de la Reserva:</label>
+                <input type="date" id="fecha" name="fecha" required="required">
+            </div>
+
+            <div class="form-group">
+                <label for="hora">Hora de la Reserva:</label>
+                <!-- Asumiendo que las horas de inicio de franja son las únicas seleccionables -->
+                <!-- O un input type="time" general si cualquier hora dentro de la franja es válida y se ajusta al step -->
+                <input type="time" id="hora" name="hora" step="1800" required="required"> <!-- step="1800" = 30 min. Ajustar según necesidad o lógica de negocio. -->
+                                                                       <!-- Por ejemplo, si las reservas son de 1h, step="3600" -->
+            </div>
+            
+            <!-- Considerar añadir un campo para el aforo si la reserva es para múltiples personas -->
+            <!-- <div class="form-group">
+                <label for="cantidadPersonas">Número de Personas:</label>
+                <input type="number" id="cantidadPersonas" name="cantidadPersonas" th:field="*{cantidadPersonas}" min="1" th:max="${establecimiento.aforo}" />
+            </div> -->
+
+            <button type="submit" class="btn btn-submit">Confirmar Reserva</button>
+        </form>
+        
+        <a th:href="@{/misreservas}" class="back-link">Volver a la Selección de Establecimiento</a>
+        <br/>
+        <a th:href="@{/menuprincipal}" class="back-link">Volver al Menú Principal</a>
+
+    </div>
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+        // Script para establecer la fecha mínima como hoy y lógica para el selector de hora
+        document.addEventListener('DOMContentLoaded', function() {
+            var today = new Date();
+            var day = ("0" + today.getDate()).slice(-2);
+            var month = ("0" + (today.getMonth() + 1)).slice(-2);
+            var todayString = today.getFullYear() + "-" + month + "-" + day;
+            
+            var fechaInput = document.getElementById('fecha');
+            if (fechaInput) {
+                fechaInput.setAttribute('min', todayString);
+            }
+
+            // Opcional: Lógica para popular/validar el selector de hora basado en la fecha seleccionada y las franjas horarias.
+            // Esto sería más complejo y podría requerir pasar las franjas horarias a JavaScript
+            // o hacer una llamada AJAX para obtener las horas disponibles para la fecha seleccionada.
+            // Por ahora, se deja como un simple input time.
+            // Ejemplo de cómo podrías pasar datos de Thymeleaf a JavaScript:
+            /*
+            var franjasDisponibles = /*[[${franjasHorarias}]]*/ null; // Esto pasaría el objeto/lista a JS
+            // Luego podrías usar franjasDisponibles para ajustar el input de hora dinámicamente.
+        });
+    /*]]>*/
+    </script>
+</body>
+</html>
