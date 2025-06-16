@@ -1,20 +1,5 @@
 package es.ubu.reservapp.controller;
 
-import es.ubu.reservapp.model.entities.Establecimiento;
-import es.ubu.reservapp.model.entities.FranjaHoraria;
-import es.ubu.reservapp.model.entities.Reserva;
-import es.ubu.reservapp.model.entities.Usuario;
-import es.ubu.reservapp.model.repositories.ReservaRepo;
-import es.ubu.reservapp.service.EstablecimientoService;
-import es.ubu.reservapp.service.UsuarioService;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,6 +7,25 @@ import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import es.ubu.reservapp.model.entities.Establecimiento;
+import es.ubu.reservapp.model.entities.FranjaHoraria;
+import es.ubu.reservapp.model.entities.Reserva;
+import es.ubu.reservapp.model.entities.Usuario;
+import es.ubu.reservapp.model.repositories.ReservaRepo;
+import es.ubu.reservapp.model.shared.SessionData;
+import es.ubu.reservapp.service.EstablecimientoService;
 
 /**
  * Controlador para la gestión de Reservas.
@@ -35,20 +39,23 @@ import java.util.Optional;
 @PreAuthorize("isAuthenticated()")
 public class ReservaController {
 
+	/**
+	 * Datos de la sesión.
+	 */
+	private SessionData sessionData;
     private final EstablecimientoService establecimientoService;
-    private final UsuarioService usuarioService;
     private final ReservaRepo reservaRepo;
 
     /**
 	 * Constructor del controlador que inyecta los servicios necesarios.
 	 *
+	 * @param sessionData Datos de la sesión.
 	 * @param establecimientoService Servicio para gestionar establecimientos.
-	 * @param usuarioService Servicio para gestionar usuarios.
 	 * @param reservaRepo Repositorio de reservas.
 	 */
-    public ReservaController(EstablecimientoService establecimientoService, UsuarioService usuarioService, ReservaRepo reservaRepo) {
+    public ReservaController(SessionData sessionData, EstablecimientoService establecimientoService, ReservaRepo reservaRepo) {
+    	this.sessionData = sessionData;
         this.establecimientoService = establecimientoService;
-        this.usuarioService = usuarioService;
         this.reservaRepo = reservaRepo;
     }
 
@@ -62,10 +69,7 @@ public class ReservaController {
 	 */
     @GetMapping("/establecimiento/{establecimientoId}")
     public String mostrarCalendarioReserva(@PathVariable("establecimientoId") Integer establecimientoId, Model model, RedirectAttributes redirectAttributes) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalName = authentication.getName();
-        Usuario usuario = usuarioService.findUsuarioById(currentPrincipalName);
-
+    	Usuario usuario	= sessionData.getUsuario();
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Usuario no encontrado.");
             return "redirect:/";
@@ -115,9 +119,7 @@ public class ReservaController {
                                @RequestParam("hora") String horaStr,   // Se recibe como String desde el time picker
                                RedirectAttributes redirectAttributes) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalName = authentication.getName();
-        Usuario usuario = usuarioService.findUsuarioById(currentPrincipalName);
+    	Usuario usuario	= sessionData.getUsuario();
 
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Usuario no autenticado correctamente.");

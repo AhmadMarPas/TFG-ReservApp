@@ -3,7 +3,6 @@ package es.ubu.reservapp.controller;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.shared.SessionData;
-import es.ubu.reservapp.service.UsuarioService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controlador para la página de inicio y el menú principal.
@@ -20,6 +19,7 @@ import es.ubu.reservapp.service.UsuarioService;
  * @version 1.0
  * @since 1.0
  */
+@Slf4j
 @Controller
 public class HomeController {
 
@@ -28,11 +28,13 @@ public class HomeController {
 	 */
 	private SessionData sessionData;
 
-	private final UsuarioService usuarioService;
-
-    public HomeController(SessionData sessionData, UsuarioService usuarioService) {
+	/**
+	 * Constructor del controlador que inyecta los datos de la sesión.
+	 * 
+	 * @param sessionData
+	 */
+    public HomeController(SessionData sessionData) {
     	this.sessionData = sessionData;
-        this.usuarioService = usuarioService;
     }
 
     @GetMapping("/")
@@ -51,7 +53,6 @@ public class HomeController {
     public String misReservas(Model model) {
         Usuario usuario = sessionData.getUsuario();
         List<Establecimiento> establecimientos = usuario.getEstablecimiento();
-        System.out.println("Establecimientos del usuario: " + establecimientos);
         model.addAttribute("establecimientos", establecimientos);
         return "reservas/misreservas";
     }

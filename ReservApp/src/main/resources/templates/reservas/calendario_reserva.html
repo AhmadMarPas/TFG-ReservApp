@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Calendario de Reserva</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}"> <!-- Asumiendo un CSS general -->
+    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    
     <!-- Podrías incluir aquí CSS para un datepicker/timepicker si usas uno específico -->
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
@@ -71,12 +74,6 @@
                 <input type="time" id="hora" name="hora" step="1800" required="required"> <!-- step="1800" = 30 min. Ajustar según necesidad o lógica de negocio. -->
                                                                        <!-- Por ejemplo, si las reservas son de 1h, step="3600" -->
             </div>
-            
-            <!-- Considerar añadir un campo para el aforo si la reserva es para múltiples personas -->
-            <!-- <div class="form-group">
-                <label for="cantidadPersonas">Número de Personas:</label>
-                <input type="number" id="cantidadPersonas" name="cantidadPersonas" th:field="*{cantidadPersonas}" min="1" th:max="${establecimiento.aforo}" />
-            </div> -->
 
             <button type="submit" class="btn btn-submit">Confirmar Reserva</button>
         </form>
