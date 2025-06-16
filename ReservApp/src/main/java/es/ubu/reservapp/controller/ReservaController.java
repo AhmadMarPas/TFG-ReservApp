@@ -26,6 +26,7 @@ import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.shared.SessionData;
 import es.ubu.reservapp.service.EstablecimientoService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controlador para la gestión de Reservas.
@@ -35,6 +36,7 @@ import es.ubu.reservapp.service.EstablecimientoService;
  * @since 1.0
  */
 @Controller
+@Slf4j
 @RequestMapping("/misreservas")
 @PreAuthorize("isAuthenticated()")
 public class ReservaController {
@@ -67,8 +69,8 @@ public class ReservaController {
 	 * @param redirectAttributes Atributos para redirección con mensajes flash.
 	 * @return Nombre de la vista a mostrar.
 	 */
-    @GetMapping("/establecimiento/{establecimientoId}")
-    public String mostrarCalendarioReserva(@PathVariable("establecimientoId") Integer establecimientoId, Model model, RedirectAttributes redirectAttributes) {
+    @GetMapping("/establecimiento/{id}")
+    public String mostrarCalendarioReserva(@PathVariable("id") Integer establecimientoId, Model model, RedirectAttributes redirectAttributes) {
     	Usuario usuario	= sessionData.getUsuario();
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Usuario no encontrado.");
@@ -188,6 +190,38 @@ public class ReservaController {
             // Podría ser una DataIntegrityViolationException si hay constraints, u otra.
             redirectAttributes.addFlashAttribute("error", "Error al guardar la reserva: " + e.getMessage());
             return "redirect:/reservas/establecimiento/" + establecimientoId;
+        }
+    }
+    
+    /**
+	 * Muestra las reservas del usuario actual.
+	 *
+	 * @param model Modelo para pasar datos a la vista.
+	 * @param redirectAttributes Atributos para redirección con mensajes flash.
+	 * @return Nombre de la vista a mostrar.
+	 */
+    @GetMapping("/misreservas")
+    public String mostrarMisReservas(Model model, RedirectAttributes redirectAttributes) {
+        try {
+            Usuario usuario	= sessionData.getUsuario();
+            
+            if (usuario == null) {
+                log.error("Usuario de la sesión no encontrado");
+                redirectAttributes.addFlashAttribute("error", "Usuario no autenticado correctamente.");
+                model.addAttribute("error", "Usuario no encontrado");
+                return "error";
+            }
+
+            // Obtener establecimientos activos para mostrar
+            List<Establecimiento> establecimientos = establecimientoService.findAll();
+            model.addAttribute("establecimientos", establecimientos);
+            
+            return "reservas/misreservas";
+
+        } catch (Exception e) {
+        	log.error("Error al mostrar mis reservas: {}", e.getMessage(), e);
+            model.addAttribute("error", "Error interno del servidor");
+            return "error";
         }
     }
 }

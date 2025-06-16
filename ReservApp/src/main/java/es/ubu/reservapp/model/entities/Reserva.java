@@ -1,6 +1,7 @@
 package es.ubu.reservapp.model.entities;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -55,6 +56,9 @@ public class Reserva extends EntidadInfo<Integer> {
 	@NotNull
 	@Column(name = "fecha_reserva")
 	private LocalDateTime fechaReserva;
+	
+	@Column(name = "hora_fin")
+	private LocalTime horaFin;
 
 	@Override
 	public Integer getId() {
