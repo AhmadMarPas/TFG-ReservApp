@@ -173,12 +173,13 @@
                                                 onclick="prepareDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-nombre'))">
                                             <i class="fas fa-trash"></i>
                                         </button>
-											<button type="button" class="btn btn-sm btn-danger" title="Eliminar"
-												data-id="${perfil.id}" data-nombre="${perfil.nombre}"
-												onclick="handleDelete(this)" >
-												<i class="fas fa-trash"></i>
-											</button>
-                                    </td>
+										<button type="button" class="btn btn-sm btn-danger" title="Eliminar" 
+											th:data-id="${perfil.id}" th:data-nombre="${perfil.nombre}"
+											onclick="handleDelete(this)">
+											<i class="fas fa-trash"></i>
+										</button>
+
+									</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -229,7 +230,6 @@
             deleteModal.show();
         }
         
-
         function handleDelete(button) {
             const perfilId = button.getAttribute('data-id');
             const perfilName = button.getAttribute('data-nombre');

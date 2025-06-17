@@ -172,7 +172,7 @@ public class PerfilController {
 	 * @param redirectAttributes atributos para redirección con mensajes flash.
 	 * @return redirección al listado de perfiles tras la eliminación.
 	 */
-    @GetMapping("/eliminar/{id}")
+    @PostMapping("/eliminar/{id}")
     public String eliminarPerfil(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
         // Validar si el perfil "ADMIN" o algún otro perfil crítico se está intentando eliminar
         Optional<Perfil> perfilOptional = perfilService.findById(id);
