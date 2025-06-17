@@ -111,6 +111,21 @@ public class EstablecimientoController {
         }
     }
 
+    @PostMapping("/activar/{id}")
+    public String activarEstablecimiento(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Establecimiento> establecimientoOptional = establecimientoService.findById(id);
+
+        if (establecimientoOptional.isPresent()) {
+        	establecimientoOptional.get().setActivo(!establecimientoOptional.get().isActivo());
+            establecimientoService.save(establecimientoOptional.get());
+            redirectAttributes.addFlashAttribute("exito", "Establecimiento actualizado correctamente.");
+            return REDIRECT_LISTADO;
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Establecimiento no encontrado con ID: " + id);
+            return REDIRECT_LISTADO;
+        }
+    }
+
     /**
      * Guarda un nuevo establecimiento o actualiza uno existente.
      * 
