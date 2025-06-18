@@ -1,65 +1,10 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - ReservApp</title>
-    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <style>
-        /* Specific styles for login.html */
-        .login-card {
-            background: rgba(255, 255, 255, 0.97); /* Slightly less transparent for readability */
-            backdrop-filter: blur(12px); /* Increased blur */
-            border-radius: 20px; /* More pronounced radius */
-            padding: 2.5rem 2rem; /* Adjusted padding */
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15); /* Softer, larger shadow */
-            width: 100%;
-            max-width: 420px; /* Max width for the card */
-        }
-        .login-card .form-control {
-            padding: 0.9rem 1rem; /* Taller input fields */
-            border-radius: 10px; /* Rounded inputs */
-            border: 1px solid #ced4da; 
-        }
-        .login-card .form-control:focus {
-            border-color: #667eea; /* Theme color focus */
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        .login-card .input-group-text {
-            background-color: transparent;
-            border-right: none;
-            border-top-left-radius: 10px;
-            border-bottom-left-radius: 10px;
-            color: #6c757d;
-        }
-        .login-card .input-group .form-control {
-            border-left: none;
-        }
-        .login-card .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            padding: 0.9rem 1.5rem; /* Taller button */
-            border-radius: 50px; /* Pill button */
-            font-weight: 500;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .login-card .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-        }
-        .login-links a {
-            color: #667eea;
-            text-decoration: none;
-        }
-        .login-links a:hover {
-            text-decoration: underline;
-        }
-    </style>
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='Iniciar Sesión - ReservApp', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+    </th:block>
 </head>
-<body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-
+<body class="login-bg">
     <div class="login-card">
         <div class="text-center mb-4">
             <i class="fas fa-user-lock fa-4x" style="color: #667eea;"></i> <!-- Updated icon and color -->
