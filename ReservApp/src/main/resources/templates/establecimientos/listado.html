@@ -1,13 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReservApp - Gestión de Establecimientos</title>
-    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <style>
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Gestión de Establecimientos', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
@@ -340,6 +335,7 @@
             }
         }
     </style>
+    </th:block>
 </head>
 <body>
     <!-- Header -->
@@ -515,7 +511,7 @@
                                 <i class="fas fa-edit me-1"></i>
                                 Editar
                             </a>
-                            <form th:action="@{/admin/establecimientos/activar/{id}(id=${establecimiento.id})}" 
+                            <form th:action="@{/admin/establecimientos/toggle/{id}(id=${establecimiento.id})}" 
                                   method="post" style="display: inline; flex: 1;">
                                 <button type="submit" 
                                         class="action-btn btn-toggle w-100" 

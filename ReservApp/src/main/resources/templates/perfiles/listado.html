@@ -1,13 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReservApp - Listado de Perfiles</title>
-    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <style>
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Listado de Perfiles', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
         /* Shared styles from _header.html or main style.css would ideally handle .main-header */
         .main-header {
             background: rgba(255, 255, 255, 0.95);
@@ -83,6 +78,7 @@
             .stats-cards { grid-template-columns: 1fr; } /* Stack stat cards */
         }
     </style>
+    </th:block>
 </head>
 <body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
 
@@ -178,7 +174,6 @@
 											onclick="handleDelete(this)">
 											<i class="fas fa-trash"></i>
 										</button>
-
 									</td>
                                 </tr>
                             </tbody>
@@ -230,6 +225,7 @@
             deleteModal.show();
         }
         
+
         function handleDelete(button) {
             const perfilId = button.getAttribute('data-id');
             const perfilName = button.getAttribute('data-nombre');

@@ -1,13 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendario de Reserva</title>
-    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
-    
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='Calendario de Reserva', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -165,6 +159,7 @@
             100% { transform: rotate(360deg); }
         }
     </style>
+    </th:block>
 </head>
 <body>
     <div th:replace="~{fragments/_header :: header}"></div>

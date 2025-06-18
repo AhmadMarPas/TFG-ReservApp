@@ -1,12 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <title>Mis Establecimientos para Reservar</title>
-    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <style>
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='Mis Establecimientos para Reservar', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
         .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         h1 { color: #0056b3; }
@@ -24,6 +20,7 @@
         a.back-link { display: inline-block; margin-top: 20px; color: #007bff; text-decoration: none; }
         a.back-link:hover { text-decoration: underline; }
     </style>
+    </th:block>
 </head>
 <body>
     <div th:replace="~{fragments/_header :: header}"></div>

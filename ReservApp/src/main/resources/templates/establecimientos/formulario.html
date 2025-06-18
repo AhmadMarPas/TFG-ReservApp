@@ -1,15 +1,8 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Dynamic Title -->
-    <title th:if="${isEdit}">ReservApp - Editar Establecimiento</title>
-    <title th:unless="${isEdit}">ReservApp - Crear Establecimiento</title>
-    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <style>
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle=(${isEdit} ? 'ReservApp - Editar Establecimiento' : 'ReservApp - Crear Establecimiento'), customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
@@ -330,6 +323,7 @@
             }
         }
     </style>
+    </th:block>
 </head>
 <body>
     <!-- Header -->

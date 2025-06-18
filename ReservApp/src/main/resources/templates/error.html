@@ -3,11 +3,9 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:layout:decorator="http://www.ultraq.net.nz/thymeleaf/layout/decorator"
       xmlns:layout:fragment="http://www.ultraq.net.nz/thymeleaf/layout/fragment">
-<head>
-    <meta charset="UTF-8">
-    <title>Error</title>
-    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='Error', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+    </th:block>
 </head>
 <body>
     <div class="container mt-5">
