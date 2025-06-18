@@ -1,23 +1,23 @@
-<!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="common_head(pageTitle, customLinks)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:replace="${pageTitle}">ReservApp</title>
+    <title th:text="${pageTitle} ?: 'ReservApp'">ReservApp</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
-    <link rel="icon" type="image/png" sizes="32x32" th:href="@{/favicon-32x32.png}">
-    <link rel="icon" type="image/png" sizes="16x16" th:href="@{/favicon-16x16.png}">
 
-    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" />
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" th:href="@{/css/style.css}" />
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 
     <!-- Placeholder for additional page-specific links -->
     <th:block th:replace="${customLinks}" />
 </head>
-</html>
