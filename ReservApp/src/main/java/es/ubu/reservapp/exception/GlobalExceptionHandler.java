@@ -1,10 +1,15 @@
 package es.ubu.reservapp.exception;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,10 +24,10 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 1.0
  */
-@RestControllerAdvice
 @Slf4j
+@ControllerAdvice
 public class GlobalExceptionHandler {
-
+	
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleUserNotFoundException(UserNotFoundException ex, Model model) {
@@ -31,6 +36,16 @@ public class GlobalExceptionHandler {
         return "error";
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+        return errors;
+    }
+    
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleIllegalArgumentException(IllegalArgumentException ex, 
@@ -40,7 +55,7 @@ public class GlobalExceptionHandler {
         model.addAttribute("error", "Datos inválidos: " + ex.getMessage());
         return "error";
     }
-
+    
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView handleRuntimeException(RuntimeException ex, 
@@ -68,30 +83,30 @@ public class GlobalExceptionHandler {
         }
     }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public String handleGenericException(Exception ex, 
-                                       HttpServletRequest request,
-                                       Model model,
-                                       HttpServletResponse response) {
-    	log.error("Error genérico en {}: {}", request.getRequestURI(), ex.getMessage(), ex);
-        
-        try {
-            // Asegurar respuesta completa
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setContentType("text/html;charset=UTF-8");
-            
-            model.addAttribute("error", "Ha ocurrido un error inesperado. Por favor, contacte al administrador.");
-            model.addAttribute("timestamp", System.currentTimeMillis());
-            model.addAttribute("path", request.getRequestURI());
-            
-            return "error";
-        } catch (Exception e) {
-        	log.error("Error crítico al manejar excepción: {}", e.getMessage(), e);
-            return "error";
-        }
-    }
-
+//    @ExceptionHandler(Exception.class)
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    public String handleGenericException(Exception ex, 
+//                                       HttpServletRequest request,
+//                                       Model model,
+//                                       HttpServletResponse response) {
+//    	log.error("Error genérico en {}: {}", request.getRequestURI(), ex.getMessage(), ex);
+//        
+//        try {
+//            // Asegurar respuesta completa
+//            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+//            response.setContentType("text/html;charset=UTF-8");
+//            
+//            model.addAttribute("error", "Ha ocurrido un error inesperado. Por favor, contacte al administrador.");
+//            model.addAttribute("timestamp", System.currentTimeMillis());
+//            model.addAttribute("path", request.getRequestURI());
+//            
+//            return "error";
+//        } catch (Exception e) {
+//        	log.error("Error crítico al manejar excepción: {}", e.getMessage(), e);
+//            return "error";
+//        }
+//    }
+    
     @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public String handleMethodNotSupported(org.springframework.web.HttpRequestMethodNotSupportedException ex,
@@ -119,4 +134,5 @@ public class GlobalExceptionHandler {
             return "error";
         }
     }
+
 }
