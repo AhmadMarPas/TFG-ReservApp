@@ -13,6 +13,10 @@
     --border-radius: 8px;
     --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
 }
 
 /* Reset y estilos base */
@@ -231,6 +235,14 @@ h1, h2, h3, h4, h5, h6 {
     border-color: var(--primary-color);
 }
 
+.form-section-user-form {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid #667eea;
+}
+
 /* Alertas */
 .alert {
     border: none;
@@ -262,6 +274,15 @@ h1, h2, h3, h4, h5, h6 {
     background: linear-gradient(45deg, rgba(23, 162, 184, 0.1), rgba(23, 162, 184, 0.2));
     color: var(--info-color);
     border-left: 4px solid var(--info-color);
+}
+
+.alert-danger-user-form {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white; /* Ensure text is readable */
+}
+.alert-success-user-form {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: #2c3e50; /* Ensure text is readable */
 }
 
 /* Animaciones */
@@ -301,6 +322,39 @@ h1, h2, h3, h4, h5, h6 {
     transition: var(--transition);
 }
 
+.main-header-user-form {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-container-establecimiento-form {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.form-container-user-form {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    margin-top: 0;
+}
+
+.form-check-input-user-form:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.form-body-user-form {
+    padding: 2rem;
+}
+
 /* Breadcrumb */
 .breadcrumb {
     background: rgba(255, 255, 255, 0.1);
@@ -318,6 +372,23 @@ h1, h2, h3, h4, h5, h6 {
 .breadcrumb-item.active {
     color: var(--dark-color);
     font-weight: 600;
+}
+
+.breadcrumb-user-form {
+    background: transparent;
+    padding: 0;
+}
+
+.breadcrumb-item-user-form + .breadcrumb-item-user-form::before {
+    color: rgba(255,255,255,0.7);
+}
+
+.breadcrumb-item-user-form a {
+    color: white;
+}
+
+.breadcrumb-item-user-form.active {
+    color: rgba(255,255,255,0.7);
 }
 
 /* Paginación */
@@ -343,6 +414,15 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Responsive */
 @media (max-width: 768px) {
+    .menu-container-user-form, .form-container-user-form {
+        margin: 1rem;
+    }
+    .menu-header-user-form, .form-body-user-form, .form-section-user-form, .form-actions-user-form {
+        padding: 1.5rem;
+    }
+     .menu-header-user-form h1 {
+        font-size: 1.8rem;
+    }
     .container-fluid {
         padding: 1rem;
     }
@@ -367,7 +447,7 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-gradient);
 }
 
 .auth-card {
@@ -446,6 +526,23 @@ h1, h2, h3, h4, h5, h6 {
 	color: #6c757d;
 }
 
+.text-danger-user-form {
+    color: #dc3545 !important;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+.password-help-user-form {
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 10px;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #1976d2;
+}
+
 .login-card .input-group .form-control {
 	border-left: none;
 }
@@ -474,11 +571,547 @@ h1, h2, h3, h4, h5, h6 {
 }
 /* Fondo y fuente del body para login */
 body.login-bg {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-gradient);
     min-height: 100vh;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1rem;
+}
+
+/* Estilos para la página de registro */
+.register-card {
+    background: rgba(255, 255, 255, 0.97); /* Consistent with login card */
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 2.5rem 2rem; /* More padding */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 550px; /* Slightly wider for registration form */
+}
+
+/* Estilos para la página de calendario de reserva */
+.establecimiento-details { 
+    margin-bottom: 25px; 
+    padding: 20px; 
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px; 
+    border-left: 4px solid #007bff;
+}
+
+.franjas-horarias { 
+    margin-top: 25px; 
+    padding: 20px; 
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px; 
+    border-left: 4px solid #28a745;
+}
+
+.franjas-horarias h3 { 
+    margin-top: 0; 
+    color: #28a745;
+}
+
+.franjas-horarias ul { 
+    list-style: none; 
+    padding-left: 0; 
+}
+
+.franjas-horarias li { 
+    background-color: #fff; 
+    margin-bottom: 8px; 
+    padding: 12px 15px; 
+    border-radius: 6px; 
+    font-size: 0.95em;
+    border-left: 3px solid #28a745;
+    transition: transform 0.2s ease;
+}
+
+.franjas-horarias li:hover {
+    transform: translateX(5px);
+}
+
+.required-field::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.back-links {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.back-link { 
+    display: inline-block; 
+    margin: 10px 15px; 
+    color: #007bff; 
+    text-decoration: none; 
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover { 
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estilos adicionales para calendario_reserva.html */
+body.calendario-reserva { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    margin: 0; 
+    padding: 20px; 
+    background: var(--primary-gradient);
+    min-height: 100vh;
+    color: #333; 
+}
+
+.calendario-container { 
+    background-color: #fff; 
+    padding: 30px; 
+    border-radius: 15px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+    max-width: 800px; 
+    margin: 20px auto; 
+}
+
+.calendario-title {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 30px;
+    color: #2c3e50;
+}
+
+.form-group { 
+    margin-bottom: 20px; 
+}
+
+.form-group label { 
+    display: block; 
+    margin-bottom: 8px; 
+    font-weight: 600; 
+    color: #495057;
+}
+
+.form-group input[type='date'], 
+.form-group input[type='time'], 
+.form-group select {
+    width: 100%; 
+    padding: 12px 15px; 
+    border: 2px solid #e9ecef; 
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+}
+
+.btn-submit { 
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white; 
+    padding: 12px 30px; 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-submit:hover { 
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+}
+
+.register-card .form-control {
+    padding: 0.9rem 1rem;
+    border-radius: 10px;
+    border: 1px solid #ced4da; 
+}
+
+.register-card .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.register-card .input-group-text {
+    background-color: transparent;
+    border-right: none;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    color: #6c757d;
+}
+
+.input-group-text-user-form {
+    background: #667eea;
+    color: white;
+    border: 2px solid #667eea;
+    border-radius: 10px 0 0 10px;
+}
+
+.register-card .input-group .form-control {
+    border-left: none;
+}
+
+.register-card .btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+    padding: 0.9rem 1.5rem;
+    border-radius: 50px; /* Pill button */
+    font-weight: 500;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.register-card .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.register-links a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.register-links a:hover {
+    text-decoration: underline;
+}
+
+.form-text.text-danger { /* Ensure error messages are clearly visible */
+    font-size: 0.875em;
+}
+
+.form-control-user-form {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-control-user-form:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    background: white;
+}
+
+.form-control-user-form:invalid {
+    border-color: #dc3545;
+}
+
+.form-control-user-form:valid {
+    border-color: #28a745;
+}
+
+.form-check-user-form {
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-check-user-form:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 10px rgba(102,126,234,0.1);
+}
+
+/* Estilos para la página de inicio */
+.hero-section {
+    min-height: 90vh; /* Fallback for when header is not shown */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Estilos para el menú principal */
+.menu-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    margin-top: 2rem;
+}
+
+.menu-header {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 2rem;
+    border-radius: 20px 20px 0 0;
+    text-align: center;
+}
+
+.menu-body {
+    padding: 2rem;
+}
+
+.menu-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    font-size: 1.2rem;
+}
+
+.section-title i {
+    margin-right: 0.5rem;
+    color: #667eea;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.menu-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid #e9ecef;
+    text-decoration: none;
+    color: inherit;
+}
+
+.menu-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #667eea;
+    text-decoration: none;
+    color: inherit;
+}
+
+.menu-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #667eea;
+}
+
+.menu-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.menu-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.admin-section .menu-card {
+    border-color: #dc3545;
+}
+
+.admin-section .menu-card:hover {
+    border-color: #dc3545;
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.15);
+}
+
+.admin-section .menu-icon {
+    color: #dc3545;
+}
+
+.user-section .menu-card {
+    border-color: #28a745;
+}
+
+.user-section .menu-card:hover {
+    border-color: #28a745;
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.15);
+}
+
+.user-section .menu-icon {
+    color: #28a745;
+}
+
+.profile-section .menu-card {
+    border-color: #17a2b8;
+}
+
+.profile-section .menu-card:hover {
+    border-color: #17a2b8;
+    box-shadow: 0 8px 25px rgba(23, 162, 184, 0.15);
+}
+
+.profile-section .menu-icon {
+    color: #17a2b8;
+}
+
+.btn-logout {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 500;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    transform: scale(1.05);
+    color: white;
+    box-shadow: 0 4px 15px rgba(250, 112, 154, 0.4);
+}
+
+.btn-primary-custom-user-form {
+    background: var(--primary-gradient);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 500;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-custom-user-form:hover {
+    transform: scale(1.05);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary-custom-user-form {
+    background: #6c757d; /* Standard secondary color */
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 500;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary-custom-user-form:hover {
+    transform: scale(1.05);
+    color: white;
+    background: #5a6268;
+}
+
+@media (max-width: 768px) {
+    .menu-container {
+        margin: 1rem;
+    }
+    
+    .menu-header {
+        padding: 1.5rem;
+    }
+    
+    .menu-body {
+        padding: 1.5rem;
+    }
+    
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Adjust min-height if header is present */
+body:has(header.main-header) .hero-section {
+     min-height: calc(100vh - 120px); /* Approximate header height + some padding */
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.hero-buttons .btn {
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    margin: 0.5rem;
+    min-width: 200px;
+    border-radius: 50px; /* Pill-shaped buttons */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-buttons .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+}
+
+.btn-custom-primary {
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+}
+
+.btn-custom-secondary {
+    background-color: rgba(255,255,255,0.9);
+    color: #333;
+    border: 1px solid rgba(255,255,255,0.8);
+}
+
+.btn-custom-secondary:hover {
+    background-color: white;
+    color: #111;
+}
+
+.body-user-form, .body-establecimiento-form, .body-calendario {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.user-form-relative-top-neg20 {
+    position: relative;
+    top: -20px;
+}
+
+.user-form-mt-0 {
+    margin-top: 0 !important;
 }
