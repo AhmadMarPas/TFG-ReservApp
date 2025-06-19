@@ -2,58 +2,6 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Registro de Usuario', customLinks=~{:: #page-specific-links})}">
     <th:block id="page-specific-links">
-        <style>
-        .register-card {
-            background: rgba(255, 255, 255, 0.97); /* Consistent with login card */
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 2.5rem 2rem; /* More padding */
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            width: 100%;
-            max-width: 550px; /* Slightly wider for registration form */
-        }
-        .register-card .form-control {
-            padding: 0.9rem 1rem;
-            border-radius: 10px;
-            border: 1px solid #ced4da; 
-        }
-        .register-card .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        .register-card .input-group-text {
-            background-color: transparent;
-            border-right: none;
-            border-top-left-radius: 10px;
-            border-bottom-left-radius: 10px;
-            color: #6c757d;
-        }
-        .register-card .input-group .form-control {
-            border-left: none;
-        }
-        .register-card .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            padding: 0.9rem 1.5rem;
-            border-radius: 50px; /* Pill button */
-            font-weight: 500;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .register-card .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-        }
-        .register-links a {
-            color: #667eea;
-            text-decoration: none;
-        }
-        .register-links a:hover {
-            text-decoration: underline;
-        }
-        .form-text.text-danger { /* Ensure error messages are clearly visible */
-            font-size: 0.875em;
-        }
-    </style>
     </th:block>
 </head>
 <body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; padding-top: 2rem; padding-bottom: 2rem;">
