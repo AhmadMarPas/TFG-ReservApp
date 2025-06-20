@@ -98,10 +98,21 @@ public class ReservaController {
             .sorted(Comparator.comparing(FranjaHoraria::getDiaSemana).thenComparing(FranjaHoraria::getHoraInicio))
             .toList();
 
+        // Obtener reservas pasadas y futuras del usuario para este establecimiento
+        LocalDateTime fechaActual = LocalDateTime.now();
+        List<Reserva> reservasPasadas = reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual);
+        List<Reserva> reservasFuturas = reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
+        
+        // Ordenar las reservas por fecha (más recientes primero para las pasadas, más próximas primero para las futuras)
+        reservasPasadas.sort(Comparator.comparing(Reserva::getFechaReserva).reversed());
+        reservasFuturas.sort(Comparator.comparing(Reserva::getFechaReserva));
+
         model.addAttribute("establecimiento", establecimiento);
         model.addAttribute("franjasHorarias", franjasActivas);
-        model.addAttribute("reserva", new Reserva()); // Para el formulario de reserva
-        return "reservas/calendario_reserva"; // Ruta a la plantilla Thymeleaf
+        model.addAttribute("reserva", new Reserva());
+        model.addAttribute("reservasPasadas", reservasPasadas);
+        model.addAttribute("reservasFuturas", reservasFuturas);
+        return "reservas/calendario_reserva";
     }
 
     /**

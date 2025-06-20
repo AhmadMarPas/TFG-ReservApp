@@ -707,6 +707,85 @@ body.calendario-reserva {
     color: #2c3e50;
 }
 
+/* Estilos para las secciones de reservas del usuario */
+.reservas-usuario-container {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.reservas-usuario-container h2 {
+    color: #343a40;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+.reservas-futuras, .reservas-pasadas {
+    margin-bottom: 25px;
+}
+
+.reservas-futuras h3 {
+    color: #28a745;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.reservas-pasadas h3 {
+    color: #6c757d;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.reservas-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.reserva-item {
+    background-color: white;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    width: calc(33.333% - 15px);
+    min-width: 200px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.reserva-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.reservas-futuras .reserva-item {
+    border-left: 4px solid #28a745;
+}
+
+.reservas-pasadas .reserva-item {
+    border-left: 4px solid #6c757d;
+    opacity: 0.8;
+}
+
+.reserva-fecha, .reserva-hora {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.reserva-fecha i, .reserva-hora i {
+    margin-right: 8px;
+    color: #007bff;
+}
+
+@media (max-width: 768px) {
+    .reserva-item {
+        width: 100%;
+    }
+}
+
 .form-group { 
     margin-bottom: 20px; 
 }
@@ -1115,3 +1194,4 @@ body:has(header.main-header) .hero-section {
 .user-form-mt-0 {
     margin-top: 0 !important;
 }
+
