@@ -17,6 +17,7 @@
     --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    --info-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
 
 /* Estilos para el header principal de la aplicación (main-header) */
@@ -457,12 +458,15 @@ h1, h2, h3, h4, h5, h6 {
     .menu-container-user-form, .form-container-user-form {
         margin: 1rem;
     }
+    
     .menu-header-user-form, .form-body-user-form, .form-section-user-form, .form-actions-user-form {
         padding: 1.5rem;
     }
-     .menu-header-user-form h1 {
+    
+    .menu-header-user-form h1 {
         font-size: 1.8rem;
     }
+    
     .container-fluid {
         padding: 1rem;
     }
