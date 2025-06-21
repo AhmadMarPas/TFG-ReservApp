@@ -19,6 +19,50 @@
     --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
 }
 
+/* Estilos para el header principal de la aplicación (main-header) */
+/* Esta clase es usada por el fragmento fragments/_header.html */
+header.main-header {
+    background: rgba(255, 255, 255, 0.95) !important; /* Fondo blanco translúcido */
+    backdrop-filter: blur(10px); /* Efecto blur opcional */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Borde inferior sutil */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Sombra ligera */
+    padding-top: 1rem !important; /* Asegurar padding vertical */
+    padding-bottom: 1rem !important;
+    color: var(--dark-color) !important; /* Color de texto oscuro por defecto para todo el header */
+}
+
+/* Título del header "ReservApp - Panel Principal" */
+header.main-header h2.text-primary {
+    color: var(--primary-color) !important; /* Mantiene el color azul de la marca, que contrasta bien con blanco */
+    margin-bottom: 0; /* Ajustar si es necesario */
+}
+
+/* Texto de bienvenida y nombre de usuario */
+header.main-header .col-md-6 span,
+header.main-header .col-md-6 strong {
+    color: var(--dark-color) !important; 
+    vertical-align: middle;
+}
+
+/* Botón de logout en el header */
+header.main-header .btn-logout {
+    background: var(--danger-gradient) !important;
+    color: white !important; 
+    border: none;
+    padding: 0.6rem 1.2rem; 
+    border-radius: 25px; /* Coherente con otros botones */
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    transition: var(--transition);
+}
+
+header.main-header .btn-logout:hover {
+    color: white !important; /* Asegurar que el color del texto no cambie al hacer hover si no se desea */
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(250, 112, 154, 0.4); /* Sombra coherente con otros btn-logout */
+}
+
 /* Reset y estilos base */
 * {
     margin: 0;
@@ -36,10 +80,6 @@ body {
 
 /* Header y navegación */
 .navbar {
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(10px);
-    box-shadow: var(--box-shadow);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     transition: var(--transition);
 }
 
@@ -1057,24 +1097,6 @@ body.calendario-reserva {
     color: #17a2b8;
 }
 
-.btn-logout {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-    border: none;
-    padding: 0.75rem 2rem;
-    border-radius: 25px;
-    font-weight: 500;
-    color: white;
-    text-decoration: none;
-    display: inline-block;
-    transition: all 0.3s ease;
-}
-
-.btn-logout:hover {
-    transform: scale(1.05);
-    color: white;
-    box-shadow: 0 4px 15px rgba(250, 112, 154, 0.4);
-}
-
 .btn-primary-custom-user-form {
     background: var(--primary-gradient);
     border: none;
@@ -1116,6 +1138,25 @@ body.calendario-reserva {
         margin: 1rem;
     }
     
+    header.main-header { /* Ajustes responsivos para el header */
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    header.main-header .col-md-6 { /* Hacer que los elementos del header se apilen en móvil */
+        width: 100%;
+        text-align: center !important;
+    }
+    header.main-header .col-md-6:last-child {
+        margin-top: 0.5rem; /* Espacio entre título y bienvenida/logout en móvil */
+    }
+    header.main-header h2.text-primary {
+        font-size: 1.25rem; /* Reducir tamaño de fuente del título en móvil */
+    }
+    header.main-header .btn-logout {
+        padding: 0.5rem 1rem; /* Botón de logout más pequeño en móvil */
+        font-size: 0.9rem;
+    }
+
     .menu-header {
         padding: 1.5rem;
     }
@@ -1194,4 +1235,3 @@ body:has(header.main-header) .hero-section {
 .user-form-mt-0 {
     margin-top: 0 !important;
 }
-
