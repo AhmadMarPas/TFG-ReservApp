@@ -104,6 +104,7 @@ public class EstablecimientoController {
 
         if (establecimientoOptional.isPresent()) {
             model.addAttribute(ESTABLECIMIENTO, establecimientoOptional.get());
+            model.addAttribute("isEdit", true);
             return REDIRECT_FORMULARIO;
         } else {
             redirectAttributes.addFlashAttribute("error", "Establecimiento no encontrado con ID: " + id);
