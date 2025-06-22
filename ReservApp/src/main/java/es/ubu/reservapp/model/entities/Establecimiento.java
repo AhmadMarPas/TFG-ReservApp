@@ -58,6 +58,16 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	private String descripcion;
 
 	@NotNull
+	@Column(name = "aforo")
+	private Integer aforo;
+
+	@Column(name = "duracion_reserva")
+	private Integer duracionReserva;
+
+	@Column(name = "descanso_servicios")
+	private Integer descansoServicios;
+
+	@NotNull
 	@Column(name = "capacidad")
 	private Integer capacidad;
 

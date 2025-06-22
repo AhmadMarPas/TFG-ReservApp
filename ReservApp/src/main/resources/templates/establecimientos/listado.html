@@ -193,6 +193,18 @@
                                 <i class="fas fa-users"></i>
                                 <span>Capacidad: <strong th:text="${establecimiento.capacidad}">0</strong> personas</span>
                             </div>
+                            <div class="info-item" th:if="${establecimiento.aforo}">
+                                <i class="fas fa-users"></i>
+                                <span>Aforo: <strong th:text="${establecimiento.aforo}">0</strong> reservas</span>
+                            </div>
+                            <div class="info-item" th:if="${establecimiento.duracionReserva}">
+                                <i class="fas fa-business-time"></i>
+                                <span>Duracion Reserva: <strong th:text="${establecimiento.duracionReserva}">0</strong> duracion</span>
+                            </div>
+                            <div class="info-item" th:if="${establecimiento.descansoServicios}">
+                                <i class="fas fa-circle-pause"></i>
+                                <span>Descanso Servicios: <strong th:text="${establecimiento.descansoServicios}">0</strong> descanso</span>
+                            </div>
                         </div>
 
                         <!-- Schedule Information -->

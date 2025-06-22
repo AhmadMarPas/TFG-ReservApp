@@ -450,6 +450,42 @@
                                         </div>
                                         <div th:if="${#fields.hasErrors('capacidad')}" th:errors="*{capacidad}" class="text-danger"></div>
                                     </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="aforo" class="form-label required-field">Aforo</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-users"></i>
+                                            </span>
+                                            <input type="number" class="form-control" id="aforo" th:field="*{aforo}" 
+                                                   required="required" min="1" placeholder="Número de reservas" />
+                                        </div>
+                                        <div th:if="${#fields.hasErrors('aforo')}" th:errors="*{aforo}" class="text-danger"></div>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="duracionReserva" class="form-label">Duracion Reserva</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-users"></i>
+                                            </span>
+                                            <input type="number" class="form-control" id="duracionReserva" th:field="*{duracionReserva}" 
+                                                   placeholder="Duración de la reserva" />
+                                        </div>
+                                        <div th:if="${#fields.hasErrors('duracionReserva')}" th:errors="*{duracionReserva}" class="text-danger"></div>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <label for="descansoServicios" class="form-label">Descanso Servicios</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-users"></i>
+                                            </span>
+                                            <input type="number" class="form-control" id="descansoServicios" th:field="*{descansoServicios}" 
+                                                   placeholder="Descanso entre servicios" />
+                                        </div>
+                                        <div th:if="${#fields.hasErrors('descansoServicios')}" th:errors="*{descansoServicios}" class="text-danger"></div>
+                                    </div>
                                     
                                     <div class="col-md-8 mb-3">
                                         <div class="form-check">
