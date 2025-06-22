@@ -10,6 +10,51 @@
             --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         }
 
+        .btn-primary-custom {
+            background: var(--primary-gradient);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-custom:hover {
+            transform: scale(1.05);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary-custom {
+            background: #6c757d;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary-custom:hover {
+            transform: scale(1.05);
+            color: white;
+            background: #5a6268;
+        }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            color: #6c757d;
+        }
+        
         .main-header { 
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -17,53 +62,6 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
-        .menu-container { /* From menuprincipal.html for consistent page structure */
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            margin-top: 2rem; 
-        }
-
-        .menu-header { /* From menuprincipal.html */
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 20px 20px 0 0;
-            text-align: center;
-        }
-
-        .menu-body { /* From menuprincipal.html */
-            padding: 2rem;
-        }
-        
-        .breadcrumb { /* Styling for breadcrumbs inside menu-header */
-            background: transparent;
-            padding: 0;
-        }
-        .breadcrumb-item + .breadcrumb-item::before {
-            color: rgba(255,255,255,0.7); 
-        }
-        .breadcrumb-item a {
-            color: white;
-        }
-        .breadcrumb-item.active {
-            color: rgba(255,255,255,0.7);
-        }
-
-        /* Styles from original user_management.html, adapted */
-        .page-title { /* Now used within menu-header, color will be white by default */
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .page-subtitle { /* Now used within menu-header */
-            color: rgba(255,255,255,0.85); /* Lighter text for subtitle */
-            font-size: 1.1rem;
-            margin-bottom: 1rem; /* Adjusted margin */
-        }
-
         .stats-card {
             background: white;
             border: none;
@@ -206,100 +204,124 @@
     </style>
     </th:block>
 </head>
-<body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <div th:replace="~{fragments/_header :: header}"></div>
+<body>
+    <!-- Header -->
+    <header class="main-header py-3 mb-4">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-0 text-primary">
+                        <i class="fas fa-users-cog me-2"></i>
+                        Gestión de Usuarios
+                    </h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="/menuprincipal">Menú Principal</a></li>
+                            <li class="breadcrumb-item"><a href="/admin">Administración</a></li>
+                            <li class="breadcrumb-item active">Gestión de Usuarios</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/menuprincipal" class="btn btn-secondary-custom">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Volver al Menú
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
 
     <!-- Main Content -->
-    <div class="container mt-4">
-        <div class="menu-container">
-            <div class="menu-header">
-                <h1 class="mb-0 page-title"><i class="fas fa-users-cog me-2"></i>Gestión de Usuarios</h1>
-                <p class="page-subtitle">Administra todos los usuarios registrados en el sistema.</p>
-                <nav aria-label="breadcrumb" class="mt-2">
-                    <ol class="breadcrumb mb-0 justify-content-center">
-                        <li class="breadcrumb-item"><a th:href="@{/menuprincipal}">Menú Principal</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Gestión de Usuarios</li>
-                    </ol>
-                </nav>
+    <div class="container">
+        <div class="content-card p-4">
+            <!-- Page Header -->
+            <div class="text-center mb-4">
+                <h1 class="page-title-admin">
+                    <i class="fas fa-users me-2"></i>
+                    Gestión de Usuarios
+                </h1>
+                <p class="page-subtitle">Administra todos los usuarios registrados en el sistema</p>
             </div>
-            <div class="menu-body">
-                <!-- Statistics Cards -->
-                <div class="row mb-4">
-                    <div class="col-xl-3 col-md-6 mb-3">
-                        <div class="card stats-card">
-                            <div class="stats-header stats-total">
-                                <i class="fas fa-users fa-2x mb-2"></i>
-                                <h4 class="mb-0" th:text="${#lists.size(usuarios)}">0</h4>
-                                <small>Total Usuarios</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 mb-3">
-                        <div class="card stats-card">
-                            <div class="stats-header stats-admin">
-                                <i class="fas fa-user-shield fa-2x mb-2"></i>
-                                <h4 class="mb-0" th:text="${adminCount}">0</h4>
-                                <small>Administradores</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 mb-3">
-                        <div class="card stats-card">
-                            <div class="stats-header stats-blocked">
-                                <i class="fas fa-user-lock fa-2x mb-2"></i>
-                                <h4 class="mb-0" th:text="${blockedCount}">0</h4>
-                                <small>Bloqueados</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 mb-3">
-                        <div class="card stats-card">
-                            <div class="stats-header stats-active">
-                                <i class="fas fa-user-check fa-2x mb-2"></i>
-                                <h4 class="mb-0" th:text="${#lists.size(usuarios) - blockedCount}">0</h4>
-                                <small>Activos</small>
-                            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card stats-card">
+                        <div class="stats-header stats-total">
+                            <i class="fas fa-users fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${#lists.size(usuarios)}">0</h4>
+                            <small>Total Usuarios</small>
                         </div>
                     </div>
                 </div>
-
-				<!-- Search and Filters -->
-				<div class="search-box">
-					<div class="row align-items-center">
-						<div class="col-md-6 mb-3 mb-md-0">
-							<div class="input-group">
-								<span class="input-group-text bg-light border-end-0">
-									<i class="fas fa-search text-muted"></i>
-								</span> <input type="text" class="form-control search-input border-start-0"
-									placeholder="Buscar usuarios por nombre, email o ID..." id="searchInput">
-							</div>
-						</div>
-						<div class="col-md-3 mb-3 mb-md-0">
-							<div class="filter-buttons d-flex">
-								<button class="filter-btn active" data-filter="all">Todos</button>
-								<button class="filter-btn" data-filter="admins">Administradores</button>
-								<button class="filter-btn" data-filter="active">Activos</button>
-								<button class="filter-btn" data-filter="inactive">Bloqueados</button>
-							</div>
-						</div>
-						<div class="col-md-3 text-end">
-							<a th:href="@{/admin/usuarios/nuevo}" class="btn btn-primary-custom">
-								<i class="fas fa-plus me-1"></i>
-								Nuevo Usuario
-							</a>
-						</div>
-					</div>
-				</div>
-
-				<!-- Users Table -->
-                <div class="table-container mt-4">
-                    <div class="table-header-custom">
-                        <h5 class="mb-0">
-                            <i class="fas fa-list me-2"></i>
-                            Lista de Usuarios Registrados
-                        </h5>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card stats-card">
+                        <div class="stats-header stats-admin">
+                            <i class="fas fa-user-shield fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${adminCount}">0</h4>
+                            <small>Administradores</small>
+                        </div>
                     </div>
-                    <div class="table-responsive">
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card stats-card">
+                        <div class="stats-header stats-blocked">
+                            <i class="fas fa-user-lock fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${blockedCount}">0</h4>
+                            <small>Bloqueados</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card stats-card">
+                        <div class="stats-header stats-active">
+                            <i class="fas fa-user-check fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${#lists.size(usuarios) - blockedCount}">0</h4>
+                            <small>Activos</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="search-box">
+                <div class="row align-items-center">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control search-input border-start-0" 
+                                   placeholder="Buscar usuarios por nombre, email o ID..." id="searchInput">
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="all">Todos</button>
+                            <button class="filter-btn" data-filter="admins">Administradores</button>
+                            <button class="filter-btn" data-filter="active">Activos</button>
+                            <button class="filter-btn" data-filter="inactive">Bloqueados</button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <a th:href="@{/admin/usuarios/nuevo}" class="btn btn-primary-custom">
+                            <i class="fas fa-plus me-1"></i>
+                            Nuevo Usuario
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="table-container mt-4">
+                <div class="table-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Lista de Usuarios Registrados
+                    </h5>
+                </div>
+                <div class="table-responsive">
                         <table class="table table-striped table-hover" id="usersTable">
                             <thead>
                                 <tr>
@@ -373,7 +395,6 @@
                 </div>
             </div>
         </div>
-    </div>
 
     <!-- Scripts -->
     <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
@@ -437,14 +458,14 @@
                 }, index * 75); // Slightly faster stagger
             });
 
-            const mainPageContainer = document.querySelector('.menu-container');
-            if(mainPageContainer){
-                mainPageContainer.style.opacity = '0';
-                mainPageContainer.style.transform = 'translateY(30px)';
+            const contentCard = document.querySelector('.content-card');
+            if(contentCard){
+                contentCard.style.opacity = '0';
+                contentCard.style.transform = 'translateY(30px)';
                 setTimeout(() => {
-                    mainPageContainer.style.transition = 'opacity 0.6s ease, transform 0.6s ease'; // Faster transition
-                    mainPageContainer.style.opacity = '1';
-                    mainPageContainer.style.transform = 'translateY(0)';
+                    contentCard.style.transition = 'opacity 0.6s ease, transform 0.6s ease'; // Faster transition
+                    contentCard.style.opacity = '1';
+                    contentCard.style.transform = 'translateY(0)';
                 }, 25); // Quicker start
             }
         });
