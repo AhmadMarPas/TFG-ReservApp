@@ -6,7 +6,7 @@
 </head>
 <body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white;">
 
-    <div sec:authorize="isAuthenticated()" th:replace="~{fragments/_header :: header}"></div>
+    <div sec:authorize="isAuthenticated()" th:replace="~{fragments/_header :: header(pageTitle='Bienvenido a ReservApp')}"></div>
 
     <div class="hero-section">
         <div sec:authorize="isAuthenticated()">

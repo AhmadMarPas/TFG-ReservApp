@@ -3,38 +3,12 @@
 <head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Listado de Perfiles', customLinks=~{:: #page-specific-links})}">
     <th:block id="page-specific-links">
         <style>
-        /* Shared styles from _header.html or main style.css would ideally handle .main-header */
-        .main-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .menu-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            margin-top: 2rem;
-            margin-bottom: 2rem;
-        }
-        .menu-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 20px 20px 0 0;
-            text-align: center; /* Center title by default */
-        }
         /* For the button on the right, if not using d-flex */
         .menu-header .btn-success { 
             position: absolute;
             top: 50%;
             right: 1.5rem;
             transform: translateY(-50%);
-        }
-        .menu-body {
-            padding: 2rem;
         }
         .breadcrumb {
             background: transparent; padding: 0; justify-content: center; margin-top: 0.5rem;
@@ -80,9 +54,9 @@
     </style>
     </th:block>
 </head>
-<body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+<body>
 
-    <div th:replace="~{fragments/_header :: header}"></div>
+    <div th:replace="~{fragments/_header :: header(pageTitle='ReservApp - Gestión de Perfiles')}"></div>
 
     <div class="container-fluid mt-4">
         <div class="menu-container">

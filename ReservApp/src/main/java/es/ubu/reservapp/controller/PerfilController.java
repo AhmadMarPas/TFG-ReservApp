@@ -65,11 +65,10 @@ public class PerfilController {
             long perfilActivoCount = perfiles.stream().count();
             model.addAttribute("perfiles", perfiles);
             model.addAttribute("perfilActivoCount", perfilActivoCount);
-            return LISTADO_VIEW;
         } catch (Exception e) {
             model.addAttribute("error", "Error al cargar la lista de perfiles: " + e.getMessage());
-            return LISTADO_VIEW;
         }
+        return LISTADO_VIEW;
     }
 
 	/**

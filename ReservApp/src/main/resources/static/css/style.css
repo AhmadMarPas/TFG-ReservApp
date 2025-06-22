@@ -461,7 +461,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Responsive */
 @media (max-width: 768px) {
-    .menu-container-user-form, .form-container-user-form {
+    .form-container-user-form {
         margin: 1rem;
     }
     
@@ -505,6 +505,11 @@ h1, h2, h3, h4, h5, h6 {
 	.action-btn {
 		flex: none;
 	}
+	
+    .reserva-item {
+        width: 100%;
+    }
+	
 }
 
 /* Estilos específicos para páginas de autenticación */
@@ -535,7 +540,7 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 2rem;
 }
 
-.auth-form .form-group {
+.auth-form {
     margin-bottom: 1.5rem;
 }
 
@@ -844,12 +849,6 @@ body.calendario-reserva {
 .reserva-fecha i, .reserva-hora i {
     margin-right: 8px;
     color: #007bff;
-}
-
-@media (max-width: 768px) {
-    .reserva-item {
-        width: 100%;
-    }
 }
 
 .form-group { 
