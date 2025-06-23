@@ -2,32 +2,67 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/_common_head :: common_head(pageTitle=(${isEdit} ? 'ReservApp - Editar Usuario' : 'ReservApp - Crear Usuario'), customLinks=~{:: #page-specific-links})}">
     <th:block id="page-specific-links">
+        <style>
+        .main-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        
+        .btn-secondary-custom {
+            background-color: #6c757d;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary-custom:hover {
+            background-color: #5a6268;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        </style>
     </th:block>
 </head>
 <body class="body-user-form">
 
-    <!-- Main Content -->
-    <div class="container mt-4">
-        <div class="menu-container">
-            <div class="menu-header">
-                <h1 class="mb-0">
-                    <span th:if="${isEdit}">Editar Usuario</span>
-                    <span th:unless="${isEdit}">Crear Nuevo Usuario</span>
-                </h1>
-                <nav aria-label="breadcrumb" class="mt-2">
-                    <ol class="breadcrumb breadcrumb-user-form mb-0 justify-content-center">
-                        <li class="breadcrumb-item breadcrumb-item-user-form"><a th:href="@{/menuprincipal}">Menú Principal</a></li>
-                        <li class="breadcrumb-item breadcrumb-item-user-form"><a th:href="@{/admin/usuarios}">Gestión de Usuarios</a></li>
-                        <li class="breadcrumb-item breadcrumb-item-user-form active" aria-current="page" th:if="${isEdit}">Editar Usuario</li>
-                        <li class="breadcrumb-item breadcrumb-item-user-form active" aria-current="page" th:unless="${isEdit}">Nuevo Usuario</li>
-                    </ol>
-                </nav>
-                <div class="text-end mt-n3 user-form-relative-top-neg20">
-                    <a th:href="@{/admin/usuarios}" class="btn btn-sm btn-outline-light">
-                        <i class="fas fa-arrow-left me-1"></i> Volver a la Lista
+    <!-- Header -->
+    <div class="container">
+        <header class="main-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-0 text-primary">
+                        <i class="fas fa-user me-2"></i>
+                        <span th:if="${isEdit}">Editar Usuario</span>
+                        <span th:unless="${isEdit}">Crear Nuevo Usuario</span>
+                    </h2>
+                    <nav aria-label="breadcrumb" class="mt-2">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="/menuprincipal">Menú Principal</a></li>
+                            <li class="breadcrumb-item"><a href="/admin/usuarios">Gestión de Usuarios</a></li>
+                            <li class="breadcrumb-item active" th:if="${isEdit}">Editar Usuario</li>
+                            <li class="breadcrumb-item active" th:unless="${isEdit}">Nuevo Usuario</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a th:href="@{/admin/usuarios}" class="btn btn-secondary-custom">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Volver a la Lista
                     </a>
                 </div>
             </div>
+        </header>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="menu-container">
             <div class="menu-body">
                 <div class="row justify-content-center">
                     <div class="col-lg-10">
