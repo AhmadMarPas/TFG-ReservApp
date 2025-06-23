@@ -256,8 +256,10 @@
     </div>
 
     <!-- Main Content -->
-    <div class="container mt-4">
-        <div class="menu-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="menu-container">
             <!-- Form Header with Icon and Description -->
             <div class="form-header">
                 <i class="fas fa-user-plus form-icon" th:unless="${isEdit}"></i>
@@ -268,12 +270,8 @@
                 <p class="mb-0 mt-2 opacity-75" th:unless="${isEdit}">Completa el formulario para añadir un nuevo usuario al sistema</p>
             </div>
             
-            <div class="menu-body">
-                <div class="row justify-content-center">
-                    <div class="col-lg-10">
-                        <div class="form-container-user-form user-form-mt-0">
-                            <!-- Original Form Header is now fully removed and replaced by the menu-header above -->
-                            <div class="form-body-user-form">
+            <!-- Form Body -->
+            <div class="form-body-user-form">
                                 <!-- Flash messages -->
                                 <div th:if="${error}" class="alert alert-danger-user-form alert-dismissible fade show" role="alert">
                                     <i class="fas fa-exclamation-triangle me-2"></i>
@@ -435,8 +433,6 @@
                                     Cancelar
                                 </a>
                             </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
