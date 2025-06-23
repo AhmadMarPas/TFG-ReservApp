@@ -78,7 +78,7 @@ class LoginControllerTest {
         when(usuarioService.validateAuthentication("usuario1", "password")).thenReturn(usuario);
         when(model.getAttribute("Usuario")).thenReturn(usuario);
         
-        String viewName = loginController.login("usuario1", "password", model, redirectAttributes);
+        String viewName = loginController.login("usuario1", "password", model, redirectAttributes, request);
         
         verify(sessionData).setUsuario(usuario);
         verify(model).addAttribute("Usuario", usuario);
@@ -91,7 +91,7 @@ class LoginControllerTest {
         when(usuarioService.validateAuthentication("usuario1", "wrongpassword")).thenReturn(null);
         
         // Ejecutar el método
-        String viewName = loginController.login("usuario1", "wrongpassword", model, redirectAttributes);
+        String viewName = loginController.login("usuario1", "wrongpassword", model, redirectAttributes, request);
         
         verify(model).addAttribute(eq("error"), anyString());
         verify(redirectAttributes).addFlashAttribute(eq("error"), anyString());
