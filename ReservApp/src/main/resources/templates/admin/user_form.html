@@ -19,7 +19,7 @@
             padding: 20px;
         }
         
-        .menu-container {
+        .form-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
@@ -55,7 +55,7 @@
             font-size: 1rem;
         }
         
-        .form-section-user-form {
+        .form-section {
             background: #f8f9fa;
             border-radius: 15px;
             padding: 25px;
@@ -117,14 +117,14 @@
             font-weight: bold;
         }
         
-        .form-actions-user-form {
+        .form-actions {
             background: #f8f9fa;
             padding: 25px;
             text-align: center;
             border-top: 1px solid #e9ecef;
         }
         
-        .btn-primary-custom-user-form {
+        .btn-primary-custom {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
             padding: 12px 30px;
@@ -137,7 +137,7 @@
             margin-right: 15px;
         }
         
-        .btn-primary-custom-user-form:hover {
+        .btn-primary-custom:hover {
             transform: scale(1.05);
             color: white;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
@@ -161,7 +161,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
-        .btn-secondary-custom-user-form {
+        .btn-secondary-custom {
             background: #6c757d;
             border: none;
             padding: 12px 30px;
@@ -173,13 +173,13 @@
             transition: all 0.3s ease;
         }
         
-        .btn-secondary-custom-user-form:hover {
+        .btn-secondary-custom:hover {
             transform: scale(1.05);
             color: white;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
-        .form-body-user-form {
+        .form-body {
             padding: 30px;
         }
         
@@ -259,7 +259,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-10">
-                <div class="menu-container">
+                <div class="form-container">
             <!-- Form Header with Icon and Description -->
             <div class="form-header">
                 <i class="fas fa-user-plus form-icon" th:unless="${isEdit}"></i>
@@ -271,7 +271,7 @@
             </div>
             
             <!-- Form Body -->
-            <div class="form-body-user-form">
+            <div class="form-body">
                                 <!-- Flash messages -->
                                 <div th:if="${error}" class="alert alert-danger-user-form alert-dismissible fade show" role="alert">
                                     <i class="fas fa-exclamation-triangle me-2"></i>
@@ -286,7 +286,7 @@
 
                                 <form th:action="@{/admin/usuarios/guardar}" th:object="${usuario}" method="post" novalidate id="userForm">
                                     <!-- Basic Information Section -->
-                                    <div class="form-section-user-form">
+                                    <div class="form-section">
                                         <h4 class="section-title">
                                             <i class="fas fa-id-card"></i>
                                             Información Básica
@@ -384,7 +384,7 @@
                                     </div>
 
                                     <!-- Permissions Section -->
-                                    <div class="form-section-user-form">
+                                    <div class="form-section">
                                         <h4 class="section-title">
                                             <i class="fas fa-shield-alt"></i>
                                             Permisos y Estado
@@ -422,13 +422,13 @@
                             </div>
 
                             <!-- Form Actions -->
-                            <div class="form-actions-user-form">
-                                <button type="submit" form="userForm" class="btn btn-primary-custom-user-form me-3">
+                            <div class="form-actions">
+                                <button type="submit" form="userForm" class="btn btn-primary-custom me-3">
                                     <i class="fas fa-save me-1"></i>
                                     <span th:if="${isEdit}">Actualizar Usuario</span>
                                     <span th:unless="${isEdit}">Crear Usuario</span>
                                 </button>
-                                <a th:href="@{/admin/usuarios}" class="btn btn-secondary-custom-user-form">
+                                <a th:href="@{/admin/usuarios}" class="btn btn-secondary-custom">
                                     <i class="fas fa-times me-1"></i>
                                     Cancelar
                                 </a>
