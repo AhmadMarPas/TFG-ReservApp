@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/_common_head :: common_head(pageTitle=(${isEdit} ? 'ReservApp - Editar Establecimiento' : 'ReservApp - Crear Establecimiento'), customLinks=~{:: #page-specific-links})}">
     <th:block id="page-specific-links">
         <style>
