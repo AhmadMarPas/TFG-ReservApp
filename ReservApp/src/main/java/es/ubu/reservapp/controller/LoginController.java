@@ -59,8 +59,8 @@ public class LoginController {
         return "login";
     }
 	
-	@PostMapping("/loginer")
-	public String login(@RequestParam String username, @RequestParam String password, Model model, RedirectAttributes redirectAttributes) {
+	@PostMapping("/authenticate")
+	public String login(@RequestParam String username, @RequestParam String password, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
 		log.info("username: " + username);
 		log.info("password: " + password);
         Usuario usuario = userService.validateAuthentication(username, password);
@@ -71,6 +71,23 @@ public class LoginController {
 			usuario = (Usuario) model.getAttribute("Usuario");
 			log.info("Usuario: " + usuario.getNombre());
 			sessionData.setUsuario(usuario);
+			// Autenticamos al usuario con Spring Security
+			org.springframework.security.core.userdetails.UserDetails userDetails = 
+				new org.springframework.security.core.userdetails.User(
+					usuario.getId(), 
+					usuario.getPassword(), 
+					java.util.Collections.singletonList(
+						new org.springframework.security.core.authority.SimpleGrantedAuthority(
+							usuario.isAdministrador() ? "ADMIN" : "USER")
+					)
+				);
+			
+			org.springframework.security.authentication.UsernamePasswordAuthenticationToken auth = 
+				new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+					userDetails, null, userDetails.getAuthorities());
+			
+			org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+
 			return REDIRECT_INICIO;
 		} else {
 			log.error("Invalid username and password");

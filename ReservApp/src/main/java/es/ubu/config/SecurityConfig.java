@@ -1,15 +1,12 @@
 package es.ubu.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity; // Asegurar esta importación
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity; // Asegurar esta importación
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,6 +16,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
+    private CustomUserDetailsService userDetailsService;
+    
+	public SecurityConfig(CustomUserDetailsService userDetailsService) {
+		this.userDetailsService = userDetailsService;
+	}
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -26,42 +29,32 @@ public class SecurityConfig {
     
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-////            .csrf(csrf -> csrf.disable()) // Desactiva CSRF si no es necesario
-//            .authorizeHttpRequests(auth -> auth
-//                .requestMatchers("/login", "/registro", "/css/**", "/js/**").permitAll() // Permite acceso a estas rutas
-//                .anyRequest().authenticated() // Requiere autenticación para otras rutas
-//            )
-//            .formLogin(form -> form
-//                .loginPage("/custom-login") // Usa tu página personalizada de login
-//                .permitAll()
-//            )
-//            .logout(logout -> logout.permitAll()); // Permite el logout
-
-
-		http
-		    .authorizeHttpRequests(auth -> auth
-		        .requestMatchers("/login", "/registro", "/css/**", "/js/**", "/images/**").permitAll() // Permitir /images/**
-		        .requestMatchers("/admin/**").hasAuthority("ADMIN") // Proteger rutas /admin/**
-		        .anyRequest().authenticated()
-		    )
-		    .formLogin(form -> form
-		        .loginPage("/login") // Specifies the custom login page
-		        .defaultSuccessUrl("/menuprincipal", true) // Redirects to /home on successful login
-		        .failureUrl("/login?error=true") // Redirects to /login with an error parameter on failure
-		        .permitAll()
-		    )
-		    .logout(logout -> logout
-		        .logoutUrl("/logout")
-		        .logoutSuccessUrl("/login?logout=true")
-		        .permitAll()
-		    );
+        http
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/registro", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/authenticate") // URL a la que se envía el formulario de login
+                .usernameParameter("username") // Nombre del campo de usuario en el formulario
+                .passwordParameter("password") // Nombre del campo de contraseña en el formulario
+                .defaultSuccessUrl("/menuprincipal", true)
+                .failureUrl("/login?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout=true")
+                .permitAll()
+            );
 
         return http.build();
     }
-	
-//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(usuarioDetailsService).passwordEncoder(passwordEncoder());
-//    }
-
+    
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    }
 }
