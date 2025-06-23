@@ -1,0 +1,48 @@
+package es.ubu.config;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import es.ubu.reservapp.model.entities.Usuario;
+import es.ubu.reservapp.model.repositories.UsuarioRepo;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private UsuarioRepo usuarioRepo;
+    
+	public CustomUserDetailsService(UsuarioRepo usuarioRepo) {
+		this.usuarioRepo = usuarioRepo;
+	}
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Usuario usuario = usuarioRepo.findById(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        
+        // Añadir rol de administrador si corresponde
+        if (usuario.isAdministrador()) {
+            authorities.add(new SimpleGrantedAuthority("ADMIN"));
+        } else {
+            authorities.add(new SimpleGrantedAuthority("USER"));
+        }
+        
+        // Añadir roles adicionales desde perfiles si existen
+        if (usuario.getPerfil() != null) {
+            usuario.getPerfil().forEach(perfil -> 
+                authorities.add(new SimpleGrantedAuthority(perfil.getNombre()))
+            );
+        }
+
+        // Crear un UserDetails personalizado que incluya los campos adicionales del usuario
+        return new CustomUserDetails(usuario, authorities);
+    }
+}
