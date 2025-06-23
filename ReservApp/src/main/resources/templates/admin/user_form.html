@@ -26,6 +26,32 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        
+        /* Estilos para el encabezado del formulario con icono y descripción */
+        .form-header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-icon {
+            font-size: 2.5rem;
+            color: #007bff;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .form-header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-header p {
+            color: #6c757d;
+            font-size: 1rem;
+        }
         </style>
     </th:block>
 </head>
@@ -63,6 +89,16 @@
     <!-- Main Content -->
     <div class="container mt-4">
         <div class="menu-container">
+            <!-- Form Header with Icon and Description -->
+            <div class="form-header">
+                <i class="fas fa-user-plus form-icon" th:unless="${isEdit}"></i>
+                <i class="fas fa-user-edit form-icon" th:if="${isEdit}"></i>
+                <h1 class="mb-0" th:if="${isEdit}">Editar Usuario</h1>
+                <h1 class="mb-0" th:unless="${isEdit}">Crear Nuevo Usuario</h1>
+                <p class="mb-0 mt-2 opacity-75" th:if="${isEdit}">Modifica la información del usuario seleccionado</p>
+                <p class="mb-0 mt-2 opacity-75" th:unless="${isEdit}">Completa el formulario para añadir un nuevo usuario al sistema</p>
+            </div>
+            
             <div class="menu-body">
                 <div class="row justify-content-center">
                     <div class="col-lg-10">
