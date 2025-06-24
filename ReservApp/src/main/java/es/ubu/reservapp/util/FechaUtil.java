@@ -1,6 +1,7 @@
 package es.ubu.reservapp.util;
 
 import java.time.DayOfWeek;
+import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
@@ -37,8 +38,29 @@ public class FechaUtil {
         
         // Capitalizar la primera letra para asegurar un formato consistente (ej. "Lunes" en vez de "lunes")
         if (diaFormateado == null || diaFormateado.isEmpty()) {
-            return ""; // Se devuelve cadena vacía si el nombre es nulo o vacío
+            return "";
         }
         return diaFormateado.substring(0, 1).toUpperCase() + diaFormateado.substring(1);
+    }
+    
+    /**
+     * Formatea un número de mes a su representación en español.
+     * 
+     * @param mes El número del mes (1-12) a formatear.
+     * @return El nombre del mes en español, con la primera letra en mayúscula.
+     */
+    public static String formatearMes(int mes) {
+        if (mes < 1 || mes > 12) {
+            return "";
+        }
+        
+        Month month = Month.of(mes);
+        String mesFormateado = month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.forLanguageTag("es-ES"));
+        
+        // Capitalizar la primera letra para asegurar un formato consistente (ej. "Enero" en vez de "enero")
+        if (mesFormateado == null || mesFormateado.isEmpty()) {
+            return "";
+        }
+        return mesFormateado.substring(0, 1).toUpperCase() + mesFormateado.substring(1);
     }
 }

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='Calendario Mensual de Reservas', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
+            .calendario-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            
+            .calendario-title {
+                color: #2c3e50;
+                margin-bottom: 20px;
+                text-align: center;
+                font-weight: 600;
+            }
+            
+            .establecimiento-info {
+                background-color: #f8f9fa;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            
+            .establecimiento-info h2 {
+                color: #3498db;
+                font-size: 1.4rem;
+                margin-bottom: 10px;
+            }
+            
+            .establecimiento-info p {
+                margin: 5px 0;
+                display: flex;
+                align-items: center;
+            }
+            
+            .establecimiento-info i {
+                margin-right: 10px;
+                color: #3498db;
+                width: 20px;
+                text-align: center;
+            }
+            
+            .calendario-navegacion {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                background-color: #3498db;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 8px;
+            }
+            
+            .mes-actual {
+                font-size: 1.5rem;
+                font-weight: 600;
+            }
+            
+            .nav-btn {
+                background-color: white;
+                color: #3498db;
+                border: none;
+                padding: 8px 15px;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+            }
+            
+            .nav-btn:hover {
+                background-color: #f1f1f1;
+            }
+            
+            .nav-btn i {
+                margin: 0 5px;
+            }
+            
+            .calendario {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 30px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            
+            .calendario th {
+                background-color: #3498db;
+                color: white;
+                padding: 15px;
+                text-align: center;
+                font-weight: 600;
+            }
+            
+            .calendario td {
+                border: 1px solid #e1e1e1;
+                padding: 10px;
+                height: 100px;
+                vertical-align: top;
+                background-color: white;
+            }
+            
+            .dia-numero {
+                font-weight: 600;
+                font-size: 1.2rem;
+                margin-bottom: 5px;
+                color: #2c3e50;
+            }
+            
+            .dia-vacio {
+                background-color: #f8f9fa;
+            }
+            
+            .dia-hoy {
+                background-color: #e8f4fd;
+            }
+            
+            .dia-hoy .dia-numero {
+                color: #3498db;
+            }
+            
+            .reservas-count {
+                margin-top: 5px;
+                font-size: 0.9rem;
+            }
+            
+            .reservas-count.has-reservas {
+                color: #3498db;
+                font-weight: 600;
+            }
+            
+            .reservas-count.no-reservas {
+                color: #7f8c8d;
+            }
+            
+            .ver-dia {
+                display: block;
+                margin-top: 10px;
+                background-color: #3498db;
+                color: white;
+                padding: 5px 10px;
+                border-radius: 4px;
+                text-align: center;
+                text-decoration: none;
+                font-size: 0.9rem;
+                transition: background-color 0.3s ease;
+            }
+            
+            .ver-dia:hover {
+                background-color: #2980b9;
+            }
+            
+            .back-links {
+                margin-top: 30px;
+                text-align: center;
+            }
+            
+            .back-link {
+                display: inline-block;
+                margin: 0 10px;
+                color: #3498db;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+            
+            .back-link:hover {
+                color: #2980b9;
+            }
+            
+            .alert {
+                padding: 15px;
+                margin-bottom: 20px;
+                border-radius: 4px;
+                opacity: 1;
+                transition: opacity 0.3s ease;
+            }
+            
+            .alert-danger {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+            
+            .alert-success {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+            
+            .alert i {
+                margin-right: 10px;
+            }
+        </style>
+    </th:block>
+</head>
+
+<body>
+    <div th:replace="~{fragments/_header :: header(pageTitle='Calendario Mensual de Reservas')}"></div>
+
+    <div class="calendario-container">
+        <h1 class="calendario-title">
+            <i class="fas fa-calendar-alt"></i>
+            Calendario Mensual de Reservas
+        </h1>
+
+        <!-- Mensajes de error y éxito -->
+        <div th:if="${param.error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${param.error}">Error</span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${error}">Error</span>
+        </div>
+        <div th:if="${success}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}">Éxito</span>
+        </div>
+
+        <!-- Información del establecimiento -->
+        <div class="establecimiento-info" th:if="${establecimiento}">
+            <h2><i class="fas fa-store"></i> <span th:text="${establecimiento.nombre}">Nombre del Establecimiento</span></h2>
+            <p><i class="fas fa-map-marker-alt"></i> <span th:text="${establecimiento.direccion ?: 'No disponible'}">Dirección</span></p>
+            <p><i class="fas fa-phone"></i> <span th:text="${establecimiento.telefono ?: 'No disponible'}">Teléfono</span></p>
+            <p><i class="fas fa-info-circle"></i> Estado: 
+               <span th:text="${establecimiento.activo ? 'Activo' : 'Inactivo'}" 
+                     th:class="${establecimiento.activo ? 'text-success' : 'text-danger'}">Estado</span></p>
+        </div>
+
+        <!-- Navegación del calendario -->
+        <div class="calendario-navegacion">
+            <a th:href="@{/admin/reservas/establecimiento/{id}(id=${establecimiento.id}, mes=${mesPrevio}, anio=${anioPrevio})}" 
+               class="nav-btn">
+                <i class="fas fa-chevron-left"></i> Mes Anterior
+            </a>
+            <div class="mes-actual">
+                <span th:text="${nombreMes}">Mes</span> <span th:text="${anioActual}">Año</span>
+            </div>
+            <a th:href="@{/admin/reservas/establecimiento/{id}(id=${establecimiento.id}, mes=${mesSiguiente}, anio=${anioSiguiente})}" 
+               class="nav-btn">
+                Mes Siguiente <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+
+        <!-- Calendario mensual -->
+        <table class="calendario">
+            <thead>
+                <tr>
+                    <th>Lunes</th>
+                    <th>Martes</th>
+                    <th>Miércoles</th>
+                    <th>Jueves</th>
+                    <th>Viernes</th>
+                    <th>Sábado</th>
+                    <th>Domingo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="semana : ${#numbers.sequence(0, 5)}">
+                    <td th:each="diaSemana : ${#numbers.sequence(1, 7)}" 
+                        th:with="diaActual=${semana * 7 + diaSemana - primerDiaSemana + 1}"
+                        th:class="${diaActual &lt;= 0 || diaActual &gt; diasMes ? 'dia-vacio' : 
+                                 (#dates.format(#dates.createNow(), 'yyyy-MM-dd') == #dates.format(#dates.create(anioActual, mesActual, diaActual), 'yyyy-MM-dd')) ? 'dia-hoy' : ''}">
+                        
+                        <!-- Contenido del día (solo para días válidos del mes) -->
+                        <div th:if="${diaActual &gt; 0 && diaActual &lt;= diasMes}">
+                            <div class="dia-numero" th:text="${diaActual}">1</div>
+                            
+                            <!-- Contador de reservas -->
+                            <div th:with="reservasDia=${reservasPorDia.get(diaActual)}" 
+                                 th:class="${reservasDia != null && !reservasDia.isEmpty() ? 'reservas-count has-reservas' : 'reservas-count no-reservas'}">
+                                <span th:if="${reservasDia != null && !reservasDia.isEmpty()}">
+                                    <i class="fas fa-bookmark"></i> 
+                                    <span th:text="${reservasDia.size() + ' reserva' + (reservasDia.size() != 1 ? 's' : '')}">0 reservas</span>
+                                </span>
+                                <span th:if="${reservasDia == null || reservasDia.isEmpty()}">
+                                    <i class="fas fa-calendar-day"></i> Sin reservas
+                                </span>
+                            </div>
+                            
+                            <!-- Enlace para ver detalle del día -->
+                            <a th:href="@{/admin/reservas/establecimiento/{id}/dia(id=${establecimiento.id}, dia=${diaActual}, mes=${mesActual}, anio=${anioActual})}" 
+                               class="ver-dia">
+                                <i class="fas fa-eye"></i> Ver Detalle
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Enlaces de navegación -->
+        <div class="back-links">
+            <a th:href="@{/admin/reservas}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Volver a Establecimientos
+            </a>
+            <a th:href="@{/menuprincipal}" class="back-link">
+                <i class="fas fa-home"></i> Menú Principal
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-ocultar alertas después de 5 segundos
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.opacity = '0';
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>

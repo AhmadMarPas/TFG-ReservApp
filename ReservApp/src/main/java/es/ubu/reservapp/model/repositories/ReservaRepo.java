@@ -23,26 +23,37 @@ import es.ubu.reservapp.model.entities.Usuario;
 @Repository
 public interface ReservaRepo extends JpaRepository<Reserva, Integer> {
 
-    /**
-     * Busca todas las reservas de un usuario para un establecimiento específico
-     * que son anteriores a la fecha actual (reservas pasadas).
-     * 
-     * @param usuario Usuario que realizó las reservas
-     * @param establecimiento Establecimiento donde se realizaron las reservas
-     * @param fechaActual Fecha actual para comparar
-     * @return Lista de reservas pasadas
-     */
+	/**
+	 * Busca todas las reservas de un usuario para un establecimiento específico que
+	 * son anteriores a la fecha actual (reservas pasadas).
+	 * 
+	 * @param usuario         Usuario que realizó las reservas
+	 * @param establecimiento Establecimiento donde se realizaron las reservas
+	 * @param fechaActual     Fecha actual para comparar
+	 * @return Lista de reservas pasadas
+	 */
     List<Reserva> findByUsuarioAndEstablecimientoAndFechaReservaBefore(Usuario usuario, Establecimiento establecimiento, LocalDateTime fechaActual);
     
-    /**
-     * Busca todas las reservas de un usuario para un establecimiento específico
-     * que son posteriores o iguales a la fecha actual (reservas futuras).
-     * 
-     * @param usuario Usuario que realizó las reservas
-     * @param establecimiento Establecimiento donde se realizaron las reservas
-     * @param fechaActual Fecha actual para comparar
-     * @return Lista de reservas futuras
-     */
+	/**
+	 * Busca todas las reservas de un usuario para un establecimiento específico que
+	 * son posteriores o iguales a la fecha actual (reservas futuras).
+	 * 
+	 * @param usuario         Usuario que realizó las reservas
+	 * @param establecimiento Establecimiento donde se realizaron las reservas
+	 * @param fechaActual     Fecha actual para comparar
+	 * @return Lista de reservas futuras
+	 */
     List<Reserva> findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(Usuario usuario, Establecimiento establecimiento, LocalDateTime fechaActual);
+
+	/**
+	 * Busca todas las reservas para un establecimiento específico que están dentro
+	 * de un rango de fechas (inclusive inicio, exclusive fin).
+	 * 
+	 * @param establecimiento Establecimiento donde se realizaron las reservas
+	 * @param fechaInicio     Fecha de inicio del rango (inclusive)
+	 * @param fechaFin        Fecha de fin del rango (exclusive)
+	 * @return Lista de reservas dentro del rango de fechas
+	 */
+    List<Reserva> findByEstablecimientoAndFechaReservaBetween(Establecimiento establecimiento, LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
 }

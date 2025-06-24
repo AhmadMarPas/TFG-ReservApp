@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='Detalle de Reservas por Día', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
+            .detalle-dia-container {
+                max-width: 1000px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            
+            .detalle-dia-title {
+                color: #2c3e50;
+                margin-bottom: 20px;
+                text-align: center;
+                font-weight: 600;
+            }
+            
+            .fecha-info {
+                background-color: #3498db;
+                color: white;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                text-align: center;
+                font-size: 1.3rem;
+                font-weight: 600;
+            }
+            
+            .establecimiento-info {
+                background-color: #f8f9fa;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            
+            .establecimiento-info h2 {
+                color: #3498db;
+                font-size: 1.4rem;
+                margin-bottom: 10px;
+            }
+            
+            .establecimiento-info p {
+                margin: 5px 0;
+                display: flex;
+                align-items: center;
+            }
+            
+            .establecimiento-info i {
+                margin-right: 10px;
+                color: #3498db;
+                width: 20px;
+                text-align: center;
+            }
+            
+            .reservas-list {
+                margin-top: 20px;
+            }
+            
+            .reserva-card {
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                margin-bottom: 15px;
+                padding: 15px;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .reserva-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #e1e1e1;
+            }
+            
+            .reserva-id {
+                font-weight: 600;
+                color: #3498db;
+            }
+            
+            .reserva-hora {
+                font-weight: 600;
+                background-color: #3498db;
+                color: white;
+                padding: 5px 10px;
+                border-radius: 4px;
+            }
+            
+            .reserva-info {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .reserva-info-item {
+                display: flex;
+                align-items: center;
+            }
+            
+            .reserva-info-item i {
+                margin-right: 10px;
+                color: #3498db;
+                width: 20px;
+                text-align: center;
+            }
+            
+            .no-reservas {
+                text-align: center;
+                padding: 30px;
+                background-color: #f8f9fa;
+                border-radius: 8px;
+                margin-top: 20px;
+            }
+            
+            .back-links {
+                margin-top: 30px;
+                text-align: center;
+            }
+            
+            .back-link {
+                display: inline-block;
+                margin: 0 10px;
+                color: #3498db;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+            
+            .back-link:hover {
+                color: #2980b9;
+            }
+            
+            .alert {
+                padding: 15px;
+                margin-bottom: 20px;
+                border-radius: 4px;
+                opacity: 1;
+                transition: opacity 0.3s ease;
+            }
+            
+            .alert-danger {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+            
+            .alert-success {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+            
+            .alert i {
+                margin-right: 10px;
+            }
+        </style>
+    </th:block>
+</head>
+
+<body>
+    <div th:replace="~{fragments/_header :: header(pageTitle='Detalle de Reservas por Día')}"></div>
+
+    <div class="detalle-dia-container">
+        <h1 class="detalle-dia-title">
+            <i class="fas fa-calendar-day"></i>
+            Detalle de Reservas por Día
+        </h1>
+
+        <!-- Mensajes de error y éxito -->
+        <div th:if="${param.error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${param.error}">Error</span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${error}">Error</span>
+        </div>
+        <div th:if="${success}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}">Éxito</span>
+        </div>
+
+        <!-- Información de la fecha -->
+        <div class="fecha-info" th:if="${fechaSeleccionada}">
+            <i class="fas fa-calendar-alt"></i>
+            <span th:text="${nombreDia + ', ' + fechaSeleccionada.getDayOfMonth() + ' de ' + nombreMes + ' de ' + fechaSeleccionada.getYear()}">Lunes, 1 de Enero de 2023</span>
+        </div>
+
+        <!-- Información del establecimiento -->
+        <div class="establecimiento-info" th:if="${establecimiento}">
+            <h2><i class="fas fa-store"></i> <span th:text="${establecimiento.nombre}">Nombre del Establecimiento</span></h2>
+            <p><i class="fas fa-map-marker-alt"></i> <span th:text="${establecimiento.direccion ?: 'No disponible'}">Dirección</span></p>
+            <p><i class="fas fa-phone"></i> <span th:text="${establecimiento.telefono ?: 'No disponible'}">Teléfono</span></p>
+            <p><i class="fas fa-info-circle"></i> Estado: 
+               <span th:text="${establecimiento.activo ? 'Activo' : 'Inactivo'}" 
+                     th:class="${establecimiento.activo ? 'text-success' : 'text-danger'}">Estado</span></p>
+        </div>
+
+        <!-- Lista de reservas -->
+        <div class="no-reservas" th:if="${reservas == null or reservas.isEmpty()}">
+            <i class="fas fa-calendar-times fa-3x"></i>
+            <h3>No hay reservas para este día</h3>
+            <p>No se encontraron reservas para la fecha seleccionada en este establecimiento.</p>
+        </div>
+
+        <div class="reservas-list" th:if="${reservas != null and !reservas.isEmpty()}">
+            <h2><i class="fas fa-list"></i> Reservas del día (<span th:text="${reservas.size()}">0</span>)</h2>
+            
+            <div class="reserva-card" th:each="reserva : ${reservas}">
+                <div class="reserva-header">
+                    <div class="reserva-id">
+                        <i class="fas fa-bookmark"></i> Reserva #<span th:text="${reserva.id}">ID</span>
+                    </div>
+                    <div class="reserva-hora">
+                        <i class="fas fa-clock"></i> <span th:text="${#temporals.format(reserva.fechaReserva, 'HH:mm')}">Hora</span>
+                    </div>
+                </div>
+                <div class="reserva-info">
+                    <div class="reserva-info-item">
+                        <i class="fas fa-user"></i> 
+                        <span>Usuario: <strong th:text="${reserva.usuario != null ? reserva.usuario.nombre + ' ' + reserva.usuario.apellidos : 'Usuario no disponible'}">Nombre Usuario</strong></span>
+                    </div>
+                    <div class="reserva-info-item">
+                        <i class="fas fa-envelope"></i> 
+                        <span>Email: <strong th:text="${reserva.usuario != null ? reserva.usuario.correo : 'Email no disponible'}">email@ejemplo.com</strong></span>
+                    </div>
+                    <div class="reserva-info-item">
+                        <i class="fas fa-calendar-plus"></i> 
+                        <span>Creada: <strong th:text="${#temporals.format(reserva.fechaReserva, 'dd/MM/yyyy HH:mm')}">01/01/2023 12:00</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enlaces de navegación -->
+        <div class="back-links">
+            <a th:href="@{/admin/reservas/establecimiento/{id}(id=${establecimiento.id}, mes=${fechaSeleccionada.getMonthValue()}, anio=${fechaSeleccionada.getYear()})}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Volver al Calendario
+            </a>
+            <a th:href="@{/admin/reservas}" class="back-link">
+                <i class="fas fa-building"></i> Volver a Establecimientos
+            </a>
+            <a th:href="@{/menuprincipal}" class="back-link">
+                <i class="fas fa-home"></i> Menú Principal
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-ocultar alertas después de 5 segundos
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.opacity = '0';
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>
