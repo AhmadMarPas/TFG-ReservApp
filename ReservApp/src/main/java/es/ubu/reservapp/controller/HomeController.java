@@ -52,6 +52,10 @@ public class HomeController {
     @GetMapping("/misreservas")
     public String misReservas(Model model) {
         Usuario usuario = sessionData.getUsuario();
+		if (usuario == null) {
+			log.warn("Usuario no autenticado al intentar acceder a mis reservas.");
+			return "redirect:/login";
+		}
         List<Establecimiento> establecimientos = usuario.getEstablecimiento();
         model.addAttribute("establecimientos", establecimientos);
         return "reservas/misreservas";
