@@ -35,7 +35,8 @@ jobs:
           --health-retries=5
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up JDK 21
@@ -43,6 +44,10 @@ jobs:
         with:
           java-version: 21
           distribution: 'zulu' # Alternative distribution options are available.
+      - name: Clean project
+        run: mvn clean
+      - name: Build with Maven
+        run: mvn install
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
