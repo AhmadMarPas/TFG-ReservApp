@@ -17,6 +17,23 @@ jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4.5
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: admin
+          MYSQL_DATABASE: reservapp
+          MYSQL_USER: reservapp
+          MYSQL_PASSWORD: reservapp
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - uses: actions/checkout@v4
         with:
