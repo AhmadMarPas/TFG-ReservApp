@@ -44,10 +44,8 @@ jobs:
         with:
           java-version: 21
           distribution: 'zulu' # Alternative distribution options are available.
-      - name: Clean project
-        run: mvn clean
-      - name: Build with Maven
-        run: mvn install
+      - name: Clean and build
+        run: cd ReservApp && mvn clean install
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
