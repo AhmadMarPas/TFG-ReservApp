@@ -28,7 +28,9 @@
 		<url/>
 	</scm>
 	<properties>
-		<java.version>21</java.version>
+		<sonar.organization>ahmadmarpas</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+  		<java.version>21</java.version>
 		<mockito.version>5.14.2</mockito.version>
 		<argLine></argLine>
 	</properties>
