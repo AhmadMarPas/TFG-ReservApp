@@ -64,5 +64,4 @@ jobs:
         run: mvn -B verify -Pcoverage org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
              -Dsonar.projectKey=ReservApp -Dsonar.branch.name=main \
              -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-             mvn -B verify -Pcoverage org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
         working-directory: ./ReservApp
