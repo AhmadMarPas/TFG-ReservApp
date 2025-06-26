@@ -39,6 +39,9 @@ public class EstablecimientoController {
 	private static final String ESTABLECIMIENTO_LISTADO = "establecimientos/listado";
 	private static final String REDIRECT_LISTADO = "redirect:/admin/" + ESTABLECIMIENTO_LISTADO;
 	private static final String REDIRECT_FORMULARIO = "establecimientos/formulario";
+	private static final String ERROR = "error";
+	private static final String EXITO = "exito";
+	private static final String IS_EDIT= "isEdit";
 	
 	/** 
 	 * Servicio para gestionar establecimientos.
@@ -86,7 +89,7 @@ public class EstablecimientoController {
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevo(Model model) {
         model.addAttribute(ESTABLECIMIENTO, new Establecimiento());
-        model.addAttribute("isEdit", false);
+        model.addAttribute(IS_EDIT, false);
         return REDIRECT_FORMULARIO;
     }
 
@@ -104,10 +107,10 @@ public class EstablecimientoController {
 
         if (establecimientoOptional.isPresent()) {
             model.addAttribute(ESTABLECIMIENTO, establecimientoOptional.get());
-            model.addAttribute("isEdit", true);
+            model.addAttribute(IS_EDIT, true);
             return REDIRECT_FORMULARIO;
         } else {
-            redirectAttributes.addFlashAttribute("error", "Establecimiento no encontrado con ID: " + id);
+            redirectAttributes.addFlashAttribute(ERROR, "Establecimiento no encontrado con ID: " + id);
             return REDIRECT_LISTADO;
         }
     }
@@ -119,10 +122,10 @@ public class EstablecimientoController {
         if (establecimientoOptional.isPresent()) {
         	establecimientoOptional.get().setActivo(!establecimientoOptional.get().isActivo());
             establecimientoService.save(establecimientoOptional.get());
-            redirectAttributes.addFlashAttribute("exito", "Establecimiento actualizado correctamente.");
+            redirectAttributes.addFlashAttribute(EXITO, "Establecimiento actualizado correctamente.");
             return REDIRECT_LISTADO;
         } else {
-            redirectAttributes.addFlashAttribute("error", "Establecimiento no encontrado con ID: " + id);
+            redirectAttributes.addFlashAttribute(ERROR, "Establecimiento no encontrado con ID: " + id);
             return REDIRECT_LISTADO;
         }
     }
@@ -140,8 +143,8 @@ public class EstablecimientoController {
     public String guardarEstablecimiento(@Valid @ModelAttribute("establecimiento") Establecimiento establecimiento,
                                        BindingResult result, Model model, RedirectAttributes redirectAttributes) {
     	if (result.hasErrors()) {
-    		model.addAttribute("isEdit", establecimiento.getId() != null);
-    		model.addAttribute("error", "Por favor, corrija los errores en el formulario");
+    		model.addAttribute(IS_EDIT, establecimiento.getId() != null);
+    		model.addAttribute(ERROR, "Por favor, corrija los errores en el formulario");
     		return REDIRECT_FORMULARIO;
     	}
     	boolean isNewUser = establecimiento.getId() == null;
@@ -154,13 +157,13 @@ public class EstablecimientoController {
             }
 
             establecimientoService.save(establecimiento);
-            redirectAttributes.addFlashAttribute("exito", "Establecimiento " + (isNewUser ? "creado" : "actualizado") + " correctamente.");
+            redirectAttributes.addFlashAttribute(EXITO, "Establecimiento " + (isNewUser ? "creado" : "actualizado") + " correctamente.");
             return REDIRECT_LISTADO;
 
         } catch (Exception e) {
-            model.addAttribute("isEdit", establecimiento.getId() != null);
+            model.addAttribute(IS_EDIT, establecimiento.getId() != null);
             model.addAttribute(ESTABLECIMIENTO, establecimiento);
-            model.addAttribute("error", "Error al guardar el establecimiento: " + e.getMessage());
+            model.addAttribute(ERROR, "Error al guardar el establecimiento: " + e.getMessage());
             return REDIRECT_FORMULARIO;
         }
     }

@@ -3,8 +3,6 @@ package es.ubu.reservapp.model.entities;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.io.Serializable;
-
 import org.junit.jupiter.api.Test;
 
 import es.ubu.reservapp.model.EntidadID;

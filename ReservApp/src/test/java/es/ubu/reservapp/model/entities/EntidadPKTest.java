@@ -90,7 +90,7 @@ class EntidadPKTest {
     void testToString() {
         String result = entidad1.toString();
         
-        assertEquals(result, "EntidadPKImpl[1]");
+        assertEquals("EntidadPKImpl[1]", result);
     }
 
     @Test

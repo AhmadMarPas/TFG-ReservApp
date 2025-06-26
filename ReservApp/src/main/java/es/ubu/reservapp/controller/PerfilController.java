@@ -36,6 +36,9 @@ public class PerfilController {
     private static final String LISTADO_VIEW = "perfiles/listado";
     private static final String FORMULARIO_VIEW = "perfiles/formulario";
     private static final String REDIRECT_LISTADO = "redirect:/admin/perfiles/listado";
+    private static final String ERROR = "error";
+    private static final String EXITO = "exito";
+	private static final String IS_EDIT= "isEdit";
 
 	/**
 	 * Servicio para gestionar perfiles.
@@ -66,7 +69,7 @@ public class PerfilController {
             model.addAttribute("perfiles", perfiles);
             model.addAttribute("perfilActivoCount", perfilActivoCount);
         } catch (Exception e) {
-            model.addAttribute("error", "Error al cargar la lista de perfiles: " + e.getMessage());
+            model.addAttribute(ERROR, "Error al cargar la lista de perfiles: " + e.getMessage());
         }
         return LISTADO_VIEW;
     }
@@ -80,7 +83,7 @@ public class PerfilController {
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevoPerfil(Model model) {
         model.addAttribute(PERFIL_ATTRIBUTE, new Perfil());
-        model.addAttribute("isEdit", false);
+        model.addAttribute(IS_EDIT, false);
         return FORMULARIO_VIEW;
     }
 
@@ -98,14 +101,14 @@ public class PerfilController {
         try {
         	Optional<Perfil> perfilOptional = perfilService.findById(id);
         	if (!perfilOptional.isPresent()) { 
-                redirectAttributes.addFlashAttribute("error", "Perfil no encontrado");
+                redirectAttributes.addFlashAttribute(ERROR, "Perfil no encontrado");
                 return REDIRECT_LISTADO;
             }
-            model.addAttribute("perfil", perfilOptional.get());
-            model.addAttribute("isEdit", true);
+            model.addAttribute(PERFIL_ATTRIBUTE, perfilOptional.get());
+            model.addAttribute(IS_EDIT, true);
             return FORMULARIO_VIEW;
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al cargar el perfil: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(ERROR, "Error al cargar el perfil: " + e.getMessage());
             return REDIRECT_LISTADO;
         }
     }
@@ -127,7 +130,7 @@ public class PerfilController {
                                 RedirectAttributes redirectAttributes,
                                 Model model) {
         if (bindingResult.hasErrors()) {
-        	model.addAttribute("isEdit", perfil.getId() != null);
+        	model.addAttribute(IS_EDIT, perfil.getId() != null);
             return FORMULARIO_VIEW;
         }
 
@@ -139,7 +142,7 @@ public class PerfilController {
 				// Actualizar perfil existente
 				Optional<Perfil> perfilOptional = perfilService.findById(perfil.getId());
 				if (!perfilOptional.isPresent()) {
-					redirectAttributes.addFlashAttribute("error", "Perfil no encontrado para actualizar");
+					redirectAttributes.addFlashAttribute(ERROR, "Perfil no encontrado para actualizar");
 					return REDIRECT_LISTADO;
 				} else if ((perfil.getId() == null || !perfilOptional.get().getId().equals(perfil.getId()))) {
 					bindingResult.rejectValue("nombre", "error.perfil", "Ya existe un perfil con este nombre.");
@@ -148,18 +151,18 @@ public class PerfilController {
 				}
 
 				perfilService.save(perfil);
-				redirectAttributes.addFlashAttribute("exito", "Perfil actualizado correctamente");
+				redirectAttributes.addFlashAttribute(EXITO, "Perfil actualizado correctamente");
 			} else {
 				// Crear nuevo perfil
 				perfilService.save(perfil);
-				redirectAttributes.addFlashAttribute("exito", "Perfil creado correctamente");
+				redirectAttributes.addFlashAttribute(EXITO, "Perfil creado correctamente");
 			}
 
 			return REDIRECT_LISTADO;
 
 		} catch (Exception e) {
-			model.addAttribute("error", "Error al guardar el perfil: " + e.getMessage());
-			model.addAttribute("isEdit", perfil.getId() != null);
+			model.addAttribute(ERROR, "Error al guardar el perfil: " + e.getMessage());
+			model.addAttribute(IS_EDIT, perfil.getId() != null);
 			return FORMULARIO_VIEW;
 		}
     }
@@ -178,22 +181,22 @@ public class PerfilController {
         if (perfilOptional.isPresent()) {
             Perfil perfil = perfilOptional.get();
             if ("ADMIN".equalsIgnoreCase(perfil.getNombre())) {
-                redirectAttributes.addFlashAttribute("error", "El perfil 'ADMIN' no puede ser eliminado.");
+                redirectAttributes.addFlashAttribute(ERROR, "El perfil 'ADMIN' no puede ser eliminado.");
                 return REDIRECT_LISTADO;
             }
             // Aquí también se podría verificar si el perfil está en uso por algún usuario.
             // Si está en uso, se podría impedir la eliminación o mostrar una advertencia.
         } else {
-            redirectAttributes.addFlashAttribute("error", "Perfil no encontrado con ID: " + id);
+            redirectAttributes.addFlashAttribute(ERROR, "Perfil no encontrado con ID: " + id);
             return REDIRECT_LISTADO;
         }
 
         try {
             perfilService.deleteById(id);
-            redirectAttributes.addFlashAttribute("exito", "Perfil eliminado correctamente.");
+            redirectAttributes.addFlashAttribute(EXITO, "Perfil eliminado correctamente.");
         } catch (Exception e) {
             log.error("Error al eliminar perfil: {}", e.getMessage(), e);
-            redirectAttributes.addFlashAttribute("error", "Error al eliminar el perfil. Es posible que esté asignado a usuarios.");
+            redirectAttributes.addFlashAttribute(ERROR, "Error al eliminar el perfil. Es posible que esté asignado a usuarios.");
         }
         return REDIRECT_LISTADO;
     }
