@@ -44,6 +44,8 @@ jobs:
         with:
           java-version: 21
           distribution: 'zulu' # Alternative distribution options are available.
+          cache: 'maven'
+          cache-dependency-path: './ReservApp/pom.xml' # optional
       - name: Clean and build
         run: cd ReservApp && mvn clean install
       - name: Cache SonarQube packages
@@ -61,5 +63,5 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn clean verify -Pcoverage org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=ReservApp -Dsonar.branch.name=main -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+        run: mvn -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=ReservApp -Dsonar.branch.name=main
         working-directory: ./ReservApp
