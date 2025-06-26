@@ -70,4 +70,22 @@ public class Reserva extends EntidadInfo<Integer> {
 		this.id = id;
 	}
 
+	@Override
+	public EntidadPK<Integer> copia() {
+		return new Reserva(this);
+	}
+
+	/**
+	 * Constructor de copia.
+	 * 
+	 * @param reserva Objeto Reserva a copiar.
+	 */
+	public Reserva(Reserva reserva) {
+		this.setId(reserva.getId());
+		this.setUsuario(reserva.getUsuario());
+		this.setEstablecimiento(reserva.getEstablecimiento());
+		this.setFechaReserva(reserva.getFechaReserva());
+		this.setHoraFin(reserva.getHoraFin());
+	}
+
 }

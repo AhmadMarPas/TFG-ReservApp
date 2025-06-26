@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test para la clase FranjaHoraria
  * 
- * @author Test Generator
+ * @author Ahmad Mareie Pascual
  * @version 1.0
  * @since 1.0
  */
@@ -46,14 +46,12 @@ class FranjaHorariaTest {
 
     @Test
     void testGettersAndSetters() {
-        // Verificar getters
         assertEquals(1, franjaHoraria.getId());
         assertEquals(diaSemana, franjaHoraria.getDiaSemana());
         assertEquals(horaInicio, franjaHoraria.getHoraInicio());
         assertEquals(horaFin, franjaHoraria.getHoraFin());
         assertEquals(establecimiento, franjaHoraria.getEstablecimiento());
         
-        // Probar setters con nuevos valores
         DayOfWeek nuevoDiaSemana = DayOfWeek.TUESDAY;
         LocalTime nuevaHoraInicio = LocalTime.of(10, 0);
         LocalTime nuevaHoraFin = LocalTime.of(19, 0);
@@ -67,7 +65,6 @@ class FranjaHorariaTest {
         franjaHoraria.setHoraFin(nuevaHoraFin);
         franjaHoraria.setEstablecimiento(nuevoEstablecimiento);
         
-        // Verificar nuevos valores
         assertEquals(2, franjaHoraria.getId());
         assertEquals(nuevoDiaSemana, franjaHoraria.getDiaSemana());
         assertEquals(nuevaHoraInicio, franjaHoraria.getHoraInicio());
@@ -102,7 +99,7 @@ class FranjaHorariaTest {
 
     @Test
     void testIsHoraFinAfterHoraInicioConAnotacion() {
-        // Arrange - Preparamos diferentes escenarios
+        // Preparamos diferentes escenarios
         FranjaHoraria franjaTest = new FranjaHoraria();
         franjaTest.setHoraInicio(LocalTime.of(9, 0));
         franjaTest.setHoraFin(LocalTime.of(18, 0));
@@ -147,7 +144,6 @@ class FranjaHorariaTest {
 
     @Test
     void testIsHoraFinAfterHoraInicioIndirecto() {
-        // Arrange
         FranjaHoraria franjaTest = new FranjaHoraria();
         franjaTest.setDiaSemana(DayOfWeek.MONDAY);
         franjaTest.setEstablecimiento(establecimiento);
@@ -184,16 +180,13 @@ class FranjaHorariaTest {
 
     @Test
     void testConstructorVacio() {
-        // Arrange & Act
         FranjaHoraria franjaVacia = new FranjaHoraria();
         
-        // Assert
         assertNotNull(franjaVacia);
     }
 
     @Test
     void testConstructorConParametros() {
-        // Arrange
         DayOfWeek diaTest = DayOfWeek.WEDNESDAY;
         LocalTime inicioTest = LocalTime.of(8, 30);
         LocalTime finTest = LocalTime.of(17, 30);
@@ -201,10 +194,8 @@ class FranjaHorariaTest {
         estTest.setId(3);
         estTest.setNombre("Establecimiento Constructor");
         
-        // Act
         FranjaHoraria franjaParametros = new FranjaHoraria(diaTest, inicioTest, finTest, estTest);
         
-        // Assert
         assertEquals(diaTest, franjaParametros.getDiaSemana());
         assertEquals(inicioTest, franjaParametros.getHoraInicio());
         assertEquals(finTest, franjaParametros.getHoraFin());
@@ -213,7 +204,6 @@ class FranjaHorariaTest {
 
     @Test
     void testConstructorCompleto() {
-        // Arrange
         Integer id = 4;
         DayOfWeek diaTest = DayOfWeek.THURSDAY;
         LocalTime inicioTest = LocalTime.of(7, 0);
@@ -221,10 +211,8 @@ class FranjaHorariaTest {
         Establecimiento estTest = new Establecimiento();
         estTest.setId(4);
         
-        // Act
         FranjaHoraria franjaCompleta = new FranjaHoraria(id, diaTest, inicioTest, finTest, estTest);
         
-        // Assert
         assertEquals(id, franjaCompleta.getId());
         assertEquals(diaTest, franjaCompleta.getDiaSemana());
         assertEquals(inicioTest, franjaCompleta.getHoraInicio());

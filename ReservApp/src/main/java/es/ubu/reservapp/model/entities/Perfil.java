@@ -66,4 +66,19 @@ public class Perfil extends EntidadInfo<Integer> {
 		this.id = id;
 	}
 
+	@Override
+	public EntidadPK<Integer> copia() {
+		return new Perfil(this);
+	}
+
+	/**
+	 * Constructor de copia.
+	 * 
+	 * @param perfil Perfil a copiar.
+	 */
+	public Perfil(Perfil perfil) {
+		this.setId(perfil.getId());
+		this.setNombre(perfil.getNombre());
+	}
+
 }

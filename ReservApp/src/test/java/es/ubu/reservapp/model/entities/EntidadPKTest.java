@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test para la clase EntidadPK
  * 
- * @author Test Generator
+ * @author Ahmad Mareie Pascual
  * @version 1.0
  * @since 1.0
  */
@@ -27,7 +27,11 @@ class EntidadPKTest {
             this.id = id;
         }
 
-        @Override
+        public EntidadPKImpl(EntidadPKImpl entidadPKImpl) {
+			this.setId(entidadPKImpl.getId());
+		}
+
+		@Override
         public Integer getId() {
             return id;
         }
@@ -36,6 +40,11 @@ class EntidadPKTest {
         public void setId(Integer id) {
             this.id = id;
         }
+
+		@Override
+		public EntidadPK<Integer> copia() {
+			return new EntidadPKImpl(this);
+		}
     }
 
     private EntidadPKImpl entidad1;
@@ -48,12 +57,11 @@ class EntidadPKTest {
         entidad1 = new EntidadPKImpl(1);
         entidad2 = new EntidadPKImpl(1);
         entidad3 = new EntidadPKImpl(2);
-        entidadNull = new EntidadPKImpl(null);
+        entidadNull = new EntidadPKImpl((Integer)null);
     }
 
     @Test
     void testHashCode() {
-        // Arrange & Act & Assert
         assertEquals(entidad1.hashCode(), entidad2.hashCode());
         assertNotEquals(entidad1.hashCode(), entidad3.hashCode());
         assertNotEquals(entidad1.hashCode(), entidadNull.hashCode());
@@ -61,45 +69,34 @@ class EntidadPKTest {
 
     @Test
     void testEquals() {
-        // Mismo objeto
         assertEquals(entidad1, entidad1);
         
-        // Null
-        assertNotEquals(entidad1, null);
+        assertNotEquals(null, entidad1);
         
-        // Diferente clase
-        assertNotEquals(entidad1, "not an entity");
+        assertNotEquals("not an entity", entidad1);
         
-        // Mismo ID
-        assertEquals(entidad1, entidad2);
+        assertEquals(entidad2, entidad1);
         
-        // Diferente ID
-        assertNotEquals(entidad1, entidad3);
+        assertNotEquals(entidad3, entidad1);
         
-        // ID null en uno
-        assertNotEquals(entidad1, entidadNull);
         assertNotEquals(entidadNull, entidad1);
+        assertNotEquals(entidad1, entidadNull);
         
-        // ID null en ambos
-        EntidadPKImpl otherNullId = new EntidadPKImpl(null);
-        assertEquals(entidadNull, otherNullId);
+        EntidadPKImpl otherNullId = new EntidadPKImpl((Integer)null);
+        assertEquals(otherNullId, entidadNull);
     }
 
     @Test
     void testToString() {
-        // Arrange & Act
         String result = entidad1.toString();
         
-        // Assert
-        assertEquals("EntidadPKImpl[1]", result);
+        assertEquals(result, "EntidadPKImpl[1]");
     }
 
     @Test
-    void testClone() throws CloneNotSupportedException {
-        // Arrange & Act
-        EntidadPK<Integer> cloned = entidad1.clone();
+    void testClone() {
+        EntidadPK<Integer> cloned = entidad1.copia();
         
-        // Assert
         assertNotNull(cloned);
         assertEquals(entidad1.getId(), cloned.getId());
         assertEquals(entidad1.getClass(), cloned.getClass());

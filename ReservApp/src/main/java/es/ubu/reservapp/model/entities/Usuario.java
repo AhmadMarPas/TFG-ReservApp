@@ -154,5 +154,16 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
 		this.id = id;
 	}
 
+	@Override
+	public EntidadPK<String> copia() {
+		return new Usuario(this);
+	}
+
+	public Usuario(Usuario usuario) {
+		this.setId(usuario.getId());
+		this.setNombre(usuario.getNombre());
+		this.setApellidos(usuario.getApellidos());
+		this.setCorreo(usuario.getCorreo());
+	}
 	
 }

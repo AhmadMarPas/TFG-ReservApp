@@ -7,7 +7,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,7 +15,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -86,11 +84,28 @@ public class FranjaHoraria extends EntidadInfo<Integer> {
         this.horaFin = horaFin;
         this.establecimiento = establecimiento;
     }
+    
+	/**
+	 * Constructor de copia para crear una nueva franja horaria a partir de otra.
+	 * 
+	 * @param franjaHoraria Franja horaria a copiar.
+	 */
+	public FranjaHoraria(FranjaHoraria franjaHoraria) {
+		this.setId(franjaHoraria.getId());
+		this.setDiaSemana(franjaHoraria.getDiaSemana());
+		this.setHoraInicio(franjaHoraria.getHoraInicio());
+		this.setHoraFin(franjaHoraria.getHoraFin());
+		this.setEstablecimiento(franjaHoraria.getEstablecimiento());
+	}
 
 	@Override
 	public void setId(Integer id) {
 		this.id = id;
-		
+	}
+
+	@Override
+	public EntidadPK<Integer> copia() {
+		return new FranjaHoraria(diaSemana, horaInicio, horaFin, establecimiento);
 	}
 
 }

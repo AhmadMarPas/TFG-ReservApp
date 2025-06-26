@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test para la clase Reserva
  * 
- * @author Test Generator
+ * @author Ahmad Mareie Pascual
  * @version 1.0
  * @since 1.0
  */
@@ -82,16 +82,13 @@ class ReservaTest {
 
     @Test
     void testConstructorVacio() {
-        // Arrange & Act
         Reserva reservaVacia = new Reserva();
         
-        // Assert
         assertNotNull(reservaVacia);
     }
 
     @Test
     void testConstructorConParametros() {
-        // Arrange
         Integer id = 3;
         Usuario usuarioTest = new Usuario();
         usuarioTest.setId("user3");
@@ -100,10 +97,8 @@ class ReservaTest {
         LocalDateTime fechaTest = LocalDateTime.now().plusDays(3);
         LocalTime horaTest = LocalTime.of(21, 0);
         
-        // Act
         Reserva reservaCompleta = new Reserva(id, usuarioTest, establecimientoTest, fechaTest, horaTest);
         
-        // Assert
         assertEquals(id, reservaCompleta.getId());
         assertEquals(usuarioTest, reservaCompleta.getUsuario());
         assertEquals(establecimientoTest, reservaCompleta.getEstablecimiento());

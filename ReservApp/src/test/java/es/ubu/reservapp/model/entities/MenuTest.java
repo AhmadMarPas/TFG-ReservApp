@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test para la clase Menu
  * 
- * @author Test Generator
+ * @author Ahmad Mareie Pascual
  * @version 1.0
  * @since 1.0
  */
@@ -45,24 +45,19 @@ class MenuTest {
 
     @Test
     void testConstructorVacio() {
-        // Arrange & Act
         Menu menuVacio = new Menu();
         
-        // Assert
         assertNotNull(menuVacio);
     }
 
     @Test
     void testConstructorConParametros() {
-        // Arrange
         Integer id = 3;
         Integer idPadre = 2;
         String nombre = "Menu Constructor";
         
-        // Act
         Menu menuCompleto = new Menu(id, idPadre, nombre);
         
-        // Assert
         assertEquals(id, menuCompleto.getId());
         assertEquals(idPadre, menuCompleto.getIdPadre());
         assertEquals(nombre, menuCompleto.getNombre());
@@ -70,15 +65,12 @@ class MenuTest {
 
     @Test
     void testHerenciaEntidadInfo() {
-        // Arrange
         Integer orden = 5;
         String usuarioCreaReg = "user1";
         
-        // Act
         menu.setOrden(orden);
         menu.setUsuarioCreaReg(usuarioCreaReg);
         
-        // Assert
         assertEquals(orden, menu.getOrden());
         assertEquals(usuarioCreaReg, menu.getUsuarioCreaReg());
     }

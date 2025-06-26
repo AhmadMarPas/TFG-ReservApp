@@ -8,7 +8,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +26,7 @@ import jakarta.validation.ConstraintViolationException;
 /**
  * Test para la clase SessionData
  * 
- * @author Test Generator
+ * @author Ahmad Mareie Pascual
  * @version 1.0
  * @since 1.0
  */
@@ -53,22 +52,18 @@ class SessionDataTest {
 
     @Test
     void testConstructorVacio() {
-        // Arrange & Act
         SessionData sessionDataVacia = new SessionData();
         
-        // Assert
         assertNotNull(sessionDataVacia);
     }
 
     @Test
     void testConstructorConParametros() {
-        // Arrange & Act & Assert
         assertNotNull(sessionData);
     }
 
     @Test
     void testGettersAndSetters() {
-        // Arrange
         List<Establecimiento> establecimientos = new ArrayList<>();
         Establecimiento establecimiento = new Establecimiento();
         establecimiento.setId(1);
@@ -79,12 +74,10 @@ class SessionDataTest {
         roles.add(1);
         roles.add(2);
         
-        // Act
         sessionData.setUsuario(usuario);
         sessionData.setLstEstablecimientoUsuario(establecimientos);
         sessionData.setLstRolesUsuario(roles);
         
-        // Assert
         assertEquals(usuario, sessionData.getUsuario());
         assertEquals(establecimientos, sessionData.getLstEstablecimientoUsuario());
         assertEquals(roles, sessionData.getLstRolesUsuario());
@@ -92,13 +85,10 @@ class SessionDataTest {
 
     @Test
     void testRegistroUsuarioEntradaExitoso() {
-        // Arrange
         when(usuarioRepo.findById("user1")).thenReturn(Optional.of(usuario));
         
-        // Act
         sessionData.registroUsuarioEntrada("user1");
         
-        // Assert
         assertEquals(usuario, sessionData.getUsuario());
         assertNotNull(usuario.getFechaUltimoAcceso());
         verify(usuarioRepo, times(1)).save(usuario);
@@ -106,42 +96,35 @@ class SessionDataTest {
 
     @Test
     void testRegistroUsuarioEntradaUsuarioNoEncontrado() {
-        // Arrange
         when(usuarioRepo.findById("userNoExiste")).thenReturn(Optional.empty());
         
-        // Act
         sessionData.registroUsuarioEntrada("userNoExiste");
         
-        // Assert
         assertEquals(null, sessionData.getUsuario());
         verify(usuarioRepo, times(0)).save(any(Usuario.class));
     }
 
     @Test
     void testRegistroUsuarioEntradaConExcepcion() {
-        // Arrange
         when(usuarioRepo.findById("user1")).thenReturn(Optional.of(usuario));
         when(usuarioRepo.save(usuario)).thenThrow(new RuntimeException("Error al guardar"));
         
-        // Act - No debería lanzar excepción, se maneja internamente
+        // No debería lanzar excepción, se maneja internamente
         sessionData.registroUsuarioEntrada("user1");
         
-        // Assert
         assertEquals(usuario, sessionData.getUsuario());
         assertNotNull(usuario.getFechaUltimoAcceso());
     }
 
     @Test
     void testRegistroUsuarioEntradaConConstraintViolationException() {
-        // Arrange
         ConstraintViolationException mockException = mock(ConstraintViolationException.class);
         when(usuarioRepo.findById("user1")).thenReturn(Optional.of(usuario));
         when(usuarioRepo.save(usuario)).thenThrow(mockException);
         
-        // Act - No debería lanzar excepción, se maneja internamente
+        // No debería lanzar excepción, se maneja internamente
         sessionData.registroUsuarioEntrada("user1");
         
-        // Assert
         assertEquals(usuario, sessionData.getUsuario());
         assertNotNull(usuario.getFechaUltimoAcceso());
     }

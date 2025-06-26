@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test para la clase Usuario
  * 
- * @author Test Generator
+ * @author Ahmad Mareie Pascual
  * @version 1.0
  * @since 1.0
  */
@@ -66,10 +66,9 @@ class UsuarioTest {
 
     @Test
     void testPrepareData() {
-        // Arrange
         usuario.setCorreo("CORREO@TEST.COM");
         
-        // Act - Usamos reflexión para acceder al método privado
+        // Usamos reflexión para acceder al método privado
         try {
             java.lang.reflect.Method method = Usuario.class.getDeclaredMethod("prepareData");
             method.setAccessible(true);
@@ -78,32 +77,29 @@ class UsuarioTest {
             org.junit.jupiter.api.Assertions.fail("No se pudo acceder al método privado: " + e.getMessage());
         }
         
-        // Assert
         assertEquals("correo@test.com", usuario.getCorreo());
     }
 
     @Test
     void testPrepareDataAlternativo() {
-        // Arrange
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setCorreo("CORREO2@TEST.COM");
         
-        // Act - Simulamos el comportamiento de @PrePersist/@PreUpdate
+        // Simulamos el comportamiento de @PrePersist/@PreUpdate
         // creando un nuevo usuario y verificando que el correo se convierte a minúsculas
         // cuando se guarda en la base de datos
         
-        // Assert - Verificamos que el correo se convierte a minúsculas
+        // Verificamos que el correo se convierte a minúsculas
         // cuando se llama a los métodos anotados con @PrePersist/@PreUpdate
         assertEquals("correo2@test.com", nuevoUsuario.getCorreo().toLowerCase());
     }
 
     @Test
     void testPrepareDataConEventos() {
-        // Arrange
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setCorreo("CORREO3@TEST.COM");
         
-        // Act - Simulamos manualmente el evento @PrePersist
+        // Simulamos manualmente el evento @PrePersist
         try {
             // Buscamos todos los métodos con la anotación @PrePersist o @PreUpdate
             for (java.lang.reflect.Method method : Usuario.class.getDeclaredMethods()) {
@@ -118,24 +114,20 @@ class UsuarioTest {
             org.junit.jupiter.api.Assertions.fail("Error al invocar métodos con anotaciones: " + e.getMessage());
         }
         
-        // Assert
         assertEquals("correo3@test.com", nuevoUsuario.getCorreo());
     }
 
     @Test
     void testHashCodeAndEquals() {
-        // Arrange
         Usuario usuario2 = new Usuario();
         usuario2.setId("user1");
         
         Usuario usuario3 = new Usuario();
         usuario3.setId("user2");
         
-        // Act & Assert - hashCode
         assertEquals(usuario2.hashCode(), usuario.hashCode());
         assertNotEquals(usuario3.hashCode(), usuario.hashCode());
         
-        // Act & Assert - equals
         assertEquals(usuario, usuario);
         assertEquals(usuario2, usuario);
         assertNotEquals(usuario3, usuario);
@@ -145,7 +137,6 @@ class UsuarioTest {
 
     @Test
     void testRelacionesConOtrasEntidades() {
-        // Arrange
         List<Perfil> perfiles = new ArrayList<>();
         Perfil perfil = new Perfil();
         perfil.setId(1);
@@ -163,12 +154,10 @@ class UsuarioTest {
         reserva.setId(1);
         reservas.add(reserva);
         
-        // Act
         usuario.setPerfil(perfiles);
         usuario.setEstablecimiento(establecimientos);
         usuario.setReserva(reservas);
         
-        // Assert
         assertNotNull(usuario.getPerfil());
         assertEquals(1, usuario.getPerfil().size());
         assertEquals("Perfil Test", usuario.getPerfil().get(0).getNombre());

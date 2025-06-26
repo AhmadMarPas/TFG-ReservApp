@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test para la clase Perfil
  * 
- * @author Test Generator
+ * @author Ahmad Mareie Pascual
  * @version 1.0
  * @since 1.0
  */
@@ -44,17 +44,14 @@ class PerfilTest {
 
     @Test
     void testRelacionesConOtrasEntidades() {
-        // Arrange
         List<Perfil> perfiles = new ArrayList<>();
         Perfil perfilHijo = new Perfil();
         perfilHijo.setId(2);
         perfilHijo.setNombre("Perfil Hijo");
         perfiles.add(perfilHijo);
         
-        // Act
         perfil.setLstPerfil(perfiles);
         
-        // Assert
         assertNotNull(perfil.getLstPerfil());
         assertEquals(1, perfil.getLstPerfil().size());
         assertEquals(2, perfil.getLstPerfil().get(0).getId());
@@ -63,24 +60,19 @@ class PerfilTest {
 
     @Test
     void testConstructorVacio() {
-        // Arrange & Act
         Perfil perfilVacio = new Perfil();
         
-        // Assert
         assertNotNull(perfilVacio);
     }
 
     @Test
     void testConstructorConParametros() {
-        // Arrange
         Integer id = 3;
         String nombre = "Test Constructor";
         List<Perfil> lstPerfil = new ArrayList<>();
         
-        // Act
         Perfil perfilCompleto = new Perfil(id, nombre, lstPerfil);
         
-        // Assert
         assertEquals(id, perfilCompleto.getId());
         assertEquals(nombre, perfilCompleto.getNombre());
         assertEquals(lstPerfil, perfilCompleto.getLstPerfil());

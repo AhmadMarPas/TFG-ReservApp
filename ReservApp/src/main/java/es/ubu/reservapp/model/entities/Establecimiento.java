@@ -103,6 +103,28 @@ public class Establecimiento extends EntidadInfo<Integer> {
     @OneToMany(mappedBy = "establecimiento", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<FranjaHoraria> franjasHorarias = new ArrayList<>();
 
+	/**
+	 * Constructor de copia para crear una nueva instancia de Establecimiento a
+	 * partir de otro.
+	 * 
+	 * @param establecimiento	Establecimiento a copiar.
+	 */
+	public Establecimiento(Establecimiento establecimiento) {
+		this.setId(establecimiento.getId());
+		this.setNombre(establecimiento.getNombre());
+		this.setDescripcion(establecimiento.getDescripcion());
+		this.setAforo(establecimiento.getAforo());
+		this.setDuracionReserva(establecimiento.getDuracionReserva());
+		this.setDescansoServicios(establecimiento.getDescansoServicios());
+		this.setCapacidad(establecimiento.getCapacidad());
+		this.setTipo(establecimiento.getTipo());
+		this.setDireccion(establecimiento.getDireccion());
+		this.setTelefono(establecimiento.getTelefono());
+		this.setEmail(establecimiento.getEmail());
+		this.setActivo(establecimiento.isActivo());
+		this.setLstReservas(new ArrayList<>(establecimiento.getLstReservas()));
+		this.setFranjasHorarias(new ArrayList<>(establecimiento.getFranjasHorarias()));
+	}
 
 	@Override
 	public Integer getId() {
@@ -112,6 +134,11 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	@Override
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	@Override
+	public EntidadPK<Integer> copia() {
+		return new Establecimiento(this);
 	}
 
 }

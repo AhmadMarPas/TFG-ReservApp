@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test para la clase EntidadInfo
  * 
- * @author Test Generator
+ * @author Ahmad Mareie Pascual
  * @version 1.0
  * @since 1.0
  */
@@ -21,9 +21,18 @@ class EntidadInfoTest {
      * Implementación concreta de EntidadInfo para pruebas
      */
     private static class EntidadInfoImpl extends EntidadInfo<Integer> {
-        private Integer id;
+        private static final long serialVersionUID = 1L;
+		private Integer id;
 
-        @Override
+        public EntidadInfoImpl(EntidadInfoImpl entidadInfoImpl) {
+			this.setId(entidadInfoImpl.getId());
+		}
+
+		public EntidadInfoImpl() {
+			super();
+		}
+
+		@Override
         public Integer getId() {
             return id;
         }
@@ -32,6 +41,11 @@ class EntidadInfoTest {
         public void setId(Integer id) {
             this.id = id;
         }
+
+		@Override
+		public EntidadPK<Integer> copia() {
+			return new EntidadInfoImpl(this);
+		}
     }
 
     private EntidadInfoImpl entidad;
@@ -44,77 +58,59 @@ class EntidadInfoTest {
 
     @Test
     void testOrden() {
-        // Arrange & Act & Assert
         assertNull(entidad.getOrden());
         
-        // Act
         entidad.setOrden(5);
         
-        // Assert
         assertEquals(5, entidad.getOrden());
     }
 
     @Test
     void testUsuarioModReg() {
-        // Arrange & Act & Assert
         assertNull(entidad.getUsuarioModReg());
         
-        // Act
         entidad.setUsuarioModReg("user1");
         
-        // Assert
         assertEquals("user1", entidad.getUsuarioModReg());
     }
 
     @Test
     void testUsuarioCreaReg() {
-        // Arrange & Act & Assert
         assertNull(entidad.getUsuarioCreaReg());
         
-        // Act
         entidad.setUsuarioCreaReg("user2");
         
-        // Assert
         assertEquals("user2", entidad.getUsuarioCreaReg());
     }
 
     @Test
     void testFechaModReg() {
-        // Arrange & Act & Assert
         assertNull(entidad.getFechaModReg());
         
-        // Act
         LocalDateTime now = LocalDateTime.now();
         entidad.setFechaModReg(now);
         
-        // Assert
         assertEquals(now, entidad.getFechaModReg());
     }
 
     @Test
     void testFechaCreaReg() {
-        // Arrange & Act & Assert
         assertNull(entidad.getFechaCreaReg());
         
-        // Act
         LocalDateTime now = LocalDateTime.now();
         entidad.setFechaCreaReg(now);
         
-        // Assert
         assertEquals(now, entidad.getFechaCreaReg());
     }
 
     @Test
     void testToString() {
-        // Arrange
         LocalDateTime now = LocalDateTime.now();
         entidad.setFechaCreaReg(now);
         entidad.setUsuarioCreaReg("user1");
         
-        // Act
         String result = entidad.toString();
         
-        // Assert
         // Verificamos que el toString contiene la información básica
         assertTrue(result.contains("EntidadInfoImpl"));
         assertTrue(result.contains("id=1"));

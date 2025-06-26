@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test para la clase Establecimiento
  * 
- * @author Test Generator
+ * @author Ahmad Mareie Pascual
  * @version 1.0
  * @since 1.0
  */
@@ -86,7 +86,6 @@ class EstablecimientoTest {
 
     @Test
     void testRelacionesConOtrasEntidades() {
-        // Arrange
         List<Reserva> reservas = new ArrayList<>();
         Reserva reserva = new Reserva();
         reserva.setId(1);
@@ -101,11 +100,9 @@ class EstablecimientoTest {
         franjaHoraria.setEstablecimiento(establecimiento);
         franjasHorarias.add(franjaHoraria);
         
-        // Act
         establecimiento.setLstReservas(reservas);
         establecimiento.setFranjasHorarias(franjasHorarias);
         
-        // Assert
         assertNotNull(establecimiento.getLstReservas());
         assertEquals(1, establecimiento.getLstReservas().size());
         assertEquals(1, establecimiento.getLstReservas().get(0).getId());
@@ -119,10 +116,8 @@ class EstablecimientoTest {
 
     @Test
     void testConstructorVacio() {
-        // Arrange & Act
         Establecimiento establecimientoVacio = new Establecimiento();
         
-        // Assert
         assertNotNull(establecimientoVacio);
         assertNotNull(establecimientoVacio.getFranjasHorarias());
         assertEquals(0, establecimientoVacio.getFranjasHorarias().size());
@@ -130,7 +125,6 @@ class EstablecimientoTest {
 
     @Test
     void testConstructorConParametros() {
-        // Arrange
         Integer id = 2;
         String nombre = "Test Constructor";
         String descripcion = "Descripción constructor";
@@ -146,12 +140,10 @@ class EstablecimientoTest {
         List<Reserva> lstReservas = new ArrayList<>();
         List<FranjaHoraria> franjasHorarias = new ArrayList<>();
         
-        // Act
         Establecimiento establecimientoCompleto = new Establecimiento(
                 id, nombre, descripcion, aforo, duracionReserva, descansoServicios,
                 capacidad, tipo, direccion, telefono, email, activo, lstReservas, franjasHorarias);
         
-        // Assert
         assertEquals(id, establecimientoCompleto.getId());
         assertEquals(nombre, establecimientoCompleto.getNombre());
         assertEquals(descripcion, establecimientoCompleto.getDescripcion());
