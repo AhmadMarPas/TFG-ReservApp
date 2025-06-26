@@ -4,19 +4,15 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.SoftDeleteType;
-import org.hibernate.annotations.Where;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 /**
  * Clase EntidadInfo con los atributos comunes de la entidad.
@@ -31,13 +27,10 @@ import lombok.ToString;
  */
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 @MappedSuperclass
 @EntityListeners(value = EntidadInfoInterceptor.class)
 @SQLDelete(sql = "UPDATE #{#entityName} SET valido = false WHERE id = ?")
-//@SQLRestriction("valido = true")
-//@Where(clause = "valido = true")
 @SoftDelete(strategy = SoftDeleteType.ACTIVE, columnName = "valido")
 public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
 
@@ -82,5 +75,9 @@ public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
      */
     @Column(name = "TST_CREACION")
     private LocalDateTime fechaCreaReg;
+
+    public String toString() {
+        return getClass().getSimpleName() + "[id=" + getId() + "]";
+    }
 
 }

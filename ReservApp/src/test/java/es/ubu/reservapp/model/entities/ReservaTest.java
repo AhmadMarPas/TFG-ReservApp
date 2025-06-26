@@ -1,0 +1,113 @@
+package es.ubu.reservapp.model.entities;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Test para la clase Reserva
+ * 
+ * @author Test Generator
+ * @version 1.0
+ * @since 1.0
+ */
+class ReservaTest {
+
+    private Reserva reserva;
+    private Usuario usuario;
+    private Establecimiento establecimiento;
+    private LocalDateTime fechaReserva;
+    private LocalTime horaFin;
+
+    @BeforeEach
+    void setUp() {
+        usuario = new Usuario();
+        usuario.setId("user1");
+        usuario.setNombre("Usuario Test");
+        
+        establecimiento = new Establecimiento();
+        establecimiento.setId(1);
+        establecimiento.setNombre("Establecimiento Test");
+        
+        fechaReserva = LocalDateTime.now().plusDays(1);
+        horaFin = LocalTime.of(18, 0);
+        
+        reserva = new Reserva();
+        reserva.setId(1);
+        reserva.setUsuario(usuario);
+        reserva.setEstablecimiento(establecimiento);
+        reserva.setFechaReserva(fechaReserva);
+        reserva.setHoraFin(horaFin);
+    }
+
+    @Test
+    void testGettersAndSetters() {
+        // Verificar getters
+        assertEquals(1, reserva.getId());
+        assertEquals(usuario, reserva.getUsuario());
+        assertEquals(establecimiento, reserva.getEstablecimiento());
+        assertEquals(fechaReserva, reserva.getFechaReserva());
+        assertEquals(horaFin, reserva.getHoraFin());
+        
+        // Probar setters con nuevos valores
+        Usuario nuevoUsuario = new Usuario();
+        nuevoUsuario.setId("user2");
+        nuevoUsuario.setNombre("Nuevo Usuario");
+        
+        Establecimiento nuevoEstablecimiento = new Establecimiento();
+        nuevoEstablecimiento.setId(2);
+        nuevoEstablecimiento.setNombre("Nuevo Establecimiento");
+        
+        LocalDateTime nuevaFechaReserva = LocalDateTime.now().plusDays(2);
+        LocalTime nuevaHoraFin = LocalTime.of(20, 0);
+        
+        reserva.setId(2);
+        reserva.setUsuario(nuevoUsuario);
+        reserva.setEstablecimiento(nuevoEstablecimiento);
+        reserva.setFechaReserva(nuevaFechaReserva);
+        reserva.setHoraFin(nuevaHoraFin);
+        
+        // Verificar nuevos valores
+        assertEquals(2, reserva.getId());
+        assertEquals(nuevoUsuario, reserva.getUsuario());
+        assertEquals(nuevoEstablecimiento, reserva.getEstablecimiento());
+        assertEquals(nuevaFechaReserva, reserva.getFechaReserva());
+        assertEquals(nuevaHoraFin, reserva.getHoraFin());
+    }
+
+    @Test
+    void testConstructorVacio() {
+        // Arrange & Act
+        Reserva reservaVacia = new Reserva();
+        
+        // Assert
+        assertNotNull(reservaVacia);
+    }
+
+    @Test
+    void testConstructorConParametros() {
+        // Arrange
+        Integer id = 3;
+        Usuario usuarioTest = new Usuario();
+        usuarioTest.setId("user3");
+        Establecimiento establecimientoTest = new Establecimiento();
+        establecimientoTest.setId(3);
+        LocalDateTime fechaTest = LocalDateTime.now().plusDays(3);
+        LocalTime horaTest = LocalTime.of(21, 0);
+        
+        // Act
+        Reserva reservaCompleta = new Reserva(id, usuarioTest, establecimientoTest, fechaTest, horaTest);
+        
+        // Assert
+        assertEquals(id, reservaCompleta.getId());
+        assertEquals(usuarioTest, reservaCompleta.getUsuario());
+        assertEquals(establecimientoTest, reservaCompleta.getEstablecimiento());
+        assertEquals(fechaTest, reservaCompleta.getFechaReserva());
+        assertEquals(horaTest, reservaCompleta.getHoraFin());
+    }
+}
