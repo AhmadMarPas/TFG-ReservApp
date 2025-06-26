@@ -146,9 +146,10 @@ public class UserManagementController {
         try {
 			usuarioService.blockUser(id);
 		} catch (UserNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            log.error("Error al bloquear el usuario con ID: " + id, e);
+            redirectAttributes.addFlashAttribute("error", "Usuario no encontrado o ya bloqueado.");
+            return ADMIN_USUARIOS;
+        }
         redirectAttributes.addFlashAttribute("exito", "Usuario bloqueado correctamente.");
         return ADMIN_USUARIOS;
     }
@@ -158,8 +159,9 @@ public class UserManagementController {
         try {
 			usuarioService.unblockUser(id);
 		} catch (UserNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Error al desbloquear el usuario con ID: " + id, e);
+			redirectAttributes.addFlashAttribute("error", "Usuario no encontrado o ya desbloqueado.");
+			return ADMIN_USUARIOS;
 		}
         redirectAttributes.addFlashAttribute("exito", "Usuario desbloqueado correctamente.");
         return ADMIN_USUARIOS;
