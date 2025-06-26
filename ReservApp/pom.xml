@@ -209,8 +209,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<argLine>
-						-javaagent:${org.mockito:mockito-core:jar}
-						-Xshare:off
+						${jacoco.agent.argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off
 					</argLine>
 				</configuration>
             </plugin>
