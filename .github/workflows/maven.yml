@@ -45,7 +45,7 @@ jobs:
           java-version: 21
           distribution: 'zulu' # Alternative distribution options are available.
           cache: 'maven'
-          cache-dependency-path: 'sub-project/pom.xml' # optional
+          cache-dependency-path: './ReservApp/pom.xml' # optional
       - name: Clean and build
         run: cd ReservApp && mvn clean install
       - name: Cache SonarQube packages
