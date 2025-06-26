@@ -76,6 +76,7 @@ public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
     @Column(name = "TST_CREACION")
     private LocalDateTime fechaCreaReg;
 
+    @Override
     public String toString() {
         return getClass().getSimpleName() + "[id=" + getId() + "]";
     }

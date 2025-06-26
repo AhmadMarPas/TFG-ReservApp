@@ -26,6 +26,10 @@ public class UserManagementController {
 	
 	private static final String ADMIN_USUARIOS = "redirect:/admin/usuarios";
 	private static final String ADMIN_FORM = "admin/user_form";
+	private static final String ERROR = "error";
+	private static final String ERROR_USUARIO = "error.usuario";
+	private static final String EXITO = "exito";
+	private static final String IS_EDIT= "isEdit";
 
 	/** 
 	 * Servicio de usuario para gestionar operaciones relacionadas con usuarios.
@@ -56,7 +60,7 @@ public class UserManagementController {
     @GetMapping("/usuarios/nuevo")
     public String showCreateUserForm(Model model) {
         model.addAttribute("usuario", new Usuario());
-        model.addAttribute("isEdit", false);
+        model.addAttribute(IS_EDIT, false);
         return ADMIN_FORM;
     }
 
@@ -64,12 +68,12 @@ public class UserManagementController {
     public String showEditUserForm(@PathVariable("id") String id, Model model, RedirectAttributes redirectAttributes) {
         Usuario usuario = usuarioService.findUsuarioById(id);
         if (usuario == null) {
-            redirectAttributes.addFlashAttribute("error", "Usuario no encontrado.");
+            redirectAttributes.addFlashAttribute(ERROR, "Usuario no encontrado.");
             return ADMIN_USUARIOS;
         }
         usuario.setPassword(null); 
         model.addAttribute("usuario", usuario);
-        model.addAttribute("isEdit", true);
+        model.addAttribute(IS_EDIT, true);
         return ADMIN_FORM;
     }
 
@@ -84,33 +88,33 @@ public class UserManagementController {
             if (!isNewUser && bindingResult.hasFieldErrors("id") && usuario.getId().isEmpty()){
 			} else if (isNewUser && usuario.getId() == null && bindingResult.getErrorCount() == 1 && bindingResult.getFieldErrorCount("id") == 1) {
 			} else if (bindingResult.hasErrors()) {
-				model.addAttribute("isEdit", !isNewUser);
+				model.addAttribute(IS_EDIT, !isNewUser);
 				return ADMIN_FORM;
 			}
 		}
 
         if (isNewUser) {
             if (usuario.getId() == null || usuario.getId().trim().isEmpty()) {
-                 bindingResult.rejectValue("id", "error.usuario", "El ID de usuario es obligatorio.");
+                 bindingResult.rejectValue("id", ERROR_USUARIO, "El ID de usuario es obligatorio.");
             } else if (usuarioService.existeId(usuario.getId())) {
-                bindingResult.rejectValue("id", "error.usuario", "El nombre de usuario ya está registrado.");
+                bindingResult.rejectValue("id", ERROR_USUARIO, "El nombre de usuario ya está registrado.");
             }
             Usuario existingByEmail = usuarioService.findUsuarioByCorreo(usuario.getCorreo());
             if (existingByEmail != null) {
-                 bindingResult.rejectValue("correo", "error.usuario", "El email ya está registrado.");
+                 bindingResult.rejectValue("correo", ERROR_USUARIO, "El email ya está registrado.");
             }
             if (usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
-                bindingResult.rejectValue("password", "error.usuario", "La contraseña es obligatoria para nuevos usuarios.");
+                bindingResult.rejectValue("password", ERROR_USUARIO, "La contraseña es obligatoria para nuevos usuarios.");
             }
         } else { 
             Usuario existingUserByEmail = usuarioService.findUsuarioByCorreo(usuario.getCorreo());
             if(existingUserByEmail != null && !existingUserByEmail.getId().equals(usuario.getId())) {
-                bindingResult.rejectValue("correo", "error.usuario", "El email ya está registrado por otro usuario.");
+                bindingResult.rejectValue("correo", ERROR_USUARIO, "El email ya está registrado por otro usuario.");
             }
         }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("isEdit", !isNewUser);
+            model.addAttribute(IS_EDIT, !isNewUser);
             return ADMIN_FORM;
         }
 
@@ -132,7 +136,7 @@ public class UserManagementController {
         }
 
         usuarioService.save(usuario);
-        redirectAttributes.addFlashAttribute("exito", "Usuario " + (isNewUser ? "creado" : "actualizado") + " correctamente.");
+        redirectAttributes.addFlashAttribute(EXITO, "Usuario " + (isNewUser ? "creado" : "actualizado") + " correctamente.");
         return ADMIN_USUARIOS;
     }
     
@@ -147,10 +151,10 @@ public class UserManagementController {
 			usuarioService.blockUser(id);
 		} catch (UserNotFoundException e) {
             log.error("Error al bloquear el usuario con ID: " + id, e);
-            redirectAttributes.addFlashAttribute("error", "Usuario no encontrado o ya bloqueado.");
+            redirectAttributes.addFlashAttribute(ERROR, "Usuario no encontrado o ya bloqueado.");
             return ADMIN_USUARIOS;
         }
-        redirectAttributes.addFlashAttribute("exito", "Usuario bloqueado correctamente.");
+        redirectAttributes.addFlashAttribute(EXITO, "Usuario bloqueado correctamente.");
         return ADMIN_USUARIOS;
     }
 
@@ -160,10 +164,10 @@ public class UserManagementController {
 			usuarioService.unblockUser(id);
 		} catch (UserNotFoundException e) {
 			log.error("Error al desbloquear el usuario con ID: " + id, e);
-			redirectAttributes.addFlashAttribute("error", "Usuario no encontrado o ya desbloqueado.");
+			redirectAttributes.addFlashAttribute(ERROR, "Usuario no encontrado o ya desbloqueado.");
 			return ADMIN_USUARIOS;
 		}
-        redirectAttributes.addFlashAttribute("exito", "Usuario desbloqueado correctamente.");
+        redirectAttributes.addFlashAttribute(EXITO, "Usuario desbloqueado correctamente.");
         return ADMIN_USUARIOS;
     }
 }

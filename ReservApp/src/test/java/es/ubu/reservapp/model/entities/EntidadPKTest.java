@@ -1,12 +1,8 @@
 package es.ubu.reservapp.model.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.Serializable;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +20,8 @@ class EntidadPKTest {
      * Implementación concreta de EntidadPK para pruebas
      */
     private static class EntidadPKImpl extends EntidadPK<Integer> {
-        private Integer id;
+        private static final long serialVersionUID = 1L;
+		private Integer id;
 
         public EntidadPKImpl(Integer id) {
             this.id = id;
@@ -65,27 +62,27 @@ class EntidadPKTest {
     @Test
     void testEquals() {
         // Mismo objeto
-        assertTrue(entidad1.equals(entidad1));
+        assertEquals(entidad1, entidad1);
         
         // Null
-        assertFalse(entidad1.equals(null));
+        assertNotEquals(entidad1, null);
         
         // Diferente clase
-        assertFalse(entidad1.equals("not an entity"));
+        assertNotEquals(entidad1, "not an entity");
         
         // Mismo ID
-        assertTrue(entidad1.equals(entidad2));
+        assertEquals(entidad1, entidad2);
         
         // Diferente ID
-        assertFalse(entidad1.equals(entidad3));
+        assertNotEquals(entidad1, entidad3);
         
         // ID null en uno
-        assertFalse(entidad1.equals(entidadNull));
-        assertFalse(entidadNull.equals(entidad1));
+        assertNotEquals(entidad1, entidadNull);
+        assertNotEquals(entidadNull, entidad1);
         
         // ID null en ambos
         EntidadPKImpl otherNullId = new EntidadPKImpl(null);
-        assertTrue(entidadNull.equals(otherNullId));
+        assertEquals(entidadNull, otherNullId);
     }
 
     @Test

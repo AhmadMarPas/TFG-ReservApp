@@ -132,15 +132,15 @@ class UsuarioTest {
         usuario3.setId("user2");
         
         // Act & Assert - hashCode
-        assertEquals(usuario.hashCode(), usuario2.hashCode());
-        assertNotEquals(usuario.hashCode(), usuario3.hashCode());
+        assertEquals(usuario2.hashCode(), usuario.hashCode());
+        assertNotEquals(usuario3.hashCode(), usuario.hashCode());
         
         // Act & Assert - equals
         assertEquals(usuario, usuario);
-        assertEquals(usuario, usuario2);
-        assertNotEquals(usuario, usuario3);
-        assertNotEquals(usuario, null);
-        assertNotEquals(usuario, "not a user");
+        assertEquals(usuario2, usuario);
+        assertNotEquals(usuario3, usuario);
+        assertNotEquals(null, usuario);
+        assertNotEquals("not a user", usuario);
     }
 
     @Test
