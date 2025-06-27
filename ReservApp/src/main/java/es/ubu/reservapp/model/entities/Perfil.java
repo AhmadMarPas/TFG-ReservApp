@@ -54,7 +54,7 @@ public class Perfil extends EntidadInfo<Integer> {
 	@JoinTable(name = "perfil_menu", 
 		joinColumns = @JoinColumn(name = "id_perfil_pk", referencedColumnName = "id"), 
 		inverseJoinColumns = @JoinColumn(name = "id_menu_pk", referencedColumnName = "id"))
-	private List<Perfil> lstPerfil;
+	private List<Menu> lstMenus;
 
 	@Override
 	public Integer getId() {
