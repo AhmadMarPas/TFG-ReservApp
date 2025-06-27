@@ -44,18 +44,18 @@ class PerfilTest {
 
     @Test
     void testRelacionesConOtrasEntidades() {
-        List<Perfil> perfiles = new ArrayList<>();
-        Perfil perfilHijo = new Perfil();
-        perfilHijo.setId(2);
-        perfilHijo.setNombre("Perfil Hijo");
-        perfiles.add(perfilHijo);
+        List<Menu> menus = new ArrayList<>();
+        Menu MenuHijo = new Menu();
+        MenuHijo.setId(2);
+        MenuHijo.setNombre("Perfil Hijo");
+        menus.add(MenuHijo);
         
-        perfil.setLstPerfil(perfiles);
+        perfil.setLstMenus(menus);
         
-        assertNotNull(perfil.getLstPerfil());
-        assertEquals(1, perfil.getLstPerfil().size());
-        assertEquals(2, perfil.getLstPerfil().get(0).getId());
-        assertEquals("Perfil Hijo", perfil.getLstPerfil().get(0).getNombre());
+        assertNotNull(perfil.getLstMenus());
+        assertEquals(1, perfil.getLstMenus().size());
+        assertEquals(2, perfil.getLstMenus().get(0).getId());
+        assertEquals("Perfil Hijo", perfil.getLstMenus().get(0).getNombre());
     }
 
     @Test
@@ -69,12 +69,12 @@ class PerfilTest {
     void testConstructorConParametros() {
         Integer id = 3;
         String nombre = "Test Constructor";
-        List<Perfil> lstPerfil = new ArrayList<>();
+        List<Menu> lstMenu = new ArrayList<>();
         
-        Perfil perfilCompleto = new Perfil(id, nombre, lstPerfil);
+        Perfil perfilCompleto = new Perfil(id, nombre, lstMenu);
         
         assertEquals(id, perfilCompleto.getId());
         assertEquals(nombre, perfilCompleto.getNombre());
-        assertEquals(lstPerfil, perfilCompleto.getLstPerfil());
+        assertEquals(lstMenu, perfilCompleto.getLstMenus());
     }
 }
