@@ -33,7 +33,7 @@ class EstablecimientoRepoTest {
     void testGuardarYBuscarEstablecimiento() {
         // Mock de usuario
         Usuario usuarioMock = new Usuario();
-        usuarioMock.setId("test"); // Ajusta el tipo de ID según tu entidad
+        usuarioMock.setId("test");
 
         when(sessionData.getUsuario()).thenReturn(usuarioMock);
         
@@ -43,7 +43,6 @@ class EstablecimientoRepoTest {
         est.setDescripcion("desc");
         est.setCapacidad(100);
         est.setAforo(10);
-        // Añade aquí otros setters si tienes más atributos obligatorios
 
         // Guardar
         Establecimiento guardado = establecimientoRepo.save(est);
