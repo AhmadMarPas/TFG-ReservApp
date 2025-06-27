@@ -131,6 +131,14 @@
 			<artifactId>bootstrap-icons</artifactId>
 			<version>1.13.1</version>
 		</dependency>
+
+		<!-- Para tests de BBDD -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
