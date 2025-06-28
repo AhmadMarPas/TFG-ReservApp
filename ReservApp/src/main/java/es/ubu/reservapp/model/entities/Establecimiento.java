@@ -95,7 +95,7 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	 * Lista de reservas que tiene el establecimiento.
 	 */
 	@OneToMany(mappedBy = "establecimiento", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private List<Reserva> lstReservas;
+	private List<Reserva> lstReservas = new ArrayList<>();
 
     /**
      * Lista de franjas horarias de apertura del establecimiento.
@@ -122,8 +122,8 @@ public class Establecimiento extends EntidadInfo<Integer> {
 		this.setTelefono(establecimiento.getTelefono());
 		this.setEmail(establecimiento.getEmail());
 		this.setActivo(establecimiento.isActivo());
-		this.setLstReservas(new ArrayList<>(establecimiento.getLstReservas()));
-		this.setFranjasHorarias(new ArrayList<>(establecimiento.getFranjasHorarias()));
+		this.setLstReservas(establecimiento.getLstReservas() == null ? new ArrayList<>() : new ArrayList<>(establecimiento.getLstReservas()));
+		this.setFranjasHorarias(establecimiento.getFranjasHorarias() == null ? new ArrayList<>() : new ArrayList<>(establecimiento.getFranjasHorarias()));
 	}
 
 	@Override

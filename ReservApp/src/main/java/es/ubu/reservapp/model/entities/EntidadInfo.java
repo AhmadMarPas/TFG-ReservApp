@@ -91,7 +91,7 @@ public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		EntidadInfo other = (EntidadInfo) obj;
+		EntidadInfo<E> other = (EntidadInfo<E>) obj;
 		return Objects.equals(fechaCreaReg, other.fechaCreaReg) && Objects.equals(fechaModReg, other.fechaModReg)
 				&& Objects.equals(orden, other.orden) && Objects.equals(usuarioCreaReg, other.usuarioCreaReg)
 				&& Objects.equals(usuarioModReg, other.usuarioModReg);
