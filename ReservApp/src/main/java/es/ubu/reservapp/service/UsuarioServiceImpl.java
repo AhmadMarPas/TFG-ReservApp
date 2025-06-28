@@ -41,9 +41,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 	@Override
 	@Transactional
 	public void save(Usuario user) {
-        // Password encoding logic: only encode if password is provided and doesn't look like a BCrypt hash
-        // This is important for both new users and password changes.
-        // If password is not provided during an update, the controller should have set the existing (hashed) password.
+		// codificación de la contraseña
         if (user.getPassword() != null && !user.getPassword().isEmpty() && !BCRYPT_PATTERN.matcher(user.getPassword()).matches()) {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         }
@@ -61,8 +59,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             return null;
         }
         Usuario usuario = usuarioRepo.findUsuarioById(username);
-		if (usuario != null && usuario.getPassword() != null
-				&& bCryptPasswordEncoder.matches(password, usuario.getPassword())) {
+		if (usuario != null && usuario.getPassword() != null && bCryptPasswordEncoder.matches(password, usuario.getPassword())) {
 			return usuario;
 		}
 		return null;

@@ -201,6 +201,87 @@ class EntidadInfoTest {
         assertEquals(entidad1, entidad1);
     }
     
+    @Test
+    void testEquals() {
+        // Create a concrete implementation of EntidadInfo for testing
+        EntidadInfo<Integer> entidad1 = new EntidadInfo<Integer>() {
+            @Override
+            public Integer getId() {
+                return 1;
+            }
+
+            @Override
+            public void setId(Integer id) {
+            }
+
+            @Override
+            public EntidadPK<Integer> copia() {
+                return null;
+            }
+        };
+
+        EntidadInfo<Integer> entidad2 = new EntidadInfo<Integer>() {
+            @Override
+            public Integer getId() {
+                return 1;
+            }
+
+            @Override
+            public void setId(Integer id) {
+            }
+
+            @Override
+            public EntidadPK<Integer> copia() {
+                return null;
+            }
+        };
+
+        // Test null case
+        assertNotEquals(null, entidad1);
+
+        // Test same object
+        assertTrue(entidad1.equals(entidad1));
+
+        // Test different class
+        assertNotEquals(entidad1, new Object());
+
+        // Test with equal attributes
+        entidad1.setOrden(1);
+        entidad1.setUsuarioModReg("user1");
+        entidad1.setUsuarioCreaReg("user1");
+        entidad1.setFechaModReg(LocalDateTime.now());
+        entidad1.setFechaCreaReg(LocalDateTime.now());
+
+        entidad2.setOrden(1);
+        entidad2.setUsuarioModReg("user1");
+        entidad2.setUsuarioCreaReg("user1");
+        entidad2.setFechaModReg(entidad1.getFechaModReg());
+        entidad2.setFechaCreaReg(entidad1.getFechaCreaReg());
+
+        assertTrue(entidad1.equals(entidad1));
+
+        // Test with different attributes
+        entidad2.setOrden(2);
+        assertNotEquals(entidad1, entidad2);
+
+        entidad2.setOrden(1);
+        entidad2.setUsuarioModReg("user2");
+        assertNotEquals(entidad1, entidad2);
+        
+        entidad2.setUsuarioModReg("user1");
+        entidad2.setUsuarioCreaReg("user2");
+        assertNotEquals(entidad1, entidad2);
+        
+        entidad2.setUsuarioCreaReg("user1");
+        entidad2.setFechaModReg(LocalDateTime.now().plusDays(1));
+        assertNotEquals(entidad1, entidad2);
+        
+        entidad2.setFechaModReg(entidad1.getFechaModReg());
+        entidad2.setFechaCreaReg(LocalDateTime.now().plusDays(1));
+        assertNotEquals(entidad1, entidad2);
+    }
+
+    
     private void assertTrue(boolean condition) {
         if (!condition) {
             throw new AssertionError("Assertion failed");
