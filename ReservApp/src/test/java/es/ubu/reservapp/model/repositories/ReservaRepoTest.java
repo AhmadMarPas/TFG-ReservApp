@@ -85,7 +85,7 @@ class ReservaRepoTest {
         establecimiento = establecimientoRepo.save(establecimiento);
 
         // Configurar fechas
-        fechaActual = LocalDateTime.now();
+        fechaActual = LocalDateTime.now().withNano(0);
         fechaPasada = fechaActual.minusDays(1);
         fechaFutura = fechaActual.plusDays(1);
     }
