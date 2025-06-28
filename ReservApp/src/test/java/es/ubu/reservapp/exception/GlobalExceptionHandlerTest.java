@@ -111,7 +111,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void testHandleRuntimeException_Success() throws Exception {
+    void testHandleRuntimeException_Success() {
         // Arrange
         RuntimeException exception = new RuntimeException("Error de runtime");
         when(request.getRequestURI()).thenReturn("/test-uri");
@@ -131,7 +131,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void testHandleRuntimeException_WithResponseException() throws Exception {
+    void testHandleRuntimeException_WithResponseException() {
         // Arrange
         RuntimeException exception = new RuntimeException("Error de runtime");
         when(request.getRequestURI()).thenReturn("/test-uri");
@@ -159,7 +159,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void testHandleDataAccessException_Success() throws Exception {
+    void testHandleDataAccessException_Success() {
         // Arrange
         DataAccessException exception = new DataAccessException("Error de base de datos") {
             private static final long serialVersionUID = 1L;
@@ -176,7 +176,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void testHandleDataAccessException_WithResponseException() throws Exception {
+    void testHandleDataAccessException_WithResponseException() {
         // Arrange
         DataAccessException exception = new DataAccessException("Error de base de datos") {
             private static final long serialVersionUID = 1L;

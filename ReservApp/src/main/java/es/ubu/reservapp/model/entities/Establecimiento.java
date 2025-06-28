@@ -2,6 +2,7 @@ package es.ubu.reservapp.model.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -102,6 +103,21 @@ public class Establecimiento extends EntidadInfo<Integer> {
      */
     @OneToMany(mappedBy = "establecimiento", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<FranjaHoraria> franjasHorarias = new ArrayList<>();
+    
+    @Override
+    public Integer getId() {
+    	return id;
+    }
+    
+    @Override
+    public void setId(Integer id) {
+    	this.id = id;
+    }
+    
+    @Override
+    public EntidadPK<Integer> copia() {
+    	return new Establecimiento(this);
+    }
 
 	/**
 	 * Constructor de copia para crear una nueva instancia de Establecimiento a
@@ -127,18 +143,23 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	}
 
 	@Override
-	public Integer getId() {
-		return id;
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(id);
+		return result;
 	}
 
 	@Override
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	@Override
-	public EntidadPK<Integer> copia() {
-		return new Establecimiento(this);
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Establecimiento other = (Establecimiento) obj;
+		return Objects.equals(id, other.id);
 	}
 
 }

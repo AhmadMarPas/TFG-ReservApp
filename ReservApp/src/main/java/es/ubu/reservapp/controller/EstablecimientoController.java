@@ -122,11 +122,10 @@ public class EstablecimientoController {
         	establecimientoOptional.get().setActivo(!establecimientoOptional.get().isActivo());
             establecimientoService.save(establecimientoOptional.get());
             redirectAttributes.addFlashAttribute(EXITO, "Establecimiento actualizado correctamente.");
-            return REDIRECT_LISTADO;
         } else {
             redirectAttributes.addFlashAttribute(ERROR, "Establecimiento no encontrado con ID: " + id);
-            return REDIRECT_LISTADO;
         }
+        return REDIRECT_LISTADO;
     }
 
     /**

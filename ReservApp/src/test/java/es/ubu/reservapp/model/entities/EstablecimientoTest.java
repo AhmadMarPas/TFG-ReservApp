@@ -1,6 +1,7 @@
 package es.ubu.reservapp.model.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -414,4 +415,72 @@ class EstablecimientoTest {
         // Verificar que el método copia() retorna una instancia de EntidadPK
         assertTrue(establecimiento.copia() instanceof EntidadPK);
     }
+    
+    @Test
+    void testHashCode() {
+        // Test equal objects have same hashcode
+        Establecimiento establecimiento1 = new Establecimiento();
+        establecimiento1.setId(1);
+        Establecimiento establecimiento2 = new Establecimiento();
+        establecimiento2.setId(1);
+        
+        assertEquals(establecimiento1.hashCode(), establecimiento2.hashCode());
+        
+        // Test different objects have different hashcodes
+        Establecimiento establecimiento3 = new Establecimiento();
+        establecimiento3.setId(2);
+        
+        assertNotEquals(establecimiento1.hashCode(), establecimiento3.hashCode());
+        
+        // Test null ID
+        Establecimiento establecimientoNullId = new Establecimiento();
+        establecimientoNullId.setId(null);
+        
+        assertNotEquals(establecimiento1.hashCode(), establecimientoNullId.hashCode());
+        assertEquals(establecimientoNullId.hashCode(), establecimientoNullId.hashCode());
+    }
+
+    @Test
+    void testEquals() {
+        // Setup base object
+        Establecimiento establecimiento1 = new Establecimiento();
+        establecimiento1.setId(1);
+        establecimiento1.setNombre("Test");
+        
+        // Test same object
+        assertEquals(establecimiento1, establecimiento1);
+        
+        // Test null
+        assertNotEquals(establecimiento1, null);
+        
+        // Test different class
+        assertNotEquals(establecimiento1, new Object());
+        
+        // Test equal objects
+        Establecimiento establecimiento2 = new Establecimiento();
+        establecimiento2.setId(1);
+        establecimiento2.setNombre("Otro Nombre");
+        assertEquals(establecimiento1, establecimiento2);
+        assertEquals(establecimiento2, establecimiento1);
+        
+        // Test different IDs
+        Establecimiento establecimiento3 = new Establecimiento();
+        establecimiento3.setId(2);
+        assertNotEquals(establecimiento1, establecimiento3);
+        
+        // Test null IDs
+        Establecimiento establecimientoNullId1 = new Establecimiento();
+        Establecimiento establecimientoNullId2 = new Establecimiento();
+        assertEquals(establecimientoNullId1, establecimientoNullId2);
+        assertNotEquals(establecimiento1, establecimientoNullId1);
+        assertNotEquals(establecimientoNullId1, establecimiento1);
+        
+        // Test one null ID
+        Establecimiento establecimientoWithId = new Establecimiento();
+        establecimientoWithId.setId(1);
+        Establecimiento establecimientoWithoutId = new Establecimiento();
+        assertNotEquals(establecimientoWithId, establecimientoWithoutId);
+        assertNotEquals(establecimientoWithoutId, establecimientoWithId);
+    }
+
 }

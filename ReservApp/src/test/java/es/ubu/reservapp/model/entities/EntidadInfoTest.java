@@ -204,7 +204,7 @@ class EntidadInfoTest {
     @Test
     void testEquals() {
         // Create a concrete implementation of EntidadInfo for testing
-        EntidadInfo<Integer> entidad1 = new EntidadInfo<Integer>() {
+        EntidadInfo<Integer> entidadUno = new EntidadInfo<Integer>() {
             @Override
             public Integer getId() {
                 return 1;
@@ -212,6 +212,7 @@ class EntidadInfoTest {
 
             @Override
             public void setId(Integer id) {
+            	// No es necesario implementar este método para la prueba
             }
 
             @Override
@@ -220,7 +221,7 @@ class EntidadInfoTest {
             }
         };
 
-        EntidadInfo<Integer> entidad2 = new EntidadInfo<Integer>() {
+        EntidadInfo<Integer> entidadDos = new EntidadInfo<Integer>() {
             @Override
             public Integer getId() {
                 return 1;
@@ -228,6 +229,7 @@ class EntidadInfoTest {
 
             @Override
             public void setId(Integer id) {
+            	// No es necesario implementar este método para la prueba
             }
 
             @Override
@@ -237,48 +239,48 @@ class EntidadInfoTest {
         };
 
         // Test null case
-        assertNotEquals(null, entidad1);
+        assertNotEquals(null, entidadUno);
 
         // Test same object
-        assertTrue(entidad1.equals(entidad1));
+        assertTrue(entidadUno.equals(entidadUno));
 
         // Test different class
-        assertNotEquals(entidad1, new Object());
+        assertNotEquals(entidadUno, new Object());
 
         // Test with equal attributes
-        entidad1.setOrden(1);
-        entidad1.setUsuarioModReg("user1");
-        entidad1.setUsuarioCreaReg("user1");
-        entidad1.setFechaModReg(LocalDateTime.now());
-        entidad1.setFechaCreaReg(LocalDateTime.now());
+        entidadUno.setOrden(1);
+        entidadUno.setUsuarioModReg("user1");
+        entidadUno.setUsuarioCreaReg("user1");
+        entidadUno.setFechaModReg(LocalDateTime.now());
+        entidadUno.setFechaCreaReg(LocalDateTime.now());
 
-        entidad2.setOrden(1);
-        entidad2.setUsuarioModReg("user1");
-        entidad2.setUsuarioCreaReg("user1");
-        entidad2.setFechaModReg(entidad1.getFechaModReg());
-        entidad2.setFechaCreaReg(entidad1.getFechaCreaReg());
+        entidadDos.setOrden(1);
+        entidadDos.setUsuarioModReg("user1");
+        entidadDos.setUsuarioCreaReg("user1");
+        entidadDos.setFechaModReg(entidadUno.getFechaModReg());
+        entidadDos.setFechaCreaReg(entidadUno.getFechaCreaReg());
 
-        assertTrue(entidad1.equals(entidad1));
+        assertTrue(entidadUno.equals(entidadUno));
 
         // Test with different attributes
-        entidad2.setOrden(2);
-        assertNotEquals(entidad1, entidad2);
+        entidadDos.setOrden(2);
+        assertNotEquals(entidadUno, entidadDos);
 
-        entidad2.setOrden(1);
-        entidad2.setUsuarioModReg("user2");
-        assertNotEquals(entidad1, entidad2);
+        entidadDos.setOrden(1);
+        entidadDos.setUsuarioModReg("user2");
+        assertNotEquals(entidadUno, entidadDos);
         
-        entidad2.setUsuarioModReg("user1");
-        entidad2.setUsuarioCreaReg("user2");
-        assertNotEquals(entidad1, entidad2);
+        entidadDos.setUsuarioModReg("user1");
+        entidadDos.setUsuarioCreaReg("user2");
+        assertNotEquals(entidadUno, entidadDos);
         
-        entidad2.setUsuarioCreaReg("user1");
-        entidad2.setFechaModReg(LocalDateTime.now().plusDays(1));
-        assertNotEquals(entidad1, entidad2);
+        entidadDos.setUsuarioCreaReg("user1");
+        entidadDos.setFechaModReg(LocalDateTime.now().plusDays(1));
+        assertNotEquals(entidadUno, entidadDos);
         
-        entidad2.setFechaModReg(entidad1.getFechaModReg());
-        entidad2.setFechaCreaReg(LocalDateTime.now().plusDays(1));
-        assertNotEquals(entidad1, entidad2);
+        entidadDos.setFechaModReg(entidadUno.getFechaModReg());
+        entidadDos.setFechaCreaReg(LocalDateTime.now().plusDays(1));
+        assertNotEquals(entidadUno, entidadDos);
     }
 
     
