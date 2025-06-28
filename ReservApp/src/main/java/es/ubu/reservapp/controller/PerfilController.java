@@ -38,7 +38,6 @@ public class PerfilController {
     private static final String REDIRECT_LISTADO = "redirect:/admin/perfiles/listado";
     private static final String ERROR = "error";
     private static final String EXITO = "exito";
-	private static final String IS_EDIT= "isEdit";
 
 	/**
 	 * Servicio para gestionar perfiles.
@@ -83,7 +82,7 @@ public class PerfilController {
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevoPerfil(Model model) {
         model.addAttribute(PERFIL_ATTRIBUTE, new Perfil());
-        model.addAttribute(IS_EDIT, false);
+        ControllerHelper.setEditMode(model, false);
         return FORMULARIO_VIEW;
     }
 
@@ -105,7 +104,7 @@ public class PerfilController {
                 return REDIRECT_LISTADO;
             }
             model.addAttribute(PERFIL_ATTRIBUTE, perfilOptional.get());
-            model.addAttribute(IS_EDIT, true);
+            ControllerHelper.setEditMode(model, true);
             return FORMULARIO_VIEW;
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute(ERROR, "Error al cargar el perfil: " + e.getMessage());
@@ -130,7 +129,7 @@ public class PerfilController {
                                 RedirectAttributes redirectAttributes,
                                 Model model) {
         if (bindingResult.hasErrors()) {
-        	model.addAttribute(IS_EDIT, perfil.getId() != null);
+        	ControllerHelper.setEditMode(model, perfil.getId() != null);
             return FORMULARIO_VIEW;
         }
 
@@ -162,7 +161,7 @@ public class PerfilController {
 
 		} catch (Exception e) {
 			model.addAttribute(ERROR, "Error al guardar el perfil: " + e.getMessage());
-			model.addAttribute(IS_EDIT, perfil.getId() != null);
+			ControllerHelper.setEditMode(model, perfil.getId() != null);
 			return FORMULARIO_VIEW;
 		}
     }

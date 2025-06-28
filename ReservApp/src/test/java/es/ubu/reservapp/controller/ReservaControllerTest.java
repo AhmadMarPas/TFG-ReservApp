@@ -1,5 +1,35 @@
 package es.ubu.reservapp.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
+
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.FranjaHoraria;
 import es.ubu.reservapp.model.entities.Reserva;
@@ -8,34 +38,6 @@ import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.shared.SessionData;
 import es.ubu.reservapp.service.EstablecimientoService;
 import es.ubu.reservapp.service.UsuarioService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.ui.Model;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Comparator; // Asegurarse de que esta importación está
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ReservaControllerTest {
@@ -305,5 +307,47 @@ class ReservaControllerTest {
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertEquals("Usuario no autenticado correctamente.", redirectAttributes.getFlashAttributes().get("error"));
         verify(reservaRepo, never()).save(any(Reserva.class));
+    }
+    
+    // --- Pruebas para mostrarMisReservas ---
+    
+    @Test
+    void testMostrarMisReservas_Exito() {
+        when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
+        List<Establecimiento> establecimientos = List.of(establecimiento1);
+        when(establecimientoService.findAll()).thenReturn(establecimientos);
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+        
+        String viewName = reservaController.mostrarMisReservas(model, redirectAttributes);
+        
+        assertEquals("reservas/misreservas", viewName);
+        verify(model).addAttribute("establecimientos", establecimientos);
+        assertTrue(redirectAttributes.getFlashAttributes().isEmpty());
+    }
+    
+    @Test
+    void testMostrarMisReservas_UsuarioNoAutenticado() {
+        when(sessionData.getUsuario()).thenReturn(null);
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+        
+        String viewName = reservaController.mostrarMisReservas(model, redirectAttributes);
+        
+        assertEquals("error", viewName);
+        verify(model).addAttribute("error", "Usuario no encontrado");
+        assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
+        assertEquals("Usuario no autenticado correctamente.", redirectAttributes.getFlashAttributes().get("error"));
+    }
+    
+    @Test
+    void testMostrarMisReservas_ExcepcionEnServicio() {
+        when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
+        when(establecimientoService.findAll()).thenThrow(new RuntimeException("Error de base de datos"));
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+        
+        String viewName = reservaController.mostrarMisReservas(model, redirectAttributes);
+        
+        assertEquals("error", viewName);
+        verify(model).addAttribute("error", "Error interno del servidor");
+        assertTrue(redirectAttributes.getFlashAttributes().isEmpty());
     }
 }

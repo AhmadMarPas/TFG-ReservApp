@@ -45,10 +45,10 @@ class PerfilTest {
     @Test
     void testRelacionesConOtrasEntidades() {
         List<Menu> menus = new ArrayList<>();
-        Menu MenuHijo = new Menu();
-        MenuHijo.setId(2);
-        MenuHijo.setNombre("Perfil Hijo");
-        menus.add(MenuHijo);
+        Menu menuHijo = new Menu();
+        menuHijo.setId(2);
+        menuHijo.setNombre("Perfil Hijo");
+        menus.add(menuHijo);
         
         perfil.setLstMenus(menus);
         

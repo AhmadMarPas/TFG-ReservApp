@@ -41,6 +41,13 @@ import lombok.extern.slf4j.Slf4j;
 @PreAuthorize("isAuthenticated()")
 public class ReservaController {
 
+	private static final String REDIRECT = "redirect:/";
+	private static final String REDIRECT_CALENDARIO = "reservas/calendario_reserva";
+	private static final String REDIRECT_MIS_RESERVAS = REDIRECT + "misreservas";
+	private static final String REDIRECT_RESERVAS_ESTABLECIMIENTO = REDIRECT + "reservas/establecimiento/";
+	private static final String ERROR = "error";
+	private static final String EXITO = "exito";
+	
 	/**
 	 * Datos de la sesión.
 	 */
@@ -73,14 +80,14 @@ public class ReservaController {
     public String mostrarCalendarioReserva(@PathVariable("id") Integer establecimientoId, Model model, RedirectAttributes redirectAttributes) {
     	Usuario usuario	= sessionData.getUsuario();
         if (usuario == null) {
-            redirectAttributes.addFlashAttribute("error", "Usuario no encontrado.");
-            return "redirect:/";
+            redirectAttributes.addFlashAttribute(ERROR, "Usuario no encontrado.");
+            return REDIRECT;
         }
 
         Optional<Establecimiento> establecimientoOpt = establecimientoService.findById(establecimientoId);
         if (establecimientoOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Establecimiento no encontrado.");
-            return "redirect:/misreservas"; // O a una página de error general
+            redirectAttributes.addFlashAttribute(ERROR, "Establecimiento no encontrado.");
+            return REDIRECT_MIS_RESERVAS; // O a una página de error general
         }
 
         Establecimiento establecimiento = establecimientoOpt.get();
@@ -88,8 +95,8 @@ public class ReservaController {
         // Verificar si el usuario tiene este establecimiento asignado
         boolean asignado = usuario.getEstablecimiento().stream().anyMatch(e -> e.getId().equals(establecimientoId));
         if (!asignado) {
-            redirectAttributes.addFlashAttribute("error", "No tiene permiso para reservar en este establecimiento.");
-            return "redirect:/misreservas";
+            redirectAttributes.addFlashAttribute(ERROR, "No tiene permiso para reservar en este establecimiento.");
+            return REDIRECT_MIS_RESERVAS;
         }
         
         // Filtrar franjas horarias activas y ordenarlas
@@ -112,7 +119,7 @@ public class ReservaController {
         model.addAttribute("reserva", new Reserva());
         model.addAttribute("reservasPasadas", reservasPasadas);
         model.addAttribute("reservasFuturas", reservasFuturas);
-        return "reservas/calendario_reserva";
+        return REDIRECT_CALENDARIO;
     }
 
     /**
@@ -135,22 +142,22 @@ public class ReservaController {
     	Usuario usuario	= sessionData.getUsuario();
 
         if (usuario == null) {
-            redirectAttributes.addFlashAttribute("error", "Usuario no autenticado correctamente.");
-            return "redirect:/"; // O a la página de login
+            redirectAttributes.addFlashAttribute(ERROR, "Usuario no autenticado correctamente.");
+            return REDIRECT; // O a la página de login
         }
 
         Optional<Establecimiento> establecimientoOpt = establecimientoService.findById(establecimientoId);
         if (establecimientoOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Establecimiento no encontrado.");
-            return "redirect:/misreservas";
+            redirectAttributes.addFlashAttribute(ERROR, "Establecimiento no encontrado.");
+            return REDIRECT_MIS_RESERVAS;
         }
         Establecimiento establecimiento = establecimientoOpt.get();
 
         // Verificar si el usuario tiene este establecimiento asignado
         boolean asignado = usuario.getEstablecimiento().stream().anyMatch(e -> e.getId().equals(establecimientoId));
         if (!asignado) {
-            redirectAttributes.addFlashAttribute("error", "No tiene permiso para reservar en este establecimiento.");
-            return "redirect:/misreservas";
+            redirectAttributes.addFlashAttribute(ERROR, "No tiene permiso para reservar en este establecimiento.");
+            return REDIRECT_MIS_RESERVAS;
         }
 
         LocalDate fecha;
@@ -159,8 +166,8 @@ public class ReservaController {
             fecha = LocalDate.parse(fechaStr);
             hora = LocalTime.parse(horaStr);
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Formato de fecha u hora inválido.");
-            return "redirect:/reservas/establecimiento/" + establecimientoId;
+            redirectAttributes.addFlashAttribute(ERROR, "Formato de fecha u hora inválido.");
+            return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimientoId;
         }
         
         LocalDateTime fechaReserva = LocalDateTime.of(fecha, hora);
@@ -179,14 +186,14 @@ public class ReservaController {
 		}
 
         if (!dentroDeFranja) {
-            redirectAttributes.addFlashAttribute("error", "La hora seleccionada está fuera del horario de apertura del establecimiento para ese día o no es válida.");
-            return "redirect:/reservas/establecimiento/" + establecimientoId;
+            redirectAttributes.addFlashAttribute(ERROR, "La hora seleccionada está fuera del horario de apertura del establecimiento para ese día o no es válida.");
+            return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimientoId;
         }
 
         // TODO: Validación de capacidad (Asegurarse que no se exceda el aforo)
         // if (reservasExistentes >= establecimiento.getAforo()) {
-        //    redirectAttributes.addFlashAttribute("error", "Aforo completo para la fecha y hora seleccionada.");
-        //    return "redirect:/reservas/establecimiento/" + establecimientoId;
+        //    redirectAttributes.addFlashAttribute(ERROR, "Aforo completo para la fecha y hora seleccionada.");
+        //    return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimientoId;
         // }
 
         reserva.setUsuario(usuario);
@@ -195,12 +202,12 @@ public class ReservaController {
 
         try {
             reservaRepo.save(reserva);
-            redirectAttributes.addFlashAttribute("exito", "Reserva creada correctamente para el " + fechaReserva.toLocalDate() + " a las " + fechaReserva.toLocalTime());
-            return "redirect:/misreservas"; // O a una página de confirmación/listado de mis reservas
+            redirectAttributes.addFlashAttribute(EXITO, "Reserva creada correctamente para el " + fechaReserva.toLocalDate() + " a las " + fechaReserva.toLocalTime());
+            return REDIRECT_MIS_RESERVAS; // O a una página de confirmación/listado de mis reservas
         } catch (Exception e) {
             // Podría ser una DataIntegrityViolationException si hay constraints, u otra.
-            redirectAttributes.addFlashAttribute("error", "Error al guardar la reserva: " + e.getMessage());
-            return "redirect:/reservas/establecimiento/" + establecimientoId;
+            redirectAttributes.addFlashAttribute(ERROR, "Error al guardar la reserva: " + e.getMessage());
+            return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimientoId;
         }
     }
     
@@ -218,9 +225,9 @@ public class ReservaController {
             
             if (usuario == null) {
                 log.error("Usuario de la sesión no encontrado");
-                redirectAttributes.addFlashAttribute("error", "Usuario no autenticado correctamente.");
-                model.addAttribute("error", "Usuario no encontrado");
-                return "error";
+                redirectAttributes.addFlashAttribute(ERROR, "Usuario no autenticado correctamente.");
+                model.addAttribute(ERROR, "Usuario no encontrado");
+                return ERROR;
             }
 
             // Obtener establecimientos activos para mostrar
@@ -231,8 +238,8 @@ public class ReservaController {
 
         } catch (Exception e) {
         	log.error("Error al mostrar mis reservas: {}", e.getMessage(), e);
-            model.addAttribute("error", "Error interno del servidor");
-            return "error";
+            model.addAttribute(ERROR, "Error interno del servidor");
+            return ERROR;
         }
     }
 }

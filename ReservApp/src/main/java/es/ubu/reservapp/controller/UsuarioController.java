@@ -25,17 +25,6 @@ import es.ubu.reservapp.service.UsuarioService;
 @Controller
 @RequestMapping("/users")
 public class UsuarioController {
-
-	private final UsuarioService usuarioService;
-
-	/**
-	 * Constructor de la clase.
-	 * 
-	 * @param usuarioService Servicio de la entidad Usuario.
-	 */
-	public UsuarioController(UsuarioService usuarioService) {
-		this.usuarioService = usuarioService;
-	}
 	
 	/**
 	 * Método que muestra la información de la cuenta.

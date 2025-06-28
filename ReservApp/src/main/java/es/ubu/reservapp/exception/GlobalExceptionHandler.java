@@ -28,12 +28,14 @@ import lombok.extern.slf4j.Slf4j;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 	
+	private static final String ERROR = "error";
+	
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleUserNotFoundException(UserNotFoundException ex, Model model) {
         log.error("Usuario no encontrado: {}", ex.getMessage());
-        model.addAttribute("error", "Usuario no encontrado: " + ex.getMessage());
-        return "error";
+        model.addAttribute(ERROR, "Usuario no encontrado: " + ex.getMessage());
+        return ERROR;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -52,8 +54,8 @@ public class GlobalExceptionHandler {
                                                 HttpServletRequest request,
                                                 Model model) {
     	log.error("Argumento inválido en {}: {}", request.getRequestURI(), ex.getMessage());
-        model.addAttribute("error", "Datos inválidos: " + ex.getMessage());
-        return "error";
+        model.addAttribute(ERROR, "Datos inválidos: " + ex.getMessage());
+        return ERROR;
     }
     
     @ExceptionHandler(RuntimeException.class)
@@ -70,15 +72,15 @@ public class GlobalExceptionHandler {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setContentType("text/html;charset=UTF-8");
             
-            mav.addObject("error", "Ha ocurrido un error interno. Por favor, inténtelo de nuevo.");
+            mav.addObject(ERROR, "Ha ocurrido un error interno. Por favor, inténtelo de nuevo.");
             mav.addObject("timestamp", System.currentTimeMillis());
             mav.addObject("path", request.getRequestURI());
-            mav.setViewName("error");
+            mav.setViewName(ERROR);
             
             return mav;
         } catch (Exception e) {
         	log.error("Error adicional al manejar excepción: {}", e.getMessage(), e);
-            mav.setViewName("error");
+            mav.setViewName(ERROR);
             return mav;
         }
     }
@@ -96,14 +98,14 @@ public class GlobalExceptionHandler {
 //            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
 //            response.setContentType("text/html;charset=UTF-8");
 //            
-//            model.addAttribute("error", "Ha ocurrido un error inesperado. Por favor, contacte al administrador.");
+//            model.addAttribute(ERROR, "Ha ocurrido un error inesperado. Por favor, contacte al administrador.");
 //            model.addAttribute("timestamp", System.currentTimeMillis());
 //            model.addAttribute("path", request.getRequestURI());
 //            
-//            return "error";
+//            return ERROR;
 //        } catch (Exception e) {
 //        	log.error("Error crítico al manejar excepción: {}", e.getMessage(), e);
-//            return "error";
+//            return ERROR;
 //        }
 //    }
     
@@ -112,8 +114,8 @@ public class GlobalExceptionHandler {
     public String handleMethodNotSupported(org.springframework.web.HttpRequestMethodNotSupportedException ex,
                                          Model model) {
     	log.error("Método HTTP no soportado: {}", ex.getMessage());
-        model.addAttribute("error", "Método HTTP no permitido: " + ex.getMethod());
-        return "error";
+        model.addAttribute(ERROR, "Método HTTP no permitido: " + ex.getMethod());
+        return ERROR;
     }
 
     @ExceptionHandler(org.springframework.dao.DataAccessException.class)
@@ -127,11 +129,11 @@ public class GlobalExceptionHandler {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setContentType("text/html;charset=UTF-8");
             
-            model.addAttribute("error", "Error de base de datos. Por favor, inténtelo más tarde.");
-            return "error";
+            model.addAttribute(ERROR, "Error de base de datos. Por favor, inténtelo más tarde.");
+            return ERROR;
         } catch (Exception e) {
         	log.error("Error al manejar excepción de base de datos: {}", e.getMessage(), e);
-            return "error";
+            return ERROR;
         }
     }
 

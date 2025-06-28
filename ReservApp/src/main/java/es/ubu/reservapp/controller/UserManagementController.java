@@ -29,7 +29,6 @@ public class UserManagementController {
 	private static final String ERROR = "error";
 	private static final String ERROR_USUARIO = "error.usuario";
 	private static final String EXITO = "exito";
-	private static final String IS_EDIT= "isEdit";
 
 	/** 
 	 * Servicio de usuario para gestionar operaciones relacionadas con usuarios.
@@ -60,7 +59,7 @@ public class UserManagementController {
     @GetMapping("/usuarios/nuevo")
     public String showCreateUserForm(Model model) {
         model.addAttribute("usuario", new Usuario());
-        model.addAttribute(IS_EDIT, false);
+        ControllerHelper.setEditMode(model, false);
         return ADMIN_FORM;
     }
 
@@ -73,7 +72,7 @@ public class UserManagementController {
         }
         usuario.setPassword(null); 
         model.addAttribute("usuario", usuario);
-        model.addAttribute(IS_EDIT, true);
+        ControllerHelper.setEditMode(model, true);
         return ADMIN_FORM;
     }
 
@@ -88,7 +87,7 @@ public class UserManagementController {
             if (!isNewUser && bindingResult.hasFieldErrors("id") && usuario.getId().isEmpty()){
 			} else if (isNewUser && usuario.getId() == null && bindingResult.getErrorCount() == 1 && bindingResult.getFieldErrorCount("id") == 1) {
 			} else if (bindingResult.hasErrors()) {
-				model.addAttribute(IS_EDIT, !isNewUser);
+				ControllerHelper.setEditMode(model, !isNewUser);
 				return ADMIN_FORM;
 			}
 		}
@@ -114,7 +113,7 @@ public class UserManagementController {
         }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute(IS_EDIT, !isNewUser);
+        	ControllerHelper.setEditMode(model, !isNewUser);
             return ADMIN_FORM;
         }
 

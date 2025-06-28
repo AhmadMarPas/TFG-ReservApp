@@ -169,7 +169,7 @@ class LoginControllerTest {
         verify(usuarioService).save(any(Usuario.class));
         verify(sessionData).setUsuario(any(Usuario.class));
         
-        verify(redirectAttributes).addFlashAttribute(eq("success"), anyString());
+        verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
         
         assertEquals("redirect:/menuprincipal", viewName);
     }

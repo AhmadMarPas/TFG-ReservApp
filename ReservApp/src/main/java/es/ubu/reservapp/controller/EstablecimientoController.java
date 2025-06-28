@@ -41,7 +41,6 @@ public class EstablecimientoController {
 	private static final String REDIRECT_FORMULARIO = "establecimientos/formulario";
 	private static final String ERROR = "error";
 	private static final String EXITO = "exito";
-	private static final String IS_EDIT= "isEdit";
 	
 	/** 
 	 * Servicio para gestionar establecimientos.
@@ -89,7 +88,7 @@ public class EstablecimientoController {
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevo(Model model) {
         model.addAttribute(ESTABLECIMIENTO, new Establecimiento());
-        model.addAttribute(IS_EDIT, false);
+        ControllerHelper.setEditMode(model, false);
         return REDIRECT_FORMULARIO;
     }
 
@@ -107,7 +106,7 @@ public class EstablecimientoController {
 
         if (establecimientoOptional.isPresent()) {
             model.addAttribute(ESTABLECIMIENTO, establecimientoOptional.get());
-            model.addAttribute(IS_EDIT, true);
+            ControllerHelper.setEditMode(model, true);
             return REDIRECT_FORMULARIO;
         } else {
             redirectAttributes.addFlashAttribute(ERROR, "Establecimiento no encontrado con ID: " + id);
@@ -143,7 +142,7 @@ public class EstablecimientoController {
     public String guardarEstablecimiento(@Valid @ModelAttribute("establecimiento") Establecimiento establecimiento,
                                        BindingResult result, Model model, RedirectAttributes redirectAttributes) {
     	if (result.hasErrors()) {
-    		model.addAttribute(IS_EDIT, establecimiento.getId() != null);
+    		ControllerHelper.setEditMode(model, establecimiento.getId() != null);
     		model.addAttribute(ERROR, "Por favor, corrija los errores en el formulario");
     		return REDIRECT_FORMULARIO;
     	}
@@ -161,7 +160,7 @@ public class EstablecimientoController {
             return REDIRECT_LISTADO;
 
         } catch (Exception e) {
-            model.addAttribute(IS_EDIT, establecimiento.getId() != null);
+            ControllerHelper.setEditMode(model, establecimiento.getId() != null);
             model.addAttribute(ESTABLECIMIENTO, establecimiento);
             model.addAttribute(ERROR, "Error al guardar el establecimiento: " + e.getMessage());
             return REDIRECT_FORMULARIO;

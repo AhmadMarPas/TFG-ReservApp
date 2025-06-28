@@ -21,7 +21,7 @@
                 <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
             </ul>
         </div>
-        <!-- Success Message from RedirectAttributes -->
+        <!-- Mensaje de exito de RedirectAttributes -->
         <div th:if="${exito}" class="alert alert-success p-2 text-center" role="alert" th:text="${exito}"></div>
         
             <!-- Username (ID field from existing form) -->

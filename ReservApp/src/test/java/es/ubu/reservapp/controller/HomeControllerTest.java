@@ -76,4 +76,39 @@ class HomeControllerTest {
         
         assertEquals("reservas/misreservas", viewName);
     }
+
+    @Test
+    void testMisReservasUsuarioNoAutenticado() {
+        when(sessionData.getUsuario()).thenReturn(null);
+        
+        String viewName = homeController.misReservas(model);
+        
+        verify(model, never()).addAttribute(anyString(), any());
+        
+        assertEquals("redirect:/login", viewName);
+    }
+
+    @Test
+    void testMisReservasSinEstablecimientos() {
+        usuario.setEstablecimiento(new ArrayList<>());
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        
+        String viewName = homeController.misReservas(model);
+        
+        verify(model).addAttribute("establecimientos", new ArrayList<>());
+        
+        assertEquals("reservas/misreservas", viewName);
+    }
+
+    @Test
+    void testMisReservasConEstablecimientosNulos() {
+        usuario.setEstablecimiento(null);
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        
+        String viewName = homeController.misReservas(model);
+        
+        verify(model).addAttribute("establecimientos", null);
+        
+        assertEquals("reservas/misreservas", viewName);
+    }
 }

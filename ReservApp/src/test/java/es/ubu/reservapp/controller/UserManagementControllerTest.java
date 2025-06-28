@@ -237,6 +237,112 @@ class UserManagementControllerTest {
         
         assertEquals("redirect:/admin/usuarios", viewName);
     }
+
+    @Test
+    void testBlockUserNotFound() throws UserNotFoundException {
+        doThrow(new UserNotFoundException("Usuario no encontrado")).when(usuarioService).blockUser("nonexistent");
+        
+        String viewName = userManagementController.blockUser("nonexistent", redirectAttributes);
+        
+        verify(redirectAttributes).addFlashAttribute(eq("error"), anyString());
+        
+        assertEquals("redirect:/admin/usuarios", viewName);
+    }
+
+    @Test
+    void testUnblockUserNotFound() throws UserNotFoundException {
+        doThrow(new UserNotFoundException("Usuario no encontrado")).when(usuarioService).unblockUser("nonexistent");
+        
+        String viewName = userManagementController.unblockUser("nonexistent", redirectAttributes);
+        
+        verify(redirectAttributes).addFlashAttribute(eq("error"), anyString());
+        
+        assertEquals("redirect:/admin/usuarios", viewName);
+    }
+
+    @Test
+    void testSaveOrUpdateNewUserWithoutPassword() {
+        Usuario newUser = new Usuario();
+        newUser.setId("newuser");
+        newUser.setNombre("Nuevo");
+        newUser.setApellidos("Usuario");
+        newUser.setPassword(""); // Password vacío
+        newUser.setCorreo("nuevo@test.com");
+        
+        when(bindingResult.hasErrors()).thenReturn(false);
+        when(usuarioService.existeId("newuser")).thenReturn(false);
+        when(usuarioService.findUsuarioByCorreo("nuevo@test.com")).thenReturn(null);
+        
+        String viewName = userManagementController.saveOrUpdateUser(newUser, bindingResult, model, redirectAttributes);
+        
+        verify(bindingResult).rejectValue(eq("password"), anyString(), anyString());
+//        verify(model).addAttribute("isEdit", true);
+        
+        assertEquals("redirect:/admin/usuarios", viewName);
+    }
+
+    @Test
+    void testSaveOrUpdateExistingUserWithExistingEmailFromOtherUser() {
+        Usuario otherUser = new Usuario();
+        otherUser.setId("otheruser");
+        otherUser.setCorreo("usuario@test.com");
+        
+        usuario.setCorreo("usuario@test.com");
+        
+        when(bindingResult.hasErrors()).thenReturn(false);
+        when(usuarioService.existeId("usuario1")).thenReturn(true);
+        when(usuarioService.findUsuarioByCorreo("usuario@test.com")).thenReturn(otherUser);
+        
+        String viewName = userManagementController.saveOrUpdateUser(usuario, bindingResult, model, redirectAttributes);
+        
+        verify(bindingResult).rejectValue(eq("correo"), anyString(), anyString());
+//        verify(model).addAttribute("isEdit", false);
+        
+        assertEquals("redirect:/admin/usuarios", viewName);
+    }
+
+    @Test
+    void testSaveOrUpdateExistingUserWithEmptyPassword() {
+        Usuario existingUser = new Usuario();
+        existingUser.setId("usuario1");
+        existingUser.setPassword("hashedpassword");
+        
+        usuario.setPassword(""); // Password vacío para usuario existente
+        
+        when(bindingResult.hasErrors()).thenReturn(false);
+        when(usuarioService.existeId("usuario1")).thenReturn(true);
+        when(usuarioService.findUsuarioByCorreo("usuario@test.com")).thenReturn(null);
+        when(usuarioService.findUsuarioById("usuario1")).thenReturn(existingUser);
+        
+        String viewName = userManagementController.saveOrUpdateUser(usuario, bindingResult, model, redirectAttributes);
+        
+        verify(usuarioService).save(usuario);
+        verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
+        
+        assertEquals("redirect:/admin/usuarios", viewName);
+        assertEquals("hashedpassword", usuario.getPassword());
+    }
+
+    @Test
+    void testSaveOrUpdateUserWithEmailToLowerCase() {
+        Usuario newUser = new Usuario();
+        newUser.setId("newuser");
+        newUser.setNombre("Nuevo");
+        newUser.setApellidos("Usuario");
+        newUser.setPassword("password");
+        newUser.setCorreo("NUEVO@TEST.COM"); // Email en mayúsculas
+        
+        when(bindingResult.hasErrors()).thenReturn(false);
+        when(usuarioService.existeId("newuser")).thenReturn(false);
+//        when(usuarioService.findUsuarioByCorreo("nuevo@test.com")).thenReturn(null);
+        
+        String viewName = userManagementController.saveOrUpdateUser(newUser, bindingResult, model, redirectAttributes);
+        
+        verify(usuarioService).save(newUser);
+        assertEquals("nuevo@test.com", newUser.getCorreo());
+        
+        assertEquals("redirect:/admin/usuarios", viewName);
+    }
     
     private void assertNull(Object obj) {
         assertEquals(null, obj);

@@ -35,7 +35,12 @@ public class LoginController {
 	private static final String REDIRECT_REGISTRO = "redirect:/registro";
 	private static final String REDIRECT_LOGIN = "redirect:/login";
 	private static final String REDIRECT_INICIO = "redirect:/menuprincipal";
+	private static final String ERROR = "error";
+	private static final String EXITO = "exito";
 
+	/**
+	 * Servicio para gestionar usuarios.
+	 */
 	private UsuarioService userService;
 
 	/**
@@ -91,8 +96,8 @@ public class LoginController {
 			return REDIRECT_INICIO;
 		} else {
 			log.error("Invalid username and password");
-			model.addAttribute("error", "Usuario o contraseña incorrectos.");
-			redirectAttributes.addFlashAttribute("error", "Usuario o contraseña incorrectos");
+			model.addAttribute(ERROR, "Usuario o contraseña incorrectos.");
+			redirectAttributes.addFlashAttribute(ERROR, "Usuario o contraseña incorrectos");
 			return "login";
 		}
 	}
@@ -113,17 +118,17 @@ public class LoginController {
 
         // Se verifica si el ID (nombre de usuario) ya existe
         if (userService.existeId(usuario.getId())) {
-            redirectAttributes.addFlashAttribute("error", "El nombre de usuario '" + usuario.getId() + "' ya está registrado. Por favor, elige otro.");
+            redirectAttributes.addFlashAttribute(ERROR, "El nombre de usuario '" + usuario.getId() + "' ya está registrado. Por favor, elige otro.");
             return REDIRECT_REGISTRO;
         }
 
 		if (!usuario.getPassword().equals(confirmPassword)) {
-			redirectAttributes.addFlashAttribute("error", "Las contraseñas no coinciden");
+			redirectAttributes.addFlashAttribute(ERROR, "Las contraseñas no coinciden");
 			return REDIRECT_REGISTRO;
 		}
         // Verificar si el email ya existe
         if (userService.existeEmail(usuario.getCorreo())) {
-            redirectAttributes.addFlashAttribute("error", "El email ya está registrado");
+            redirectAttributes.addFlashAttribute(ERROR, "El email ya está registrado");
             return REDIRECT_REGISTRO;
         }
 
@@ -143,20 +148,18 @@ public class LoginController {
         
         // TODO: Enviar email de confirmación con el token
         
-        redirectAttributes.addFlashAttribute("success", "Usuario registrado correctamente. Por favor, revisa tu email para confirmar tu cuenta.");
+        redirectAttributes.addFlashAttribute(EXITO, "Usuario registrado correctamente. Por favor, revisa tu email para confirmar tu cuenta.");
         return REDIRECT_INICIO; // O redirigir a una página que informe sobre la necesidad de confirmar el email
     }
     
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-    	System.out.println("Logout GET!!!");
         session.invalidate();
         return REDIRECT_LOGIN;
     }
     
     @PostMapping("/logout")
     public String logout(HttpServletRequest request) {
-    	System.out.println("Logout POST!!!");
     	HttpSession session = request.getSession(false);
 		if (session != null) {
 			session.invalidate();

@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.service.UsuarioService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Clase principal de la aplicación.
@@ -21,14 +22,14 @@ import es.ubu.reservapp.service.UsuarioService;
 //@EnableJpaRepositories(basePackages = {"es.ubu.*"})
 //@EntityScan("es.ubu.*")
 //@EnableAutoConfiguration
+@Slf4j
 @SpringBootApplication
 public class ReservApplication {
-	
+
+	/**
+	 * Servicio de la entidad Usuario.
+	 */
 	private final UsuarioService usrService;
-	
-//	public ReservApplication() {
-//		// Constructor vacío
-//	}
 	
 	/**
 	 * Constructor de la clase.
@@ -46,9 +47,7 @@ public class ReservApplication {
 	 */
 	public static void main(String[] args) {
 		SpringApplication.run(ReservApplication.class, args);
-		System.out.println("Inicializando base de datos...");
-//        ReservApplication app = SpringApplication.run(ReservApplication.class, args).getBean(ReservApplication.class);
-//        app.inicializaBaseDatos();
+		log.info("Inicializando base de datos...");
 	}
 
 	public void inicializaBaseDatos() {
@@ -59,9 +58,8 @@ public class ReservApplication {
 		admin.setAdministrador(true);
 		admin.setCorreo("admin@admin.es");
 		admin.setFechaCreaReg(LocalDateTime.now());
-		admin.setUsuarioCreaReg("admin");
+		admin.setUsuarioCreaReg("init");
 		usrService.save(admin);
-		
 	}
 
 }

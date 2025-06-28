@@ -49,8 +49,8 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
 	@Id
 	@NotNull(message = "El nombre de usuario no puede ser nulo")
 	@NotEmpty(message = "El nombre de usuario no puede estar vacío")
-	@Pattern(regexp = "^[a-zA-Z0-9]{3,10}$", message = "El nombre de usuario debe tener entre 3 y 10 caracteres alfanuméricos, sin espacios u otros símbolos.")
-	@Column(name = "id")
+	@Pattern(regexp = "^[a-zA-Z0-9]{3,10}$", message = "El Id de usuario debe tener entre 3 y 10 caracteres alfanuméricos, sin espacios u otros símbolos.")
+	@Column(name = "id", length = 10)
 	private String id;
 	
 	@NotNull
