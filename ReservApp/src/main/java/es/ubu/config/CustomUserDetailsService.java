@@ -12,19 +12,34 @@ import org.springframework.stereotype.Service;
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
 
+/**
+ * Servicio que implementa UserDetailsService para cargar detalles de usuario
+ * desde un repositorio.
+ * 
+ * @autor Ahmad Mareie Pascual
+ * @version 1.0
+ * @since 1.0
+ */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
+	/**
+	 * Repositorio para acceder a los datos de usuario.
+	 */
     private UsuarioRepo usuarioRepo;
     
+	/**
+	 * Constructor que inyecta el repositorio de usuarios.
+	 *
+	 * @param usuarioRepo Repositorio de usuarios.
+	 */
 	public CustomUserDetailsService(UsuarioRepo usuarioRepo) {
 		this.usuarioRepo = usuarioRepo;
 	}
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Usuario usuario = usuarioRepo.findById(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+        Usuario usuario = usuarioRepo.findById(username).orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         

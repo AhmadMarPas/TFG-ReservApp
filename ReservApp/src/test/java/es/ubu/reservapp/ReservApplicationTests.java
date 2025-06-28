@@ -8,6 +8,7 @@ class ReservApplicationTests {
 
 	@Test
 	void contextLoads() {
-	}
+   // Creado por Spring Boot para verificar que el contexto de la aplicación se carga correctamente.
+ }
 
 }

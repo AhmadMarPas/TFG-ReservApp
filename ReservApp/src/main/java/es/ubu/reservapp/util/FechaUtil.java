@@ -20,7 +20,7 @@ public class FechaUtil {
 	 * Constructor privado para evitar la instanciación de la clase.
 	 */
     private FechaUtil() {
-        // Constructor privado para evitar instanciación
+        throw new UnsupportedOperationException("La clase FechaUtil no puede ser instanciada");
     }
 
 	/**
