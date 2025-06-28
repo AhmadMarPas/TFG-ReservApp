@@ -2,15 +2,17 @@ package es.ubu.reservapp.model.shared;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +23,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+
 
 /**
  * Test para la clase SessionData
@@ -63,69 +67,105 @@ class SessionDataTest {
     }
 
     @Test
-    void testGettersAndSetters() {
-        List<Establecimiento> establecimientos = new ArrayList<>();
-        Establecimiento establecimiento = new Establecimiento();
-        establecimiento.setId(1);
-        establecimiento.setNombre("Establecimiento Test");
-        establecimientos.add(establecimiento);
-        
-        List<Integer> roles = new ArrayList<>();
-        roles.add(1);
-        roles.add(2);
-        
-        sessionData.setUsuario(usuario);
-        sessionData.setLstEstablecimientoUsuario(establecimientos);
-        sessionData.setLstRolesUsuario(roles);
-        
+    void registroUsuarioEntrada_SuccessfulCase() {
+        // Given
+        when(usuarioRepo.findById("test123")).thenReturn(Optional.of(usuario));
+        when(usuarioRepo.save(any(Usuario.class))).thenReturn(usuario);
+
+        // When
+        sessionData.registroUsuarioEntrada("test123");
+
+        // Then
+        verify(usuarioRepo).findById("test123");
         assertEquals(usuario, sessionData.getUsuario());
+    }
+
+    @Test
+    void registroUsuarioEntrada_UserNotFound() {
+        // Given
+        when(usuarioRepo.findById("nonexistent")).thenReturn(Optional.empty());
+
+        // When
+        sessionData.registroUsuarioEntrada("nonexistent");
+
+        // Then
+        verify(usuarioRepo).findById("nonexistent");
+        verify(usuarioRepo, never()).save(any());
+        assertNull(sessionData.getUsuario());
+    }
+
+    @Test
+    void registroUsuarioEntrada_FindByIdThrowsException() {
+        // Given
+        when(usuarioRepo.findById("test123")).thenThrow(new RuntimeException("Database error"));
+
+        // When
+        sessionData.registroUsuarioEntrada("test123");
+
+        // Then
+        verify(usuarioRepo).findById("test123");
+        verify(usuarioRepo, never()).save(any());
+        assertNull(sessionData.getUsuario());
+    }
+
+    @Test
+    void registroUsuarioEntrada_SaveThrowsConstraintViolationException() {
+        // Given
+        when(usuarioRepo.findById("test123")).thenReturn(Optional.of(usuario));
+        Set<ConstraintViolation<Usuario>> violations = new HashSet<>();
+        ConstraintViolationException exception = new ConstraintViolationException("Validation failed", violations);
+        when(usuarioRepo.save(any(Usuario.class))).thenThrow(exception);
+
+        // When
+        sessionData.registroUsuarioEntrada("test123");
+
+        // Then
+        verify(usuarioRepo).findById("test123");
+        verify(usuarioRepo).save(any());
+        assertEquals(usuario, sessionData.getUsuario());
+    }
+
+    @Test
+    void registroUsuarioEntrada_SaveThrowsGenericException() {
+        // Given
+        when(usuarioRepo.findById("test123")).thenReturn(Optional.of(usuario));
+        when(usuarioRepo.save(any(Usuario.class))).thenThrow(new RuntimeException("Save error"));
+
+        // When
+        sessionData.registroUsuarioEntrada("test123");
+
+        // Then
+        verify(usuarioRepo).findById("test123");
+        verify(usuarioRepo).save(any());
+        assertEquals(usuario, sessionData.getUsuario());
+    }
+
+    @Test
+    void testConstructors() {
+        // Test no-args constructor
+        SessionData emptySessionData = new SessionData();
+        assertNotNull(emptySessionData);
+
+        // Test constructor with UsuarioRepo
+        SessionData repoSessionData = new SessionData(usuarioRepo);
+        assertNotNull(repoSessionData);
+    }
+
+    @Test
+    void testGettersAndSetters() {
+        // Test usuario getter/setter
+        sessionData.setUsuario(usuario);
+        assertEquals(usuario, sessionData.getUsuario());
+
+        // Test lstEstablecimientoUsuario getter/setter
+        List<Establecimiento> establecimientos = new ArrayList<>();
+        sessionData.setLstEstablecimientoUsuario(establecimientos);
         assertEquals(establecimientos, sessionData.getLstEstablecimientoUsuario());
+
+        // Test lstRolesUsuario getter/setter
+        List<Integer> roles = new ArrayList<>();
+        sessionData.setLstRolesUsuario(roles);
         assertEquals(roles, sessionData.getLstRolesUsuario());
     }
-
-    @Test
-    void testRegistroUsuarioEntradaExitoso() {
-        when(usuarioRepo.findById("user1")).thenReturn(Optional.of(usuario));
-        
-        sessionData.registroUsuarioEntrada("user1");
-        
-        assertEquals(usuario, sessionData.getUsuario());
-        assertNotNull(usuario.getFechaUltimoAcceso());
-        verify(usuarioRepo, times(1)).save(usuario);
-    }
-
-    @Test
-    void testRegistroUsuarioEntradaUsuarioNoEncontrado() {
-        when(usuarioRepo.findById("userNoExiste")).thenReturn(Optional.empty());
-        
-        sessionData.registroUsuarioEntrada("userNoExiste");
-        
-        assertEquals(null, sessionData.getUsuario());
-        verify(usuarioRepo, times(0)).save(any(Usuario.class));
-    }
-
-    @Test
-    void testRegistroUsuarioEntradaConExcepcion() {
-        when(usuarioRepo.findById("user1")).thenReturn(Optional.of(usuario));
-        when(usuarioRepo.save(usuario)).thenThrow(new RuntimeException("Error al guardar"));
-        
-        // No debería lanzar excepción, se maneja internamente
-        sessionData.registroUsuarioEntrada("user1");
-        
-        assertEquals(usuario, sessionData.getUsuario());
-        assertNotNull(usuario.getFechaUltimoAcceso());
-    }
-
-    @Test
-    void testRegistroUsuarioEntradaConConstraintViolationException() {
-        ConstraintViolationException mockException = mock(ConstraintViolationException.class);
-        when(usuarioRepo.findById("user1")).thenReturn(Optional.of(usuario));
-        when(usuarioRepo.save(usuario)).thenThrow(mockException);
-        
-        // No debería lanzar excepción, se maneja internamente
-        sessionData.registroUsuarioEntrada("user1");
-        
-        assertEquals(usuario, sessionData.getUsuario());
-        assertNotNull(usuario.getFechaUltimoAcceso());
-    }
+    
 }

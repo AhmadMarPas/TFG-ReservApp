@@ -85,30 +85,6 @@ public class GlobalExceptionHandler {
         }
     }
 
-//    @ExceptionHandler(Exception.class)
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    public String handleGenericException(Exception ex, 
-//                                       HttpServletRequest request,
-//                                       Model model,
-//                                       HttpServletResponse response) {
-//    	log.error("Error genérico en {}: {}", request.getRequestURI(), ex.getMessage(), ex);
-//        
-//        try {
-//            // Asegurar respuesta completa
-//            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-//            response.setContentType("text/html;charset=UTF-8");
-//            
-//            model.addAttribute(ERROR, "Ha ocurrido un error inesperado. Por favor, contacte al administrador.");
-//            model.addAttribute("timestamp", System.currentTimeMillis());
-//            model.addAttribute("path", request.getRequestURI());
-//            
-//            return ERROR;
-//        } catch (Exception e) {
-//        	log.error("Error crítico al manejar excepción: {}", e.getMessage(), e);
-//            return ERROR;
-//        }
-//    }
-    
     @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public String handleMethodNotSupported(org.springframework.web.HttpRequestMethodNotSupportedException ex,

@@ -1,8 +1,16 @@
 package es.ubu.reservapp.controller;
 
-import es.ubu.reservapp.exception.UserNotFoundException;
-import es.ubu.reservapp.model.entities.Usuario;
-import es.ubu.reservapp.service.UsuarioService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,14 +21,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import es.ubu.reservapp.exception.UserNotFoundException;
+import es.ubu.reservapp.model.entities.Usuario;
+import es.ubu.reservapp.service.UsuarioService;
 
 /**
  * Test para el controlador UserManagementController
@@ -132,9 +135,8 @@ class UserManagementControllerTest {
     @Test
     void testSaveOrUpdateUserWithValidationErrors() {
         when(bindingResult.hasErrors()).thenReturn(true);
-//        when(bindingResult.getErrorCount()).thenReturn(2);
         
-        String viewName = userManagementController.saveOrUpdateUser(usuario, bindingResult, model, redirectAttributes);
+        String viewName = userManagementController.saveOrUpdateUser(usuario, bindingResult, false, model, redirectAttributes);
         
         verify(model).addAttribute("isEdit", false);
         
@@ -145,15 +147,11 @@ class UserManagementControllerTest {
     void testSaveOrUpdateNewUserWithExistingId() {
         usuario.setId(null);
         
-        when(bindingResult.hasErrors()).thenReturn(false);
-        
-        String viewName = userManagementController.saveOrUpdateUser(usuario, bindingResult, model, redirectAttributes);
+        String viewName = userManagementController.saveOrUpdateUser(usuario, bindingResult, true, model, redirectAttributes);
         
         verify(bindingResult).rejectValue(eq("id"), anyString(), anyString());
         
-//        verify(model).addAttribute("isEdit", true);
-        
-        assertEquals("redirect:/admin/usuarios", viewName);
+        assertEquals("admin/user_form", viewName);
     }
 
     @Test
@@ -168,13 +166,11 @@ class UserManagementControllerTest {
         when(usuarioService.existeId("newuser")).thenReturn(false);
         when(usuarioService.findUsuarioByCorreo("usuario@test.com")).thenReturn(usuario);
         
-        String viewName = userManagementController.saveOrUpdateUser(newUser, bindingResult, model, redirectAttributes);
+        String viewName = userManagementController.saveOrUpdateUser(newUser, bindingResult, false, model, redirectAttributes);
         
         verify(bindingResult).rejectValue(eq("correo"), anyString(), anyString());
         
-//        verify(model).addAttribute("isEdit", true);
-        
-        assertEquals("redirect:/admin/usuarios", viewName);
+        assertEquals("admin/user_form", viewName);
     }
 
     @Test
@@ -191,7 +187,7 @@ class UserManagementControllerTest {
         when(usuarioService.existeId("newuser")).thenReturn(false);
         when(usuarioService.findUsuarioByCorreo("nuevo@test.com")).thenReturn(null);
         
-        String viewName = userManagementController.saveOrUpdateUser(newUser, bindingResult, model, redirectAttributes);
+        String viewName = userManagementController.saveOrUpdateUser(newUser, bindingResult, false, model, redirectAttributes);
         
         verify(usuarioService).save(newUser);
         
@@ -205,9 +201,8 @@ class UserManagementControllerTest {
         when(bindingResult.hasErrors()).thenReturn(false);
         
         when(usuarioService.existeId("usuario1")).thenReturn(true);
-//        when(usuarioService.findUsuarioById("usuario1")).thenReturn(usuario);
         
-        String viewName = userManagementController.saveOrUpdateUser(usuario, bindingResult, model, redirectAttributes);
+        String viewName = userManagementController.saveOrUpdateUser(usuario, bindingResult, true, model, redirectAttributes);
         
         verify(usuarioService).save(usuario);
         
@@ -271,14 +266,13 @@ class UserManagementControllerTest {
         
         when(bindingResult.hasErrors()).thenReturn(false);
         when(usuarioService.existeId("newuser")).thenReturn(false);
-        when(usuarioService.findUsuarioByCorreo("nuevo@test.com")).thenReturn(null);
+//        when(usuarioService.findUsuarioByCorreo("nuevo@test.com")).thenReturn(null);
         
-        String viewName = userManagementController.saveOrUpdateUser(newUser, bindingResult, model, redirectAttributes);
+        String viewName = userManagementController.saveOrUpdateUser(newUser, bindingResult, false, model, redirectAttributes);
         
         verify(bindingResult).rejectValue(eq("password"), anyString(), anyString());
-//        verify(model).addAttribute("isEdit", true);
         
-        assertEquals("redirect:/admin/usuarios", viewName);
+        assertEquals("admin/user_form", viewName);
     }
 
     @Test
@@ -293,12 +287,11 @@ class UserManagementControllerTest {
         when(usuarioService.existeId("usuario1")).thenReturn(true);
         when(usuarioService.findUsuarioByCorreo("usuario@test.com")).thenReturn(otherUser);
         
-        String viewName = userManagementController.saveOrUpdateUser(usuario, bindingResult, model, redirectAttributes);
+        String viewName = userManagementController.saveOrUpdateUser(usuario, bindingResult, true, model, redirectAttributes);
         
         verify(bindingResult).rejectValue(eq("correo"), anyString(), anyString());
-//        verify(model).addAttribute("isEdit", false);
         
-        assertEquals("redirect:/admin/usuarios", viewName);
+        assertEquals("admin/user_form", viewName);
     }
 
     @Test
@@ -314,7 +307,7 @@ class UserManagementControllerTest {
         when(usuarioService.findUsuarioByCorreo("usuario@test.com")).thenReturn(null);
         when(usuarioService.findUsuarioById("usuario1")).thenReturn(existingUser);
         
-        String viewName = userManagementController.saveOrUpdateUser(usuario, bindingResult, model, redirectAttributes);
+        String viewName = userManagementController.saveOrUpdateUser(usuario, bindingResult, true, model, redirectAttributes);
         
         verify(usuarioService).save(usuario);
         verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
@@ -334,15 +327,157 @@ class UserManagementControllerTest {
         
         when(bindingResult.hasErrors()).thenReturn(false);
         when(usuarioService.existeId("newuser")).thenReturn(false);
-//        when(usuarioService.findUsuarioByCorreo("nuevo@test.com")).thenReturn(null);
         
-        String viewName = userManagementController.saveOrUpdateUser(newUser, bindingResult, model, redirectAttributes);
+        String viewName = userManagementController.saveOrUpdateUser(newUser, bindingResult, false, model, redirectAttributes);
         
         verify(usuarioService).save(newUser);
         assertEquals("nuevo@test.com", newUser.getCorreo());
         
         assertEquals("redirect:/admin/usuarios", viewName);
     }
+    
+    @Test
+    void testSaveNewUserSuccess() {
+        // Arrange
+        Usuario usuarioTest = new Usuario();
+        usuarioTest.setId("newUser");
+        usuarioTest.setCorreo("test@example.com");
+        usuarioTest.setPassword("password123");
+        
+        when(bindingResult.hasErrors()).thenReturn(false);
+        when(usuarioService.existeId("newUser")).thenReturn(false);
+        when(usuarioService.findUsuarioByCorreo("test@example.com")).thenReturn(null);
+        
+        // Act
+        String result = userManagementController.saveOrUpdateUser(usuarioTest, bindingResult, false, model, redirectAttributes);
+        
+        // Assert
+        assertEquals("redirect:/admin/usuarios", result);
+        verify(redirectAttributes).addFlashAttribute("exito", "Usuario creado correctamente.");
+    }
+
+    @Test
+    void testUpdateExistingUserSuccess() {
+        // Arrange
+        Usuario usuarioTest = new Usuario();
+        usuarioTest.setId("existingUser");
+        usuarioTest.setCorreo("test@example.com");
+        usuarioTest.setPassword("");
+        
+        Usuario existingUser = new Usuario();
+        existingUser.setPassword("encodedPassword");
+        
+        when(bindingResult.hasErrors()).thenReturn(false);
+        when(usuarioService.existeId("existingUser")).thenReturn(true);
+        when(usuarioService.findUsuarioById("existingUser")).thenReturn(existingUser);
+        when(usuarioService.findUsuarioByCorreo("test@example.com")).thenReturn(null);
+        
+        // Act
+        String result = userManagementController.saveOrUpdateUser(usuarioTest, bindingResult, true, model, redirectAttributes);
+        
+        // Assert
+        assertEquals("redirect:/admin/usuarios", result);
+        verify(redirectAttributes).addFlashAttribute("exito", "Usuario actualizado correctamente.");
+    }
+
+    @Test
+    void testSaveNewUserWithDuplicateId() {
+        // Arrange
+        Usuario usuarioTest = new Usuario();
+        usuarioTest.setId("existingId");
+        usuarioTest.setCorreo("test@example.com");
+        usuarioTest.setPassword("password123");
+        
+        when(usuarioService.existeId("existingId")).thenReturn(true);
+        
+        // Act
+        String result = userManagementController.saveOrUpdateUser(usuarioTest, bindingResult, false, model, redirectAttributes);
+        
+        // Assert
+        verify(bindingResult).rejectValue("id", "error.usuario", "No se puede crear un nuevo usuario. El ID ya existe en el sistema.");
+        assertEquals("admin/user_form", result);
+    }
+    
+    @Test
+    void testSaveModifiedUserWithDuplicateId() {
+        // Arrange
+        Usuario usuarioTest = new Usuario();
+        usuarioTest.setId("existingId");
+        usuarioTest.setCorreo("test@example.com");
+        usuarioTest.setPassword("password123");
+        
+        when(usuarioService.existeId("existingId")).thenReturn(true);
+        
+        // Act
+        String result = userManagementController.saveOrUpdateUser(usuarioTest, bindingResult, true, model, redirectAttributes);
+        
+        // Assert
+        verify(redirectAttributes).addFlashAttribute("exito", "Usuario actualizado correctamente.");
+        assertEquals("redirect:/admin/usuarios", result);
+    }
+
+
+    @Test
+    void testSaveNewUserWithDuplicateEmail() {
+        // Arrange
+        Usuario usuarioTest = new Usuario();
+        usuarioTest.setId("newUser");
+        usuarioTest.setCorreo("existing@example.com");
+        usuarioTest.setPassword("password123");
+        
+        Usuario existingUser = new Usuario();
+        existingUser.setCorreo("existing@example.com");
+        
+        when(usuarioService.existeId("newUser")).thenReturn(false);
+        when(usuarioService.findUsuarioByCorreo("existing@example.com")).thenReturn(existingUser);
+        
+        // Act
+        String result = userManagementController.saveOrUpdateUser(usuarioTest, bindingResult, false, model, redirectAttributes);
+        
+        // Assert
+        verify(bindingResult).rejectValue("correo", "error.usuario", "El email ya está registrado.");
+        assertEquals("admin/user_form", result);
+    }
+
+    @Test
+    void testUpdateUserWithEmptyPassword() {
+        // Arrange
+        Usuario usuarioTest = new Usuario();
+        usuarioTest.setId("existingUser");
+        usuarioTest.setCorreo("test@example.com");
+        usuarioTest.setPassword("");
+        
+        Usuario existingUser = new Usuario();
+        existingUser.setPassword("encodedPassword");
+        
+        when(bindingResult.hasErrors()).thenReturn(false);
+        when(usuarioService.existeId("existingUser")).thenReturn(true);
+        when(usuarioService.findUsuarioById("existingUser")).thenReturn(existingUser);
+        
+        // Act
+        String result = userManagementController.saveOrUpdateUser(usuarioTest, bindingResult, true, model, redirectAttributes);
+        
+        // Assert
+        assertEquals("redirect:/admin/usuarios", result);
+        assertEquals("encodedPassword", usuarioTest.getPassword());
+    }
+
+    @Test
+    void testSaveNewUserWithEmptyId() {
+        // Arrange
+        Usuario usuarioTest = new Usuario();
+        usuarioTest.setId("");
+        usuarioTest.setCorreo("test@example.com");
+        usuarioTest.setPassword("password123");
+        
+        // Act
+        String result = userManagementController.saveOrUpdateUser(usuarioTest, bindingResult, true, model, redirectAttributes);
+        
+        // Assert
+        verify(bindingResult).rejectValue("id", "error.usuario", "No se puede modificar el usuario. El ID no existe en el sistema.");
+        assertEquals("admin/user_form", result);
+    }
+
     
     private void assertNull(Object obj) {
         assertEquals(null, obj);

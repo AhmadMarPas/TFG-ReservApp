@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import es.ubu.reservapp.exception.UserNotFoundException;
@@ -64,85 +65,143 @@ public class UserManagementController {
     }
 
     @GetMapping("/usuarios/editar/{id}")
-    public String showEditUserForm(@PathVariable("id") String id, Model model, RedirectAttributes redirectAttributes) {
-        Usuario usuario = usuarioService.findUsuarioById(id);
-        if (usuario == null) {
-            redirectAttributes.addFlashAttribute(ERROR, "Usuario no encontrado.");
-            return ADMIN_USUARIOS;
-        }
-        usuario.setPassword(null); 
-        model.addAttribute("usuario", usuario);
-        ControllerHelper.setEditMode(model, true);
-        return ADMIN_FORM;
-    }
+	public String showEditUserForm(@PathVariable("id") String id, Model model, RedirectAttributes redirectAttributes) {
+		Usuario usuario = usuarioService.findUsuarioById(id);
+		if (usuario == null) {
+			redirectAttributes.addFlashAttribute(ERROR, "Usuario no encontrado.");
+			return ADMIN_USUARIOS;
+		}
+		usuario.setPassword(null);
+		model.addAttribute("usuario", usuario);
+		ControllerHelper.setEditMode(model, true);
+		return ADMIN_FORM;
+	}
 
-    @PostMapping("/usuarios/guardar")
-    public String saveOrUpdateUser(@Valid @ModelAttribute("usuario") Usuario usuario, 
-                                 BindingResult bindingResult, Model model, 
-                                 RedirectAttributes redirectAttributes) {
-        
-        boolean isNewUser = usuario.getId() == null || usuario.getId().trim().isEmpty() || !preExistingId(usuario.getId());
+	@PostMapping("/usuarios/guardar")
+	public String saveOrUpdateUser(@Valid @ModelAttribute("usuario") Usuario usuario,
+	        BindingResult bindingResult, @RequestParam(name = "editMode", defaultValue = "false") boolean isEdit,
+	        Model model, RedirectAttributes redirectAttributes) {
 
-        if (bindingResult.hasErrors() && !(isNewUser && usuario.getId() == null && bindingResult.getErrorCount() == 1 && bindingResult.hasFieldErrors("id"))) {
-            if (!isNewUser && bindingResult.hasFieldErrors("id") && usuario.getId().isEmpty()){
-			} else if (isNewUser && usuario.getId() == null && bindingResult.getErrorCount() == 1 && bindingResult.getFieldErrorCount("id") == 1) {
-			} else if (bindingResult.hasErrors()) {
-				ControllerHelper.setEditMode(model, !isNewUser);
-				return ADMIN_FORM;
-			}
+	    boolean isNewUser = !isEdit;
+
+	    // Si es nuevo usuario y el ID ya existe, no permitir la creación
+	    if (isNewUser && usuarioService.existeId(usuario.getId())) {
+	        bindingResult.rejectValue("id", ERROR_USUARIO, "No se puede crear un nuevo usuario. El ID ya existe en el sistema.");
+	        ControllerHelper.setEditMode(model, false);
+	        return ADMIN_FORM;
+	    }
+
+	    // Si es modificación y el ID no existe, error
+	    if (!isNewUser && !usuarioService.existeId(usuario.getId())) {
+	        bindingResult.rejectValue("id", ERROR_USUARIO, "No se puede modificar el usuario. El ID no existe en el sistema.");
+	        ControllerHelper.setEditMode(model, true);
+	        return ADMIN_FORM;
+	    }
+
+	    if (!isValidBindingResult(bindingResult, isNewUser)) {
+	        ControllerHelper.setEditMode(model, !isNewUser);
+	        return ADMIN_FORM;
+	    }
+
+	    if (isNewUser && !validateNewUser(usuario, bindingResult)) {
+	        ControllerHelper.setEditMode(model, false);
+	        return ADMIN_FORM;
+	    }
+
+	    if (!validateEmail(usuario, isNewUser, bindingResult)) {
+	        ControllerHelper.setEditMode(model, !isNewUser);
+	        return ADMIN_FORM;
+	    }
+
+	    processPassword(usuario, isNewUser);
+	    usuario.setCorreo(usuario.getCorreo().toLowerCase());
+
+	    usuarioService.save(usuario);
+	    redirectAttributes.addFlashAttribute(EXITO, "Usuario " + (isNewUser ? "creado" : "actualizado") + " correctamente.");
+	    return ADMIN_USUARIOS;
+	}
+
+	/**
+	 * Valida el resultado del binding para determinar si hay errores.
+	 * 
+	 * @param bindingResult Resultado del binding
+	 * @param isNewUser Indica si es un nuevo usuario
+	 * @return true si no hay errores, false en caso contrario
+	 */
+	private boolean isValidBindingResult(BindingResult bindingResult, boolean isNewUser) {
+	    if (!bindingResult.hasErrors()) {
+	        return true;
+	    }
+	    
+		if (isNewUser && bindingResult.getErrorCount() == 1 && bindingResult.hasFieldErrors("id")
+				&& bindingResult.getFieldError("id").getRejectedValue() == null) {
+			return true;
 		}
 
-        if (isNewUser) {
-            if (usuario.getId() == null || usuario.getId().trim().isEmpty()) {
-                 bindingResult.rejectValue("id", ERROR_USUARIO, "El ID de usuario es obligatorio.");
-            } else if (usuarioService.existeId(usuario.getId())) {
-                bindingResult.rejectValue("id", ERROR_USUARIO, "El nombre de usuario ya está registrado.");
-            }
-            Usuario existingByEmail = usuarioService.findUsuarioByCorreo(usuario.getCorreo());
-            if (existingByEmail != null) {
-                 bindingResult.rejectValue("correo", ERROR_USUARIO, "El email ya está registrado.");
-            }
-            if (usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
-                bindingResult.rejectValue("password", ERROR_USUARIO, "La contraseña es obligatoria para nuevos usuarios.");
-            }
-        } else { 
-            Usuario existingUserByEmail = usuarioService.findUsuarioByCorreo(usuario.getCorreo());
-            if(existingUserByEmail != null && !existingUserByEmail.getId().equals(usuario.getId())) {
-                bindingResult.rejectValue("correo", ERROR_USUARIO, "El email ya está registrado por otro usuario.");
-            }
-        }
+		return !isNewUser && bindingResult.hasFieldErrors("id")
+				&& bindingResult.getFieldError("id").getRejectedValue().toString().isEmpty();
+	}
 
-        if (bindingResult.hasErrors()) {
-        	ControllerHelper.setEditMode(model, !isNewUser);
-            return ADMIN_FORM;
-        }
+	/**
+	 * Valida un nuevo usuario.
+	 * 
+	 * @param usuario Usuario a validar
+	 * @param bindingResult Resultado del binding
+	 * @return true si el usuario es válido, false en caso contrario
+	 */
+	private boolean validateNewUser(Usuario usuario, BindingResult bindingResult) {
+	    // Ahora solo validamos la contraseña ya que el ID se valida en validateUserId
+	    if (usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
+	        bindingResult.rejectValue("password", ERROR_USUARIO, "La contraseña es obligatoria para nuevos usuarios.");
+	        return false;
+	    }
+	    return true;
+	}
 
-        if (isNewUser) {
-            usuario.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
-        } else { 
-            if (usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
-                Usuario existingUser = usuarioService.findUsuarioById(usuario.getId());
-                if (existingUser != null) {
-                    usuario.setPassword(existingUser.getPassword()); 
-                }
-            } else {
-                usuario.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
-            }
-        }
-        
-        if (usuario.getCorreo() != null) {
-            usuario.setCorreo(usuario.getCorreo().toLowerCase());
-        }
+	/**	
+	 * Valida el email del usuario.
+	 * 
+	 * @param usuario Usuario a validar
+	 * @param isNewUser Indica si es un nuevo usuario
+	 * @param bindingResult Resultado del binding
+	 * @return true si el email es válido, false en caso contrario
+	 */
+	private boolean validateEmail(Usuario usuario, boolean isNewUser, BindingResult bindingResult) {
+	    Usuario existingByEmail = usuarioService.findUsuarioByCorreo(usuario.getCorreo());
+	    
+	    if (isNewUser && existingByEmail != null) {
+	        bindingResult.rejectValue("correo", ERROR_USUARIO, "El email ya está registrado.");
+	        return false;
+	    }
+	    
+	    if (!isNewUser && existingByEmail != null && !existingByEmail.getId().equals(usuario.getId())) {
+	        bindingResult.rejectValue("correo", ERROR_USUARIO, "El email ya está registrado por otro usuario.");
+	        return false;
+	    }
+	    
+	    return true;
+	}
 
-        usuarioService.save(usuario);
-        redirectAttributes.addFlashAttribute(EXITO, "Usuario " + (isNewUser ? "creado" : "actualizado") + " correctamente.");
-        return ADMIN_USUARIOS;
-    }
-    
-    private boolean preExistingId(String id) {
-        if (id == null || id.trim().isEmpty()) return false;
-        return usuarioService.existeId(id); 
-    }
+	/**
+	 * Procesa la contraseña del usuario. Si es un nuevo usuario, se codifica la
+	 * contraseña. Si es una modificación y no se proporciona una nueva contraseña,
+	 * se mantiene la existente.
+	 * 
+	 * @param usuario   Usuario a procesar
+	 * @param isNewUser Indica si es un nuevo usuario
+	 */
+	private void processPassword(Usuario usuario, boolean isNewUser) {
+	    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+	    
+	    if (isNewUser || (usuario.getPassword() != null && !usuario.getPassword().isEmpty())) {
+	        usuario.setPassword(encoder.encode(usuario.getPassword()));
+	    } else {
+	        Usuario existingUser = usuarioService.findUsuarioById(usuario.getId());
+	        if (existingUser != null) {
+	            usuario.setPassword(existingUser.getPassword());
+	        }
+	    }
+	}
 
     @PostMapping("/usuarios/bloquear/{id}")
     public String blockUser(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {

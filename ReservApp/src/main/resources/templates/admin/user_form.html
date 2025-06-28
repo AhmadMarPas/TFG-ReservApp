@@ -161,24 +161,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
-        .btn-secondary-custom {
-            background: #6c757d;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: 500;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-secondary-custom:hover {
-            transform: scale(1.05);
-            color: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        
         .form-body {
             padding: 30px;
         }
@@ -285,6 +267,7 @@
                                 </div>
 
                                 <form th:action="@{/admin/usuarios/guardar}" th:object="${usuario}" method="post" novalidate id="userForm">
+                               	    <input type="hidden" name="editMode" th:value="${isEdit}"/>
                                     <!-- Basic Information Section -->
                                     <div class="form-section">
                                         <h4 class="section-title">
