@@ -93,7 +93,7 @@ public class ReservaController {
         Establecimiento establecimiento = establecimientoOpt.get();
 
         // Verificar si el usuario tiene este establecimiento asignado
-        boolean asignado = usuario.getEstablecimiento().stream().anyMatch(e -> e.getId().equals(establecimientoId));
+        boolean asignado = usuario.getLstEstablecimientos().stream().anyMatch(e -> e.getId().equals(establecimientoId));
         if (!asignado) {
             redirectAttributes.addFlashAttribute(ERROR, "No tiene permiso para reservar en este establecimiento.");
             return REDIRECT_MIS_RESERVAS;
@@ -154,7 +154,7 @@ public class ReservaController {
         Establecimiento establecimiento = establecimientoOpt.get();
 
         // Verificar si el usuario tiene este establecimiento asignado
-        boolean asignado = usuario.getEstablecimiento().stream().anyMatch(e -> e.getId().equals(establecimientoId));
+        boolean asignado = usuario.getLstEstablecimientos().stream().anyMatch(e -> e.getId().equals(establecimientoId));
         if (!asignado) {
             redirectAttributes.addFlashAttribute(ERROR, "No tiene permiso para reservar en este establecimiento.");
             return REDIRECT_MIS_RESERVAS;

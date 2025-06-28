@@ -1,6 +1,8 @@
 package es.ubu.reservapp.model.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -74,4 +76,61 @@ class MenuTest {
         assertEquals(orden, menu.getOrden());
         assertEquals(usuarioCreaReg, menu.getUsuarioCreaReg());
     }
+    
+    @Test
+    void testConstructorCopia() {
+        // Create a Menu object with test data
+        Menu menuOriginal = new Menu();
+        menuOriginal.setId(4);
+        menuOriginal.setNombre("Menu Original");
+        menuOriginal.setIdPadre(2);
+        menuOriginal.setOrden(3);
+        menuOriginal.setUsuarioCreaReg("user1");
+        
+        // Create a copy using the copy constructor
+        Menu menuCopia = new Menu(menuOriginal);
+        
+        // Verify all attributes are equal
+        assertEquals(menuOriginal.getId(), menuCopia.getId());
+        assertEquals(menuOriginal.getNombre(), menuCopia.getNombre());
+        assertEquals(menuOriginal.getIdPadre(), menuCopia.getIdPadre());
+        
+        // Verify they are different objects
+        assertNotSame(menuOriginal, menuCopia);
+        
+        // Verify modifying the copy doesn't affect the original
+        menuCopia.setId(5);
+        menuCopia.setNombre("Menu Modificado");
+        assertNotEquals(menuOriginal.getId(), menuCopia.getId());
+        assertNotEquals(menuOriginal.getNombre(), menuCopia.getNombre());
+    }
+    
+    @Test
+	void testMetodoCopia() {
+		// Create a Menu object with test data
+		Menu menuOriginal = new Menu();
+		menuOriginal.setId(4);
+		menuOriginal.setNombre("Menu Original");
+		menuOriginal.setIdPadre(2);
+		menuOriginal.setOrden(3);
+		menuOriginal.setUsuarioCreaReg("user1");
+
+		// Create a copy using the copia() method
+		Menu menuCopia = (Menu) menuOriginal.copia();
+
+		// Verify all attributes are equal
+		assertEquals(menuOriginal.getId(), menuCopia.getId());
+		assertEquals(menuOriginal.getNombre(), menuCopia.getNombre());
+		assertEquals(menuOriginal.getIdPadre(), menuCopia.getIdPadre());
+
+		// Verify they are different objects
+		assertNotSame(menuOriginal, menuCopia);
+
+		// Verify modifying the copy doesn't affect the original
+		menuCopia.setId(5);
+		menuCopia.setNombre("Menu Modificado");
+		assertNotEquals(menuOriginal.getId(), menuCopia.getId());
+		assertNotEquals(menuOriginal.getNombre(), menuCopia.getNombre());
+	}
+
 }

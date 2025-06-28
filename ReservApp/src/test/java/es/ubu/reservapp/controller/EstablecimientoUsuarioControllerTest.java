@@ -67,7 +67,7 @@ class EstablecimientoUsuarioControllerTest {
         establecimientos.add(establecimiento1);
         establecimientos.add(establecimiento2);
         
-        usuario.setEstablecimiento(establecimientos);
+        usuario.setLstEstablecimientos(establecimientos);
     }
 
     @Test
@@ -82,7 +82,7 @@ class EstablecimientoUsuarioControllerTest {
 
     @Test
     void testListarEstablecimientosUsuarioSinEstablecimientos() {
-        usuario.setEstablecimiento(new ArrayList<>());
+        usuario.setLstEstablecimientos(new ArrayList<>());
         when(sessionData.getUsuario()).thenReturn(usuario);
         
         String viewName = establecimientoUsuarioController.listarEstablecimientosUsuario(model, redirectAttributes);
@@ -113,7 +113,7 @@ class EstablecimientoUsuarioControllerTest {
 
     @Test
     void testListarEstablecimientosUsuarioConEstablecimientosNulos() {
-        usuario.setEstablecimiento(null);
+        usuario.setLstEstablecimientos(null);
         when(sessionData.getUsuario()).thenReturn(usuario);
         
         String viewName = establecimientoUsuarioController.listarEstablecimientosUsuario(model, redirectAttributes);

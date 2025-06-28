@@ -60,7 +60,7 @@ public class EstablecimientoUsuarioController {
                 return "redirect:/";
             }
 
-            List<Establecimiento> establecimientos = usuario.getEstablecimiento();
+            List<Establecimiento> establecimientos = usuario.getLstEstablecimientos();
             model.addAttribute("establecimientos", establecimientos);
             
             return "establecimientos/listado_usuario";

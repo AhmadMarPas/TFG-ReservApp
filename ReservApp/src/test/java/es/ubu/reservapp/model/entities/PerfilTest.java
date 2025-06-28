@@ -1,6 +1,8 @@
 package es.ubu.reservapp.model.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
@@ -77,4 +79,103 @@ class PerfilTest {
         assertEquals(nombre, perfilCompleto.getNombre());
         assertEquals(lstMenu, perfilCompleto.getLstMenus());
     }
+    
+	@Test
+	void testConstructorCopia() {
+		// Create test data
+		List<Menu> menus = new ArrayList<>();
+		Menu menu = new Menu();
+		menu.setId(1);
+		menu.setNombre("Menu Test");
+		menus.add(menu);
+
+		// Create a Perfil object with test data
+		Perfil perfilOriginal = new Perfil();
+		perfilOriginal.setId(1);
+		perfilOriginal.setNombre("Perfil Original");
+		perfilOriginal.setLstMenus(menus);
+		perfilOriginal.setUsuarioCreaReg("user1");
+
+		// Create a copy using the copy constructor
+		Perfil perfilCopia = new Perfil(perfilOriginal);
+
+		// Verify all attributes are equal
+		assertEquals(perfilOriginal.getId(), perfilCopia.getId());
+		assertEquals(perfilOriginal.getNombre(), perfilCopia.getNombre());
+
+        // Comprobamos que las listas son copias profundas
+        assertNotSame(perfilOriginal.getLstMenus(), perfilCopia.getLstMenus());
+        assertEquals(perfilOriginal.getLstMenus().size(), perfilCopia.getLstMenus().size());
+
+		// Verify they are different objects
+		assertNotSame(perfilOriginal, perfilCopia);
+
+		// Verify modifying the copy doesn't affect the original
+		perfilCopia.setId(2);
+		perfilCopia.setNombre("Perfil Modificado");
+		perfilCopia.setLstMenus(new ArrayList<>());
+		assertNotEquals(perfilOriginal.getId(), perfilCopia.getId());
+		assertNotEquals(perfilOriginal.getNombre(), perfilCopia.getNombre());
+		assertNotEquals(perfilOriginal.getLstMenus(), perfilCopia.getLstMenus());
+	}
+	
+	@Test
+	void testMetodoCopia() {
+	    // Create test data
+	    List<Menu> menus = new ArrayList<>();
+	    Menu menu = new Menu();
+	    menu.setId(1);
+	    menu.setNombre("Menu Test");
+	    menus.add(menu);
+
+	    // Create a Perfil object with test data
+	    Perfil perfilOriginal = new Perfil();
+	    perfilOriginal.setId(1);
+	    perfilOriginal.setNombre("Perfil Original");
+	    perfilOriginal.setLstMenus(menus);
+	    perfilOriginal.setUsuarioCreaReg("user1");
+
+	    // Create a copy using the copia() method
+	    Perfil perfilCopia = (Perfil)perfilOriginal.copia();
+
+	    // Verify all attributes are equal
+	    assertEquals(perfilOriginal.getId(), perfilCopia.getId());
+	    assertEquals(perfilOriginal.getNombre(), perfilCopia.getNombre());
+
+        // Comprobamos que las listas son copias profundas
+        assertNotSame(perfilOriginal.getLstMenus(), perfilCopia.getLstMenus());
+        assertEquals(perfilOriginal.getLstMenus().size(), perfilCopia.getLstMenus().size());
+
+	    // Verify they are different objects
+	    assertNotSame(perfilOriginal, perfilCopia);
+
+	    // Verify modifying the copy doesn't affect the original
+	    perfilCopia.setId(2);
+	    perfilCopia.setNombre("Perfil Modificado");
+	    perfilCopia.setLstMenus(new ArrayList<>());
+	    assertNotEquals(perfilOriginal.getId(), perfilCopia.getId());
+	    assertNotEquals(perfilOriginal.getNombre(), perfilCopia.getNombre());
+	    assertNotEquals(perfilOriginal.getLstMenus(), perfilCopia.getLstMenus());
+	}
+	
+	@Test
+    void testConstructorDeCopiaConListasNulas() {
+		// Create a Perfil object with null list
+		Perfil perfilOriginal = new Perfil();
+		perfilOriginal.setId(1);
+		perfilOriginal.setNombre("Perfil Original");
+		perfilOriginal.setLstMenus(null);
+
+		// Create a copy using the copy constructor
+		Perfil perfilCopia = new Perfil(perfilOriginal);
+
+		// Verify attributes are copied correctly
+		assertEquals(perfilOriginal.getId(), perfilCopia.getId());
+		assertEquals(perfilOriginal.getNombre(), perfilCopia.getNombre());
+
+		// Verify the list is initialized to an empty list
+		assertNotNull(perfilCopia.getLstMenus());
+		assertEquals(0, perfilCopia.getLstMenus().size());
+	}
+
 }

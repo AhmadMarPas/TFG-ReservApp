@@ -1,5 +1,6 @@
 package es.ubu.reservapp.model.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -54,7 +55,7 @@ public class Perfil extends EntidadInfo<Integer> {
 	@JoinTable(name = "perfil_menu", 
 		joinColumns = @JoinColumn(name = "id_perfil_pk", referencedColumnName = "id"), 
 		inverseJoinColumns = @JoinColumn(name = "id_menu_pk", referencedColumnName = "id"))
-	private List<Menu> lstMenus;
+	private List<Menu> lstMenus = new ArrayList<>();
 
 	@Override
 	public Integer getId() {
@@ -79,6 +80,7 @@ public class Perfil extends EntidadInfo<Integer> {
 	public Perfil(Perfil perfil) {
 		this.setId(perfil.getId());
 		this.setNombre(perfil.getNombre());
+		this.setLstMenus(perfil.getLstMenus() == null ? new ArrayList<>() : new ArrayList<>(perfil.getLstMenus()));
 	}
 
 }

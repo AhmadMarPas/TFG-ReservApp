@@ -213,7 +213,7 @@ class EstablecimientoTest {
         assertEquals(original.getEmail(), copia.getEmail());
         assertEquals(original.isActivo(), copia.isActivo());
         
-        // Verificar que las listas se copiaron pero son instancias diferentes
+        // Verificamos que las listas se copiaron pero son instancias diferentes
         assertNotSame(original.getLstReservas(), copia.getLstReservas());
         assertNotSame(original.getFranjasHorarias(), copia.getFranjasHorarias());
         assertEquals(original.getLstReservas().size(), copia.getLstReservas().size());

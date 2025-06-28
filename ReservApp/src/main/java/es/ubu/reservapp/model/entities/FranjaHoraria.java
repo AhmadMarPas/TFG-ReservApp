@@ -105,7 +105,7 @@ public class FranjaHoraria extends EntidadInfo<Integer> {
 
 	@Override
 	public EntidadPK<Integer> copia() {
-		return new FranjaHoraria(diaSemana, horaInicio, horaFin, establecimiento);
+		return new FranjaHoraria(this);
 	}
 
 }

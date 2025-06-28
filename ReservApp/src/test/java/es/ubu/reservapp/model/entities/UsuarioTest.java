@@ -1,6 +1,7 @@
 package es.ubu.reservapp.model.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -154,20 +155,214 @@ class UsuarioTest {
         reserva.setId(1);
         reservas.add(reserva);
         
-        usuario.setPerfil(perfiles);
-        usuario.setEstablecimiento(establecimientos);
-        usuario.setReserva(reservas);
+        usuario.setLstPerfiles(perfiles);
+        usuario.setLstEstablecimientos(establecimientos);
+        usuario.setLstReservas(reservas);
         
-        assertNotNull(usuario.getPerfil());
-        assertEquals(1, usuario.getPerfil().size());
-        assertEquals("Perfil Test", usuario.getPerfil().get(0).getNombre());
+        assertNotNull(usuario.getLstPerfiles());
+        assertEquals(1, usuario.getLstPerfiles().size());
+        assertEquals("Perfil Test", usuario.getLstPerfiles().get(0).getNombre());
         
-        assertNotNull(usuario.getEstablecimiento());
-        assertEquals(1, usuario.getEstablecimiento().size());
-        assertEquals("Establecimiento Test", usuario.getEstablecimiento().get(0).getNombre());
+        assertNotNull(usuario.getLstEstablecimientos());
+        assertEquals(1, usuario.getLstEstablecimientos().size());
+        assertEquals("Establecimiento Test", usuario.getLstEstablecimientos().get(0).getNombre());
         
-        assertNotNull(usuario.getReserva());
-        assertEquals(1, usuario.getReserva().size());
-        assertEquals(1, usuario.getReserva().get(0).getId());
+        assertNotNull(usuario.getLstReservas());
+        assertEquals(1, usuario.getLstReservas().size());
+        assertEquals(1, usuario.getLstReservas().get(0).getId());
     }
+    
+    @Test
+    void testConstructorCopia() {
+        // Create lists for relationships
+        List<Perfil> perfiles = new ArrayList<>();
+        Perfil perfil = new Perfil();
+        perfil.setId(1);
+        perfil.setNombre("Perfil Test");
+        perfiles.add(perfil);
+
+        List<Establecimiento> establecimientos = new ArrayList<>();
+        Establecimiento establecimiento = new Establecimiento();
+        establecimiento.setId(1);
+        establecimiento.setNombre("Establecimiento Test");
+        establecimientos.add(establecimiento);
+
+        List<Reserva> reservas = new ArrayList<>();
+        Reserva reserva = new Reserva();
+        reserva.setId(1);
+        reservas.add(reserva);
+
+        // Set up original user with all attributes
+        Usuario usuarioOriginal = new Usuario();
+        usuarioOriginal.setId("user1");
+        usuarioOriginal.setNombre("Nombre");
+        usuarioOriginal.setApellidos("Apellidos");
+        usuarioOriginal.setCorreo("correo@test.com");
+        usuarioOriginal.setPassword("password");
+        usuarioOriginal.setTelefono("123456789");
+        usuarioOriginal.setAdministrador(true);
+        usuarioOriginal.setBloqueado(false);
+        usuarioOriginal.setEmailVerified(true);
+        usuarioOriginal.setConfirmationToken("token123");
+        usuarioOriginal.setFechaUltimoAcceso(LocalDateTime.now());
+        usuarioOriginal.setLstPerfiles(perfiles);
+        usuarioOriginal.setLstEstablecimientos(establecimientos);
+        usuarioOriginal.setLstReservas(reservas);
+
+        // Create copy using copy constructor
+        Usuario usuarioCopia = new Usuario(usuarioOriginal);
+
+        // Verify all attributes are equal
+        assertEquals(usuarioOriginal.getId(), usuarioCopia.getId());
+        assertEquals(usuarioOriginal.getNombre(), usuarioCopia.getNombre());
+        assertEquals(usuarioOriginal.getApellidos(), usuarioCopia.getApellidos());
+        assertEquals(usuarioOriginal.getCorreo(), usuarioCopia.getCorreo());
+        assertEquals(usuarioOriginal.getPassword(), usuarioCopia.getPassword());
+        assertEquals(usuarioOriginal.getTelefono(), usuarioCopia.getTelefono());
+        assertEquals(usuarioOriginal.isAdministrador(), usuarioCopia.isAdministrador());
+        assertEquals(usuarioOriginal.isBloqueado(), usuarioCopia.isBloqueado());
+        assertEquals(usuarioOriginal.isEmailVerified(), usuarioCopia.isEmailVerified());
+        assertEquals(usuarioOriginal.getConfirmationToken(), usuarioCopia.getConfirmationToken());
+        assertEquals(usuarioOriginal.getFechaUltimoAcceso(), usuarioCopia.getFechaUltimoAcceso());
+
+        // Comprobamos que las listas son copias profundas
+        assertNotSame(usuarioOriginal.getLstPerfiles(), usuarioCopia.getLstPerfiles());
+        assertNotSame(usuarioOriginal.getLstEstablecimientos(), usuarioCopia.getLstEstablecimientos());
+        assertNotSame(usuarioOriginal.getLstReservas(), usuarioCopia.getLstReservas());
+        assertEquals(usuarioOriginal.getLstReservas().size(), usuarioCopia.getLstReservas().size());
+        assertEquals(usuarioOriginal.getLstEstablecimientos().size(), usuarioCopia.getLstEstablecimientos().size());
+        assertEquals(usuarioOriginal.getLstReservas().size(), usuarioCopia.getLstReservas().size());
+
+        
+        // Verify they are different objects
+        assertNotSame(usuarioOriginal, usuarioCopia);
+
+        // Verify modifying the copy doesn't affect the original
+        usuarioCopia.setId("user2");
+        usuarioCopia.setNombre("Nombre Modificado");
+        assertNotEquals(usuarioOriginal.getId(), usuarioCopia.getId());
+        assertNotEquals(usuarioOriginal.getNombre(), usuarioCopia.getNombre());
+    }
+    
+    @Test
+    void testMetodoCopia() {
+        // Create lists for relationships
+        List<Perfil> perfiles = new ArrayList<>();
+        Perfil perfil = new Perfil();
+        perfil.setId(1);
+        perfil.setNombre("Perfil Test");
+        perfiles.add(perfil);
+
+        List<Establecimiento> establecimientos = new ArrayList<>();
+        Establecimiento establecimiento = new Establecimiento();
+        establecimiento.setId(1);
+        establecimiento.setNombre("Establecimiento Test");
+        establecimientos.add(establecimiento);
+
+        List<Reserva> reservas = new ArrayList<>();
+        Reserva reserva = new Reserva();
+        reserva.setId(1);
+        reservas.add(reserva);
+
+        // Set up original user with all attributes
+        Usuario usuarioOriginal = new Usuario();
+        usuarioOriginal.setId("user1");
+        usuarioOriginal.setNombre("Nombre");
+        usuarioOriginal.setApellidos("Apellidos");
+        usuarioOriginal.setCorreo("correo@test.com");
+        usuarioOriginal.setPassword("password");
+        usuarioOriginal.setTelefono("123456789");
+        usuarioOriginal.setAdministrador(true);
+        usuarioOriginal.setBloqueado(false);
+        usuarioOriginal.setEmailVerified(true);
+        usuarioOriginal.setConfirmationToken("token123");
+        usuarioOriginal.setFechaUltimoAcceso(LocalDateTime.now());
+        usuarioOriginal.setLstPerfiles(perfiles);
+        usuarioOriginal.setLstEstablecimientos(establecimientos);
+        usuarioOriginal.setLstReservas(reservas);
+
+        // Create copy using copia() method
+        Usuario usuarioCopia = (Usuario) usuarioOriginal.copia();
+
+        // Verify all attributes are equal
+        assertEquals(usuarioOriginal.getId(), usuarioCopia.getId());
+        assertEquals(usuarioOriginal.getNombre(), usuarioCopia.getNombre());
+        assertEquals(usuarioOriginal.getApellidos(), usuarioCopia.getApellidos());
+        assertEquals(usuarioOriginal.getCorreo(), usuarioCopia.getCorreo());
+        assertEquals(usuarioOriginal.getPassword(), usuarioCopia.getPassword());
+        assertEquals(usuarioOriginal.getTelefono(), usuarioCopia.getTelefono());
+        assertEquals(usuarioOriginal.isAdministrador(), usuarioCopia.isAdministrador());
+        assertEquals(usuarioOriginal.isBloqueado(), usuarioCopia.isBloqueado());
+        assertEquals(usuarioOriginal.isEmailVerified(), usuarioCopia.isEmailVerified());
+        assertEquals(usuarioOriginal.getConfirmationToken(), usuarioCopia.getConfirmationToken());
+        assertEquals(usuarioOriginal.getFechaUltimoAcceso(), usuarioCopia.getFechaUltimoAcceso());
+
+        // Comprobamos que las listas son copias profundas
+        assertNotSame(usuarioOriginal.getLstPerfiles(), usuarioCopia.getLstPerfiles());
+        assertNotSame(usuarioOriginal.getLstEstablecimientos(), usuarioCopia.getLstEstablecimientos());
+        assertNotSame(usuarioOriginal.getLstReservas(), usuarioCopia.getLstReservas());
+        assertEquals(usuarioOriginal.getLstReservas().size(), usuarioCopia.getLstReservas().size());
+        assertEquals(usuarioOriginal.getLstEstablecimientos().size(), usuarioCopia.getLstEstablecimientos().size());
+        assertEquals(usuarioOriginal.getLstReservas().size(), usuarioCopia.getLstReservas().size());
+
+
+        // Verify they are different objects
+        assertNotSame(usuarioOriginal, usuarioCopia);
+
+        // Verify modifying the copy doesn't affect the original
+        usuarioCopia.setId("user2");
+        usuarioCopia.setNombre("Nombre Modificado");
+        assertNotEquals(usuarioOriginal.getId(), usuarioCopia.getId());
+        assertNotEquals(usuarioOriginal.getNombre(), usuarioCopia.getNombre());
+    }
+
+    @Test
+    void testConstructorDeCopiaConListasNulas() {
+    	// Crear un usuario original con listas nulas
+		Usuario usuarioOriginal = new Usuario();
+        usuarioOriginal.setId("user1");
+        usuarioOriginal.setNombre("Nombre");
+        usuarioOriginal.setApellidos("Apellidos");
+        usuarioOriginal.setCorreo("correo@test.com");
+        usuarioOriginal.setPassword("password");
+        usuarioOriginal.setTelefono("123456789");
+        usuarioOriginal.setAdministrador(true);
+        usuarioOriginal.setBloqueado(false);
+        usuarioOriginal.setEmailVerified(true);
+        usuarioOriginal.setConfirmationToken("token123");
+        usuarioOriginal.setFechaUltimoAcceso(LocalDateTime.now());
+        usuarioOriginal.setLstPerfiles(null);
+        usuarioOriginal.setLstEstablecimientos(null);
+        usuarioOriginal.setLstReservas(null);
+        
+        // Crear una copia del usuario original
+        Usuario usuarioCopia = new Usuario(usuarioOriginal);
+        // Verificar que las listas se inicializan correctamente
+        assertNotNull(usuarioCopia.getLstPerfiles());
+        assertNotNull(usuarioCopia.getLstEstablecimientos());
+        assertNotNull(usuarioCopia.getLstReservas());
+        assertTrue(usuarioCopia.getLstPerfiles().isEmpty());
+        assertTrue(usuarioCopia.getLstEstablecimientos().isEmpty());
+        assertTrue(usuarioCopia.getLstReservas().isEmpty());
+        // Verificar que los demás atributos se copian correctamente
+        assertEquals(usuarioOriginal.getId(), usuarioCopia.getId());
+        assertEquals(usuarioOriginal.getNombre(), usuarioCopia.getNombre());
+        assertEquals(usuarioOriginal.getApellidos(), usuarioCopia.getApellidos());
+        assertEquals(usuarioOriginal.getCorreo(), usuarioCopia.getCorreo());
+        assertEquals(usuarioOriginal.getPassword(), usuarioCopia.getPassword());
+        assertEquals(usuarioOriginal.getTelefono(), usuarioCopia.getTelefono());
+        assertEquals(usuarioOriginal.isAdministrador(), usuarioCopia.isAdministrador());
+        assertEquals(usuarioOriginal.isBloqueado(), usuarioCopia.isBloqueado());
+        assertEquals(usuarioOriginal.isEmailVerified(), usuarioCopia.isEmailVerified());
+        assertEquals(usuarioOriginal.getConfirmationToken(), usuarioCopia.getConfirmationToken());
+        assertEquals(usuarioOriginal.getFechaUltimoAcceso(), usuarioCopia.getFechaUltimoAcceso());
+        // Verificar que son objetos diferentes
+        assertNotSame(usuarioOriginal, usuarioCopia);
+        // Verificar que modificar la copia no afecta al original
+        usuarioCopia.setId("user2");
+        usuarioCopia.setNombre("Nombre Modificado");
+        assertNotEquals(usuarioOriginal.getId(), usuarioCopia.getId());
+        assertNotEquals(usuarioOriginal.getNombre(), usuarioCopia.getNombre());
+    }
+
 }

@@ -1,6 +1,8 @@
 package es.ubu.reservapp.model.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -219,4 +221,79 @@ class FranjaHorariaTest {
         assertEquals(finTest, franjaCompleta.getHoraFin());
         assertEquals(estTest, franjaCompleta.getEstablecimiento());
     }
+    
+    @Test
+    void testConstructorCopia() {
+        // Create a FranjaHoraria object with test data
+        DayOfWeek diaTest = DayOfWeek.FRIDAY;
+        LocalTime inicioTest = LocalTime.of(10, 0);
+        LocalTime finTest = LocalTime.of(20, 0);
+        Establecimiento estTest = new Establecimiento();
+        estTest.setId(5);
+        estTest.setNombre("Establecimiento Original");
+        
+        FranjaHoraria franjaOriginal = new FranjaHoraria();
+        franjaOriginal.setId(5);
+        franjaOriginal.setDiaSemana(diaTest);
+        franjaOriginal.setHoraInicio(inicioTest);
+        franjaOriginal.setHoraFin(finTest);
+        franjaOriginal.setEstablecimiento(estTest);
+        
+        // Create a copy using the copy constructor
+        FranjaHoraria franjaCopia = new FranjaHoraria(franjaOriginal);
+        
+        // Verify all attributes are equal
+        assertEquals(franjaOriginal.getId(), franjaCopia.getId());
+        assertEquals(franjaOriginal.getDiaSemana(), franjaCopia.getDiaSemana());
+        assertEquals(franjaOriginal.getHoraInicio(), franjaCopia.getHoraInicio());
+        assertEquals(franjaOriginal.getHoraFin(), franjaCopia.getHoraFin());
+        assertEquals(franjaOriginal.getEstablecimiento(), franjaCopia.getEstablecimiento());
+        
+        // Verify they are different objects
+        assertNotSame(franjaOriginal, franjaCopia);
+        
+        // Verify modifying the copy doesn't affect the original
+        franjaCopia.setId(6);
+        franjaCopia.setDiaSemana(DayOfWeek.SATURDAY);
+        assertNotEquals(franjaOriginal.getId(), franjaCopia.getId());
+        assertNotEquals(franjaOriginal.getDiaSemana(), franjaCopia.getDiaSemana());
+    }
+    
+    @Test
+    void testMetodoCopia() {
+        // Create a FranjaHoraria object with test data
+        DayOfWeek diaTest = DayOfWeek.MONDAY;
+        LocalTime inicioTest = LocalTime.of(9, 0);
+        LocalTime finTest = LocalTime.of(18, 0);
+        Establecimiento estTest = new Establecimiento();
+        estTest.setId(1);
+        estTest.setNombre("Establecimiento Test");
+        
+        FranjaHoraria franjaOriginal = new FranjaHoraria();
+        franjaOriginal.setId(1);
+        franjaOriginal.setDiaSemana(diaTest);
+        franjaOriginal.setHoraInicio(inicioTest);
+        franjaOriginal.setHoraFin(finTest);
+        franjaOriginal.setEstablecimiento(estTest);
+        
+        // Create a copy using the copia() method
+        FranjaHoraria franjaCopia = (FranjaHoraria) franjaOriginal.copia();
+        
+        // Verify all attributes are equal
+        assertEquals(franjaOriginal.getId(), franjaCopia.getId());
+        assertEquals(franjaOriginal.getDiaSemana(), franjaCopia.getDiaSemana());
+        assertEquals(franjaOriginal.getHoraInicio(), franjaCopia.getHoraInicio());
+        assertEquals(franjaOriginal.getHoraFin(), franjaCopia.getHoraFin());
+        assertEquals(franjaOriginal.getEstablecimiento(), franjaCopia.getEstablecimiento());
+        
+        // Verify they are different objects
+        assertNotSame(franjaOriginal, franjaCopia);
+        
+        // Verify modifying the copy doesn't affect the original
+        franjaCopia.setId(2);
+        franjaCopia.setDiaSemana(DayOfWeek.TUESDAY);
+        assertNotEquals(franjaOriginal.getId(), franjaCopia.getId());
+        assertNotEquals(franjaOriginal.getDiaSemana(), franjaCopia.getDiaSemana());
+    }
+
 }

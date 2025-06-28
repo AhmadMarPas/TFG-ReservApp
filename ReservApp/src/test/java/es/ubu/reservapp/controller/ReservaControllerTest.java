@@ -76,7 +76,7 @@ class ReservaControllerTest {
         usuarioAutenticado.setCorreo("testUser@example.com"); 
         usuarioAutenticado.setNombre("Test");
         usuarioAutenticado.setApellidos("User");
-        usuarioAutenticado.setEstablecimiento(new ArrayList<>()); // Inicializar lista
+        usuarioAutenticado.setLstEstablecimientos(new ArrayList<>()); // Inicializar lista
 
 //        when(authentication.getPrincipal()).thenReturn(usuarioAutenticado);
 //        when(usuarioAutenticado.getCorreo()).thenReturn(usuarioAutenticado.getCorreo());
@@ -104,7 +104,7 @@ class ReservaControllerTest {
     @Test
     void testMostrarCalendarioReserva_Exito() {
     	when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
-        usuarioAutenticado.getEstablecimiento().add(establecimiento1); // Asignar establecimiento al usuario
+        usuarioAutenticado.getLstEstablecimientos().add(establecimiento1); // Asignar establecimiento al usuario
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
 
@@ -134,7 +134,7 @@ class ReservaControllerTest {
         otroEstablecimiento.setId(2);
         otroEstablecimiento.setNombre("Otro Est");
         
-        usuarioAutenticado.getEstablecimiento().add(otroEstablecimiento); 
+        usuarioAutenticado.getLstEstablecimientos().add(otroEstablecimiento); 
         
 //        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1)); 
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
@@ -150,7 +150,7 @@ class ReservaControllerTest {
 
     @Test
     void testCrearReserva_Exito() {
-        usuarioAutenticado.getEstablecimiento().add(establecimiento1);
+        usuarioAutenticado.getLstEstablecimientos().add(establecimiento1);
         when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
         
@@ -204,7 +204,7 @@ class ReservaControllerTest {
 
     @Test
     void testCrearReserva_FueraDeFranjaHoraria_Antes() {
-        usuarioAutenticado.getEstablecimiento().add(establecimiento1);
+        usuarioAutenticado.getLstEstablecimientos().add(establecimiento1);
         when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
         Reserva nuevaReserva = new Reserva();
@@ -222,7 +222,7 @@ class ReservaControllerTest {
 
     @Test
     void testCrearReserva_FueraDeFranjaHoraria_Despues() {
-        usuarioAutenticado.getEstablecimiento().add(establecimiento1);
+        usuarioAutenticado.getLstEstablecimientos().add(establecimiento1);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
         when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
         Reserva nuevaReserva = new Reserva();
@@ -240,7 +240,7 @@ class ReservaControllerTest {
     
     @Test
     void testCrearReserva_EnHoraFinFranja() {
-        usuarioAutenticado.getEstablecimiento().add(establecimiento1);
+        usuarioAutenticado.getLstEstablecimientos().add(establecimiento1);
         when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
         Reserva nuevaReserva = new Reserva();
@@ -258,7 +258,7 @@ class ReservaControllerTest {
 
     @Test
     void testCrearReserva_DiaIncorrecto_SinFranja() {
-        usuarioAutenticado.getEstablecimiento().add(establecimiento1);
+        usuarioAutenticado.getLstEstablecimientos().add(establecimiento1);
         when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
         Reserva nuevaReserva = new Reserva();
@@ -277,7 +277,7 @@ class ReservaControllerTest {
     @Test
     void testCrearReserva_FormatoFechaInvalido() {
     	when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
-        usuarioAutenticado.getEstablecimiento().add(establecimiento1);
+        usuarioAutenticado.getLstEstablecimientos().add(establecimiento1);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
         Reserva nuevaReserva = new Reserva();
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
@@ -294,7 +294,7 @@ class ReservaControllerTest {
 
     @Test
     void testCrearReserva_FormatoHoraInvalido() {
-        usuarioAutenticado.getEstablecimiento().add(establecimiento1);
+        usuarioAutenticado.getLstEstablecimientos().add(establecimiento1);
 //        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
         Reserva nuevaReserva = new Reserva();
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();

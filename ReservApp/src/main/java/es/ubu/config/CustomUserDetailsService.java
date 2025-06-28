@@ -51,8 +51,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
         
         // Añadir roles adicionales desde perfiles si existen
-        if (usuario.getPerfil() != null) {
-            usuario.getPerfil().forEach(perfil -> 
+        if (usuario.getLstPerfiles() != null) {
+            usuario.getLstPerfiles().forEach(perfil -> 
                 authorities.add(new SimpleGrantedAuthority(perfil.getNombre()))
             );
         }

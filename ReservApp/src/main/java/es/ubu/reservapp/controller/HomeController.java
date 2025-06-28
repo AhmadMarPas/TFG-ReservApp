@@ -56,7 +56,7 @@ public class HomeController {
 			log.warn("Usuario no autenticado al intentar acceder a mis reservas.");
 			return "redirect:/login";
 		}
-        List<Establecimiento> establecimientos = usuario.getEstablecimiento();
+        List<Establecimiento> establecimientos = usuario.getLstEstablecimientos();
         model.addAttribute("establecimientos", establecimientos);
         return "reservas/misreservas";
     }

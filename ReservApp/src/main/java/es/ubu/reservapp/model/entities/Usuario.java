@@ -2,6 +2,7 @@ package es.ubu.reservapp.model.entities;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -104,16 +105,16 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
 	@JoinTable(name = "usuario_perfil", 
 		joinColumns = @JoinColumn(name = "id_usuario_pk", referencedColumnName = "id"), 
 		inverseJoinColumns = @JoinColumn(name = "id_perfil_pk", referencedColumnName = "id"))
-	private List<Perfil> perfil;
+	private List<Perfil> lstPerfiles = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "usuario_establecimiento", 
 		joinColumns = @JoinColumn(name = "id_usuario_pk", referencedColumnName = "id"), 
 		inverseJoinColumns = @JoinColumn(name = "id_establecimiento_pk", referencedColumnName = "id"))
-	private List<Establecimiento> establecimiento;
+	private List<Establecimiento> lstEstablecimientos = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario")
-    private List<Reserva> reserva;
+    private List<Reserva> lstReservas = new ArrayList<>();;
 
 	/**
 	 * Función que prepara los datos del correo antes de guardarlos.
@@ -161,9 +162,19 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
 
 	public Usuario(Usuario usuario) {
 		this.setId(usuario.getId());
+		this.setPassword(usuario.getPassword());
 		this.setNombre(usuario.getNombre());
 		this.setApellidos(usuario.getApellidos());
 		this.setCorreo(usuario.getCorreo());
+		this.setTelefono(usuario.getTelefono());
+		this.setAdministrador(usuario.isAdministrador());
+		this.setBloqueado(usuario.isBloqueado());
+		this.setFechaUltimoAcceso(usuario.getFechaUltimoAcceso());
+		this.setConfirmationToken(usuario.getConfirmationToken());
+		this.setEmailVerified(usuario.isEmailVerified());
+		this.setLstEstablecimientos(usuario.getLstEstablecimientos() == null ? new ArrayList<>() : new ArrayList<>(usuario.getLstEstablecimientos()));
+		this.setLstPerfiles(usuario.getLstPerfiles() == null ? new ArrayList<>() : new ArrayList<>(usuario.getLstPerfiles()));
+		this.setLstReservas(usuario.getLstReservas() == null ? new ArrayList<>() : new ArrayList<>(usuario.getLstReservas()));
 	}
 	
 }

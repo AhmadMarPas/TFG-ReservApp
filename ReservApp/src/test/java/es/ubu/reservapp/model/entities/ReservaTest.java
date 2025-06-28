@@ -1,6 +1,8 @@
 package es.ubu.reservapp.model.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDateTime;
@@ -105,4 +107,67 @@ class ReservaTest {
         assertEquals(fechaTest, reservaCompleta.getFechaReserva());
         assertEquals(horaTest, reservaCompleta.getHoraFin());
     }
+    
+    @Test
+    void testConstructorCopia() {
+        // Use the existing test data from setUp()
+        Reserva reservaOriginal = new Reserva();
+        reservaOriginal.setId(1);
+        reservaOriginal.setUsuario(usuario);
+        reservaOriginal.setEstablecimiento(establecimiento);
+        reservaOriginal.setFechaReserva(fechaReserva);
+        reservaOriginal.setHoraFin(horaFin);
+
+        // Create a copy using the copy constructor
+        Reserva reservaCopia = new Reserva(reservaOriginal);
+
+        // Verify all attributes are equal
+        assertEquals(reservaOriginal.getId(), reservaCopia.getId());
+        assertEquals(reservaOriginal.getUsuario(), reservaCopia.getUsuario());
+        assertEquals(reservaOriginal.getEstablecimiento(), reservaCopia.getEstablecimiento());
+        assertEquals(reservaOriginal.getFechaReserva(), reservaCopia.getFechaReserva());
+        assertEquals(reservaOriginal.getHoraFin(), reservaCopia.getHoraFin());
+
+        // Verify they are different objects
+        assertNotSame(reservaOriginal, reservaCopia);
+
+        // Verify modifying the copy doesn't affect the original
+        reservaCopia.setId(2);
+        LocalDateTime nuevaFecha = LocalDateTime.now().plusDays(5);
+        reservaCopia.setFechaReserva(nuevaFecha);
+        assertNotEquals(reservaOriginal.getId(), reservaCopia.getId());
+        assertNotEquals(reservaOriginal.getFechaReserva(), reservaCopia.getFechaReserva());
+    }
+
+    @Test
+    void testMetodoCopia() {
+        // Use the existing test data from setUp()
+        Reserva reservaOriginal = new Reserva();
+        reservaOriginal.setId(1);
+        reservaOriginal.setUsuario(usuario);
+        reservaOriginal.setEstablecimiento(establecimiento);
+        reservaOriginal.setFechaReserva(fechaReserva);
+        reservaOriginal.setHoraFin(horaFin);
+
+        // Create a copy using the copia() method
+        Reserva reservaCopia = (Reserva) reservaOriginal.copia();
+
+        // Verify all attributes are equal
+        assertEquals(reservaOriginal.getId(), reservaCopia.getId());
+        assertEquals(reservaOriginal.getUsuario(), reservaCopia.getUsuario());
+        assertEquals(reservaOriginal.getEstablecimiento(), reservaCopia.getEstablecimiento());
+        assertEquals(reservaOriginal.getFechaReserva(), reservaCopia.getFechaReserva());
+        assertEquals(reservaOriginal.getHoraFin(), reservaCopia.getHoraFin());
+
+        // Verify they are different objects
+        assertNotSame(reservaOriginal, reservaCopia);
+
+        // Verify modifying the copy doesn't affect the original
+        reservaCopia.setId(2);
+        LocalDateTime nuevaFecha = LocalDateTime.now().plusDays(5);
+        reservaCopia.setFechaReserva(nuevaFecha);
+        assertNotEquals(reservaOriginal.getId(), reservaCopia.getId());
+        assertNotEquals(reservaOriginal.getFechaReserva(), reservaCopia.getFechaReserva());
+    }
+
 }

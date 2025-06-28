@@ -88,7 +88,7 @@ class CustomUserDetailsServiceTest {
         when(mockUsuario.getApellidos()).thenReturn("User");
         when(mockUsuario.getCorreo()).thenReturn("admin@test.com");
         when(mockUsuario.getTelefono()).thenReturn("123456789");
-        when(mockUsuario.getPerfil()).thenReturn(null);
+        when(mockUsuario.getLstPerfiles()).thenReturn(null);
         
         // When
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
@@ -126,7 +126,7 @@ class CustomUserDetailsServiceTest {
         when(mockUsuario.getApellidos()).thenReturn("User");
         when(mockUsuario.getCorreo()).thenReturn("user@test.com");
         when(mockUsuario.getTelefono()).thenReturn("987654321");
-        when(mockUsuario.getPerfil()).thenReturn(null);
+        when(mockUsuario.getLstPerfiles()).thenReturn(null);
         
         // When
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
@@ -164,7 +164,7 @@ class CustomUserDetailsServiceTest {
         when(mockUsuario.getApellidos()).thenReturn("User");
         when(mockUsuario.getCorreo()).thenReturn("blocked@test.com");
         when(mockUsuario.getTelefono()).thenReturn("000000000");
-        when(mockUsuario.getPerfil()).thenReturn(null);
+        when(mockUsuario.getLstPerfiles()).thenReturn(null);
         
         // When
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
@@ -196,7 +196,7 @@ class CustomUserDetailsServiceTest {
         when(mockUsuario.getApellidos()).thenReturn("WithProfiles");
         when(mockUsuario.getCorreo()).thenReturn("userprofiles@test.com");
         when(mockUsuario.getTelefono()).thenReturn("111111111");
-        when(mockUsuario.getPerfil()).thenReturn(perfiles);
+        when(mockUsuario.getLstPerfiles()).thenReturn(perfiles);
         when(mockPerfil1.getNombre()).thenReturn("ROLE_MANAGER");
         when(mockPerfil2.getNombre()).thenReturn("ROLE_EDITOR");
         
@@ -231,7 +231,7 @@ class CustomUserDetailsServiceTest {
         when(mockUsuario.getApellidos()).thenReturn("WithProfiles");
         when(mockUsuario.getCorreo()).thenReturn("adminprofiles@test.com");
         when(mockUsuario.getTelefono()).thenReturn("222222222");
-        when(mockUsuario.getPerfil()).thenReturn(perfiles);
+        when(mockUsuario.getLstPerfiles()).thenReturn(perfiles);
         when(mockPerfil1.getNombre()).thenReturn("ROLE_SUPER_ADMIN");
         
         // When
@@ -263,7 +263,7 @@ class CustomUserDetailsServiceTest {
         when(mockUsuario.getApellidos()).thenReturn("EmptyProfiles");
         when(mockUsuario.getCorreo()).thenReturn("empty@test.com");
         when(mockUsuario.getTelefono()).thenReturn("333333333");
-        when(mockUsuario.getPerfil()).thenReturn(perfilesVacios);
+        when(mockUsuario.getLstPerfiles()).thenReturn(perfilesVacios);
         
         // When
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
@@ -346,7 +346,7 @@ class CustomUserDetailsServiceTest {
         when(mockUsuario.getApellidos()).thenReturn("User");
         when(mockUsuario.getCorreo()).thenReturn("special@test.com");
         when(mockUsuario.getTelefono()).thenReturn("444444444");
-        when(mockUsuario.getPerfil()).thenReturn(null);
+        when(mockUsuario.getLstPerfiles()).thenReturn(null);
         
         // When
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
@@ -385,7 +385,7 @@ class CustomUserDetailsServiceTest {
         when(mockUsuario.getApellidos()).thenReturn("Profile");
         when(mockUsuario.getCorreo()).thenReturn("multi@test.com");
         when(mockUsuario.getTelefono()).thenReturn("555555555");
-        when(mockUsuario.getPerfil()).thenReturn(multiplePerfiles);
+        when(mockUsuario.getLstPerfiles()).thenReturn(multiplePerfiles);
         when(mockPerfil1.getNombre()).thenReturn("ROLE_MANAGER");
         when(mockPerfil2.getNombre()).thenReturn("ROLE_EDITOR");
         when(perfil3.getNombre()).thenReturn("ROLE_VIEWER");
@@ -423,7 +423,7 @@ class CustomUserDetailsServiceTest {
         when(mockUsuario.getApellidos()).thenReturn(null);
         when(mockUsuario.getCorreo()).thenReturn(null);
         when(mockUsuario.getTelefono()).thenReturn(null);
-        when(mockUsuario.getPerfil()).thenReturn(null);
+        when(mockUsuario.getLstPerfiles()).thenReturn(null);
         
         // When
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
@@ -479,7 +479,7 @@ class CustomUserDetailsServiceTest {
         when(mockUsuario.getApellidos()).thenReturn("User");
         when(mockUsuario.getCorreo()).thenReturn("test@test.com");
         when(mockUsuario.getTelefono()).thenReturn("123456789");
-        when(mockUsuario.getPerfil()).thenReturn(null);
+        when(mockUsuario.getLstPerfiles()).thenReturn(null);
         
         // When
         customUserDetailsService.loadUserByUsername(username);

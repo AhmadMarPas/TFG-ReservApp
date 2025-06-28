@@ -40,7 +40,7 @@ class HomeControllerTest {
         usuario.setId("usuario1");
         usuario.setNombre("Usuario");
         usuario.setApellidos("Test");
-        usuario.setEstablecimiento(new ArrayList<>());
+        usuario.setLstEstablecimientos(new ArrayList<>());
     }
 
     @Test
@@ -67,7 +67,7 @@ class HomeControllerTest {
         est1.setNombre("Establecimiento 1");
         establecimientos.add(est1);
         
-        usuario.setEstablecimiento(establecimientos);
+        usuario.setLstEstablecimientos(establecimientos);
         when(sessionData.getUsuario()).thenReturn(usuario);
         
         String viewName = homeController.misReservas(model);
@@ -90,7 +90,7 @@ class HomeControllerTest {
 
     @Test
     void testMisReservasSinEstablecimientos() {
-        usuario.setEstablecimiento(new ArrayList<>());
+        usuario.setLstEstablecimientos(new ArrayList<>());
         when(sessionData.getUsuario()).thenReturn(usuario);
         
         String viewName = homeController.misReservas(model);
@@ -102,7 +102,7 @@ class HomeControllerTest {
 
     @Test
     void testMisReservasConEstablecimientosNulos() {
-        usuario.setEstablecimiento(null);
+        usuario.setLstEstablecimientos(null);
         when(sessionData.getUsuario()).thenReturn(usuario);
         
         String viewName = homeController.misReservas(model);

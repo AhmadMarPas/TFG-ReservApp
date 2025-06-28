@@ -101,4 +101,12 @@ class EntidadPKTest {
         assertEquals(entidad1.getId(), cloned.getId());
         assertEquals(entidad1.getClass(), cloned.getClass());
     }
+    
+    @Test
+    void testEqualsWithNull() {
+        // Test equals with null
+        assertNotEquals(null, entidad1);
+        entidad2 = null;
+        assertNotEquals(entidad1, entidad2);
+    }
 }

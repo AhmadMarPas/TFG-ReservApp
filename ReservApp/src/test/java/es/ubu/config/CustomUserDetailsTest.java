@@ -141,11 +141,9 @@ class CustomUserDetailsTest {
         assertTrue(customUserDetails.isAccountNonExpired());
         assertTrue(customUserDetails.isAccountNonLocked());
         assertTrue(customUserDetails.isCredentialsNonExpired());
-        assertIterableEquals(
-            authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet()),
+        assertIterableEquals(authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet()),
             customUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet())
         );
-
     }
 
     /**
@@ -359,6 +357,280 @@ class CustomUserDetailsTest {
         assertNotEquals(details3, details1);
         assertNotEquals(details1, details3);
     }
+
+    @Test
+    void testEqualsWithNullFields() {
+        // Create users with null fields
+        Usuario userWithNulls1 = new Usuario();
+        userWithNulls1.setId("test");
+        userWithNulls1.setPassword("pass");
+        userWithNulls1.setNombre(null);
+        userWithNulls1.setApellidos(null);
+        userWithNulls1.setCorreo(null);
+        userWithNulls1.setTelefono(null);
+        userWithNulls1.setBloqueado(false);
+        
+        Usuario userWithNulls2 = new Usuario();
+        userWithNulls2.setId("test");
+        userWithNulls2.setPassword("pass");
+        userWithNulls2.setNombre(null);
+        userWithNulls2.setApellidos(null);
+        userWithNulls2.setCorreo(null);
+        userWithNulls2.setTelefono(null);
+        userWithNulls2.setBloqueado(false);
+        
+        Usuario userWithValues = new Usuario();
+        userWithValues.setId("test");
+        userWithValues.setPassword("pass");
+        userWithValues.setNombre("John");
+        userWithValues.setApellidos("Doe");
+        userWithValues.setCorreo("john@test.com");
+        userWithValues.setTelefono("123456789");
+        userWithValues.setBloqueado(false);
+        
+        authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        
+        CustomUserDetails detailsWithNulls1 = new CustomUserDetails(userWithNulls1, authorities);
+        CustomUserDetails detailsWithNulls2 = new CustomUserDetails(userWithNulls2, authorities);
+        CustomUserDetails detailsWithValues = new CustomUserDetails(userWithValues, authorities);
+        
+        // Test equals with null fields
+        assertEquals(detailsWithNulls1, detailsWithNulls2);
+        assertNotEquals(detailsWithNulls1, detailsWithValues);
+        assertNotEquals(detailsWithValues, detailsWithNulls1);
+    }
+
+    @Test
+    void testEqualsWithDifferentNombre() {
+        Usuario user1 = new Usuario();
+        user1.setId("test");
+        user1.setPassword("pass");
+        user1.setNombre("John");
+        user1.setApellidos("Doe");
+        user1.setCorreo("john@test.com");
+        user1.setTelefono("123456789");
+        user1.setBloqueado(false);
+        
+        Usuario user2 = new Usuario();
+        user2.setId("test");
+        user2.setPassword("pass");
+        user2.setNombre("Jane"); // Different nombre
+        user2.setApellidos("Doe");
+        user2.setCorreo("john@test.com");
+        user2.setTelefono("123456789");
+        user2.setBloqueado(false);
+        
+        authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        
+        CustomUserDetails details1 = new CustomUserDetails(user1, authorities);
+        CustomUserDetails details2 = new CustomUserDetails(user2, authorities);
+        
+        assertNotEquals(details1, details2);
+        assertNotEquals(details2, details1);
+    }
+
+    @Test
+    void testEqualsWithDifferentApellidos() {
+        Usuario user1 = new Usuario();
+        user1.setId("test");
+        user1.setPassword("pass");
+        user1.setNombre("John");
+        user1.setApellidos("Doe");
+        user1.setCorreo("john@test.com");
+        user1.setTelefono("123456789");
+        user1.setBloqueado(false);
+        
+        Usuario user2 = new Usuario();
+        user2.setId("test");
+        user2.setPassword("pass");
+        user2.setNombre("John");
+        user2.setApellidos("Smith"); // Different apellidos
+        user2.setCorreo("john@test.com");
+        user2.setTelefono("123456789");
+        user2.setBloqueado(false);
+        
+        authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        
+        CustomUserDetails details1 = new CustomUserDetails(user1, authorities);
+        CustomUserDetails details2 = new CustomUserDetails(user2, authorities);
+        
+        assertNotEquals(details1, details2);
+        assertNotEquals(details2, details1);
+    }
+
+    @Test
+    void testEqualsWithDifferentCorreo() {
+        Usuario user1 = new Usuario();
+        user1.setId("test");
+        user1.setPassword("pass");
+        user1.setNombre("John");
+        user1.setApellidos("Doe");
+        user1.setCorreo("john@test.com");
+        user1.setTelefono("123456789");
+        user1.setBloqueado(false);
+        
+        Usuario user2 = new Usuario();
+        user2.setId("test");
+        user2.setPassword("pass");
+        user2.setNombre("John");
+        user2.setApellidos("Doe");
+        user2.setCorreo("jane@test.com"); // Different correo
+        user2.setTelefono("123456789");
+        user2.setBloqueado(false);
+        
+        authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        
+        CustomUserDetails details1 = new CustomUserDetails(user1, authorities);
+        CustomUserDetails details2 = new CustomUserDetails(user2, authorities);
+        
+        assertNotEquals(details1, details2);
+        assertNotEquals(details2, details1);
+    }
+
+    @Test
+    void testEqualsWithDifferentTelefono() {
+        Usuario user1 = new Usuario();
+        user1.setId("test");
+        user1.setPassword("pass");
+        user1.setNombre("John");
+        user1.setApellidos("Doe");
+        user1.setCorreo("john@test.com");
+        user1.setTelefono("123456789");
+        user1.setBloqueado(false);
+        
+        Usuario user2 = new Usuario();
+        user2.setId("test");
+        user2.setPassword("pass");
+        user2.setNombre("John");
+        user2.setApellidos("Doe");
+        user2.setCorreo("john@test.com");
+        user2.setTelefono("987654321"); // Different telefono
+        user2.setBloqueado(false);
+        
+        authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        
+        CustomUserDetails details1 = new CustomUserDetails(user1, authorities);
+        CustomUserDetails details2 = new CustomUserDetails(user2, authorities);
+        
+        assertNotEquals(details1, details2);
+        assertNotEquals(details2, details1);
+    }
+
+    @Test
+    void testEqualsWithMixedNullAndNonNullFields() {
+        // Test nombre null vs non-null
+        Usuario userNombreNull = new Usuario();
+        userNombreNull.setId("test");
+        userNombreNull.setPassword("pass");
+        userNombreNull.setNombre(null);
+        userNombreNull.setApellidos("Doe");
+        userNombreNull.setCorreo("john@test.com");
+        userNombreNull.setTelefono("123456789");
+        userNombreNull.setBloqueado(false);
+        
+        Usuario userNombreNotNull = new Usuario();
+        userNombreNotNull.setId("test");
+        userNombreNotNull.setPassword("pass");
+        userNombreNotNull.setNombre("John");
+        userNombreNotNull.setApellidos("Doe");
+        userNombreNotNull.setCorreo("john@test.com");
+        userNombreNotNull.setTelefono("123456789");
+        userNombreNotNull.setBloqueado(false);
+        
+        authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        
+        CustomUserDetails detailsNombreNull = new CustomUserDetails(userNombreNull, authorities);
+        CustomUserDetails detailsNombreNotNull = new CustomUserDetails(userNombreNotNull, authorities);
+        
+        assertNotEquals(detailsNombreNull, detailsNombreNotNull);
+        assertNotEquals(detailsNombreNotNull, detailsNombreNull);
+    }
+
+    @Test
+    void testEqualsWithSuperClassDifference() {
+        Usuario user1 = new Usuario();
+        user1.setId("test1");
+        user1.setPassword("pass");
+        user1.setNombre("John");
+        user1.setApellidos("Doe");
+        user1.setCorreo("john@test.com");
+        user1.setTelefono("123456789");
+        user1.setBloqueado(false);
+        
+        Usuario user2 = new Usuario();
+        user2.setId("test2");
+        user2.setPassword("pass");
+        user2.setNombre("John");
+        user2.setApellidos("Doe");
+        user2.setCorreo("john@test.com");
+        user2.setTelefono("123456789");
+        user2.setBloqueado(false);
+        
+        authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        
+        CustomUserDetails details1 = new CustomUserDetails(user1, authorities);
+        CustomUserDetails details2 = new CustomUserDetails(user2, authorities);
+        
+        // Debería ser diferente porque super.equals() devuelve false
+        assertNotEquals(details1, details2);
+        assertNotEquals(details2, details1);
+    }
+
+    @Test
+    void testEqualsWithEmptyStrings() {
+        Usuario user1 = new Usuario();
+        user1.setId("test");
+        user1.setPassword("pass");
+        user1.setNombre("");
+        user1.setApellidos("");
+        user1.setCorreo("");
+        user1.setTelefono("");
+        user1.setBloqueado(false);
+        
+        Usuario user2 = new Usuario();
+        user2.setId("test");
+        user2.setPassword("pass");
+        user2.setNombre("");
+        user2.setApellidos("");
+        user2.setCorreo("");
+        user2.setTelefono("");
+        user2.setBloqueado(false);
+        
+        authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        
+        CustomUserDetails details1 = new CustomUserDetails(user1, authorities);
+        CustomUserDetails details2 = new CustomUserDetails(user2, authorities);
+        
+        assertEquals(details1, details2);
+        assertEquals(details2, details1);
+    }
+
+    /**
+     * Test para cubrir la rama getClass() != obj.getClass().
+     * Verifica que equals retorna false cuando se compara con un objeto de diferente clase.
+     */
+    @Test
+    void testEqualsWithDifferentClass() {
+        // Given
+        Usuario usuario = new Usuario();
+        usuario.setId("test");
+        usuario.setPassword("pass");
+        usuario.setNombre("John");
+        usuario.setApellidos("Doe");
+        usuario.setCorreo("john@test.com");
+        usuario.setTelefono("123456789");
+        usuario.setBloqueado(false);
+        
+        authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        customUserDetails = new CustomUserDetails(usuario, authorities);
+        
+        // Create an object of a different class that extends User
+        org.springframework.security.core.userdetails.User differentClassUser = new org.springframework.security.core.userdetails.User("test2", "pass2", authorities);
+        
+        // When & Then
+        assertNotEquals(customUserDetails, differentClassUser);
+        assertNotEquals(differentClassUser, customUserDetails);
+    }
     
     /**
      * Test de toString (heredado).
@@ -422,6 +694,12 @@ class CustomUserDetailsTest {
         assertEquals(originalCorreo, customUserDetails.getCorreo());
         assertEquals(originalTelefono, customUserDetails.getTelefono());
     }
+    
+    @Test
+    void testEqualsDifferentClass() {
+    	assertNotEquals(customUserDetails, new String());
+    }
+
 
     /**
      * Test de la anotación @Getter de Lombok.
