@@ -14,6 +14,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,12 +79,7 @@ class ReservaControllerTest {
         usuarioAutenticado.setApellidos("User");
         usuarioAutenticado.setLstEstablecimientos(new ArrayList<>()); // Inicializar lista
 
-//        when(authentication.getPrincipal()).thenReturn(usuarioAutenticado);
-//        when(usuarioAutenticado.getCorreo()).thenReturn(usuarioAutenticado.getCorreo());
-//        when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
-
-//        when(usuarioService.findUsuarioById(usuarioAutenticado.getId())).thenReturn(usuarioAutenticado);
 
         establecimiento1 = new Establecimiento();
         establecimiento1.setId(1);
@@ -119,24 +115,26 @@ class ReservaControllerTest {
 
     @Test
     void testMostrarCalendarioReserva_EstablecimientoNoEncontrado() {
-//        when(establecimientoService.findById(1)).thenReturn(Optional.empty());
+    	when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
+        when(establecimientoService.findById(1)).thenReturn(Optional.empty());
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
 
         String viewName = reservaController.mostrarCalendarioReserva(1, model, redirectAttributes);
 
-        assertEquals("redirect:/", viewName);
+        assertEquals("redirect:/misreservas", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
+        assertEquals("Establecimiento no encontrado.", redirectAttributes.getFlashAttributes().get("error"));
+        assertTrue(redirectAttributes.getFlashAttributes().containsValue("Establecimiento no encontrado."));
     }
     
     @Test
-    void testMostrarCalendarioReserva_UsuarioNoAsignadoAEstablecimiento() {
+    void testMostrarCalendarioReserva_UsuarioNoEncontrado() {
         Establecimiento otroEstablecimiento = new Establecimiento();
         otroEstablecimiento.setId(2);
         otroEstablecimiento.setNombre("Otro Est");
         
         usuarioAutenticado.getLstEstablecimientos().add(otroEstablecimiento); 
         
-//        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1)); 
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
 
         String viewName = reservaController.mostrarCalendarioReserva(1, model, redirectAttributes);
@@ -144,7 +142,29 @@ class ReservaControllerTest {
         assertEquals("redirect:/", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertEquals("Usuario no encontrado.", redirectAttributes.getFlashAttributes().get("error"));
+        assertTrue(redirectAttributes.getFlashAttributes().containsValue("Usuario no encontrado."));
     }
+    
+    @Test
+    void testMostrarCalendarioReserva_UsuarioNoAsignadoAEstablecimiento() {
+        Establecimiento otroEstablecimiento = new Establecimiento();
+        otroEstablecimiento.setId(3);
+        otroEstablecimiento.setNombre("Otro Establecimiento");
+        when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
+        
+        usuarioAutenticado.getLstEstablecimientos().add(otroEstablecimiento); 
+        
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+
+        String viewName = reservaController.mostrarCalendarioReserva(1, model, redirectAttributes);
+
+        assertEquals("redirect:/misreservas", viewName);
+        assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
+        assertEquals("No tiene permiso para reservar en este establecimiento.", redirectAttributes.getFlashAttributes().get("error"));
+        assertTrue(redirectAttributes.getFlashAttributes().containsValue("No tiene permiso para reservar en este establecimiento."));
+    }
+
     
     // --- Pruebas para crearReserva ---
 
@@ -173,32 +193,43 @@ class ReservaControllerTest {
 
     @Test
     void testCrearReserva_EstablecimientoNoEncontrado() {
-//        when(establecimientoService.findById(1)).thenReturn(Optional.empty());
         Reserva nuevaReserva = new Reserva();
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
         String fechaStr = LocalDate.now().plusDays(1).with(DayOfWeek.MONDAY).toString();
-
+        when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
+        when(establecimientoService.findById(1)).thenReturn(Optional.empty());
 
         String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, "10:00", redirectAttributes);
 
-        assertEquals("redirect:/", viewName);
+        assertEquals("redirect:/misreservas", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         verify(reservaRepo, never()).save(any(Reserva.class));
+        
+        assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
+        assertEquals("Establecimiento no encontrado.", redirectAttributes.getFlashAttributes().get("error"));
+        assertTrue(redirectAttributes.getFlashAttributes().containsValue("Establecimiento no encontrado."));
     }
     
     @Test
     void testCrearReserva_UsuarioNoAsignadoAEstablecimiento() {
-//        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
         Reserva nuevaReserva = new Reserva();
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
         String fechaStr = LocalDate.now().plusDays(1).with(DayOfWeek.MONDAY).toString();
         String horaStr = "10:00";
+        Establecimiento otroEstablecimiento = new Establecimiento();
+        otroEstablecimiento.setId(3);
+        otroEstablecimiento.setNombre("Otro Establecimiento");
+        when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
         
+        usuarioAutenticado.getLstEstablecimientos().add(otroEstablecimiento); 
         String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, redirectAttributes);
         
-        assertEquals("redirect:/", viewName);
+        assertEquals("redirect:/misreservas", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
-        assertEquals("Usuario no autenticado correctamente.", redirectAttributes.getFlashAttributes().get("error"));
+        assertEquals("No tiene permiso para reservar en este establecimiento.", redirectAttributes.getFlashAttributes().get("error"));
+        assertTrue(redirectAttributes.getFlashAttributes().containsValue("No tiene permiso para reservar en este establecimiento."));
+
         verify(reservaRepo, never()).save(any(Reserva.class));
     }
 
@@ -295,7 +326,6 @@ class ReservaControllerTest {
     @Test
     void testCrearReserva_FormatoHoraInvalido() {
         usuarioAutenticado.getLstEstablecimientos().add(establecimiento1);
-//        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
         Reserva nuevaReserva = new Reserva();
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
         String fechaStr = LocalDate.now().plusDays(1).with(DayOfWeek.MONDAY).toString();
@@ -307,6 +337,39 @@ class ReservaControllerTest {
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertEquals("Usuario no autenticado correctamente.", redirectAttributes.getFlashAttributes().get("error"));
         verify(reservaRepo, never()).save(any(Reserva.class));
+    }
+    
+    @Test
+    void crearReserva_whenSaveThrowsException_shouldReturnRedirectWithError() {
+        ReservaController controller = new ReservaController(sessionData, establecimientoService, reservaRepo);
+        Reserva reserva = new Reserva();
+        Integer establecimientoId = 1;
+        String fechaStr = "2024-02-20";
+        String horaStr = "10:00";
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+        
+        Usuario usuario = new Usuario();
+        Establecimiento establecimiento = new Establecimiento();
+        establecimiento.setId(establecimientoId);
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(DayOfWeek.TUESDAY);
+        franja.setHoraInicio(LocalTime.of(9, 0));
+        franja.setHoraFin(LocalTime.of(18, 0));
+        establecimiento.setFranjasHorarias(Arrays.asList(franja));
+        usuario.setLstEstablecimientos(Arrays.asList(establecimiento));
+        
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(establecimientoId)).thenReturn(Optional.of(establecimiento));
+        when(reservaRepo.save(any(Reserva.class))).thenThrow(new RuntimeException("Error al guardar"));
+        
+        String result = controller.crearReserva(reserva, establecimientoId, fechaStr, horaStr, redirectAttributes);
+        
+        assertEquals("redirect:/reservas/establecimiento/" + establecimientoId, result);
+        assertTrue(((RedirectAttributesModelMap) redirectAttributes)
+            .getFlashAttributes()
+            .get("error").toString()
+            .contains("Error al guardar la reserva"));
+        verify(reservaRepo).save(any(Reserva.class));
     }
     
     // --- Pruebas para mostrarMisReservas ---

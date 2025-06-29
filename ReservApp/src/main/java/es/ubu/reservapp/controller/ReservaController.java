@@ -87,7 +87,7 @@ public class ReservaController {
         Optional<Establecimiento> establecimientoOpt = establecimientoService.findById(establecimientoId);
         if (establecimientoOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute(ERROR, "Establecimiento no encontrado.");
-            return REDIRECT_MIS_RESERVAS; // O a una página de error general
+            return REDIRECT_MIS_RESERVAS;
         }
 
         Establecimiento establecimiento = establecimientoOpt.get();

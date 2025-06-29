@@ -266,7 +266,6 @@ class UserManagementControllerTest {
         
         when(bindingResult.hasErrors()).thenReturn(false);
         when(usuarioService.existeId("newuser")).thenReturn(false);
-//        when(usuarioService.findUsuarioByCorreo("nuevo@test.com")).thenReturn(null);
         
         String viewName = userManagementController.saveOrUpdateUser(newUser, bindingResult, false, model, redirectAttributes);
         

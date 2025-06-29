@@ -48,7 +48,7 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	
 	@NotNull
 	@NotEmpty
-	@Size(max = 40)
+	@Size(max = 80)
 	@Column(name = "nombre")
 	private String nombre;
 
@@ -143,14 +143,6 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + Objects.hash(id);
-		return result;
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -160,6 +152,14 @@ public class Establecimiento extends EntidadInfo<Integer> {
 			return false;
 		Establecimiento other = (Establecimiento) obj;
 		return Objects.equals(id, other.id);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(id);
+		return result;
 	}
 
 }

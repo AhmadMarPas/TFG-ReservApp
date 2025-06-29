@@ -283,6 +283,75 @@ class EntidadInfoTest {
         assertNotEquals(entidadUno, entidadDos);
     }
 
+    private static class TestEntidadInfo extends EntidadInfo<Long> {
+        public TestEntidadInfo() {
+            super();
+        }
+
+		@Override
+		public Long getId() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void setId(Long id) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public EntidadPK<Long> copia() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+    }
+    
+    @Test
+    void testEquals2() {
+        // Create test objects
+        TestEntidadInfo entity1 = new TestEntidadInfo();
+        TestEntidadInfo entity2 = new TestEntidadInfo();
+        
+        // Test same object reference
+        assertTrue(entity1.equals(entity1));
+        
+        // Test null object
+        assertNotEquals(entity1, null);
+        
+        // Test different class
+        assertNotEquals(entity1, new Object());
+        
+        // Test equal objects
+        LocalDateTime now = LocalDateTime.now();
+        entity1.setId(1L);
+        entity1.setOrden(1);
+        entity1.setUsuarioModReg("user1");
+        entity1.setUsuarioCreaReg("user1");
+        entity1.setFechaModReg(now);
+        entity1.setFechaCreaReg(now);
+        
+        entity2.setId(1L);
+        entity2.setOrden(1);
+        entity2.setUsuarioModReg("user1");
+        entity2.setUsuarioCreaReg("user1");
+        entity2.setFechaModReg(now);
+        entity2.setFechaCreaReg(now);
+        
+        assertTrue(entity1.equals(entity2));
+        
+        // Test different values
+        entity2.setOrden(2);
+        assertNotEquals(entity1, entity2);
+        
+        entity2.setOrden(1);
+        entity2.setUsuarioModReg("user2");
+        assertNotEquals(entity1, entity2);
+        
+        entity2.setUsuarioModReg("user1");
+        entity2.setFechaModReg(now.plusDays(1));
+        assertNotEquals(entity1, entity2);
+    }
     
     private void assertTrue(boolean condition) {
         if (!condition) {
