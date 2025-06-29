@@ -66,12 +66,11 @@ jobs:
         run: mvn -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=ReservApp -Dsonar.branch.name=main
         working-directory: ./ReservApp
 
-      - name: badge action
-        uses: jadewon/sonar-badge@v1
-        id: badge
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_PROJECT: ReservApp
-          
+  # Badge step (opcional, para registrar el resultado)
+  badge:
+    if: always()
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: SonarCloud Quality Gate Badge
+        run: echo "![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=ReservApp&metric=alert_status)"
