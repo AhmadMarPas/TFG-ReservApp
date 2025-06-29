@@ -1,8 +1,9 @@
 package es.ubu.reservapp.model.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.Optional;
 
 import es.ubu.reservapp.model.entities.Usuario;
 

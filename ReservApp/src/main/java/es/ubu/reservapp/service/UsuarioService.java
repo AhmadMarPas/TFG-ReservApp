@@ -1,8 +1,9 @@
 package es.ubu.reservapp.service;
 
+import java.util.List;
+
 import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Usuario;
-import java.util.List;
 
 /**
  * Interface que representa el servicio de la entidad Usuario.

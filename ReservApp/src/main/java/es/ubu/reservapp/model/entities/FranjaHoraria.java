@@ -2,7 +2,6 @@ package es.ubu.reservapp.model.entities;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -91,27 +90,6 @@ public class FranjaHoraria extends EntidadInfo<Integer> {
 		this.setHoraInicio(franjaHoraria.getHoraInicio());
 		this.setHoraFin(franjaHoraria.getHoraFin());
 		this.setEstablecimiento(franjaHoraria.getEstablecimiento());
-	}
-	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + Objects.hash(diaSemana, establecimiento, horaFin, horaInicio);
-		return result;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		FranjaHoraria other = (FranjaHoraria) obj;
-		return diaSemana == other.diaSemana && Objects.equals(establecimiento, other.establecimiento)
-				&& Objects.equals(horaFin, other.horaFin) && Objects.equals(horaInicio, other.horaInicio);
 	}
 
 }

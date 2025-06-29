@@ -1,5 +1,8 @@
 package es.ubu.reservapp.service;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,8 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
-import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Clase que implementa el servicio de la entidad Usuario.

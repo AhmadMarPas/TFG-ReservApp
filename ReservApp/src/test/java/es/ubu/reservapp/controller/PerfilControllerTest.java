@@ -76,8 +76,8 @@ class PerfilControllerTest {
         String viewName = perfilController.listarPerfiles(model);
 
         assertEquals("perfiles/listado", viewName);
-        verify(model).addAttribute(eq("perfiles"), eq(perfiles));
-        verify(model).addAttribute(eq("perfilActivoCount"), eq(2L));
+        verify(model).addAttribute("perfiles", perfiles);
+        verify(model).addAttribute("perfilActivoCount", 2L);
     }
 
     @Test
@@ -96,7 +96,7 @@ class PerfilControllerTest {
 
         assertEquals("perfiles/formulario", viewName);
         verify(model).addAttribute(eq("perfil"), any(Perfil.class));
-        verify(model).addAttribute(eq("isEdit"), eq(false));
+        verify(model).addAttribute("isEdit", false);
     }
 
     @Test
@@ -107,8 +107,8 @@ class PerfilControllerTest {
         String viewName = perfilController.mostrarFormularioEditarPerfil(1, model, redirectAttributes);
 
         assertEquals("perfiles/formulario", viewName);
-        verify(model).addAttribute(eq("perfil"), eq(perfilAdmin));
-        verify(model).addAttribute(eq("isEdit"), eq(true));
+        verify(model).addAttribute("perfil", perfilAdmin);
+        verify(model).addAttribute("isEdit", true);
         assertTrue(redirectAttributes.getFlashAttributes().isEmpty());
     }
 
@@ -144,7 +144,7 @@ class PerfilControllerTest {
         String viewName = perfilController.guardarPerfil(perfilInvalido, bindingResult, new RedirectAttributesModelMap(), model);
 
         assertEquals("perfiles/formulario", viewName);
-        verify(model).addAttribute(eq("isEdit"), eq(false)); // ID es null
+        verify(model).addAttribute("isEdit", false); // ID es null
         verify(perfilService, never()).save(any(Perfil.class));
     }
 
@@ -210,7 +210,7 @@ class PerfilControllerTest {
 
         assertEquals("perfiles/formulario", viewName);
         verify(model).addAttribute(eq("error"), anyString());
-        verify(model).addAttribute(eq("isEdit"), eq(false));
+        verify(model).addAttribute("isEdit", false);
     }
 
     @Test

@@ -2,7 +2,6 @@ package es.ubu.reservapp.model.entities;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -140,26 +139,6 @@ public class Establecimiento extends EntidadInfo<Integer> {
 		this.setActivo(establecimiento.isActivo());
 		this.setLstReservas(establecimiento.getLstReservas() == null ? new ArrayList<>() : new ArrayList<>(establecimiento.getLstReservas()));
 		this.setFranjasHorarias(establecimiento.getFranjasHorarias() == null ? new ArrayList<>() : new ArrayList<>(establecimiento.getFranjasHorarias()));
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Establecimiento other = (Establecimiento) obj;
-		return Objects.equals(id, other.id);
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + Objects.hash(id);
-		return result;
 	}
 
 }

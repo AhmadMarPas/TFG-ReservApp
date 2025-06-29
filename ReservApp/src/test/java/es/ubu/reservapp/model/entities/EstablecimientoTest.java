@@ -451,7 +451,7 @@ class EstablecimientoTest {
         assertEquals(establecimiento1, establecimiento1);
         
         // Test null
-        assertNotEquals(establecimiento1, null);
+        assertNotEquals(null, establecimiento1);
         
         // Test different class
         assertNotEquals(establecimiento1, new Object());

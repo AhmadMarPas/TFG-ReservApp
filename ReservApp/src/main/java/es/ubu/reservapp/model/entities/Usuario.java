@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -114,7 +113,7 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
 	private List<Establecimiento> lstEstablecimientos = new ArrayList<>();
 
     @OneToMany(mappedBy = "usuario")
-    private List<Reserva> lstReservas = new ArrayList<>();;
+    private List<Reserva> lstReservas = new ArrayList<>();
 
 	/**
 	 * Función que prepara los datos del correo antes de guardarlos.
@@ -123,26 +122,6 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
 	@PreUpdate
 	private void prepareData() {
 		this.correo = correo.toLowerCase();
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + Objects.hash(id);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Usuario other = (Usuario) obj;
-		return Objects.equals(id, other.id);
 	}
 
 	@Override

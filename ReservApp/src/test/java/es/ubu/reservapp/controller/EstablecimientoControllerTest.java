@@ -329,7 +329,7 @@ class EstablecimientoControllerTest {
         String viewName = establecimientoController.guardarEstablecimiento(establecimiento, bindingResult, model, redirectAttributes);
         
         verify(model).addAttribute("isEdit", true);
-        verify(model).addAttribute(eq("establecimiento"), eq(establecimiento));
+        verify(model).addAttribute("establecimiento", establecimiento);
         verify(model).addAttribute(eq("error"), anyString());
         
         assertEquals("establecimientos/formulario", viewName);
@@ -348,7 +348,7 @@ class EstablecimientoControllerTest {
         String viewName = establecimientoController.guardarEstablecimiento(newEstablecimiento, bindingResult, model, redirectAttributes);
         
         verify(model).addAttribute("isEdit", false); // Es nuevo, no es edición
-        verify(model).addAttribute(eq("establecimiento"), eq(newEstablecimiento));
+        verify(model).addAttribute("establecimiento", newEstablecimiento);
         verify(model).addAttribute(eq("error"), anyString());
         
         assertEquals("establecimientos/formulario", viewName);

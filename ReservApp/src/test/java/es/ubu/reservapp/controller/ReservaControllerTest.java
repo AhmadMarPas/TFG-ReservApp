@@ -107,7 +107,7 @@ class ReservaControllerTest {
         String viewName = reservaController.mostrarCalendarioReserva(1, model, redirectAttributes);
 
         assertEquals("reservas/calendario_reserva", viewName);
-        verify(model).addAttribute(eq("establecimiento"), eq(establecimiento1));
+        verify(model).addAttribute("establecimiento", establecimiento1);
         verify(model).addAttribute(eq("franjasHorarias"), anyList());
         verify(model).addAttribute(eq("reserva"), any(Reserva.class));
         assertTrue(redirectAttributes.getFlashAttributes().isEmpty());

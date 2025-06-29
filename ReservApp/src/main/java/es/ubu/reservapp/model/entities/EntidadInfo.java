@@ -2,7 +2,6 @@ package es.ubu.reservapp.model.entities;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SoftDelete;
@@ -74,27 +73,5 @@ public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
     public String toString() {
         return getClass().getSimpleName() + "[id=" + getId() + "]";
     }
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + Objects.hash(fechaCreaReg, fechaModReg, orden, usuarioCreaReg, usuarioModReg);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EntidadInfo<E> other = (EntidadInfo<E>) obj;
-		return Objects.equals(fechaCreaReg, other.fechaCreaReg) && Objects.equals(fechaModReg, other.fechaModReg)
-				&& Objects.equals(orden, other.orden) && Objects.equals(usuarioCreaReg, other.usuarioCreaReg)
-				&& Objects.equals(usuarioModReg, other.usuarioModReg);
-	}
 
 }

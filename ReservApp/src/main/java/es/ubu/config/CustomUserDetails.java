@@ -1,7 +1,6 @@
 package es.ubu.config;
 
 import java.util.Collection;
-import java.util.Objects;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -40,26 +39,5 @@ public class CustomUserDetails extends User {
         this.correo = usuario.getCorreo();
         this.telefono = usuario.getTelefono();
     }
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + Objects.hash(apellidos, correo, nombre, telefono);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CustomUserDetails other = (CustomUserDetails) obj;
-		return Objects.equals(apellidos, other.apellidos) && Objects.equals(correo, other.correo)
-				&& Objects.equals(nombre, other.nombre) && Objects.equals(telefono, other.telefono);
-	}
     
 }

@@ -296,28 +296,29 @@ class FranjaHorariaTest {
         // Test different diaSemana
         FranjaHoraria franja3 = new FranjaHoraria(franja1);
         franja3.setDiaSemana(DayOfWeek.TUESDAY);
-        assertNotEquals(franja1.hashCode(), franja3.hashCode());
+        assertEquals(franja1.hashCode(), franja3.hashCode());
 
         // Test different horaInicio
         FranjaHoraria franja4 = new FranjaHoraria(franja1);
         franja4.setHoraInicio(LocalTime.of(10, 0));
-        assertNotEquals(franja1.hashCode(), franja4.hashCode());
+        assertEquals(franja1.hashCode(), franja4.hashCode());
 
         // Test different horaFin
         FranjaHoraria franja5 = new FranjaHoraria(franja1);
         franja5.setHoraFin(LocalTime.of(19, 0));
-        assertNotEquals(franja1.hashCode(), franja5.hashCode());
+        assertEquals(franja1.hashCode(), franja5.hashCode());
 
         // Test different establecimiento
         FranjaHoraria franja6 = new FranjaHoraria(franja1);
         Establecimiento otroEstablecimiento = new Establecimiento();
         otroEstablecimiento.setId(2);
         franja6.setEstablecimiento(otroEstablecimiento);
-        assertNotEquals(franja1.hashCode(), franja6.hashCode());
+        assertEquals(franja1.hashCode(), franja6.hashCode());
 
         // Test null values
         FranjaHoraria franjaNullValues = new FranjaHoraria();
-        assertNotEquals(franja1.hashCode(), franjaNullValues.hashCode());
+        franjaNullValues.setId(1);
+        assertEquals(franja1.hashCode(), franjaNullValues.hashCode());
     }
 
     @Test
@@ -349,33 +350,34 @@ class FranjaHorariaTest {
         // Test different diaSemana
         FranjaHoraria franja3 = new FranjaHoraria(franja1);
         franja3.setDiaSemana(DayOfWeek.TUESDAY);
-        assertNotEquals(franja1, franja3);
-        assertNotEquals(franja3, franja1);
+        assertEquals(franja1, franja3);
+        assertEquals(franja3, franja1);
 
         // Test different horaInicio
         FranjaHoraria franja4 = new FranjaHoraria(franja1);
         franja4.setHoraInicio(LocalTime.of(10, 0));
-        assertNotEquals(franja1, franja4);
-        assertNotEquals(franja4, franja1);
+        assertEquals(franja1, franja4);
+        assertEquals(franja4, franja1);
 
         // Test different horaFin
         FranjaHoraria franja5 = new FranjaHoraria(franja1);
         franja5.setHoraFin(LocalTime.of(19, 0));
-        assertNotEquals(franja1, franja5);
-        assertNotEquals(franja5, franja1);
+        assertEquals(franja1, franja5);
+        assertEquals(franja5, franja1);
 
         // Test different establecimiento
         FranjaHoraria franja6 = new FranjaHoraria(franja1);
         Establecimiento establecimiento2 = new Establecimiento();
         establecimiento2.setId(2);
         franja6.setEstablecimiento(establecimiento2);
-        assertNotEquals(franja1, franja6);
-        assertNotEquals(franja6, franja1);
+        assertEquals(franja1, franja6);
+        assertEquals(franja6, franja1);
 
         // Test null fields
         FranjaHoraria franjaNullFields = new FranjaHoraria();
-        assertNotEquals(franja1, franjaNullFields);
-        assertNotEquals(franjaNullFields, franja1);
+        franjaNullFields.setId(1);
+        assertEquals(franja1, franjaNullFields);
+        assertEquals(franjaNullFields, franja1);
 
         // Test transitivity
         FranjaHoraria franjaA = new FranjaHoraria(franja1);

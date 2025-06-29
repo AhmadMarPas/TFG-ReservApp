@@ -205,7 +205,9 @@ class EntidadInfoTest {
     void testEquals() {
         // Create a concrete implementation of EntidadInfo for testing
         EntidadInfo<Integer> entidadUno = new EntidadInfo<Integer>() {
-            @Override
+            private static final long serialVersionUID = 1L;
+
+			@Override
             public Integer getId() {
                 return 1;
             }
@@ -222,7 +224,9 @@ class EntidadInfoTest {
         };
 
         EntidadInfo<Integer> entidadDos = new EntidadInfo<Integer>() {
-            @Override
+            private static final long serialVersionUID = 1L;
+
+			@Override
             public Integer getId() {
                 return 1;
             }
@@ -284,25 +288,26 @@ class EntidadInfoTest {
     }
 
     private static class TestEntidadInfo extends EntidadInfo<Long> {
-        public TestEntidadInfo() {
+        private static final long serialVersionUID = 1L;
+
+        private Long id;
+        
+		public TestEntidadInfo() {
             super();
         }
 
 		@Override
 		public Long getId() {
-			// TODO Auto-generated method stub
-			return null;
+			return id;
 		}
 
 		@Override
 		public void setId(Long id) {
-			// TODO Auto-generated method stub
-			
+			this.id = id;
 		}
 
 		@Override
 		public EntidadPK<Long> copia() {
-			// TODO Auto-generated method stub
 			return null;
 		}
     }
@@ -317,7 +322,7 @@ class EntidadInfoTest {
         assertTrue(entity1.equals(entity1));
         
         // Test null object
-        assertNotEquals(entity1, null);
+        assertNotEquals(null, entity1);
         
         // Test different class
         assertNotEquals(entity1, new Object());
@@ -341,7 +346,7 @@ class EntidadInfoTest {
         assertTrue(entity1.equals(entity2));
         
         // Test different values
-        entity2.setOrden(2);
+        entity2.setId(2L);
         assertNotEquals(entity1, entity2);
         
         entity2.setOrden(1);

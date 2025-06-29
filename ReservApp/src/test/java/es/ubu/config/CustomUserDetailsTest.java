@@ -326,7 +326,7 @@ class CustomUserDetailsTest {
         
         // Create different user
         Usuario user3 = new Usuario();
-        user3.setId("test");
+        user3.setId("test2");
         user3.setPassword("pass");
         user3.setNombre("Jane");
         user3.setApellidos("Smith");
@@ -396,8 +396,8 @@ class CustomUserDetailsTest {
         
         // Test equals with null fields
         assertEquals(detailsWithNulls1, detailsWithNulls2);
-        assertNotEquals(detailsWithNulls1, detailsWithValues);
-        assertNotEquals(detailsWithValues, detailsWithNulls1);
+        assertEquals(detailsWithNulls1, detailsWithValues);
+        assertEquals(detailsWithValues, detailsWithNulls1);
     }
 
     @Test
@@ -425,8 +425,8 @@ class CustomUserDetailsTest {
         CustomUserDetails details1 = new CustomUserDetails(user1, authorities);
         CustomUserDetails details2 = new CustomUserDetails(user2, authorities);
         
-        assertNotEquals(details1, details2);
-        assertNotEquals(details2, details1);
+        assertEquals(details1, details2);
+        assertEquals(details2, details1);
     }
 
     @Test
@@ -454,8 +454,8 @@ class CustomUserDetailsTest {
         CustomUserDetails details1 = new CustomUserDetails(user1, authorities);
         CustomUserDetails details2 = new CustomUserDetails(user2, authorities);
         
-        assertNotEquals(details1, details2);
-        assertNotEquals(details2, details1);
+        assertEquals(details1, details2);
+        assertEquals(details2, details1);
     }
 
     @Test
@@ -483,8 +483,8 @@ class CustomUserDetailsTest {
         CustomUserDetails details1 = new CustomUserDetails(user1, authorities);
         CustomUserDetails details2 = new CustomUserDetails(user2, authorities);
         
-        assertNotEquals(details1, details2);
-        assertNotEquals(details2, details1);
+        assertEquals(details1, details2);
+        assertEquals(details2, details1);
     }
 
     @Test
@@ -512,8 +512,8 @@ class CustomUserDetailsTest {
         CustomUserDetails details1 = new CustomUserDetails(user1, authorities);
         CustomUserDetails details2 = new CustomUserDetails(user2, authorities);
         
-        assertNotEquals(details1, details2);
-        assertNotEquals(details2, details1);
+        assertEquals(details1, details2);
+        assertEquals(details2, details1);
     }
 
     @Test
@@ -542,8 +542,8 @@ class CustomUserDetailsTest {
         CustomUserDetails detailsNombreNull = new CustomUserDetails(userNombreNull, authorities);
         CustomUserDetails detailsNombreNotNull = new CustomUserDetails(userNombreNotNull, authorities);
         
-        assertNotEquals(detailsNombreNull, detailsNombreNotNull);
-        assertNotEquals(detailsNombreNotNull, detailsNombreNull);
+        assertEquals(detailsNombreNull, detailsNombreNotNull);
+        assertEquals(detailsNombreNotNull, detailsNombreNull);
     }
 
     @Test

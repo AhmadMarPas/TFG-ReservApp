@@ -191,10 +191,6 @@ public class ReservaController {
         }
 
         // TODO: Validación de capacidad (Asegurarse que no se exceda el aforo)
-        // if (reservasExistentes >= establecimiento.getAforo()) {
-        //    redirectAttributes.addFlashAttribute(ERROR, "Aforo completo para la fecha y hora seleccionada.");
-        //    return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimientoId;
-        // }
 
         reserva.setUsuario(usuario);
         reserva.setEstablecimiento(establecimiento);

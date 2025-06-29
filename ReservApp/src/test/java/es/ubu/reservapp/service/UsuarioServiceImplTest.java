@@ -226,7 +226,7 @@ class UsuarioServiceImplTest {
         usuarioService.blockUser("test123");
 
         // Then
-        verify(usuarioRepo).save(argThat(user -> user.isBloqueado()));
+        verify(usuarioRepo).save(argThat(Usuario::isBloqueado));
     }
 
     @Test

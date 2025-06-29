@@ -54,7 +54,6 @@ class UsuarioControllerTest {
     @BeforeEach
     void setUp() {
         SecurityContextHolder.setContext(securityContext);
-//        when(securityContext.getAuthentication()).thenReturn(authentication);
         
         mockMvc = MockMvcBuilders.standaloneSetup(usuarioController).build();
     }
