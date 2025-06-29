@@ -208,7 +208,22 @@
     <!-- Header -->
     <header class="main-header py-3 mb-4">
         <div class="container-fluid">
-            <div class="row align-items-center">
+
+			<!-- Flash messages -->
+			<div th:if="${error}"
+				class="alert alert-danger-user-form alert-dismissible fade show" role="alert">
+				<i class="fas fa-exclamation-triangle me-2"></i>
+				<span th:text="${error}"></span>
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+			<div th:if="${exito}"
+				class="alert alert-success-user-form alert-dismissible fade show" role="alert">
+				<i class="fas fa-check-circle me-2"></i>
+				<span th:text="${exito}"></span>
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+
+			<div class="row align-items-center">
                 <div class="col-md-8">
                     <h2 class="mb-0 text-primary">
                         <i class="fas fa-users-cog me-2"></i>
@@ -364,23 +379,38 @@
                                            class="btn btn-sm btn-primary me-1" title="Editar usuario">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                            <form th:action="@{/admin/usuarios/bloquear/{id}(id=${user.id})}" 
-                                                  method="post" style="display: inline;" th:if="${!user.bloqueado}">
-                                                <button type="submit" class="btn btn-sm btn-danger" 
-                                                        title="Bloquear usuario"
-                                                        onclick="return confirm('¿Estás seguro de que quieres bloquear este usuario?');">
-                                                    <i class="fas fa-ban"></i>
-                                                </button>
-                                            </form>
-                                            <form th:action="@{/admin/usuarios/desbloquear/{id}(id=${user.id})}" 
-                                                  method="post" style="display: inline;" th:if="${user.bloqueado}">
-                                                <button type="submit" class="btn btn-sm btn-success"
-                                                        title="Desbloquear usuario"
-                                                        onclick="return confirm('¿Estás seguro de que quieres desbloquear este usuario?');">
-                                                    <i class="fas fa-unlock"></i>
-                                                </button>
-                                            </form>
-                                    </td>
+									<form
+										th:action="@{/admin/usuarios/bloquear/{id}(id=${user.id})}"
+										method="post" style="display: inline;"
+										th:if="${!user.bloqueado}">
+										<button type="submit" class="btn btn-sm btn-danger"
+											title="Bloquear usuario"
+											onclick="return confirm('¿Estás seguro de que quieres bloquear este usuario?');">
+											<i class="fas fa-ban"></i>
+										</button>
+									</form>
+									<form
+										th:action="@{/admin/usuarios/desbloquear/{id}(id=${user.id})}"
+										method="post" style="display: inline;"
+										th:if="${user.bloqueado}">
+										<button type="submit" class="btn btn-sm btn-success"
+											title="Desbloquear usuario"
+											onclick="return confirm('¿Estás seguro de que quieres desbloquear este usuario?');">
+											<i class="fas fa-unlock"></i>
+										</button>
+									</form>
+
+
+									<form
+										th:action="@{/admin/usuarios/eliminar/{id}(id=${user.id})}"
+										method="post" style="display: inline;"
+										onsubmit="return confirm('¿Estás seguro de que quieres eliminar este usuario?');">
+										<button type="submit" class="btn btn-sm btn-danger"
+											title="Eliminar usuario">
+											<i class="fas fa-trash-alt"></i>
+										</button>
+									</form>
+								</td>
                                 </tr>
                             </tbody>
                         </table>

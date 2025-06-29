@@ -112,4 +112,13 @@ public class UsuarioServiceImpl implements UsuarioService {
 			throw new UserNotFoundException("Usuario no encontrado con ID: " + id);
 		}
 	}
+
+	@Override
+    @Transactional
+	public void deleteById(String id) throws UserNotFoundException {
+        if (findUsuarioById(id) == null) {
+            throw new UserNotFoundException("No se pudo eliminar el usuario con ID: " + id);
+        }
+        usuarioRepo.deleteById(id);
+	}
 }

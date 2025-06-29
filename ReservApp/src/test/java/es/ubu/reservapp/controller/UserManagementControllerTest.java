@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Usuario;
+import es.ubu.reservapp.model.shared.SessionData;
 import es.ubu.reservapp.service.UsuarioService;
 
 /**
@@ -33,6 +35,9 @@ import es.ubu.reservapp.service.UsuarioService;
  */
 @ExtendWith(MockitoExtension.class)
 class UserManagementControllerTest {
+
+    @Mock
+    private SessionData sessionData;
 
     @Mock
     private UsuarioService usuarioService;
@@ -54,6 +59,8 @@ class UserManagementControllerTest {
 
     @BeforeEach
     void setUp() {
+//    	MockitoAnnotations.openMocks(this);
+    	
         usuario = new Usuario();
         usuario.setId("usuario1");
         usuario.setNombre("Usuario");
@@ -164,8 +171,6 @@ class UserManagementControllerTest {
         newUser.setId("newuser");
         newUser.setCorreo("usuario@test.com");
         newUser.setPassword("password");
-        
-        when(bindingResult.hasErrors()).thenReturn(false);
         
         when(usuarioService.existeId("newuser")).thenReturn(false);
         when(usuarioService.findUsuarioByCorreo("usuario@test.com")).thenReturn(usuario);
@@ -291,7 +296,6 @@ class UserManagementControllerTest {
         newUser.setPassword(""); // Password vacío
         newUser.setCorreo("nuevo@test.com");
         
-        when(bindingResult.hasErrors()).thenReturn(false);
         when(usuarioService.existeId("newuser")).thenReturn(false);
         
         String viewName = userManagementController.saveOrUpdateUser(newUser, bindingResult, false, model, mockRedirectAttributes);
@@ -310,7 +314,6 @@ class UserManagementControllerTest {
         
         usuario.setCorreo("usuario@test.com");
         
-        when(bindingResult.hasErrors()).thenReturn(false);
         when(usuarioService.existeId("usuario1")).thenReturn(true);
         when(usuarioService.findUsuarioByCorreo("usuario@test.com")).thenReturn(otherUser);
         
@@ -510,6 +513,103 @@ class UserManagementControllerTest {
         verify(model).addAttribute("isEdit", true);
         verify(bindingResult).rejectValue("id", "error.usuario", "No se puede modificar el usuario. El ID no existe en el sistema.");
         assertEquals("admin/user_form", result);
+    }
+
+    
+    
+    @Test
+    void testSaveOrUpdateUser_ValidBindingResult() {
+        // Configurar usuario y parámetros
+        Usuario usuario = new Usuario();
+        usuario.setId("testId");
+        usuario.setCorreo("test@example.com");
+        usuario.setPassword("password");
+
+        when(bindingResult.hasErrors()).thenReturn(false);
+        when(usuarioService.existeId("testId")).thenReturn(false);
+
+        // Llamar al método
+        String result = userManagementController.saveOrUpdateUser(usuario, bindingResult, false, model, mockRedirectAttributes);
+
+        // Verificar resultados
+        verify(usuarioService).save(usuario);
+        verify(mockRedirectAttributes).addFlashAttribute("exito", "Usuario creado correctamente.");
+        assertEquals("redirect:/admin/usuarios", result);
+    }
+
+    @Test
+    void testSaveOrUpdateUser_InvalidBindingResult() {
+        // Configurar usuario y parámetros
+        Usuario usr = new Usuario();
+        usr.setId("testId");
+        usr.setCorreo("test@example.com");
+        usr.setPassword("password");
+
+        when(bindingResult.hasErrors()).thenReturn(true);
+
+        // Llamar al método
+        String result = userManagementController.saveOrUpdateUser(usr, bindingResult, false, model, mockRedirectAttributes);
+
+        // Verificar resultados
+        verify(model).addAttribute("isEdit", false);
+        assertEquals("admin/user_form", result);
+    }
+
+    
+    
+    
+    
+    @Test
+    void testDeleteUserSuccess() throws UserNotFoundException {
+        // Arrange
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+        Usuario usr	= new Usuario();
+        usr.setId("usuario");
+        when(sessionData.getUsuario()).thenReturn(usr);
+        
+        // Act
+        String viewName = userManagementController.deleteUser("usuario1", redirectAttributes);
+        
+        // Assert
+        verify(usuarioService).deleteById("usuario1");
+        assertNotNull(redirectAttributes.getFlashAttributes().get("exito"));
+        assertEquals("Usuario eliminado correctamente.", redirectAttributes.getFlashAttributes().get("exito"));
+        assertEquals("redirect:/admin/usuarios", viewName);
+    }
+
+    @Test
+    void testDeleteUserNotFound() throws UserNotFoundException {
+        // Arrange
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+        Usuario usr	= new Usuario();
+        usr.setId("usuario");
+        when(sessionData.getUsuario()).thenReturn(usr);
+        doThrow(new UserNotFoundException("Usuario no encontrado")).when(usuarioService).deleteById("nonexistent");
+        
+        // Act
+        String viewName = userManagementController.deleteUser("nonexistent", redirectAttributes);
+        
+        // Assert
+        assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
+        assertEquals("Usuario no encontrado o ya eliminado.", redirectAttributes.getFlashAttributes().get("error"));
+        assertEquals("redirect:/admin/usuarios", viewName);
+    }
+
+    @Test
+    void testDeleteCurrentUser() {
+        // Arrange
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+        Usuario usr	= new Usuario();
+        usr.setId("usuario1");
+        when(sessionData.getUsuario()).thenReturn(usr);
+        
+        // Act
+        String viewName = userManagementController.deleteUser("usuario1", redirectAttributes);
+        
+        // Assert
+        assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
+        assertEquals("No puedes eliminar tu propio usuario.", redirectAttributes.getFlashAttributes().get("error"));
+        assertEquals("redirect:/admin/usuarios", viewName);
     }
 
     

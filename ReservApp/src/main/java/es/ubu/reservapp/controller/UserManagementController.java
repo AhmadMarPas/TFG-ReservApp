@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Usuario;
+import es.ubu.reservapp.model.shared.SessionData;
 import es.ubu.reservapp.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,12 @@ public class UserManagementController {
 	private static final String ERROR_USUARIO = "error.usuario";
 	private static final String EXITO = "exito";
 
-	/** 
+    /**
+     * Datos de la sesión.
+     */
+    private SessionData sessionData;
+
+    /**
 	 * Servicio de usuario para gestionar operaciones relacionadas con usuarios.
 	 */
     private final UsuarioService usuarioService;
@@ -41,7 +47,8 @@ public class UserManagementController {
 	 *
 	 * @param usuarioService  Servicio de usuario
 	 */
-    public UserManagementController(UsuarioService usuarioService) {
+    public UserManagementController(SessionData sessionData, UsuarioService usuarioService) {
+    	this.sessionData = sessionData;
         this.usuarioService = usuarioService;
     }
 
@@ -98,11 +105,6 @@ public class UserManagementController {
 	        return ADMIN_FORM;
 	    }
 
-	    if (!isValidBindingResult(bindingResult, isNewUser)) {
-	        ControllerHelper.setEditMode(model, !isNewUser);
-	        return ADMIN_FORM;
-	    }
-
 	    if (isNewUser && !validateNewUser(usuario, bindingResult)) {
 	        ControllerHelper.setEditMode(model, false);
 	        return ADMIN_FORM;
@@ -111,6 +113,11 @@ public class UserManagementController {
 	    if (!validateEmail(usuario, isNewUser, bindingResult)) {
 	        ControllerHelper.setEditMode(model, !isNewUser);
 	        return ADMIN_FORM;
+	    }
+	    
+	    if (!isValidBindingResult(bindingResult, isNewUser)) {
+	    	ControllerHelper.setEditMode(model, !isNewUser);
+	    	return ADMIN_FORM;
 	    }
 
 	    processPassword(usuario, isNewUser);
@@ -226,6 +233,23 @@ public class UserManagementController {
 			return ADMIN_USUARIOS;
 		}
         redirectAttributes.addFlashAttribute(EXITO, "Usuario desbloqueado correctamente.");
+        return ADMIN_USUARIOS;
+    }
+
+    @PostMapping("/usuarios/eliminar/{id}")
+    public String deleteUser(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
+        try {
+        	if (sessionData.getUsuario().getId().equals(id)) {
+        		redirectAttributes.addFlashAttribute(ERROR, "No puedes eliminar tu propio usuario.");
+        		return ADMIN_USUARIOS;
+        	}
+			usuarioService.deleteById(id);
+		} catch (UserNotFoundException e) {
+            log.error("Error al eliminar el usuario con ID: " + id, e);
+            redirectAttributes.addFlashAttribute(ERROR, "Usuario no encontrado o ya eliminado.");
+            return ADMIN_USUARIOS;
+        }
+        redirectAttributes.addFlashAttribute(EXITO, "Usuario eliminado correctamente.");
         return ADMIN_USUARIOS;
     }
 }

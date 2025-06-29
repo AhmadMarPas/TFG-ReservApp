@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -262,5 +265,31 @@ class UsuarioServiceImplTest {
         assertThrows(UserNotFoundException.class, () -> 
             usuarioService.unblockUser("nonexistent")
         );
+    }
+
+    @Test
+    void deleteById_WhenUserExists_ShouldDeleteUser() {
+        String userId = "testUser";
+        Usuario user = new Usuario();
+        user.setId(userId);
+        when(usuarioRepo.findById(userId)).thenReturn(java.util.Optional.of(user));
+        
+        assertDoesNotThrow(() -> {
+            usuarioService.deleteById(userId);
+        });
+        
+        verify(usuarioRepo, times(1)).deleteById(userId);
+    }
+
+    @Test
+    void deleteById_WhenUserDoesNotExist_ShouldThrowException() {
+        String userId = "nonExistentUser";
+        when(usuarioRepo.findById(userId)).thenReturn(java.util.Optional.empty());
+        
+        assertThrows(UserNotFoundException.class, () -> {
+            usuarioService.deleteById(userId);
+        });
+        
+        verify(usuarioRepo, never()).deleteById(userId);
     }
 }
