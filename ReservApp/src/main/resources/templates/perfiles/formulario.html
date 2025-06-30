@@ -139,7 +139,7 @@
                          <!-- Asignación de Usuario -->
                         <div class="mb-3" th:if="${isAdmin}"> <!-- Solo mostrar si es admin -->
                             <label for="usuario" class="form-label">Asignar a Usuario (Opcional)</label>
-                            <select id="usuario" name="usuarioId" class="form-select"> <!-- Changed to name="usuarioId" -->
+                            <select id="usuario" name="usuarioId" class="form-select">
                                 <option value="">-- No asignar / Mantener actual --</option>
                                 <option th:each="u : ${availableUsers}"
                                         th:value="${u.id}"

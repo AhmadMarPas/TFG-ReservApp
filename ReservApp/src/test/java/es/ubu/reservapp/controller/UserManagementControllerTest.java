@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -59,8 +58,6 @@ class UserManagementControllerTest {
 
     @BeforeEach
     void setUp() {
-//    	MockitoAnnotations.openMocks(this);
-    	
         usuario = new Usuario();
         usuario.setId("usuario1");
         usuario.setNombre("Usuario");
@@ -520,19 +517,19 @@ class UserManagementControllerTest {
     @Test
     void testSaveOrUpdateUser_ValidBindingResult() {
         // Configurar usuario y parámetros
-        Usuario usuario = new Usuario();
-        usuario.setId("testId");
-        usuario.setCorreo("test@example.com");
-        usuario.setPassword("password");
+        Usuario usr = new Usuario();
+        usr.setId("testId");
+        usr.setCorreo("test@example.com");
+        usr.setPassword("password");
 
         when(bindingResult.hasErrors()).thenReturn(false);
         when(usuarioService.existeId("testId")).thenReturn(false);
 
         // Llamar al método
-        String result = userManagementController.saveOrUpdateUser(usuario, bindingResult, false, model, mockRedirectAttributes);
+        String result = userManagementController.saveOrUpdateUser(usr, bindingResult, false, model, mockRedirectAttributes);
 
         // Verificar resultados
-        verify(usuarioService).save(usuario);
+        verify(usuarioService).save(usr);
         verify(mockRedirectAttributes).addFlashAttribute("exito", "Usuario creado correctamente.");
         assertEquals("redirect:/admin/usuarios", result);
     }
