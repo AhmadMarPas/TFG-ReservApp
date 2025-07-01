@@ -38,6 +38,14 @@ public interface EstablecimientoService {
      * @return el establecimiento guardado (puede tener el ID actualizado si es nuevo).
      */
     Establecimiento save(Establecimiento establecimiento);
+    
+    /**
+     * Recupera una lista de establecimientos basada en una lista de IDs.
+     * 
+     * @param ids lista de IDs de los establecimientos a buscar
+     * @return lista de establecimientos encontrados que corresponden a los IDs proporcionados
+     */
+    List<Establecimiento> findAllById(List<Integer> ids);
 
     /**
      * Elimina un establecimiento por su ID.

@@ -57,4 +57,9 @@ public class EstablecimientoServiceImpl implements EstablecimientoService {
     	// TODO: Manejar excepciones si el establecimiento tiene reservas asociadas
         establecimientoRepo.deleteById(id);
     }
+
+	@Override
+	public List<Establecimiento> findAllById(List<Integer> ids) {
+		return establecimientoRepo.findAllById(ids);
+	}
 }

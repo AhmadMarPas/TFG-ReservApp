@@ -39,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AdminReservaController {
 
     private final EstablecimientoService establecimientoService;
+    // FIXME: Inyectar el service en lugar del REPO
     private final ReservaRepo reservaRepo;
 
     /**

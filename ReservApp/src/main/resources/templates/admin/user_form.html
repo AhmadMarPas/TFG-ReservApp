@@ -161,6 +161,24 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
+        .btn-info-custom {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-info-custom:hover {
+            transform: scale(1.05);
+            color: white;
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);
+        }
+        
         .form-body {
             padding: 30px;
         }
@@ -408,6 +426,14 @@
                                     <span th:if="${isEdit}">Actualizar Usuario</span>
                                     <span th:unless="${isEdit}">Crear Usuario</span>
                                 </button>
+                                
+                                <!-- Botón para asignar establecimientos (solo en modo edición) -->
+                                <a th:if="${isEdit}" th:href="@{'/admin/usuarios/' + ${usuario.id} + '/establecimientos'}" 
+                                   class="btn btn-info-custom me-3">
+                                    <i class="fas fa-building me-1"></i>
+                                    Asignar Establecimientos
+                                </a>
+                                
                                 <a th:href="@{/admin/usuarios}" class="btn btn-secondary-custom">
                                     <i class="fas fa-times me-1"></i>
                                     Cancelar
