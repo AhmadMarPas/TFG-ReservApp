@@ -115,4 +115,21 @@ class EstablecimientoServiceImplTest {
         // Then
         verify(establecimientoRepo).deleteById(id);
     }
+    
+    @Test
+    void findAllById_ShouldReturnEstablecimientosByIds() {
+        // Given
+    	List<Integer> ids = Arrays.asList(1, 2);
+        List<Establecimiento> expectedList = Arrays.asList(establecimiento);
+        when(establecimientoRepo.findAllById(ids)).thenReturn(expectedList);
+
+        // When
+        List<Establecimiento> result = establecimientoService.findAllById(ids);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(expectedList, result);
+        verify(establecimientoRepo).findAllById(ids);
+    }
+
 }
