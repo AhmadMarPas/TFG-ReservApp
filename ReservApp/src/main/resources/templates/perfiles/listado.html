@@ -77,14 +77,14 @@
             </div>
             <div class="menu-body">
                 <!-- Flash Messages -->
-                <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
-                    <span th:text="${param.success[0]}">Éxito</span>
+                    <span th:text="${exito}">Éxito</span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <span th:text="${param.error[0]}">Error</span>
+                    <span th:text="${error}">Error</span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
 
