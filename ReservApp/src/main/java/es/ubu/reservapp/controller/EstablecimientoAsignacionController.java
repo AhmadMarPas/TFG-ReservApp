@@ -173,10 +173,7 @@ public class EstablecimientoAsignacionController {
 
             // Agregar nuevos establecimientos si se seleccionaron
             if (establecimientosIds != null && !establecimientosIds.isEmpty()) {
-//            	establecimientoService.findAllById(establecimientosIds).forEach(establecimiento -> usuario.getLstEstablecimientos().add(establecimiento));
-                for (Integer establecimientoId : establecimientosIds) {
-                    establecimientoService.findById(establecimientoId).ifPresent(establecimiento -> usuario.getLstEstablecimientos().add(establecimiento));
-                }
+            	establecimientoService.findAllById(establecimientosIds).forEach(establecimiento -> usuario.getLstEstablecimientos().add(establecimiento));
             }
 
             usuarioService.save(usuario);

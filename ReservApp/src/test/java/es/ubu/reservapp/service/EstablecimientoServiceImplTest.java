@@ -8,6 +8,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +35,7 @@ class EstablecimientoServiceImplTest {
 
     @Mock
     private EstablecimientoRepo establecimientoRepo;
-
+    
     private EstablecimientoServiceImpl establecimientoService;
     private Establecimiento establecimiento;
 
@@ -130,6 +131,27 @@ class EstablecimientoServiceImplTest {
         assertNotNull(result);
         assertEquals(expectedList, result);
         verify(establecimientoRepo).findAllById(ids);
+    }
+    
+    @Test
+    void testFindAllByIdListaVacia() {
+        // Crear una lista de IDs vacía
+        List<Integer> ids = new ArrayList<>();
+
+        // Llamar al método findAllById
+        List<Establecimiento> establecimientos = establecimientoService.findAllById(ids);
+
+        // Verificar que la lista sea vacía
+        assertTrue(establecimientos.isEmpty());
+    }
+
+    @Test
+    void testFindAllByIdListaNull() {
+        // Llamar al método findAllById con una lista nula
+        List<Establecimiento> establecimientos = establecimientoService.findAllById(null);
+
+        // Verificar que la lista sea vacía
+        assertTrue(establecimientos.isEmpty());
     }
 
 }
