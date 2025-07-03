@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -103,17 +104,18 @@ class PerfilControllerTest {
         verify(perfilService).findAll();
     }
 
-//    @Test
-//    void listarPerfiles_servicioLanzaExcepcion_devuelveVistaConError() throws Exception {
-//        when(perfilService.findAll()).thenThrow(new RuntimeException("Error de servicio"));
-//
-//        mockMvc.perform(get(LISTADO_URL).with(adminUser()))
-//                .andExpect(status().isOk())
-//                .andExpect(view().name(LISTADO_VIEW))
-//                .andExpect(model().attribute(ERROR_ATTRIBUTE, "Error al cargar la lista de perfiles: Error de servicio"));
-//        
-//        verify(perfilService).findAll();
-//    }
+    @Test
+    @Disabled("Revisar comportamiento")
+    void listarPerfiles_servicioLanzaExcepcion_devuelveVistaConError() throws Exception {
+        when(perfilService.findAll()).thenThrow(new RuntimeException("Error de servicio"));
+
+        mockMvc.perform(get(LISTADO_URL).with(adminUser()))
+                .andExpect(status().isOk())
+                .andExpect(view().name(LISTADO_VIEW))
+                .andExpect(model().attribute(ERROR_ATTRIBUTE, "Error al cargar la lista de perfiles: Error de servicio"));
+        
+        verify(perfilService).findAll();
+    }
     
     @Test
     void mostrarFormularioNuevoPerfil_devuelveVistaYModeloCorrectos() throws Exception {

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Method;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
@@ -179,6 +180,30 @@ class FranjaHorariaTest {
         // No podemos verificar directamente este caso sin reflexión
         // ya que el método isHoraFinAfterHoraInicio maneja específicamente el caso de valores nulos
     }
+    
+    @Test
+    void testIsHoraFinAfterHoraInicioReflexion() throws Exception {
+        // Instancia de FranjaHoraria
+        FranjaHoraria franjaHorariaTest = new FranjaHoraria();
+
+        // Establece valores para horaInicio y horaFin
+        franjaHorariaTest.setHoraInicio(LocalTime.of(9, 0));
+        franjaHorariaTest.setHoraFin(LocalTime.of(18, 0));
+
+        // Obtiene el método privado isHoraFinAfterHoraInicio mediante reflexión
+        Method method = FranjaHoraria.class.getDeclaredMethod("isHoraFinAfterHoraInicio");
+        method.setAccessible(true); // Permite acceder al método privado
+
+        // Invoca el método y verifica el resultado
+        boolean result = (boolean) method.invoke(franjaHorariaTest);
+        assertTrue(result);
+
+        franjaHorariaTest.setHoraFin(null);
+
+        // Invoca el método y verifica el resultado
+        result = (boolean) method.invoke(franjaHorariaTest);
+        assertTrue(result);
+}
 
     @Test
     void testConstructorVacio() {
