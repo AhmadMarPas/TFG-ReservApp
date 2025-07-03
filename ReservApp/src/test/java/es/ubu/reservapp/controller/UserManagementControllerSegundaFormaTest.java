@@ -28,6 +28,10 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Usuario;
+import es.ubu.reservapp.model.repositories.EstablecimientoRepo;
+import es.ubu.reservapp.model.repositories.PerfilRepo;
+import es.ubu.reservapp.model.repositories.ReservaRepo;
+import es.ubu.reservapp.model.repositories.UsuarioRepo;
 import es.ubu.reservapp.model.shared.SessionData;
 import es.ubu.reservapp.service.UsuarioService;
 
@@ -47,6 +51,18 @@ class UserManagementControllerSegundaFormaTest {
     // por lo que no podemos mockearlo fácilmente sin refactorizar el controlador para inyectarlo.
     // Para los tests de processPassword, tendremos que verificar el resultado de la codificación.
 
+    @MockitoBean
+    private EstablecimientoRepo estRepo;
+    
+    @MockitoBean
+    private UsuarioRepo usrRepo;
+    
+    @MockitoBean
+    private ReservaRepo reservaRepo;
+
+    @MockitoBean
+    private PerfilRepo perfilRepo;
+    
     private Usuario usuarioAdminLogueado;
     private Usuario usuarioExistente1;
     private Usuario usuarioExistente2Bloqueado;

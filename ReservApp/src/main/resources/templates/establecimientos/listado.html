@@ -91,6 +91,18 @@
                 <p class="page-subtitle">Administra todos los establecimientos y sus configuraciones</p>
             </div>
 
+                <!-- Flash Messages -->
+                <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${exito}">Éxito</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${error}">Error</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
             <!-- Statistics Cards -->
             <div class="row mb-4">
                 <div class="col-md-3 col-sm-6 mb-3">

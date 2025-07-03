@@ -45,11 +45,9 @@ class HomeControllerTest {
 
     @Test
     void testHome() {
-        String viewName = homeController.home(model);
+        String viewName = homeController.home();
         
-        verify(model).addAttribute(eq("usuario"), any(Usuario.class));
-        
-        assertEquals("login", viewName);
+        assertEquals("redirect:/menuprincipal", viewName);
     }
 
     @Test

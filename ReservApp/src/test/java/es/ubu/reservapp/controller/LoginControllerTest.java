@@ -65,36 +65,30 @@ class LoginControllerTest {
     }
 
     @Test
-    void testLoginForm() {
-        String viewName = loginController.loginForm(model);
+    void testLoginPage() {
+        String viewName = loginController.loginPage(model, null, null);
         
         verify(model).addAttribute(eq("usuario"), any(Usuario.class));
         
         assertEquals("login", viewName);
     }
-
+    
     @Test
-    void testLoginSuccess() {
-        when(usuarioService.validateAuthentication("usuario1", "password")).thenReturn(usuario);
-        when(model.getAttribute("Usuario")).thenReturn(usuario);
+    void testLoginPageWithError() {
+        String viewName = loginController.loginPage(model, "true", null);
         
-        String viewName = loginController.login("usuario1", "password", model, redirectAttributes, request);
+        verify(model).addAttribute("error", "Usuario o contraseña incorrectos.");
+        verify(model).addAttribute(eq("usuario"), any(Usuario.class));
         
-        verify(sessionData).setUsuario(usuario);
-        verify(model).addAttribute("Usuario", usuario);
-        
-        assertEquals("redirect:/menuprincipal", viewName);
+        assertEquals("login", viewName);
     }
-
+    
     @Test
-    void testLoginFailure() {
-        when(usuarioService.validateAuthentication("usuario1", "wrongpassword")).thenReturn(null);
+    void testLoginPageWithLogout() {
+        String viewName = loginController.loginPage(model, null, "true");
         
-        // Ejecutar el método
-        String viewName = loginController.login("usuario1", "wrongpassword", model, redirectAttributes, request);
-        
-        verify(model).addAttribute(eq("error"), anyString());
-        verify(redirectAttributes).addFlashAttribute(eq("error"), anyString());
+        verify(model).addAttribute(eq("logout"), eq("Has cerrado sesión correctamente."));
+        verify(model).addAttribute(eq("usuario"), any(Usuario.class));
         
         assertEquals("login", viewName);
     }

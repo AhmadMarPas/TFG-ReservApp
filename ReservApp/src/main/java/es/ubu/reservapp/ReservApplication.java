@@ -2,6 +2,7 @@ package es.ubu.reservapp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 //@EnableAutoConfiguration
 @Slf4j
 @SpringBootApplication
+@ComponentScan(basePackages = {"es.ubu.reservapp", "es.ubu.config"})
 public class ReservApplication {
 
 	/**

@@ -209,20 +209,6 @@
     <header class="main-header py-3 mb-4">
         <div class="container-fluid">
 
-			<!-- Flash messages -->
-			<div th:if="${error}"
-				class="alert alert-danger-user-form alert-dismissible fade show" role="alert">
-				<i class="fas fa-exclamation-triangle me-2"></i>
-				<span th:text="${error}"></span>
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-			</div>
-			<div th:if="${exito}"
-				class="alert alert-success-user-form alert-dismissible fade show" role="alert">
-				<i class="fas fa-check-circle me-2"></i>
-				<span th:text="${exito}"></span>
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-			</div>
-
 			<div class="row align-items-center">
                 <div class="col-md-8">
                     <h2 class="mb-0 text-primary">
@@ -258,6 +244,18 @@
                 </h1>
                 <p class="page-subtitle">Administra todos los usuarios registrados en el sistema</p>
             </div>
+
+                <!-- Flash Messages -->
+                <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${exito}">Éxito</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${error}">Error</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
 
             <!-- Statistics Cards -->
             <div class="row mb-4">

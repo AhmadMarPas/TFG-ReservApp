@@ -38,9 +38,8 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String home(Model model) {
-    	model.addAttribute("usuario", new Usuario());
-        return "login";
+    public String home() {
+        return "redirect:/menuprincipal";
     }
     
     @GetMapping("/menuprincipal")

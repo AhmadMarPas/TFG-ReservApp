@@ -31,6 +31,9 @@ import org.springframework.web.context.WebApplicationContext;
 
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Usuario;
+import es.ubu.reservapp.model.repositories.PerfilRepo;
+import es.ubu.reservapp.model.repositories.ReservaRepo;
+import es.ubu.reservapp.model.repositories.UsuarioRepo;
 import es.ubu.reservapp.model.shared.SessionData;
 import es.ubu.reservapp.service.EstablecimientoService;
 import es.ubu.reservapp.service.UsuarioService;
@@ -49,7 +52,16 @@ class EstablecimientoAsignacionControllerTest {
 
     @MockitoBean
     private SessionData sessionData;
+        
+    @MockitoBean
+    private ReservaRepo reservaRepo;
+
+    @MockitoBean
+    private PerfilRepo perfilRepo;
     
+    @MockitoBean
+    private UsuarioRepo usrRepo;
+
     @Autowired
     private WebApplicationContext webApplicationContext;
 

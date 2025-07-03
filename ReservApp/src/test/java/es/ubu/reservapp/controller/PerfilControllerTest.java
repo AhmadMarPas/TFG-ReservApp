@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -30,15 +29,26 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import es.ubu.config.CustomAuthenticationSuccessHandler;
+import es.ubu.config.CustomUserDetailsService;
+import es.ubu.config.SecurityConfig;
 import es.ubu.reservapp.model.entities.Perfil;
+import es.ubu.reservapp.model.repositories.EstablecimientoRepo;
+import es.ubu.reservapp.model.repositories.ReservaRepo;
+import es.ubu.reservapp.model.repositories.UsuarioRepo;
 import es.ubu.reservapp.service.PerfilService;
 
 @WebMvcTest(PerfilController.class)
+@Import({SecurityConfig.class})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class PerfilControllerTest {
 
     @Autowired
@@ -46,6 +56,15 @@ class PerfilControllerTest {
 
     @MockitoBean
     private PerfilService perfilService;
+    
+    @MockitoBean
+    private EstablecimientoRepo estRepo;
+    
+    @MockitoBean
+    private UsuarioRepo usrRepo;
+    
+    @MockitoBean
+    private ReservaRepo reservaRepo;
 
     private Perfil perfilAdmin;
     private Perfil perfilUser;
@@ -64,7 +83,6 @@ class PerfilControllerTest {
     private static final String ERROR_ATTRIBUTE = "error";
     private static final String EXITO_ATTRIBUTE = "exito";
     private static final String EDIT_MODE_ATTRIBUTE = "isEdit";
-
 
     @BeforeEach
     void setUp() {
