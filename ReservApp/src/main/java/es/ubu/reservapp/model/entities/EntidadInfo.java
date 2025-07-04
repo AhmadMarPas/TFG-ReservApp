@@ -3,7 +3,6 @@ package es.ubu.reservapp.model.entities;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.SoftDeleteType;
 
@@ -30,7 +29,6 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @MappedSuperclass
 @EntityListeners(value = EntidadInfoInterceptor.class)
-@SQLDelete(sql = "UPDATE #{#entityName} SET valido = false WHERE id = ?")
 @SoftDelete(strategy = SoftDeleteType.ACTIVE, columnName = "valido")
 public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
 
