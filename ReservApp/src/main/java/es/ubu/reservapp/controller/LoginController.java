@@ -62,7 +62,7 @@ public class LoginController {
     public String loginPage(Model model, @RequestParam(value = "error", required = false) String error,
                            @RequestParam(value = "logout", required = false) String logout) {
         if (error != null) {
-            model.addAttribute("error", "Usuario o contraseña incorrectos.");
+            model.addAttribute(ERROR, "Usuario o contraseña incorrectos.");
         }
         if (logout != null) {
             model.addAttribute("logout", "Has cerrado sesión correctamente.");

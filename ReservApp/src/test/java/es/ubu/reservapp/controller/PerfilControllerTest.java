@@ -37,8 +37,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import es.ubu.config.CustomAuthenticationSuccessHandler;
-import es.ubu.config.CustomUserDetailsService;
 import es.ubu.config.SecurityConfig;
 import es.ubu.reservapp.model.entities.Perfil;
 import es.ubu.reservapp.model.repositories.EstablecimientoRepo;
