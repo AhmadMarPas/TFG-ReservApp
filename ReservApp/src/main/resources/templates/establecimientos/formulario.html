@@ -572,7 +572,7 @@
                             <select th:field="*{franjasHorarias[__${stat.index}__].diaSemana}" class="form-select form-select-sm">
                                 <option th:each="dia : ${T(java.time.DayOfWeek).values()}"
                                         th:value="${dia}"
-                                        th:text="${#strings.capitalize(#strings.toLowerCase(dia.toString()))}"></option>
+                                        th:text="${T(es.ubu.reservapp.util.FechaUtil).formatearDiaSemana(dia)}"></option>
                             </select>
                         </td>
                         <td>
@@ -624,7 +624,7 @@
                     <select name="franjasHorarias[REPLACE_INDEX].diaSemana" class="form-select form-select-sm">
                         <option th:each="dia : ${T(java.time.DayOfWeek).values()}"
                                 th:value="${dia}"
-                                th:text="${#strings.capitalize(#strings.toLowerCase(dia.toString()))}"></option>
+                                th:text="${T(es.ubu.reservapp.util.FechaUtil).formatearDiaSemana(dia)}"></option>
                     </select>
                 </td>
                 <td>

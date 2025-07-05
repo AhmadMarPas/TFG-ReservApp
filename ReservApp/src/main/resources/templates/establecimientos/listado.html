@@ -227,7 +227,7 @@
                                 Horarios de Atención
                             </h6>
                             <div th:each="franja : ${establecimiento.franjasHorarias}" class="schedule-item">
-                                <span th:text="${franja.diaSemana}">Día</span>
+                                <span th:text="${T(es.ubu.reservapp.util.FechaUtil).formatearDiaSemana(franja.diaSemana)}">Día</span>
                                 <span>
                                     <span th:text="${franja.horaInicio}">00:00</span> - 
                                     <span th:text="${franja.horaFin}">00:00</span>
