@@ -136,7 +136,8 @@ public class ReservaController {
     public String crearReserva(@ModelAttribute Reserva reserva,
                                @RequestParam("establecimientoId") Integer establecimientoId,
                                @RequestParam("fecha") String fechaStr, // Se recibe como String desde el date picker
-                               @RequestParam("hora") String horaStr,   // Se recibe como String desde el time picker
+                               @RequestParam("horaInicio") String horaInicioStr,   // Se recibe como String desde el time picker
+                               @RequestParam("horaFin") String horaFinStr,   // Se recibe como String desde el time picker
                                RedirectAttributes redirectAttributes) {
 
     	Usuario usuario	= sessionData.getUsuario();
@@ -161,25 +162,34 @@ public class ReservaController {
         }
 
         LocalDate fecha;
-        LocalTime hora;
+        LocalTime horaInicio;
+        LocalTime horaFin;
         try {
             fecha = LocalDate.parse(fechaStr);
-            hora = LocalTime.parse(horaStr);
+            horaInicio = LocalTime.parse(horaInicioStr);
+            horaFin = LocalTime.parse(horaFinStr);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute(ERROR, "Formato de fecha u hora inválido.");
             return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimientoId;
         }
         
-        LocalDateTime fechaReserva = LocalDateTime.of(fecha, hora);
+        // Validar que la hora de fin sea posterior a la hora de inicio
+        if (!horaFin.isAfter(horaInicio)) {
+            redirectAttributes.addFlashAttribute(ERROR, "La hora de fin debe ser posterior a la hora de inicio.");
+            return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimientoId;
+        }
+        
+        LocalDateTime fechaReserva = LocalDateTime.of(fecha, horaInicio);
 
         // Validar franja horaria
         DayOfWeek diaSemanaReserva = fechaReserva.getDayOfWeek();
         boolean dentroDeFranja = false;
         for (FranjaHoraria franja : establecimiento.getFranjasHorarias()) {
             // Asegurarse que la franja pertenezca al día de la semana de la reserva
+            // y que tanto la hora de inicio como la hora de fin estén dentro de la franja
 			if (franja.getDiaSemana() == diaSemanaReserva
-					&& !fechaReserva.toLocalTime().isBefore(franja.getHoraInicio())
-					&& fechaReserva.toLocalTime().isBefore(franja.getHoraFin())) {
+					&& !horaInicio.isBefore(franja.getHoraInicio())
+					&& !horaFin.isAfter(franja.getHoraFin())) {
 				dentroDeFranja = true;
 				break;
 			}
@@ -195,10 +205,11 @@ public class ReservaController {
         reserva.setUsuario(usuario);
         reserva.setEstablecimiento(establecimiento);
         reserva.setFechaReserva(fechaReserva);
+        reserva.setHoraFin(horaFin);
 
         try {
             reservaRepo.save(reserva);
-            redirectAttributes.addFlashAttribute(EXITO, "Reserva creada correctamente para el " + fechaReserva.toLocalDate() + " a las " + fechaReserva.toLocalTime());
+            redirectAttributes.addFlashAttribute(EXITO, "Reserva creada correctamente para el " + fechaReserva.toLocalDate() + " de " + horaInicio + " a " + horaFin);
             return REDIRECT_MIS_RESERVAS; // O a una página de confirmación/listado de mis reservas
         } catch (Exception e) {
             // Podría ser una DataIntegrityViolationException si hay constraints, u otra.

@@ -102,7 +102,7 @@
                         <i class="fas fa-bookmark"></i> Reserva #<span th:text="${reserva.id}">ID</span>
                     </div>
                     <div class="reserva-hora">
-                        <i class="fas fa-clock"></i> <span th:text="${#temporals.format(reserva.fechaReserva, 'HH:mm')}">Hora</span>
+                        <i class="fas fa-clock"></i> <span th:text="${#temporals.format(reserva.fechaReserva, 'HH:mm') + (reserva.horaFin != null ? ' - ' + reserva.horaFin : '')}">Hora</span>
                     </div>
                 </div>
                 <div class="reserva-info">

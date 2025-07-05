@@ -81,7 +81,7 @@
                         </div>
                         <div class="reserva-hora">
                             <i class="fas fa-clock"></i>
-                            <span th:text="${#temporals.format(reserva.fechaReserva, 'HH:mm')}">Hora</span>
+                            <span th:text="${#temporals.format(reserva.fechaReserva, 'HH:mm') + (reserva.horaFin != null ? ' - ' + reserva.horaFin : '')}">Hora</span>
                         </div>
                     </div>
                 </div>
@@ -101,7 +101,7 @@
                         </div>
                         <div class="reserva-hora">
                             <i class="fas fa-clock"></i>
-                            <span th:text="${#temporals.format(reserva.fechaReserva, 'HH:mm')}">Hora</span>
+                            <span th:text="${#temporals.format(reserva.fechaReserva, 'HH:mm') + (reserva.horaFin != null ? ' - ' + reserva.horaFin : '')}">Hora</span>
                         </div>
                     </div>
                 </div>
@@ -129,13 +129,22 @@
             </div>
 
             <div class="form-group">
-                <label for="hora">
-                    <i class="fas fa-clock"></i> Hora de la Reserva:
+                <label for="horaInicio">
+                    <i class="fas fa-clock"></i> Hora de Inicio:
                 </label>
                 <input type="time" 
-                       id="hora" 
-                       name="hora" 
-                       step="1800" 
+                       id="horaInicio" 
+                       name="horaInicio" 
+                       required="required">
+            </div>
+
+            <div class="form-group">
+                <label for="horaFin">
+                    <i class="fas fa-clock"></i> Hora de Fin:
+                </label>
+                <input type="time" 
+                       id="horaFin" 
+                       name="horaFin" 
                        required="required">
             </div>
 
@@ -181,11 +190,19 @@
                 form.addEventListener('submit', function(e) {
                     // Validaciones adicionales
                     const fecha = document.getElementById('fecha').value;
-                    const hora = document.getElementById('hora').value;
+                    const horaInicio = document.getElementById('horaInicio').value;
+                    const horaFin = document.getElementById('horaFin').value;
 
-                    if (!fecha || !hora) {
+                    if (!fecha || !horaInicio || !horaFin) {
                         e.preventDefault();
                         alert('Por favor, complete todos los campos requeridos.');
+                        return;
+                    }
+
+                    // Validar que la hora de fin sea posterior a la hora de inicio
+                    if (horaInicio >= horaFin) {
+                        e.preventDefault();
+                        alert('La hora de fin debe ser posterior a la hora de inicio.');
                         return;
                     }
 
