@@ -185,7 +185,7 @@ class ReservaControllerTest {
         String horaInicioStr = "10:00"; // Dentro de la franja 09:00-17:00
         String horaFinStr = "11:00"; // Una hora después
 
-        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaInicioStr, horaFinStr, redirectAttributes);
+        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaInicioStr, horaFinStr, null, redirectAttributes);
 
         assertEquals("redirect:/misreservas", viewName);
         verify(reservaRepo).save(any(Reserva.class));
@@ -200,7 +200,7 @@ class ReservaControllerTest {
         when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
         when(establecimientoService.findById(1)).thenReturn(Optional.empty());
 
-        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, "10:00", "11:00", redirectAttributes);
+        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, "10:00", "11:00", null, redirectAttributes);
 
         assertEquals("redirect:/misreservas", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
@@ -224,7 +224,7 @@ class ReservaControllerTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
         
         usuarioAutenticado.getLstEstablecimientos().add(otroEstablecimiento); 
-        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "11:00", redirectAttributes);
+        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "11:00", null, redirectAttributes);
         
         assertEquals("redirect:/misreservas", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
@@ -244,7 +244,7 @@ class ReservaControllerTest {
         String fechaStr = LocalDate.now().plusDays(1).with(DayOfWeek.MONDAY).toString();
         String horaStr = "08:00"; // Antes de las 09:00
 
-        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "09:00", redirectAttributes);
+        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "09:00", null, redirectAttributes);
 
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
@@ -262,7 +262,7 @@ class ReservaControllerTest {
         String fechaStr = LocalDate.now().plusDays(1).with(DayOfWeek.MONDAY).toString();
         String horaStr = "17:30"; // Después de las 17:00
 
-        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "18:00", redirectAttributes);
+        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "18:00", null, redirectAttributes);
 
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
@@ -280,7 +280,7 @@ class ReservaControllerTest {
         String fechaStr = LocalDate.now().plusDays(1).with(DayOfWeek.MONDAY).toString();
         String horaStr = "17:00"; // Exactamente a la hora de fin
 
-        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "18:00", redirectAttributes);
+        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "18:00", null, redirectAttributes);
 
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
@@ -298,7 +298,7 @@ class ReservaControllerTest {
         String fechaStr = LocalDate.now().plusDays(1).with(DayOfWeek.TUESDAY).toString(); 
         String horaStr = "10:00";
 
-        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "11:00", redirectAttributes);
+        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "11:00", null, redirectAttributes);
 
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
@@ -316,7 +316,7 @@ class ReservaControllerTest {
         String fechaStr = "fecha-invalida";
         String horaStr = "10:00";
 
-        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "11:00", redirectAttributes);
+        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "11:00", null, redirectAttributes);
 
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
@@ -332,7 +332,7 @@ class ReservaControllerTest {
         String fechaStr = LocalDate.now().plusDays(1).with(DayOfWeek.MONDAY).toString();
         String horaStr = "hora-invalida";
 
-        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "11:00", redirectAttributes);
+        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaStr, "11:00", null, redirectAttributes);
 
         assertEquals("redirect:/", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
@@ -351,7 +351,7 @@ class ReservaControllerTest {
         String horaInicioStr = "11:00";
         String horaFinStr = "10:00"; // Hora fin anterior a hora inicio
 
-        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaInicioStr, horaFinStr, redirectAttributes);
+        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaInicioStr, horaFinStr, null, redirectAttributes);
 
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
@@ -370,7 +370,7 @@ class ReservaControllerTest {
         String horaInicioStr = "10:00";
         String horaFinStr = "10:00"; // Hora fin igual a hora inicio
 
-        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaInicioStr, horaFinStr, redirectAttributes);
+        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaInicioStr, horaFinStr, null, redirectAttributes);
 
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
@@ -389,7 +389,7 @@ class ReservaControllerTest {
         String horaInicioStr = "16:00"; // Dentro de la franja
         String horaFinStr = "18:00"; // Fuera de la franja (después de 17:00)
 
-        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaInicioStr, horaFinStr, redirectAttributes);
+        String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaInicioStr, horaFinStr, null, redirectAttributes);
 
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
@@ -420,7 +420,7 @@ class ReservaControllerTest {
         when(establecimientoService.findById(establecimientoId)).thenReturn(Optional.of(establecimiento));
         when(reservaRepo.save(any(Reserva.class))).thenThrow(new RuntimeException("Error al guardar"));
         
-        String result = controller.crearReserva(reserva, establecimientoId, fechaStr, horaStr, "11:00", redirectAttributes);
+        String result = controller.crearReserva(reserva, establecimientoId, fechaStr, horaStr, "11:00", null, redirectAttributes);
         
         assertEquals("redirect:/reservas/establecimiento/" + establecimientoId, result);
         assertTrue(((RedirectAttributesModelMap) redirectAttributes)
@@ -430,6 +430,74 @@ class ReservaControllerTest {
         verify(reservaRepo).save(any(Reserva.class));
     }
     
+    // --- Pruebas para slots predefinidos ---
+    
+    @Test
+    void testCrearReserva_ConSlotPredefinido_Exito() {
+    	Reserva reserva = new Reserva();
+        
+    	// Configurar establecimiento con duración fija
+        establecimiento1.setDuracionReserva(60); // 60 minutos
+        establecimiento1.setDescansoServicios(15); // 15 minutos de descanso
+        
+        usuarioAutenticado.getLstEstablecimientos().add(establecimiento1);
+        when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
+        
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+        
+        LocalDate fechaTest = LocalDate.now().plusDays(1);
+        while (fechaTest.getDayOfWeek() != DayOfWeek.MONDAY) {
+            fechaTest = fechaTest.plusDays(1);
+        }
+        String fechaStr = fechaTest.toString();
+        String slotSeleccionado = "10:00 - 11:00"; // Slot válido dentro de la franja
+        
+        String viewName = reservaController.crearReserva(reserva, 1, fechaStr, null, null, slotSeleccionado, redirectAttributes);
+        
+        assertEquals("redirect:/misreservas", viewName);
+        verify(reservaRepo).save(any(Reserva.class));
+        assertNotNull(redirectAttributes.getFlashAttributes().get("exito"));
+    }
+    
+    @Test
+    void testCrearReserva_SlotFormatoInvalido() {
+    	Reserva reserva = new Reserva();
+    	establecimiento1.setDuracionReserva(60);
+        usuarioAutenticado.getLstEstablecimientos().add(establecimiento1);
+        when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
+        
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+        String fechaStr = LocalDate.now().plusDays(1).with(DayOfWeek.MONDAY).toString();
+        String slotSeleccionado = "10:00-11:00"; // Formato incorrecto (sin espacios)
+        
+        String viewName = reservaController.crearReserva(reserva, 1, fechaStr, null, null, slotSeleccionado, redirectAttributes);
+        
+        assertEquals("redirect:/reservas/establecimiento/1", viewName);
+        assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
+        assertEquals("Formato de slot inválido", redirectAttributes.getFlashAttributes().get("error"));
+        verify(reservaRepo, never()).save(any(Reserva.class));
+    }
+    
+    @Test
+    void testCrearReserva_SinHorasNiSlot() {
+    	Reserva reserva = new Reserva();
+        usuarioAutenticado.getLstEstablecimientos().add(establecimiento1);
+        when(sessionData.getUsuario()).thenReturn(usuarioAutenticado);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento1));
+        
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+        String fechaStr = LocalDate.now().plusDays(1).with(DayOfWeek.MONDAY).toString();
+        
+        String viewName = reservaController.crearReserva(reserva, 1, fechaStr, null, null, null, redirectAttributes);
+        
+        assertEquals("redirect:/reservas/establecimiento/1", viewName);
+        assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
+        assertEquals("Debe especificar hora de inicio y fin", redirectAttributes.getFlashAttributes().get("error"));
+        verify(reservaRepo, never()).save(any(Reserva.class));
+    }
+
     // --- Pruebas para mostrarMisReservas ---
     
     @Test

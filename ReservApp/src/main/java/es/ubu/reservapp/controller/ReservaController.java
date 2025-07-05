@@ -5,7 +5,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +28,7 @@ import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.shared.SessionData;
 import es.ubu.reservapp.service.EstablecimientoService;
+import es.ubu.reservapp.util.SlotReservaUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -114,11 +117,24 @@ public class ReservaController {
         reservasPasadas.sort(Comparator.comparing(Reserva::getFechaReserva).reversed());
         reservasFuturas.sort(Comparator.comparing(Reserva::getFechaReserva));
 
+        // Generar slots de tiempo si el establecimiento tiene duración fija
+        boolean requiereSlotsPredefinidos = SlotReservaUtil.requiereSlotsPredefinidos(establecimiento);
+        Map<DayOfWeek, List<SlotReservaUtil.SlotTiempo>> slotsDisponibles = new EnumMap<>(DayOfWeek.class);
+        
+        if (requiereSlotsPredefinidos) {
+            for (FranjaHoraria franja : franjasActivas) {
+                List<SlotReservaUtil.SlotTiempo> slots = SlotReservaUtil.generarSlotsDisponibles(establecimiento, franja);
+                slotsDisponibles.put(franja.getDiaSemana(), slots);
+            }
+        }
+
         model.addAttribute("establecimiento", establecimiento);
         model.addAttribute("franjasHorarias", franjasActivas);
         model.addAttribute("reserva", new Reserva());
         model.addAttribute("reservasPasadas", reservasPasadas);
         model.addAttribute("reservasFuturas", reservasFuturas);
+        model.addAttribute("requiereSlotsPredefinidos", requiereSlotsPredefinidos);
+        model.addAttribute("slotsDisponibles", slotsDisponibles);
         return REDIRECT_CALENDARIO;
     }
 
@@ -136,9 +152,13 @@ public class ReservaController {
     public String crearReserva(@ModelAttribute Reserva reserva,
                                @RequestParam("establecimientoId") Integer establecimientoId,
                                @RequestParam("fecha") String fechaStr, // Se recibe como String desde el date picker
-                               @RequestParam("horaInicio") String horaInicioStr,   // Se recibe como String desde el time picker
-                               @RequestParam("horaFin") String horaFinStr,   // Se recibe como String desde el time picker
+                               @RequestParam(value = "horaInicio", required = false) String horaInicioStr,   // Se recibe como String desde el time picker
+                               @RequestParam(value = "horaFin", required = false) String horaFinStr,   // Se recibe como String desde el time picker
+                               @RequestParam(value = "slotSeleccionado", required = false) String slotSeleccionado,
                                RedirectAttributes redirectAttributes) {
+        
+        log.info("Creando reserva para establecimiento: {}, fecha: {}, horaInicio: {}, horaFin: {}, slot: {}", 
+                establecimientoId, fechaStr, horaInicioStr, horaFinStr, slotSeleccionado);
 
     	Usuario usuario	= sessionData.getUsuario();
 
@@ -165,9 +185,28 @@ public class ReservaController {
         LocalTime horaInicio;
         LocalTime horaFin;
         try {
+            // Parsear la fecha
             fecha = LocalDate.parse(fechaStr);
-            horaInicio = LocalTime.parse(horaInicioStr);
-            horaFin = LocalTime.parse(horaFinStr);
+            
+            // Determinar si se usa slot predefinido o horas libres
+            if (slotSeleccionado != null && !slotSeleccionado.trim().isEmpty()) {
+                // Procesar slot seleccionado (formato: "HH:mm - HH:mm")
+                String[] partes = slotSeleccionado.split(" - ");
+                if (partes.length != 2) {
+                    redirectAttributes.addFlashAttribute(ERROR, "Formato de slot inválido");
+                    return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimientoId;
+                }
+                horaInicio = LocalTime.parse(partes[0]);
+                horaFin = LocalTime.parse(partes[1]);
+            } else {
+                // Usar horas proporcionadas directamente
+                if (horaInicioStr == null || horaFinStr == null) {
+                    redirectAttributes.addFlashAttribute(ERROR, "Debe especificar hora de inicio y fin");
+                    return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimientoId;
+                }
+                horaInicio = LocalTime.parse(horaInicioStr);
+                horaFin = LocalTime.parse(horaFinStr);
+            }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute(ERROR, "Formato de fecha u hora inválido.");
             return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimientoId;

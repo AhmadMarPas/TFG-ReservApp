@@ -128,24 +128,46 @@
                        th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
             </div>
 
-            <div class="form-group">
-                <label for="horaInicio">
-                    <i class="fas fa-clock"></i> Hora de Inicio:
-                </label>
-                <input type="time" 
-                       id="horaInicio" 
-                       name="horaInicio" 
-                       required="required">
+            <!-- Campos de hora para establecimientos sin duración fija -->
+            <div th:if="${!requiereSlotsPredefinidos}">
+                <div class="form-group">
+                    <label for="horaInicio">
+                        <i class="fas fa-clock"></i> Hora de Inicio:
+                    </label>
+                    <input type="time" 
+                           id="horaInicio" 
+                           name="horaInicio" 
+                           required="required">
+                </div>
+
+                <div class="form-group">
+                    <label for="horaFin">
+                        <i class="fas fa-clock"></i> Hora de Fin:
+                    </label>
+                    <input type="time" 
+                           id="horaFin" 
+                           name="horaFin" 
+                           required="required">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="horaFin">
-                    <i class="fas fa-clock"></i> Hora de Fin:
-                </label>
-                <input type="time" 
-                       id="horaFin" 
-                       name="horaFin" 
-                       required="required">
+            <!-- Selector de slots para establecimientos con duración fija -->
+            <div th:if="${requiereSlotsPredefinidos}">
+                <div class="form-group">
+                    <label for="slotSeleccionado">
+                        <i class="fas fa-clock"></i> Horario Disponible:
+                    </label>
+                    <select id="slotSeleccionado" 
+                            name="slotSeleccionado" 
+                            required="required"
+                            class="form-control">
+                        <option value="">Seleccione primero una fecha</option>
+                    </select>
+                    <small class="form-text text-muted">
+                        Los horarios disponibles se mostrarán según el día seleccionado.
+                        Duración de cada reserva: <span th:text="${establecimiento.duracionReserva}">30</span> minutos.
+                    </small>
+                </div>
             </div>
 
             <div class="loading" id="loading">
@@ -171,14 +193,70 @@
 
     <!-- Scripts -->
     <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
-    <script>
+    <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
+            // Variables del servidor
+            const requiereSlotsPredefinidos = /*[[${requiereSlotsPredefinidos}]]*/ false;
+            const slotsDisponibles = /*[[${slotsDisponibles}]]*/ {};
+            
             // Configurar fecha mínima
             const fechaInput = document.getElementById('fecha');
             if (fechaInput) {
                 const today = new Date();
                 const todayString = today.toISOString().split('T')[0];
                 fechaInput.setAttribute('min', todayString);
+                
+                // Si requiere slots predefinidos, manejar cambio de fecha
+                if (requiereSlotsPredefinidos) {
+                    fechaInput.addEventListener('change', function() {
+                        actualizarSlotsDisponibles();
+                    });
+                }
+            }
+            
+            // Función para actualizar slots disponibles según la fecha
+            function actualizarSlotsDisponibles() {
+                const fechaSeleccionada = fechaInput.value;
+                const slotSelect = document.getElementById('slotSeleccionado');
+                
+                if (!fechaSeleccionada || !slotSelect) return;
+                
+                // Limpiar opciones existentes
+                slotSelect.innerHTML = '<option value="">Seleccione un horario</option>';
+                
+                // Obtener día de la semana (0=Domingo, 1=Lunes, etc.)
+                const fecha = new Date(fechaSeleccionada + 'T00:00:00');
+                const diaSemana = fecha.getDay();
+                
+                // Mapear día de la semana a enum Java (MONDAY=1, TUESDAY=2, etc.)
+                const diasSemanaJava = {
+                    0: 'SUNDAY',    // Domingo
+                    1: 'MONDAY',    // Lunes
+                    2: 'TUESDAY',   // Martes
+                    3: 'WEDNESDAY', // Miércoles
+                    4: 'THURSDAY',  // Jueves
+                    5: 'FRIDAY',    // Viernes
+                    6: 'SATURDAY'   // Sábado
+                };
+                
+                const diaJava = diasSemanaJava[diaSemana];
+                
+                // Buscar slots para este día
+                if (slotsDisponibles && slotsDisponibles[diaJava]) {
+                    const slots = slotsDisponibles[diaJava];
+                    slots.forEach(function(slot) {
+                        const option = document.createElement('option');
+                        option.value = slot.etiqueta;
+                        option.textContent = slot.etiqueta;
+                        slotSelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No hay horarios disponibles para este día';
+                    option.disabled = true;
+                    slotSelect.appendChild(option);
+                }
             }
 
             // Manejar envío del formulario
@@ -188,22 +266,39 @@
 
             if (form && submitBtn && loading) {
                 form.addEventListener('submit', function(e) {
-                    // Validaciones adicionales
                     const fecha = document.getElementById('fecha').value;
-                    const horaInicio = document.getElementById('horaInicio').value;
-                    const horaFin = document.getElementById('horaFin').value;
-
-                    if (!fecha || !horaInicio || !horaFin) {
+                    
+                    if (!fecha) {
                         e.preventDefault();
-                        alert('Por favor, complete todos los campos requeridos.');
+                        alert('Por favor, seleccione una fecha.');
                         return;
                     }
+                    
+                    if (requiereSlotsPredefinidos) {
+                        // Validación para slots predefinidos
+                        const slotSeleccionado = document.getElementById('slotSeleccionado').value;
+                        if (!slotSeleccionado) {
+                            e.preventDefault();
+                            alert('Por favor, seleccione un horario.');
+                            return;
+                        }
+                    } else {
+                        // Validación para horas libres
+                        const horaInicio = document.getElementById('horaInicio').value;
+                        const horaFin = document.getElementById('horaFin').value;
 
-                    // Validar que la hora de fin sea posterior a la hora de inicio
-                    if (horaInicio >= horaFin) {
-                        e.preventDefault();
-                        alert('La hora de fin debe ser posterior a la hora de inicio.');
-                        return;
+                        if (!horaInicio || !horaFin) {
+                            e.preventDefault();
+                            alert('Por favor, complete todos los campos requeridos.');
+                            return;
+                        }
+
+                        // Validar que la hora de fin sea posterior a la hora de inicio
+                        if (horaInicio >= horaFin) {
+                            e.preventDefault();
+                            alert('La hora de fin debe ser posterior a la hora de inicio.');
+                            return;
+                        }
                     }
 
                     // Mostrar loading
