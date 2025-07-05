@@ -1,5 +1,6 @@
 package es.ubu.reservapp.controller;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -179,7 +180,6 @@ class UserManagementControllerSegundaFormaTest {
         when(usuarioService.existeId(newUserId)).thenReturn(false);
         when(usuarioService.findUsuarioByCorreo(newUserEmail.toLowerCase())).thenReturn(null);
         // No es necesario mockear save para void, a menos que queramos doThrow
-        // doNothing().when(usuarioService).save(any(Usuario.class));
 
         mockMvc.perform(post(GUARDAR_URL).with(adminUser()).with(csrf())
                 .param("id", newUserId)
@@ -286,8 +286,10 @@ class UserManagementControllerSegundaFormaTest {
     }
 
     @Test
-    void saveOrUpdateUser_creacion_exito_conCampoIdNuloEnForm_isValidBindingResultPermite() throws Exception {
-        // Este test es para la rama de isValidBindingResult donde (isNewUser && bindingResult.getErrorCount() == 1 && bindingResult.hasFieldErrors("id") && bindingResult.getFieldError("id").getRejectedValue() == null)
+    void saveOrUpdateUser_creacion_exito_conCampoIdNuloEnForm_isValidBindingResultPermite() {
+    	assertNotNull(usuarioService);
+        // Este test es para la rama de isValidBindingResult donde (isNewUser && bindingResult.getErrorCount() == 1 
+    	// con la siguiente condicion: bindingResult.hasFieldErrors("id") && bindingResult.getFieldError("id").getRejectedValue() == null)
         // Si el ID es null, @Valid puede marcarlo como error si tiene @NotNull, pero nuestro isValidBindingResult lo permite.
         // Asumimos que el ID puede ser null inicialmente y se genera o se espera que el usuario lo ingrese.
         // Para este test, el controlador espera que el ID venga en el form.

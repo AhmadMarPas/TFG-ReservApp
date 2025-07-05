@@ -1,5 +1,6 @@
 package es.ubu.reservapp.util;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,12 +79,14 @@ public class SlotReservaUtil {
         List<SlotTiempo> slots = new ArrayList<>();
 
         // Si el establecimiento no tiene duración definida o es 0, no generar slots predefinidos
-        if (establecimiento.getDuracionReserva() == null || establecimiento.getDuracionReserva() <= 0) {
+        // También si la duración es mayor que el tiempo disponible en la franja horaria
+        if (establecimiento.getDuracionReserva() == null || establecimiento.getDuracionReserva() <= 0 ||
+            establecimiento.getDuracionReserva() > Duration.between(franjaHoraria.getHoraInicio(), franjaHoraria.getHoraFin()).toMinutes()) {
             return slots;
         }
 
-        int duracionMinutos = establecimiento.getDuracionReserva();
         int descansoMinutos = establecimiento.getDescansoServicios() != null ? establecimiento.getDescansoServicios() : 0;
+        int duracionMinutos = establecimiento.getDuracionReserva();
 
         LocalTime horaActual = franjaHoraria.getHoraInicio();
         LocalTime horaFinFranja = franjaHoraria.getHoraFin();
