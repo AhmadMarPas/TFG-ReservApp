@@ -141,8 +141,8 @@ class ReservaControllerTest {
 
         assertEquals("redirect:/", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
-        assertEquals("Usuario no encontrado.", redirectAttributes.getFlashAttributes().get("error"));
-        assertTrue(redirectAttributes.getFlashAttributes().containsValue("Usuario no encontrado."));
+        assertEquals("Usuario no autenticado correctamente.", redirectAttributes.getFlashAttributes().get("error"));
+        assertTrue(redirectAttributes.getFlashAttributes().containsValue("Usuario no autenticado correctamente."));
     }
     
     @Test
