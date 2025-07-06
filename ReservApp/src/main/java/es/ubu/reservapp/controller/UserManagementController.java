@@ -6,6 +6,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -136,17 +137,26 @@ public class UserManagementController {
 	 * @return true si no hay errores, false en caso contrario
 	 */
 	private boolean isValidBindingResult(BindingResult bindingResult, boolean isNewUser) {
-	    if (!bindingResult.hasErrors()) {
+	    // Si no hay bindingResult o no tiene errores, es válido
+	    if (bindingResult == null || !bindingResult.hasErrors()) {
 	        return true;
 	    }
 	    
-		if (isNewUser && bindingResult.getErrorCount() == 1 && bindingResult.hasFieldErrors("id")
-				&& bindingResult.getFieldError("id").getRejectedValue() == null) {
-			return true;
-		}
-
-		return !isNewUser && bindingResult.hasFieldErrors("id")
-				&& bindingResult.getFieldError("id").getRejectedValue().toString().isEmpty();
+	    // Verificar si hay error específico en el campo 'id'
+	    FieldError idError = bindingResult.getFieldError("id");
+	    if (idError == null) {
+	        return false; // Hay errores pero no en 'id'
+	    }
+	    
+	    Object rejectedValue = idError.getRejectedValue();
+	    
+	    if (isNewUser) {
+	        // Para nuevos usuarios: válido si solo hay 1 error en 'id' con valor null
+	        return bindingResult.getErrorCount() == 1 && rejectedValue == null;
+	    } else {
+	        // Para usuarios existentes: válido si el valor rechazado es una cadena vacía
+	        return rejectedValue != null && rejectedValue.toString().isEmpty();
+	    }
 	}
 
 	/**

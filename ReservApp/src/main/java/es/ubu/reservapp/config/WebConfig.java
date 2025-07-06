@@ -3,6 +3,7 @@ package es.ubu.reservapp.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -23,7 +24,7 @@ public class WebConfig implements WebMvcConfigurer {
 	private static final String CLASSPATH_STATIC = "classpath:/static/";
 	
     @Override
-    public void addFormatters(FormatterRegistry registry) {
+    public void addFormatters(@NonNull FormatterRegistry registry) {
         DateTimeFormatterRegistrar registrar = new DateTimeFormatterRegistrar();
         // Asegura que LocalTime se formatee como HH:mm para los inputs type="time"
         registrar.setTimeFormatter(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
@@ -34,7 +35,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
     
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
         // Configuración para servir recursos estáticos
         registry.addResourceHandler("/css/**").addResourceLocations(CLASSPATH_STATIC + "css/");
         

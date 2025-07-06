@@ -9,7 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -144,6 +146,12 @@ class UsuarioTest {
         perfil.setNombre("Perfil Test");
         perfiles.add(perfil);
         
+        Set<Convocatoria> convocatorias = new HashSet<>();
+        Convocatoria conv = new Convocatoria();
+        conv.setReserva(new Reserva());
+        conv.setUsuario(usuario);
+        convocatorias.add(conv);
+
         List<Establecimiento> establecimientos = new ArrayList<>();
         Establecimiento establecimiento = new Establecimiento();
         establecimiento.setId(1);
@@ -158,6 +166,7 @@ class UsuarioTest {
         usuario.setLstPerfiles(perfiles);
         usuario.setLstEstablecimientos(establecimientos);
         usuario.setLstReservas(reservas);
+        usuario.setConvocatorias(convocatorias);
         
         assertNotNull(usuario.getLstPerfiles());
         assertEquals(1, usuario.getLstPerfiles().size());
@@ -170,6 +179,10 @@ class UsuarioTest {
         assertNotNull(usuario.getLstReservas());
         assertEquals(1, usuario.getLstReservas().size());
         assertEquals(1, usuario.getLstReservas().get(0).getId());
+        
+        assertNotNull(usuario.getConvocatorias());
+        assertEquals(1, usuario.getConvocatorias().size());
+        assertEquals(true, usuario.getConvocatorias().contains(conv));
     }
     
     @Test
@@ -180,6 +193,12 @@ class UsuarioTest {
         perfil.setId(1);
         perfil.setNombre("Perfil Test");
         perfiles.add(perfil);
+
+        Set<Convocatoria> convocatorias = new HashSet<>();
+        Convocatoria conv = new Convocatoria();
+        conv.setReserva(new Reserva());
+        conv.setUsuario(usuario);
+        convocatorias.add(conv);
 
         List<Establecimiento> establecimientos = new ArrayList<>();
         Establecimiento establecimiento = new Establecimiento();
@@ -208,6 +227,7 @@ class UsuarioTest {
         usuarioOriginal.setLstPerfiles(perfiles);
         usuarioOriginal.setLstEstablecimientos(establecimientos);
         usuarioOriginal.setLstReservas(reservas);
+        usuarioOriginal.setConvocatorias(convocatorias);
 
         // Create copy using copy constructor
         Usuario usuarioCopia = new Usuario(usuarioOriginal);
@@ -229,9 +249,11 @@ class UsuarioTest {
         assertNotSame(usuarioOriginal.getLstPerfiles(), usuarioCopia.getLstPerfiles());
         assertNotSame(usuarioOriginal.getLstEstablecimientos(), usuarioCopia.getLstEstablecimientos());
         assertNotSame(usuarioOriginal.getLstReservas(), usuarioCopia.getLstReservas());
-        assertEquals(usuarioOriginal.getLstReservas().size(), usuarioCopia.getLstReservas().size());
+        assertNotSame(usuarioOriginal.getConvocatorias(), usuarioCopia.getConvocatorias());
+        assertEquals(usuarioOriginal.getLstPerfiles().size(), usuarioCopia.getLstPerfiles().size());
         assertEquals(usuarioOriginal.getLstEstablecimientos().size(), usuarioCopia.getLstEstablecimientos().size());
         assertEquals(usuarioOriginal.getLstReservas().size(), usuarioCopia.getLstReservas().size());
+        assertEquals(usuarioOriginal.getConvocatorias().size(), usuarioCopia.getConvocatorias().size());
 
         
         // Verify they are different objects
@@ -252,6 +274,12 @@ class UsuarioTest {
         perfil.setId(1);
         perfil.setNombre("Perfil Test");
         perfiles.add(perfil);
+
+        Set<Convocatoria> convocatorias = new HashSet<>();
+        Convocatoria conv = new Convocatoria();
+        conv.setReserva(new Reserva());
+        conv.setUsuario(usuario);
+        convocatorias.add(conv);
 
         List<Establecimiento> establecimientos = new ArrayList<>();
         Establecimiento establecimiento = new Establecimiento();
@@ -280,6 +308,7 @@ class UsuarioTest {
         usuarioOriginal.setLstPerfiles(perfiles);
         usuarioOriginal.setLstEstablecimientos(establecimientos);
         usuarioOriginal.setLstReservas(reservas);
+        usuarioOriginal.setConvocatorias(convocatorias);
 
         // Create copy using copia() method
         Usuario usuarioCopia = (Usuario) usuarioOriginal.copia();
@@ -301,10 +330,11 @@ class UsuarioTest {
         assertNotSame(usuarioOriginal.getLstPerfiles(), usuarioCopia.getLstPerfiles());
         assertNotSame(usuarioOriginal.getLstEstablecimientos(), usuarioCopia.getLstEstablecimientos());
         assertNotSame(usuarioOriginal.getLstReservas(), usuarioCopia.getLstReservas());
-        assertEquals(usuarioOriginal.getLstReservas().size(), usuarioCopia.getLstReservas().size());
+        assertNotSame(usuarioOriginal.getConvocatorias(), usuarioCopia.getConvocatorias());
+        assertEquals(usuarioOriginal.getLstPerfiles().size(), usuarioCopia.getLstPerfiles().size());
         assertEquals(usuarioOriginal.getLstEstablecimientos().size(), usuarioCopia.getLstEstablecimientos().size());
         assertEquals(usuarioOriginal.getLstReservas().size(), usuarioCopia.getLstReservas().size());
-
+        assertEquals(usuarioOriginal.getConvocatorias().size(), usuarioCopia.getConvocatorias().size());
 
         // Verify they are different objects
         assertNotSame(usuarioOriginal, usuarioCopia);
@@ -334,6 +364,7 @@ class UsuarioTest {
         usuarioOriginal.setLstPerfiles(null);
         usuarioOriginal.setLstEstablecimientos(null);
         usuarioOriginal.setLstReservas(null);
+        usuarioOriginal.setConvocatorias(null);
         
         // Crear una copia del usuario original
         Usuario usuarioCopia = new Usuario(usuarioOriginal);
@@ -341,9 +372,11 @@ class UsuarioTest {
         assertNotNull(usuarioCopia.getLstPerfiles());
         assertNotNull(usuarioCopia.getLstEstablecimientos());
         assertNotNull(usuarioCopia.getLstReservas());
+        assertNotNull(usuarioCopia.getConvocatorias());
         assertTrue(usuarioCopia.getLstPerfiles().isEmpty());
         assertTrue(usuarioCopia.getLstEstablecimientos().isEmpty());
         assertTrue(usuarioCopia.getLstReservas().isEmpty());
+        assertTrue(usuarioCopia.getConvocatorias().isEmpty());
         // Verificar que los demás atributos se copian correctamente
         assertEquals(usuarioOriginal.getId(), usuarioCopia.getId());
         assertEquals(usuarioOriginal.getNombre(), usuarioCopia.getNombre());

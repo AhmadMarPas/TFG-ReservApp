@@ -1,10 +1,12 @@
 package es.ubu.reservapp.model.entities;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -39,7 +41,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Usuario extends EntidadInfo<String> implements Serializable {
+public class Usuario extends EntidadInfo<String> {
 	
 	/**
 	 * serialVersionUID
@@ -114,6 +116,10 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
 
     @OneToMany(mappedBy = "usuario")
     private List<Reserva> lstReservas = new ArrayList<>();
+    
+    // Relación bidireccional con Convocatoria
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Convocatoria> convocatorias = new HashSet<>();
 
 	/**
 	 * Función que prepara los datos del correo antes de guardarlos.
@@ -154,6 +160,7 @@ public class Usuario extends EntidadInfo<String> implements Serializable {
 		this.setLstEstablecimientos(usuario.getLstEstablecimientos() == null ? new ArrayList<>() : new ArrayList<>(usuario.getLstEstablecimientos()));
 		this.setLstPerfiles(usuario.getLstPerfiles() == null ? new ArrayList<>() : new ArrayList<>(usuario.getLstPerfiles()));
 		this.setLstReservas(usuario.getLstReservas() == null ? new ArrayList<>() : new ArrayList<>(usuario.getLstReservas()));
+		this.setConvocatorias(usuario.getConvocatorias() == null ? new HashSet<>() : new HashSet<>(usuario.getConvocatorias()));
 	}
 	
 }

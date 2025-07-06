@@ -3,10 +3,13 @@ package es.ubu.reservapp.model.entities;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +28,7 @@ class ReservaTest {
     private Establecimiento establecimiento;
     private LocalDateTime fechaReserva;
     private LocalTime horaFin;
+    private Set<Convocatoria> convocatorias = new HashSet<>();
 
     @BeforeEach
     void setUp() {
@@ -45,6 +49,13 @@ class ReservaTest {
         reserva.setEstablecimiento(establecimiento);
         reserva.setFechaReserva(fechaReserva);
         reserva.setHoraFin(horaFin);
+
+        Convocatoria conv = new Convocatoria();
+        conv.setReserva(new Reserva());
+        conv.setUsuario(usuario);
+        convocatorias.add(conv);
+        
+        reserva.setConvocatorias(convocatorias);
     }
 
     @Test
@@ -55,6 +66,7 @@ class ReservaTest {
         assertEquals(establecimiento, reserva.getEstablecimiento());
         assertEquals(fechaReserva, reserva.getFechaReserva());
         assertEquals(horaFin, reserva.getHoraFin());
+        assertEquals(convocatorias, reserva.getConvocatorias());
         
         // Probar setters con nuevos valores
         Usuario nuevoUsuario = new Usuario();
@@ -67,12 +79,17 @@ class ReservaTest {
         
         LocalDateTime nuevaFechaReserva = LocalDateTime.now().plusDays(2);
         LocalTime nuevaHoraFin = LocalTime.of(20, 0);
+        Convocatoria conv1 = new Convocatoria();
+        conv1.setReserva(new Reserva());
+        conv1.setUsuario(usuario);
+        convocatorias.add(conv1);
         
         reserva.setId(2);
         reserva.setUsuario(nuevoUsuario);
         reserva.setEstablecimiento(nuevoEstablecimiento);
         reserva.setFechaReserva(nuevaFechaReserva);
         reserva.setHoraFin(nuevaHoraFin);
+        reserva.setConvocatorias(convocatorias);
         
         // Verificar nuevos valores
         assertEquals(2, reserva.getId());
@@ -98,25 +115,36 @@ class ReservaTest {
         establecimientoTest.setId(3);
         LocalDateTime fechaTest = LocalDateTime.now().plusDays(3);
         LocalTime horaTest = LocalTime.of(21, 0);
+        Convocatoria conv = new Convocatoria();
+        conv.setReserva(new Reserva());
+        conv.setUsuario(new Usuario());
+        convocatorias.add(conv);
         
-        Reserva reservaCompleta = new Reserva(id, usuarioTest, establecimientoTest, fechaTest, horaTest);
+        Reserva reservaCompleta = new Reserva(id, usuarioTest, establecimientoTest, fechaTest, horaTest, convocatorias);
         
         assertEquals(id, reservaCompleta.getId());
         assertEquals(usuarioTest, reservaCompleta.getUsuario());
         assertEquals(establecimientoTest, reservaCompleta.getEstablecimiento());
         assertEquals(fechaTest, reservaCompleta.getFechaReserva());
         assertEquals(horaTest, reservaCompleta.getHoraFin());
+        assertEquals(convocatorias, reservaCompleta.getConvocatorias());
     }
     
     @Test
     void testConstructorCopia() {
         // Use the existing test data from setUp()
         Reserva reservaOriginal = new Reserva();
+        Convocatoria conv = new Convocatoria();
+        conv.setReserva(reservaOriginal);
+        conv.setUsuario(new Usuario());
+        convocatorias.add(conv);
+
         reservaOriginal.setId(1);
         reservaOriginal.setUsuario(usuario);
         reservaOriginal.setEstablecimiento(establecimiento);
         reservaOriginal.setFechaReserva(fechaReserva);
         reservaOriginal.setHoraFin(horaFin);
+        reservaOriginal.setConvocatorias(convocatorias);
 
         // Create a copy using the copy constructor
         Reserva reservaCopia = new Reserva(reservaOriginal);
@@ -127,6 +155,11 @@ class ReservaTest {
         assertEquals(reservaOriginal.getEstablecimiento(), reservaCopia.getEstablecimiento());
         assertEquals(reservaOriginal.getFechaReserva(), reservaCopia.getFechaReserva());
         assertEquals(reservaOriginal.getHoraFin(), reservaCopia.getHoraFin());
+        assertEquals(reservaOriginal.getConvocatorias(), reservaCopia.getConvocatorias());
+
+        // Comprobamos que las listas son copias profundas
+        assertNotSame(reservaOriginal.getConvocatorias(), reservaCopia.getConvocatorias());
+        assertEquals(reservaOriginal.getConvocatorias().size(), reservaCopia.getConvocatorias().size());
 
         // Verify they are different objects
         assertNotSame(reservaOriginal, reservaCopia);
@@ -143,11 +176,17 @@ class ReservaTest {
     void testMetodoCopia() {
         // Use the existing test data from setUp()
         Reserva reservaOriginal = new Reserva();
+        Convocatoria conv = new Convocatoria();
+        conv.setReserva(reservaOriginal);
+        conv.setUsuario(new Usuario());
+        convocatorias.add(conv);
+        
         reservaOriginal.setId(1);
         reservaOriginal.setUsuario(usuario);
         reservaOriginal.setEstablecimiento(establecimiento);
         reservaOriginal.setFechaReserva(fechaReserva);
         reservaOriginal.setHoraFin(horaFin);
+        reservaOriginal.setConvocatorias(convocatorias);
 
         // Create a copy using the copia() method
         Reserva reservaCopia = (Reserva) reservaOriginal.copia();
@@ -158,6 +197,11 @@ class ReservaTest {
         assertEquals(reservaOriginal.getEstablecimiento(), reservaCopia.getEstablecimiento());
         assertEquals(reservaOriginal.getFechaReserva(), reservaCopia.getFechaReserva());
         assertEquals(reservaOriginal.getHoraFin(), reservaCopia.getHoraFin());
+        assertEquals(reservaOriginal.getFechaReserva(), reservaCopia.getFechaReserva());
+
+        // Comprobamos que las listas son copias profundas
+        assertNotSame(reservaOriginal.getConvocatorias(), reservaCopia.getConvocatorias());
+        assertEquals(reservaOriginal.getConvocatorias().size(), reservaCopia.getConvocatorias().size());
 
         // Verify they are different objects
         assertNotSame(reservaOriginal, reservaCopia);
@@ -169,5 +213,32 @@ class ReservaTest {
         assertNotEquals(reservaOriginal.getId(), reservaCopia.getId());
         assertNotEquals(reservaOriginal.getFechaReserva(), reservaCopia.getFechaReserva());
     }
+    
+    @Test
+    void testConstructorDeCopiaConListasNulas() {
+        Integer id = 3;
+        Usuario usuarioTest = new Usuario();
+        usuarioTest.setId("user3");
+        Establecimiento establecimientoTest = new Establecimiento();
+        establecimientoTest.setId(3);
+        LocalDateTime fechaTest = LocalDateTime.now().plusDays(3);
+        LocalTime horaTest = LocalTime.of(21, 0);
+        
+        Reserva reservaOriginal = new Reserva(id, usuarioTest, establecimientoTest, fechaTest, horaTest, null);
+        // Crear una copia del usuario original
+        Reserva reservaCopia = new Reserva(reservaOriginal);
+        
+        assertEquals(id, reservaCopia.getId());
+        assertEquals(usuarioTest, reservaCopia.getUsuario());
+        assertEquals(establecimientoTest, reservaCopia.getEstablecimiento());
+        assertEquals(fechaTest, reservaCopia.getFechaReserva());
+        assertEquals(horaTest, reservaCopia.getHoraFin());
+        assertEquals(new HashSet<>(), reservaCopia.getConvocatorias());
+        
+        // Verificar que las listas se inicializan correctamente
+        assertNotNull(reservaCopia.getConvocatorias());
+        assertTrue(reservaCopia.getConvocatorias().isEmpty());
+    }
+
 
 }
