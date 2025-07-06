@@ -31,6 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Usuario;
+import es.ubu.reservapp.model.repositories.ConvocatoriaRepo;
 import es.ubu.reservapp.model.repositories.PerfilRepo;
 import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
@@ -55,6 +56,9 @@ class EstablecimientoAsignacionControllerTest {
         
     @MockitoBean
     private ReservaRepo reservaRepo;
+
+    @MockitoBean
+    private ConvocatoriaRepo convocatoriaRepo;
 
     @MockitoBean
     private PerfilRepo perfilRepo;

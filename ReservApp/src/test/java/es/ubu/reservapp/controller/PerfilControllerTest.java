@@ -39,6 +39,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import es.ubu.config.SecurityConfig;
 import es.ubu.reservapp.model.entities.Perfil;
+import es.ubu.reservapp.model.repositories.ConvocatoriaRepo;
 import es.ubu.reservapp.model.repositories.EstablecimientoRepo;
 import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
@@ -63,6 +64,9 @@ class PerfilControllerTest {
     
     @MockitoBean
     private ReservaRepo reservaRepo;
+
+    @MockitoBean
+    private ConvocatoriaRepo convocatoriaRepo;
 
     private Perfil perfilAdmin;
     private Perfil perfilUser;

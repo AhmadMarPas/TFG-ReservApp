@@ -1,14 +1,25 @@
 package es.ubu.reservapp.controller;
 
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,6 +41,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Usuario;
+import es.ubu.reservapp.model.repositories.ConvocatoriaRepo;
 import es.ubu.reservapp.model.repositories.EstablecimientoRepo;
 import es.ubu.reservapp.model.repositories.PerfilRepo;
 import es.ubu.reservapp.model.repositories.ReservaRepo;
@@ -61,6 +73,9 @@ class UserManagementControllerSegundaFormaTest {
     
     @MockitoBean
     private ReservaRepo reservaRepo;
+
+    @MockitoBean
+    private ConvocatoriaRepo convocatoriaRepo;
 
     @MockitoBean
     private PerfilRepo perfilRepo;
