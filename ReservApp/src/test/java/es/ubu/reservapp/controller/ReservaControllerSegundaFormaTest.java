@@ -32,9 +32,9 @@ import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.FranjaHoraria;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
-import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.shared.SessionData;
 import es.ubu.reservapp.service.EstablecimientoService;
+import es.ubu.reservapp.service.ReservaService;
 import es.ubu.reservapp.util.SlotReservaUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,7 +47,7 @@ class ReservaControllerSegundaFormaTest {
     private EstablecimientoService establecimientoService;
 
     @Mock
-    private ReservaRepo reservaRepo;
+    private ReservaService reservaService;
 
     @Mock
     private Model model;
@@ -158,8 +158,8 @@ class ReservaControllerSegundaFormaTest {
         
         when(sessionData.getUsuario()).thenReturn(usuario);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
-        when(reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaBefore(any(), any(), any())).thenReturn(reservasPasadas);
-        when(reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(any(), any(), any())).thenReturn(reservasFuturas);
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(any(), any(), any())).thenReturn(reservasPasadas);
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(any(), any(), any())).thenReturn(reservasFuturas);
 
         try (MockedStatic<SlotReservaUtil> mockedSlotUtil = mockStatic(SlotReservaUtil.class)) {
             mockedSlotUtil.when(() -> SlotReservaUtil.requiereSlotsPredefinidos(any())).thenReturn(false);
@@ -184,8 +184,8 @@ class ReservaControllerSegundaFormaTest {
         // Arrange
         when(sessionData.getUsuario()).thenReturn(usuario);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
-        when(reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaBefore(any(), any(), any())).thenReturn(new ArrayList<>());
-        when(reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(any(), any(), any())).thenReturn(new ArrayList<>());
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(any(), any(), any())).thenReturn(new ArrayList<>());
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(any(), any(), any())).thenReturn(new ArrayList<>());
 
         try (MockedStatic<SlotReservaUtil> mockedSlotUtil = mockStatic(SlotReservaUtil.class)) {
             mockedSlotUtil.when(() -> SlotReservaUtil.requiereSlotsPredefinidos(any())).thenReturn(true);
@@ -325,14 +325,14 @@ class ReservaControllerSegundaFormaTest {
         // Arrange
         when(sessionData.getUsuario()).thenReturn(usuario);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
-        when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
+        when(reservaService.save(any(Reserva.class))).thenReturn(reserva);
 
         // Act
         String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/misreservas", result);
-        verify(reservaRepo).save(any(Reserva.class));
+        verify(reservaService).save(any(Reserva.class));
         verify(redirectAttributes).addFlashAttribute(eq("exito"), contains("Reserva creada correctamente"));
     }
 
@@ -341,14 +341,14 @@ class ReservaControllerSegundaFormaTest {
         // Arrange
         when(sessionData.getUsuario()).thenReturn(usuario);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
-        when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
+        when(reservaService.save(any(Reserva.class))).thenReturn(reserva);
 
         // Act
         String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", null, null, "10:00 - 11:00", null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/misreservas", result);
-        verify(reservaRepo).save(any(Reserva.class));
+        verify(reservaService).save(any(Reserva.class));
         verify(redirectAttributes).addFlashAttribute(eq("exito"), contains("Reserva creada correctamente"));
     }
 
@@ -357,7 +357,7 @@ class ReservaControllerSegundaFormaTest {
         // Arrange
         when(sessionData.getUsuario()).thenReturn(usuario);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
-        when(reservaRepo.save(any(Reserva.class))).thenThrow(new RuntimeException("Error de base de datos"));
+        when(reservaService.save(any(Reserva.class))).thenThrow(new RuntimeException("Error de base de datos"));
 
         // Act
         String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, null, null, null, redirectAttributes);
@@ -454,14 +454,14 @@ class ReservaControllerSegundaFormaTest {
         // Arrange
         when(sessionData.getUsuario()).thenReturn(usuario);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
-        when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
+        when(reservaService.save(any(Reserva.class))).thenReturn(reserva);
 
         // Act - Usar exactamente las horas de la franja (9:00-17:00)
         String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "09:00", "17:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/misreservas", result);
-        verify(reservaRepo).save(any(Reserva.class));
+        verify(reservaService).save(any(Reserva.class));
     }
 
     @Test
@@ -484,8 +484,8 @@ class ReservaControllerSegundaFormaTest {
         establecimiento.getFranjasHorarias().clear();
         when(sessionData.getUsuario()).thenReturn(usuario);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
-        when(reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaBefore(any(), any(), any())).thenReturn(new ArrayList<>());
-        when(reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(any(), any(), any())).thenReturn(new ArrayList<>());
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(any(), any(), any())).thenReturn(new ArrayList<>());
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(any(), any(), any())).thenReturn(new ArrayList<>());
 
         try (MockedStatic<SlotReservaUtil> mockedSlotUtil = mockStatic(SlotReservaUtil.class)) {
             mockedSlotUtil.when(() -> SlotReservaUtil.requiereSlotsPredefinidos(any())).thenReturn(false);
@@ -511,7 +511,7 @@ class ReservaControllerSegundaFormaTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
         
         // Capturar la reserva que se guarda
-        when(reservaRepo.save(any(Reserva.class))).thenAnswer(invocation -> {
+        when(reservaService.save(any(Reserva.class))).thenAnswer(invocation -> {
             Reserva reservaGuardada = invocation.getArgument(0);
             
             // Validar que la reserva esté correctamente configurada
@@ -528,7 +528,7 @@ class ReservaControllerSegundaFormaTest {
 
         // Assert
         assertEquals("redirect:/misreservas", result);
-        verify(reservaRepo).save(any(Reserva.class));
+        verify(reservaService).save(any(Reserva.class));
     }
 
     @Test
@@ -545,8 +545,8 @@ class ReservaControllerSegundaFormaTest {
         
         when(sessionData.getUsuario()).thenReturn(usuario);
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
-        when(reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaBefore(any(), any(), any())).thenReturn(reservasPasadas);
-        when(reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(any(), any(), any())).thenReturn(reservasFuturas);
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(any(), any(), any())).thenReturn(reservasPasadas);
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(any(), any(), any())).thenReturn(reservasFuturas);
 
         try (MockedStatic<SlotReservaUtil> mockedSlotUtil = mockStatic(SlotReservaUtil.class)) {
             mockedSlotUtil.when(() -> SlotReservaUtil.requiereSlotsPredefinidos(any())).thenReturn(false);

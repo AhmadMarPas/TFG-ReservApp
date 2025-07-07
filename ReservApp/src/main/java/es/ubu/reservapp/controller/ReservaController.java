@@ -29,11 +29,11 @@ import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.FranjaHoraria;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
-import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.shared.SessionData;
 import es.ubu.reservapp.service.ConvocatoriaService;
 import es.ubu.reservapp.service.EmailService;
 import es.ubu.reservapp.service.EstablecimientoService;
+import es.ubu.reservapp.service.ReservaService;
 import es.ubu.reservapp.service.UsuarioService;
 import es.ubu.reservapp.util.SlotReservaUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -63,8 +63,7 @@ public class ReservaController {
     // Servicios inyectados
     private final SessionData sessionData;
     private final EstablecimientoService establecimientoService;
-    // FIXME: Utilizar el Service en lugar del Repo.
-    private final ReservaRepo reservaRepo;
+    private final ReservaService reservaService;
     private final ConvocatoriaService convocatoriaService;
     private final UsuarioService usuarioService;
     private final EmailService emailService;
@@ -74,15 +73,15 @@ public class ReservaController {
 	 *
 	 * @param sessionData Datos de la sesión.
 	 * @param establecimientoService Servicio para gestionar establecimientos.
-	 * @param reservaRepo Repositorio de reservas.
+	 * @param reservaService Repositorio de reservas.
 	 * @param convocatoriaService Servicio para gestionar convocatorias.
 	 * @param usuarioService Servicio para gestionar usuarios.
 	 * @param emailService Servicio para envío de correos electrónicos.
 	 */
-    public ReservaController(SessionData sessionData, EstablecimientoService establecimientoService, ReservaRepo reservaRepo, ConvocatoriaService convocatoriaService, UsuarioService usuarioService, EmailService emailService) {
+    public ReservaController(SessionData sessionData, EstablecimientoService establecimientoService, ReservaService reservaService, ConvocatoriaService convocatoriaService, UsuarioService usuarioService, EmailService emailService) {
     	this.sessionData = sessionData;
         this.establecimientoService = establecimientoService;
-        this.reservaRepo = reservaRepo;
+        this.reservaService = reservaService;
         this.convocatoriaService = convocatoriaService;
         this.usuarioService = usuarioService;
         this.emailService = emailService;
@@ -306,7 +305,7 @@ public class ReservaController {
         String[] partes = slotSeleccionado.split(" - ");
         if (partes.length != 2) {
             redirectAttributes.addFlashAttribute(ERROR, "Formato de slot inválido");
-            return null;
+            return new LocalTime[0];
         }
         return new LocalTime[]{LocalTime.parse(partes[0]), LocalTime.parse(partes[1])};
     }
@@ -321,7 +320,7 @@ public class ReservaController {
     private LocalTime[] procesarHorasDirectas(String horaInicioStr, String horaFinStr, RedirectAttributes redirectAttributes) {
         if (horaInicioStr == null || horaFinStr == null) {
             redirectAttributes.addFlashAttribute(ERROR, "Debe especificar hora de inicio y fin");
-            return null;
+            return new LocalTime[0];
         }
         return new LocalTime[]{LocalTime.parse(horaInicioStr), LocalTime.parse(horaFinStr)};
     }
@@ -377,7 +376,7 @@ public class ReservaController {
 
         try {
             // Guardar la reserva primero
-            Reserva reservaGuardada = reservaRepo.save(reserva);
+            Reserva reservaGuardada = reservaService.save(reserva);
             
             // Crear convocatorias si hay usuarios seleccionados
             if (usuariosConvocados != null && usuariosConvocados.length > 0) {
@@ -532,8 +531,8 @@ public class ReservaController {
     private ReservasUsuario obtenerReservasUsuario(Usuario usuario, Establecimiento establecimiento) {
         LocalDateTime fechaActual = LocalDateTime.now();
         
-        List<Reserva> reservasPasadas = reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual);
-        List<Reserva> reservasFuturas = reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
+        List<Reserva> reservasPasadas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual);
+        List<Reserva> reservasFuturas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
         
         // Ordenar reservas
         reservasPasadas.sort(Comparator.comparing(Reserva::getFechaReserva).reversed());

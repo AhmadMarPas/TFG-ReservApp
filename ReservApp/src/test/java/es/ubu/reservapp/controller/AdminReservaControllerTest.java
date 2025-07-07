@@ -26,8 +26,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
-import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.service.EstablecimientoService;
+import es.ubu.reservapp.service.ReservaService;
 
 /**
  * Test para el controlador AdminReservaController
@@ -39,7 +39,7 @@ class AdminReservaControllerTest {
     private EstablecimientoService establecimientoService;
 
     @Mock
-    private ReservaRepo reservaRepo;
+    private ReservaService reservaService;
 
     @Mock
     private Model model;
@@ -195,7 +195,7 @@ class AdminReservaControllerTest {
         LocalDateTime finDelDia = fechaSeleccionada.plusDays(1).atStartOfDay();
         
         when(establecimientoService.findById(establecimientoId)).thenReturn(Optional.of(establecimiento1));
-        when(reservaRepo.findByEstablecimientoAndFechaReservaBetween(establecimiento1, inicioDelDia, finDelDia))
+        when(reservaService.findByEstablecimientoAndFechaReservaBetween(establecimiento1, inicioDelDia, finDelDia))
                 .thenReturn(reservas);
 
         // When
@@ -203,7 +203,7 @@ class AdminReservaControllerTest {
 
         // Then
         verify(establecimientoService).findById(establecimientoId);
-        verify(reservaRepo).findByEstablecimientoAndFechaReservaBetween(establecimiento1, inicioDelDia, finDelDia);
+        verify(reservaService).findByEstablecimientoAndFechaReservaBetween(establecimiento1, inicioDelDia, finDelDia);
         verify(model).addAttribute("establecimiento", establecimiento1);
         verify(model).addAttribute("fechaSeleccionada", fechaSeleccionada);
         verify(model).addAttribute("reservas", reservas);
@@ -224,7 +224,7 @@ class AdminReservaControllerTest {
 
         // Then
         verify(establecimientoService).findById(establecimientoId);
-        verify(reservaRepo, never()).findByEstablecimientoAndFechaReservaBetween(any(), any(), any());
+        verify(reservaService, never()).findByEstablecimientoAndFechaReservaBetween(any(), any(), any());
         verify(redirectAttributes).addFlashAttribute("error", "Establecimiento no encontrado.");
         assertEquals("redirect:/admin/reservas", viewName);
     }
@@ -242,7 +242,7 @@ class AdminReservaControllerTest {
         List<Reserva> reservasVacias = new ArrayList<>();
         
         when(establecimientoService.findById(establecimientoId)).thenReturn(Optional.of(establecimiento1));
-        when(reservaRepo.findByEstablecimientoAndFechaReservaBetween(establecimiento1, inicioDelDia, finDelDia))
+        when(reservaService.findByEstablecimientoAndFechaReservaBetween(establecimiento1, inicioDelDia, finDelDia))
                 .thenReturn(reservasVacias);
 
         // When
@@ -250,7 +250,7 @@ class AdminReservaControllerTest {
 
         // Then
         verify(establecimientoService).findById(establecimientoId);
-        verify(reservaRepo).findByEstablecimientoAndFechaReservaBetween(establecimiento1, inicioDelDia, finDelDia);
+        verify(reservaService).findByEstablecimientoAndFechaReservaBetween(establecimiento1, inicioDelDia, finDelDia);
         verify(model).addAttribute("establecimiento", establecimiento1);
         verify(model).addAttribute("fechaSeleccionada", fechaSeleccionada);
         verify(model).addAttribute("reservas", reservasVacias);
@@ -269,7 +269,7 @@ class AdminReservaControllerTest {
         LocalDateTime finDelDia = fechaSeleccionada.plusDays(1).atStartOfDay();
         
         when(establecimientoService.findById(establecimientoId)).thenReturn(Optional.of(establecimiento1));
-        when(reservaRepo.findByEstablecimientoAndFechaReservaBetween(establecimiento1, inicioDelDia, finDelDia))
+        when(reservaService.findByEstablecimientoAndFechaReservaBetween(establecimiento1, inicioDelDia, finDelDia))
                 .thenReturn(new ArrayList<>());
 
         // When
@@ -277,7 +277,7 @@ class AdminReservaControllerTest {
 
         // Then
         verify(establecimientoService).findById(establecimientoId);
-        verify(reservaRepo).findByEstablecimientoAndFechaReservaBetween(establecimiento1, inicioDelDia, finDelDia);
+        verify(reservaService).findByEstablecimientoAndFechaReservaBetween(establecimiento1, inicioDelDia, finDelDia);
         verify(model).addAttribute("establecimiento", establecimiento1);
         verify(model).addAttribute("fechaSeleccionada", fechaSeleccionada);
         assertEquals("admin/reservas/detalle_dia", viewName);

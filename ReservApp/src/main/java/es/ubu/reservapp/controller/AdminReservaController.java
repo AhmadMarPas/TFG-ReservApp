@@ -18,8 +18,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Reserva;
-import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.service.EstablecimientoService;
+import es.ubu.reservapp.service.ReservaService;
 import es.ubu.reservapp.util.FechaUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,8 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AdminReservaController {
 
     private final EstablecimientoService establecimientoService;
-    // FIXME: Inyectar el service en lugar del REPO
-    private final ReservaRepo reservaRepo;
+    private final ReservaService reservaService;
 
     /**
      * Constructor del controlador que inyecta los servicios necesarios.
@@ -48,9 +47,9 @@ public class AdminReservaController {
      * @param establecimientoService Servicio para gestionar establecimientos.
      * @param reservaRepo Repositorio de reservas.
      */
-    public AdminReservaController(EstablecimientoService establecimientoService, ReservaRepo reservaRepo) {
+    public AdminReservaController(EstablecimientoService establecimientoService, ReservaService reservaService) {
         this.establecimientoService = establecimientoService;
-        this.reservaRepo = reservaRepo;
+        this.reservaService = reservaService;
     }
 
     /**
@@ -102,8 +101,7 @@ public class AdminReservaController {
         LocalDate ultimoDiaMes = yearMonth.atEndOfMonth();
         
         // Obtener todas las reservas del establecimiento para el mes seleccionado
-		List<Reserva> reservasMes = reservaRepo.findByEstablecimientoAndFechaReservaBetween(establecimiento,
-				primerDiaMes.atStartOfDay(), ultimoDiaMes.plusDays(1).atStartOfDay());
+		List<Reserva> reservasMes = reservaService.findByEstablecimientoAndFechaReservaBetween(establecimiento, primerDiaMes.atStartOfDay(), ultimoDiaMes.plusDays(1).atStartOfDay());
 
         // Organizar las reservas por día
         Map<Integer, List<Reserva>> reservasPorDia = new HashMap<>();
@@ -167,8 +165,7 @@ public class AdminReservaController {
         
         // Obtener las reservas para el día seleccionado
         LocalDate diaSiguiente = fechaSeleccionada.plusDays(1);
-		List<Reserva> reservasDia = reservaRepo.findByEstablecimientoAndFechaReservaBetween(establecimiento,
-				fechaSeleccionada.atStartOfDay(), diaSiguiente.atStartOfDay());
+		List<Reserva> reservasDia = reservaService.findByEstablecimientoAndFechaReservaBetween(establecimiento, fechaSeleccionada.atStartOfDay(), diaSiguiente.atStartOfDay());
 
         model.addAttribute("reservas", reservasDia);
         model.addAttribute("nombreDia", FechaUtil.formatearDiaSemana(fechaSeleccionada.getDayOfWeek()));

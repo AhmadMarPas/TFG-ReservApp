@@ -35,11 +35,11 @@ import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.FranjaHoraria;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
-import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.shared.SessionData;
 import es.ubu.reservapp.service.ConvocatoriaService;
 import es.ubu.reservapp.service.EmailService;
 import es.ubu.reservapp.service.EstablecimientoService;
+import es.ubu.reservapp.service.ReservaService;
 import es.ubu.reservapp.service.UsuarioService;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,7 +58,7 @@ class ReservaControllerTest {
     private EmailService emailService;
     
     @Mock
-    private ReservaRepo reservaRepo;
+    private ReservaService reservaService;
 
     @Mock
     private Model model;
@@ -196,7 +196,7 @@ class ReservaControllerTest {
         String viewName = reservaController.crearReserva(nuevaReserva, 1, fechaStr, horaInicioStr, horaFinStr, null, null, null, null, redirectAttributes);
 
         assertEquals("redirect:/misreservas", viewName);
-        verify(reservaRepo).save(any(Reserva.class));
+        verify(reservaService).save(any(Reserva.class));
         assertNotNull(redirectAttributes.getFlashAttributes().get("exito"));
     }
 
@@ -212,7 +212,7 @@ class ReservaControllerTest {
 
         assertEquals("redirect:/misreservas", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
         
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertEquals("Establecimiento no encontrado.", redirectAttributes.getFlashAttributes().get("error"));
@@ -239,7 +239,7 @@ class ReservaControllerTest {
         assertEquals("No tiene permiso para reservar en este establecimiento.", redirectAttributes.getFlashAttributes().get("error"));
         assertTrue(redirectAttributes.getFlashAttributes().containsValue("No tiene permiso para reservar en este establecimiento."));
 
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
     }
 
     @Test
@@ -257,7 +257,7 @@ class ReservaControllerTest {
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertTrue(((String)redirectAttributes.getFlashAttributes().get("error")).contains("La hora seleccionada está fuera del horario de apertura del establecimiento para ese día o no es válida."));
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
     }
 
     @Test
@@ -275,7 +275,7 @@ class ReservaControllerTest {
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertTrue(((String)redirectAttributes.getFlashAttributes().get("error")).contains("La hora seleccionada está fuera del horario de apertura del establecimiento para ese día o no es válida."));
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
     }
     
     @Test
@@ -293,7 +293,7 @@ class ReservaControllerTest {
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertTrue(((String)redirectAttributes.getFlashAttributes().get("error")).contains("La hora seleccionada está fuera del horario"));
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
     }
 
     @Test
@@ -311,7 +311,7 @@ class ReservaControllerTest {
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertTrue(((String)redirectAttributes.getFlashAttributes().get("error")).contains("La hora seleccionada está fuera del horario"));
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
     }
     
     @Test
@@ -329,7 +329,7 @@ class ReservaControllerTest {
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertEquals("Formato de fecha u hora inválido.", redirectAttributes.getFlashAttributes().get("error"));
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
     }
 
     @Test
@@ -345,7 +345,7 @@ class ReservaControllerTest {
         assertEquals("redirect:/", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertEquals("Usuario no autenticado correctamente.", redirectAttributes.getFlashAttributes().get("error"));
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
     }
     
     @Test
@@ -364,7 +364,7 @@ class ReservaControllerTest {
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertEquals("La hora de fin debe ser posterior a la hora de inicio.", redirectAttributes.getFlashAttributes().get("error"));
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
     }
 
     @Test
@@ -383,7 +383,7 @@ class ReservaControllerTest {
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertEquals("La hora de fin debe ser posterior a la hora de inicio.", redirectAttributes.getFlashAttributes().get("error"));
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
     }
 
     @Test
@@ -402,12 +402,12 @@ class ReservaControllerTest {
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertTrue(((String)redirectAttributes.getFlashAttributes().get("error")).contains("La hora seleccionada está fuera del horario de apertura del establecimiento para ese día o no es válida."));
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
     }
 
     @Test
     void crearReserva_whenSaveThrowsException_shouldReturnRedirectWithError() {
-        ReservaController controller = new ReservaController(sessionData, establecimientoService, reservaRepo, convocatoriaService, usuarioService, emailService);
+        ReservaController controller = new ReservaController(sessionData, establecimientoService, reservaService, convocatoriaService, usuarioService, emailService);
         Reserva reserva = new Reserva();
         Integer establecimientoId = 1;
         String fechaStr = "2024-02-20";
@@ -426,7 +426,7 @@ class ReservaControllerTest {
         
         when(sessionData.getUsuario()).thenReturn(usuario);
         when(establecimientoService.findById(establecimientoId)).thenReturn(Optional.of(establecimiento));
-        when(reservaRepo.save(any(Reserva.class))).thenThrow(new RuntimeException("Error al guardar"));
+        when(reservaService.save(any(Reserva.class))).thenThrow(new RuntimeException("Error al guardar"));
         
         String result = controller.crearReserva(reserva, establecimientoId, fechaStr, horaStr, "11:00", null, null, null, null, redirectAttributes);
         
@@ -435,7 +435,7 @@ class ReservaControllerTest {
             .getFlashAttributes()
             .get("error").toString()
             .contains("Error al guardar la reserva"));
-        verify(reservaRepo).save(any(Reserva.class));
+        verify(reservaService).save(any(Reserva.class));
     }
     
     // --- Pruebas para slots predefinidos ---
@@ -464,7 +464,7 @@ class ReservaControllerTest {
         String viewName = reservaController.crearReserva(reserva, 1, fechaStr, null, null, slotSeleccionado, null, null, null, redirectAttributes);
         
         assertEquals("redirect:/misreservas", viewName);
-        verify(reservaRepo).save(any(Reserva.class));
+        verify(reservaService).save(any(Reserva.class));
         assertNotNull(redirectAttributes.getFlashAttributes().get("exito"));
     }
     
@@ -485,7 +485,7 @@ class ReservaControllerTest {
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertEquals("Formato de slot inválido", redirectAttributes.getFlashAttributes().get("error"));
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
     }
     
     @Test
@@ -503,7 +503,7 @@ class ReservaControllerTest {
         assertEquals("redirect:/reservas/establecimiento/1", viewName);
         assertNotNull(redirectAttributes.getFlashAttributes().get("error"));
         assertEquals("Debe especificar hora de inicio y fin", redirectAttributes.getFlashAttributes().get("error"));
-        verify(reservaRepo, never()).save(any(Reserva.class));
+        verify(reservaService, never()).save(any(Reserva.class));
     }
 
     // --- Pruebas para mostrarMisReservas ---

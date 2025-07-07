@@ -1,0 +1,86 @@
+package es.ubu.reservapp.service;
+
+import es.ubu.reservapp.exception.UserNotFoundException;
+import es.ubu.reservapp.model.entities.Establecimiento;
+import es.ubu.reservapp.model.entities.Reserva;
+import es.ubu.reservapp.model.entities.Usuario;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * Interfaz que representa el servicio de la entidad Reserva.
+ * 
+ * @autor Ahmad Mareie Pascual
+ * @version 1.0
+ * @since 1.0
+ */
+public interface ReservaService {
+	
+	/**
+	 * Crea la convocatoria de la reserva con los usuarios indicados.
+	 * 
+	 * @param reserva
+	 * @param idUsuariosConvocados
+	 * @param enlaceReunion
+	 * @param observacionesConvocatoria
+	 * @param usuarioQueReserva
+	 * @return La reserva creara.
+	 */
+    Reserva crearReservaConConvocatorias(Reserva reserva, List<String> idUsuariosConvocados, String enlaceReunion, String observacionesConvocatoria, Usuario usuarioQueReserva) throws UserNotFoundException;
+
+    /**
+     * Recupera las reservas de un establecimiento entre dos fechas.
+     * 
+     * @param establecimiento Establecimiento para el que se quiere consultar las reservas.
+     * @param fechaInicio Fecha de inicio del rango de búsqueda.
+     * @param fechaFin Fecha de fin del rango de búsqueda.
+     * @return Lista de resrvas dentro del rango de fechas para el establecimiento indicado.
+     */
+    List<Reserva> findByEstablecimientoAndFechaReservaBetween(Establecimiento establecimiento, LocalDateTime fechaInicio, LocalDateTime fechaFin);
+    
+	/**
+	 * Busca todas las reservas de un usuario para un establecimiento específico que
+	 * son posteriores o iguales a la fecha actual (reservas futuras).
+	 * 
+	 * @param usuario         Usuario que realizó las reservas
+	 * @param establecimiento Establecimiento donde se realizaron las reservas
+	 * @param fechaActual     Fecha actual para comparar
+	 * @return Lista de reservas futuras
+	 */
+    List<Reserva> findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(Usuario usuario, Establecimiento establecimiento, LocalDateTime fechaActual);
+
+	/**
+	 * Busca todas las reservas de un usuario para un establecimiento específico que
+	 * son anteriores a la fecha actual (reservas pasadas).
+	 * 
+	 * @param usuario         Usuario que realizó las reservas
+	 * @param establecimiento Establecimiento donde se realizaron las reservas
+	 * @param fechaActual     Fecha actual para comparar
+	 * @return Lista de reservas pasadas
+	 */
+    List<Reserva> findByUsuarioAndEstablecimientoAndFechaReservaBefore(Usuario usuario, Establecimiento establecimiento, LocalDateTime fechaActual);
+
+    /**
+     * Recupera todas las reservas.
+     * 
+     * @return Lista con todas las reservas.
+     */
+    List<Reserva> findAll();
+
+    /**
+     * Guarda la reserva.
+     * 
+     * @param reserva a guardar.
+     * @return Reserva guardada.
+     */
+    Reserva save(Reserva reserva);
+    
+    /**
+     * Busca las reservas del usuario.
+     * 
+     * @param usuario Usuario al que se quiere consultar las reservas.
+     * @return Lista de reservas realizadas por el usuario.
+     */
+    List<Reserva> findByUsuario(Usuario usuario);
+}

@@ -350,7 +350,8 @@ class ConvocatoriaTest {
         
         // Verificar toString, equals y hashCode
         assertNotNull(conv.toString());
-        assertTrue(conv.equals(conv));
+        Convocatoria conv2 = conv;
+        assertEquals(conv2, conv);
         assertNotEquals(0, conv.hashCode());
     }
     

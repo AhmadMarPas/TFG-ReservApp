@@ -24,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -32,12 +31,13 @@ import org.springframework.web.context.WebApplicationContext;
 
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Usuario;
-import es.ubu.reservapp.model.repositories.ConvocatoriaRepo;
-import es.ubu.reservapp.model.repositories.PerfilRepo;
-import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
 import es.ubu.reservapp.model.shared.SessionData;
+import es.ubu.reservapp.service.ConvocatoriaService;
+import es.ubu.reservapp.service.EmailService;
 import es.ubu.reservapp.service.EstablecimientoService;
+import es.ubu.reservapp.service.PerfilService;
+import es.ubu.reservapp.service.ReservaService;
 import es.ubu.reservapp.service.UsuarioService;
 
 @WebMvcTest(EstablecimientoAsignacionController.class)
@@ -56,19 +56,19 @@ class EstablecimientoAsignacionControllerTest {
     private SessionData sessionData;
         
     @MockitoBean
-    private ReservaRepo reservaRepo;
+    private ReservaService reservaService;
 
     @MockitoBean
-    private ConvocatoriaRepo convocatoriaRepo;
+    private ConvocatoriaService convocatoriaService;
 
     @MockitoBean
-    private PerfilRepo perfilRepo;
+    private PerfilService perfilService;
     
     @MockitoBean
     private UsuarioRepo usrRepo;
     
     @MockitoBean
-    private JavaMailSender mailSender;
+    private EmailService mailSender;
 
     @Autowired
     private WebApplicationContext webApplicationContext;

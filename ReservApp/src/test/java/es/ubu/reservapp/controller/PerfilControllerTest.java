@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -40,11 +39,12 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import es.ubu.config.SecurityConfig;
 import es.ubu.reservapp.model.entities.Perfil;
-import es.ubu.reservapp.model.repositories.ConvocatoriaRepo;
-import es.ubu.reservapp.model.repositories.EstablecimientoRepo;
-import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
+import es.ubu.reservapp.service.ConvocatoriaService;
+import es.ubu.reservapp.service.EmailService;
+import es.ubu.reservapp.service.EstablecimientoService;
 import es.ubu.reservapp.service.PerfilService;
+import es.ubu.reservapp.service.ReservaService;
 
 @WebMvcTest(PerfilController.class)
 @Import({SecurityConfig.class})
@@ -53,24 +53,24 @@ class PerfilControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    
+    @MockitoBean
+    private EstablecimientoService establecimientoService;
 
     @MockitoBean
     private PerfilService perfilService;
     
     @MockitoBean
-    private EstablecimientoRepo estRepo;
+    private ReservaService reservaService;
+
+    @MockitoBean
+    private ConvocatoriaService convocatoriaService;
+    
+    @MockitoBean
+    private EmailService mailService;
     
     @MockitoBean
     private UsuarioRepo usrRepo;
-    
-    @MockitoBean
-    private ReservaRepo reservaRepo;
-
-    @MockitoBean
-    private ConvocatoriaRepo convocatoriaRepo;
-    
-    @MockitoBean
-    private JavaMailSender mailSender;
 
     private Perfil perfilAdmin;
     private Perfil perfilUser;

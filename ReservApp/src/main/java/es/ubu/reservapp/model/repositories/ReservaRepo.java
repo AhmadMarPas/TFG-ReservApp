@@ -56,4 +56,12 @@ public interface ReservaRepo extends JpaRepository<Reserva, Integer> {
 	 */
     List<Reserva> findByEstablecimientoAndFechaReservaBetween(Establecimiento establecimiento, LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
+    /**
+     * Busca las reservas de un usuario.
+     * 
+     * @param usuario Usuario al que se quiere consultar las reservas.
+     * @return Lista de reservas realizadas por el usuario.
+     */
+    List<Reserva> findByUsuario(Usuario usuario);
+
 }
