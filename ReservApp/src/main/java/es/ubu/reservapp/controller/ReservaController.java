@@ -262,7 +262,7 @@ public class ReservaController {
             LocalDate fecha = LocalDate.parse(fechaStr);
             LocalTime[] horas = extraerHoras(horaInicioStr, horaFinStr, slotSeleccionado, redirectAttributes);
             
-            if (horas == null) return null;
+            if (horas.length == 0) return null;
             
             LocalTime horaInicio = horas[0];
             LocalTime horaFin = horas[1];
