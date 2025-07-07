@@ -292,4 +292,139 @@ class UsuarioServiceImplTest {
         
         verify(usuarioRepo, never()).deleteById(userId);
     }
+
+    @Test
+    void save_WithNullPassword_ShouldNotEncrypt() {
+        // Given
+        Usuario userWithNullPassword = new Usuario();
+        userWithNullPassword.setId("user1");
+        userWithNullPassword.setPassword(null);
+        
+        // When
+        usuarioService.save(userWithNullPassword);
+        
+        // Then
+        verify(usuarioRepo).save(userWithNullPassword);
+        assertNull(userWithNullPassword.getPassword());
+    }
+
+    @Test
+    void save_WithEmptyPassword_ShouldNotEncrypt() {
+        // Given
+        Usuario userWithEmptyPassword = new Usuario();
+        userWithEmptyPassword.setId("user1");
+        userWithEmptyPassword.setPassword("");
+        
+        // When
+        usuarioService.save(userWithEmptyPassword);
+        
+        // Then
+        verify(usuarioRepo).save(userWithEmptyPassword);
+        assertEquals("", userWithEmptyPassword.getPassword());
+    }
+
+    @Test
+    void save_WithBcryptVersionB_ShouldNotReencrypt() {
+        // Given
+        String bcryptB = "$2b$10$N9qo8uLOickgx2ZMRZoMye/Ci/BABjFWfuaXvI6FUFmox2MIk.FlS";
+        Usuario userWithBcryptB = new Usuario();
+        userWithBcryptB.setPassword(bcryptB);
+        
+        // When
+        usuarioService.save(userWithBcryptB);
+        
+        // Then
+        verify(usuarioRepo).save(userWithBcryptB);
+        assertEquals(bcryptB, userWithBcryptB.getPassword());
+    }
+
+    @Test
+    void save_WithBcryptVersionY_ShouldNotReencrypt() {
+        // Given
+        String bcryptY = "$2y$10$N9qo8uLOickgx2ZMRZoMye/Ci/BABjFWfuaXvI6FUFmox2MIk.FlS";
+        Usuario userWithBcryptY = new Usuario();
+        userWithBcryptY.setPassword(bcryptY);
+        
+        // When
+        usuarioService.save(userWithBcryptY);
+        
+        // Then
+        verify(usuarioRepo).save(userWithBcryptY);
+        assertEquals(bcryptY, userWithBcryptY.getPassword());
+    }
+
+    @Test
+    void validateAuthentication_WithUserHavingNullPassword_ShouldReturnNull() {
+        // Given
+        usuario.setPassword(null);
+        when(usuarioRepo.findUsuarioById("test123")).thenReturn(usuario);
+        
+        // When
+        Usuario result = usuarioService.validateAuthentication("test123", "password");
+        
+        // Then
+        assertNull(result);
+    }
+
+    @Test
+    void validateAuthentication_WithInvalidPassword_ShouldReturnNull() {
+        // Given
+        usuario.setPassword(ENCRYPTED_PASSWORD);
+        when(usuarioRepo.findUsuarioById("test123")).thenReturn(usuario);
+        
+        // When
+        Usuario result = usuarioService.validateAuthentication("test123", "wrongpassword");
+        
+        // Then
+        assertNull(result);
+    }
+
+    @Test
+    void validateAuthentication_WithNonExistingUser_ShouldReturnNull() {
+        // Given
+        when(usuarioRepo.findUsuarioById("nonexistent")).thenReturn(null);
+        
+        // When
+        Usuario result = usuarioService.validateAuthentication("nonexistent", "password");
+        
+        // Then
+        assertNull(result);
+    }
+
+    @Test
+    void existeEmail_WhenNotExists_ShouldReturnFalse() {
+        // Given
+        when(usuarioRepo.findByCorreo("nonexistent@test.com")).thenReturn(Optional.empty());
+        
+        // When
+        boolean result = usuarioService.existeEmail("nonexistent@test.com");
+        
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    void existeId_WithNonExistingId_ShouldReturnFalse() {
+        // Given
+        when(usuarioRepo.findById("nonexistent")).thenReturn(Optional.empty());
+        
+        // When
+        boolean result = usuarioService.existeId("nonexistent");
+        
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    void findUsuarioByCorreo_WhenNotExists_ShouldReturnNull() {
+        // Given
+        when(usuarioRepo.findByCorreo("nonexistent@test.com")).thenReturn(Optional.empty());
+        
+        // When
+        Usuario result = usuarioService.findUsuarioByCorreo("nonexistent@test.com");
+        
+        // Then
+        assertNull(result);
+    }
 }
+

@@ -211,7 +211,7 @@ class ReservaControllerSegundaFormaTest {
         when(sessionData.getUsuario()).thenReturn(null);
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/", result);
@@ -225,7 +225,7 @@ class ReservaControllerSegundaFormaTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.empty());
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/misreservas", result);
@@ -243,7 +243,7 @@ class ReservaControllerSegundaFormaTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/misreservas", result);
@@ -257,7 +257,7 @@ class ReservaControllerSegundaFormaTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "fecha-invalida", "10:00", "11:00", null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "fecha-invalida", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/reservas/establecimiento/1", result);
@@ -271,7 +271,7 @@ class ReservaControllerSegundaFormaTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "11:00", "10:00", null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "11:00", "10:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/reservas/establecimiento/1", result);
@@ -285,7 +285,7 @@ class ReservaControllerSegundaFormaTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", null, null, null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", null, null, null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/reservas/establecimiento/1", result);
@@ -299,7 +299,7 @@ class ReservaControllerSegundaFormaTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", null, null, "slot-invalido", redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", null, null, "slot-invalido", null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/reservas/establecimiento/1", result);
@@ -313,7 +313,7 @@ class ReservaControllerSegundaFormaTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
 
         // Act - Hora fuera de la franja (8:00-9:00, cuando la franja es 9:00-17:00)
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "08:00", "09:00", null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "08:00", "09:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/reservas/establecimiento/1", result);
@@ -328,7 +328,7 @@ class ReservaControllerSegundaFormaTest {
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/misreservas", result);
@@ -344,7 +344,7 @@ class ReservaControllerSegundaFormaTest {
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", null, null, "10:00 - 11:00", redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", null, null, "10:00 - 11:00", null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/misreservas", result);
@@ -360,7 +360,7 @@ class ReservaControllerSegundaFormaTest {
         when(reservaRepo.save(any(Reserva.class))).thenThrow(new RuntimeException("Error de base de datos"));
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/reservas/establecimiento/1", result);
@@ -426,7 +426,7 @@ class ReservaControllerSegundaFormaTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/misreservas", result);
@@ -442,7 +442,7 @@ class ReservaControllerSegundaFormaTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
 
         // Act - Intentar reservar un lunes cuando la franja es miércoles
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/reservas/establecimiento/1", result);
@@ -457,7 +457,7 @@ class ReservaControllerSegundaFormaTest {
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
 
         // Act - Usar exactamente las horas de la franja (9:00-17:00)
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "09:00", "17:00", null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "09:00", "17:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/misreservas", result);
@@ -471,7 +471,7 @@ class ReservaControllerSegundaFormaTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", null, null, "   ", redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", null, null, "   ", null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/reservas/establecimiento/1", result);
@@ -524,7 +524,7 @@ class ReservaControllerSegundaFormaTest {
         });
 
         // Act
-        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, redirectAttributes);
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
         assertEquals("redirect:/misreservas", result);

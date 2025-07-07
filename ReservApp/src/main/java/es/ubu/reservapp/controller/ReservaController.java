@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
@@ -19,15 +20,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import es.ubu.reservapp.model.entities.Convocatoria;
+import es.ubu.reservapp.model.entities.ConvocatoriaPK;
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.FranjaHoraria;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.shared.SessionData;
+import es.ubu.reservapp.service.ConvocatoriaService;
+import es.ubu.reservapp.service.EmailService;
 import es.ubu.reservapp.service.EstablecimientoService;
+import es.ubu.reservapp.service.UsuarioService;
 import es.ubu.reservapp.util.SlotReservaUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,7 +63,11 @@ public class ReservaController {
     // Servicios inyectados
     private final SessionData sessionData;
     private final EstablecimientoService establecimientoService;
+    // FIXME: Utilizar el Service en lugar del Repo.
     private final ReservaRepo reservaRepo;
+    private final ConvocatoriaService convocatoriaService;
+    private final UsuarioService usuarioService;
+    private final EmailService emailService;
 
     /**
 	 * Constructor del controlador que inyecta los servicios necesarios.
@@ -64,11 +75,17 @@ public class ReservaController {
 	 * @param sessionData Datos de la sesión.
 	 * @param establecimientoService Servicio para gestionar establecimientos.
 	 * @param reservaRepo Repositorio de reservas.
+	 * @param convocatoriaService Servicio para gestionar convocatorias.
+	 * @param usuarioService Servicio para gestionar usuarios.
+	 * @param emailService Servicio para envío de correos electrónicos.
 	 */
-    public ReservaController(SessionData sessionData, EstablecimientoService establecimientoService, ReservaRepo reservaRepo) {
+    public ReservaController(SessionData sessionData, EstablecimientoService establecimientoService, ReservaRepo reservaRepo, ConvocatoriaService convocatoriaService, UsuarioService usuarioService, EmailService emailService) {
     	this.sessionData = sessionData;
         this.establecimientoService = establecimientoService;
         this.reservaRepo = reservaRepo;
+        this.convocatoriaService = convocatoriaService;
+        this.usuarioService = usuarioService;
+        this.emailService = emailService;
     }
 
     /**
@@ -121,6 +138,9 @@ public class ReservaController {
                                @RequestParam(value = "horaInicio", required = false) String horaInicioStr,
                                @RequestParam(value = "horaFin", required = false) String horaFinStr,
                                @RequestParam(value = "slotSeleccionado", required = false) String slotSeleccionado,
+                               @RequestParam(value = "enlaceReunion", required = false) String enlaceReunion,
+                               @RequestParam(value = "observaciones", required = false) String observaciones,
+                               @RequestParam(value = "usuariosConvocados", required = false) String[] usuariosConvocados,
                                RedirectAttributes redirectAttributes) {
         
         log.info("Creando reserva para establecimiento: {}, fecha: {}, horaInicio: {}, horaFin: {}, slot: {}", 
@@ -153,7 +173,7 @@ public class ReservaController {
 			return errorFranja;
 		}
 
-		return guardarReserva(reserva, establecimiento, horario, redirectAttributes);
+		return guardarReservaConConvocatoria(reserva, establecimiento, horario, enlaceReunion, observaciones, usuariosConvocados, redirectAttributes);
     }
 
     /**
@@ -340,18 +360,30 @@ public class ReservaController {
     }
 
     /**
-     * Guarda la reserva en el repositorio.
+     * Guarda la reserva y crea la convocatoria con usuarios invitados.
      * 
      * @param reserva
      * @param establecimiento
      * @param horario
+     * @param enlaceReunion
+     * @param observaciones
+     * @param usuariosConvocados
      * @param redirectAttributes
      */
-    private String guardarReserva(Reserva reserva, Establecimiento establecimiento, HorarioReserva horario, RedirectAttributes redirectAttributes) {
+    private String guardarReservaConConvocatoria(Reserva reserva, Establecimiento establecimiento, HorarioReserva horario, 
+                                                String enlaceReunion, String observaciones, String[] usuariosConvocados, 
+                                                RedirectAttributes redirectAttributes) {
         configurarReserva(reserva, establecimiento, horario);
 
         try {
-            reservaRepo.save(reserva);
+            // Guardar la reserva primero
+            Reserva reservaGuardada = reservaRepo.save(reserva);
+            
+            // Crear convocatorias si hay usuarios seleccionados
+            if (usuariosConvocados != null && usuariosConvocados.length > 0) {
+                crearConvocatorias(reservaGuardada, enlaceReunion, observaciones, usuariosConvocados);
+            }
+            
             redirectAttributes.addFlashAttribute(EXITO, construirMensajeExito(horario));
             return REDIRECT_MIS_RESERVAS;
         } catch (Exception e) {
@@ -375,13 +407,84 @@ public class ReservaController {
     }
 
     /**
+     * Crea las convocatorias para los usuarios seleccionados.
+     * 
+     * @param reserva
+     * @param enlaceReunion
+     * @param observaciones
+     * @param usuariosConvocados
+     */
+    private void crearConvocatorias(Reserva reserva, String enlaceReunion, String observaciones, String[] usuariosConvocados) {
+        List<Convocatoria> convocatoriasCreadas = new ArrayList<>();
+        
+        for (String usuarioId : usuariosConvocados) {
+            if (usuarioId != null && !usuarioId.trim().isEmpty()) {
+                Usuario usuario = usuarioService.findUsuarioById(usuarioId.trim());
+                if (usuario != null) {
+                    Convocatoria convocatoria = new Convocatoria();
+                    ConvocatoriaPK convocatoriaId = new ConvocatoriaPK(reserva.getId(), usuario.getId());
+                    convocatoria.setId(convocatoriaId);
+                    convocatoria.setReserva(reserva);
+                    convocatoria.setUsuario(usuario);
+					convocatoria.setEnlace(enlaceReunion);
+					convocatoria.setObservaciones(observaciones);
+
+					convocatoriaService.save(convocatoria);
+					convocatoriasCreadas.add(convocatoria);
+                    log.info("Convocatoria creada para usuario: {} en reserva: {}", usuario.getId(), reserva.getId());
+                }
+            }
+        }
+        
+        // Enviar notificaciones por correo electrónico
+        if (!convocatoriasCreadas.isEmpty()) {
+            try {
+                emailService.enviarNotificacionesConvocatoria(convocatoriasCreadas, reserva);
+                log.info("Notificaciones de convocatoria enviadas para {} usuarios", convocatoriasCreadas.size());
+            } catch (Exception e) {
+                log.error("Error al enviar notificaciones de convocatoria: {}", e.getMessage(), e);
+                // No interrumpir el flujo, solo registrar el error
+            }
+        }
+    }
+
+    /**
      * Construye el mensaje de éxito para la reserva creada.
      * 
      * @param horario
      */
     private String construirMensajeExito(HorarioReserva horario) {
-        return String.format("Reserva creada correctamente para el %s de %s a %s", 
-                horario.getFecha(), horario.getHoraInicio(), horario.getHoraFin());
+        return String.format("Reserva creada correctamente para el %s de %s a %s", horario.getFecha(), horario.getHoraInicio(), horario.getHoraFin());
+    }
+
+    /**
+     * Endpoint para buscar usuarios por nombre o ID (AJAX).
+     * 
+     * @param query término de búsqueda
+     * @return lista de usuarios que coinciden con la búsqueda
+     */
+    @GetMapping("/buscar-usuarios")
+    @ResponseBody
+    public List<UsuarioDTO> buscarUsuarios(@RequestParam String query) {
+        if (query == null || query.trim().length() < 2) {
+            return new ArrayList<>();
+        }
+        
+        List<Usuario> todosUsuarios = usuarioService.findAll();
+        String queryLower = query.toLowerCase().trim();
+        
+        return todosUsuarios.stream()
+                .filter(usuario -> !usuario.getId().equals(sessionData.getUsuario().getId())) // Excluir usuario actual
+                .filter(usuario -> 
+                    usuario.getId().toLowerCase().contains(queryLower) ||
+                    usuario.getNombre().toLowerCase().contains(queryLower) ||
+                    usuario.getApellidos().toLowerCase().contains(queryLower) ||
+                    usuario.getCorreo().toLowerCase().contains(queryLower)
+                )
+                .limit(10) // Limitar resultados
+                .map(usuario -> new UsuarioDTO(usuario.getId(), 
+                    usuario.getNombre() + " " + usuario.getApellidos(), 
+                    usuario.getCorreo())).toList();
     }
 
     // ================================
@@ -536,5 +639,27 @@ public class ReservaController {
 		public Map<DayOfWeek, List<SlotReservaUtil.SlotTiempo>> getSlotsDisponibles() {
 			return slotsDisponibles;
 		}
+    }
+
+    /**
+     * DTO para transferir datos de usuario en búsquedas AJAX.
+     */
+    public static class UsuarioDTO {
+        private String id;
+        private String nombre;
+        private String correo;
+
+        public UsuarioDTO(String id, String nombre, String correo) {
+            this.id = id;
+            this.nombre = nombre;
+            this.correo = correo;
+        }
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+        public String getNombre() { return nombre; }
+        public void setNombre(String nombre) { this.nombre = nombre; }
+        public String getCorreo() { return correo; }
+        public void setCorreo(String correo) { this.correo = correo; }
     }
 }

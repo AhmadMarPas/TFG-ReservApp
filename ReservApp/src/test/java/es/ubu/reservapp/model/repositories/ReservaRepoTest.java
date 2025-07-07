@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -48,7 +49,9 @@ class ReservaRepoTest {
     
     @MockitoBean
     private UsuarioService usuarioService;
-
+    
+    @MockitoBean
+    private JavaMailSender mailSender;
 
     private Usuario usuario;
     private Establecimiento establecimiento;

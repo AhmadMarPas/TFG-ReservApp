@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -67,6 +68,9 @@ class PerfilControllerTest {
 
     @MockitoBean
     private ConvocatoriaRepo convocatoriaRepo;
+    
+    @MockitoBean
+    private JavaMailSender mailSender;
 
     private Perfil perfilAdmin;
     private Perfil perfilUser;

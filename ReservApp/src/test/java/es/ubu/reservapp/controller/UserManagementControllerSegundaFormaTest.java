@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -79,6 +80,9 @@ class UserManagementControllerSegundaFormaTest {
 
     @MockitoBean
     private PerfilRepo perfilRepo;
+    
+    @MockitoBean
+    private JavaMailSender mailSender;
     
     private Usuario usuarioAdminLogueado;
     private Usuario usuarioExistente1;

@@ -2,6 +2,269 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/_common_head :: common_head(pageTitle='Calendario de Reserva', customLinks=~{:: #page-specific-links})}">
     <th:block id="page-specific-links">
+        <style>
+            .calendar-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            
+            .establishment-info {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+                border-left: 4px solid #007bff;
+            }
+            
+            .opening-hours {
+                background: white;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .reservations-section {
+                background: white;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .reservation-form {
+                background: white;
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .form-control {
+                border-radius: 4px;
+                border: 1px solid #ddd;
+            }
+            
+            .btn-primary {
+                background-color: #007bff;
+                border-color: #007bff;
+                border-radius: 4px;
+            }
+            
+            .btn-primary:hover {
+                background-color: #0056b3;
+                border-color: #0056b3;
+            }
+            
+            .alert {
+                border-radius: 4px;
+                margin-bottom: 20px;
+            }
+            
+            .loading {
+                display: none;
+                text-align: center;
+                margin-top: 10px;
+            }
+            
+            .spinner-border {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+            
+            .slot-selector {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 10px;
+                margin-top: 10px;
+            }
+            
+            .slot-option {
+                padding: 8px 12px;
+                border: 2px solid #ddd;
+                border-radius: 4px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .slot-option:hover {
+                border-color: #007bff;
+                background-color: #f8f9fa;
+            }
+            
+            .slot-option.selected {
+                border-color: #007bff;
+                background-color: #007bff;
+                color: white;
+            }
+            
+            .slot-option.disabled {
+                background-color: #f8f9fa;
+                color: #6c757d;
+                cursor: not-allowed;
+                opacity: 0.6;
+            }
+            
+            .reservation-item {
+                background: #f8f9fa;
+                border-radius: 4px;
+                padding: 10px;
+                margin-bottom: 10px;
+                border-left: 3px solid #007bff;
+            }
+            
+            .reservation-item.past {
+                border-left-color: #6c757d;
+                opacity: 0.7;
+            }
+            
+            .reservation-time {
+                font-weight: bold;
+                color: #007bff;
+            }
+            
+            .reservation-time.past {
+                color: #6c757d;
+            }
+            
+            /* Estilos para la funcionalidad de convocatoria */
+            .convocatoria-section {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+                border-left: 4px solid #28a745;
+            }
+            
+            .usuario-search-container {
+                position: relative;
+                margin-bottom: 15px;
+            }
+            
+            .search-results {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                border: 1px solid #ddd;
+                border-top: none;
+                border-radius: 0 0 4px 4px;
+                max-height: 200px;
+                overflow-y: auto;
+                z-index: 1000;
+                display: none;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .search-item {
+                padding: 10px;
+                border-bottom: 1px solid #eee;
+                cursor: pointer;
+                transition: background-color 0.2s;
+            }
+            
+            .search-item:hover {
+                background-color: #f8f9fa;
+            }
+            
+            .search-item:last-child {
+                border-bottom: none;
+            }
+            
+            .search-item.disabled {
+                background-color: #f8f9fa;
+                color: #6c757d;
+                cursor: not-allowed;
+                opacity: 0.6;
+            }
+            
+            .search-item.error {
+                color: #dc3545;
+                background-color: #f8d7da;
+            }
+            
+            .search-item.no-results {
+                color: #6c757d;
+                font-style: italic;
+                text-align: center;
+            }
+            
+            .usuario-info {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .usuario-info strong {
+                font-size: 14px;
+                margin-bottom: 2px;
+            }
+            
+            .usuario-info small {
+                color: #6c757d;
+                font-size: 12px;
+                margin-bottom: 2px;
+            }
+            
+            .usuario-id {
+                color: #007bff;
+                font-size: 11px;
+                font-weight: 500;
+            }
+            
+            .usuarios-seleccionados {
+                min-height: 60px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 10px;
+                background: white;
+            }
+            
+            .usuario-seleccionado {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: #e3f2fd;
+                border: 1px solid #2196f3;
+                border-radius: 4px;
+                padding: 8px 12px;
+                margin-bottom: 8px;
+            }
+            
+            .usuario-seleccionado:last-child {
+                margin-bottom: 0;
+            }
+            
+            .btn-remove {
+                background: #dc3545;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                font-size: 12px;
+                transition: background-color 0.2s;
+            }
+            
+            .btn-remove:hover {
+                background: #c82333;
+            }
+            
+            .text-muted {
+                color: #6c757d;
+                font-style: italic;
+                margin: 0;
+            }
+        </style>
     </th:block>
 </head>
 
@@ -170,6 +433,60 @@
                 </div>
             </div>
 
+            <!-- Sección de Convocatoria -->
+            <div class="convocatoria-section">
+                <h3><i class="fas fa-users"></i> Convocatoria de Reunión</h3>
+                <p class="text-muted">Opcional: Invite a otros usuarios a esta reserva</p>
+                
+                <div class="form-group">
+                    <label for="enlaceReunion">
+                        <i class="fas fa-link"></i> Enlace de la Reunión:
+                    </label>
+                    <input type="url" 
+                           id="enlaceReunion" 
+                           name="enlaceReunion" 
+                           class="form-control"
+                           placeholder="https://meet.google.com/abc-defg-hij o https://zoom.us/j/123456789">
+                    <small class="form-text text-muted">
+                        Enlace para la videoconferencia (Google Meet, Zoom, Teams, etc.)
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="observaciones">
+                        <i class="fas fa-sticky-note"></i> Observaciones:
+                    </label>
+                    <textarea id="observaciones" 
+                              name="observaciones" 
+                              class="form-control"
+                              rows="3"
+                              placeholder="Temas a tratar, agenda de la reunión, notas adicionales..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="buscarUsuarios">
+                        <i class="fas fa-search"></i> Buscar Usuarios para Invitar:
+                    </label>
+                    <div class="usuario-search-container">
+                        <input type="text" 
+                               id="buscarUsuarios" 
+                               class="form-control"
+                               placeholder="Escriba nombre, apellido, ID o email del usuario...">
+                        <div id="resultadosBusqueda" class="search-results"></div>
+                    </div>
+                    <small class="form-text text-muted">
+                        Escriba al menos 2 caracteres para buscar usuarios
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-user-friends"></i> Usuarios Invitados:</label>
+                    <div id="usuariosSeleccionados" class="usuarios-seleccionados">
+                        <p class="text-muted">No hay usuarios seleccionados</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="loading" id="loading">
                 <div class="spinner"></div>
                 <p>Procesando reserva...</p>
@@ -317,7 +634,134 @@
                     }, 300);
                 }, 5000);
             });
+
+            // Funcionalidad de búsqueda de usuarios
+            initUsuarioSearch();
         });
+
+        // Variables globales para manejo de usuarios
+        let usuariosSeleccionados = [];
+        let timeoutBusqueda;
+
+        function initUsuarioSearch() {
+            const buscarInput = document.getElementById('buscarUsuarios');
+            const resultadosDiv = document.getElementById('resultadosBusqueda');
+
+            if (buscarInput && resultadosDiv) {
+                buscarInput.addEventListener('input', function() {
+                    const query = this.value.trim();
+                    
+                    // Limpiar timeout anterior
+                    clearTimeout(timeoutBusqueda);
+                    
+                    if (query.length < 2) {
+                        resultadosDiv.innerHTML = '';
+                        resultadosDiv.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Debounce: esperar 300ms antes de buscar
+                    timeoutBusqueda = setTimeout(() => {
+                        buscarUsuarios(query);
+                    }, 300);
+                });
+
+                // Ocultar resultados al hacer clic fuera
+                document.addEventListener('click', function(e) {
+                    if (!buscarInput.contains(e.target) && !resultadosDiv.contains(e.target)) {
+                        resultadosDiv.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        function buscarUsuarios(query) {
+            const resultadosDiv = document.getElementById('resultadosBusqueda');
+            
+            fetch(`/misreservas/buscar-usuarios?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(usuarios => {
+                    mostrarResultadosBusqueda(usuarios);
+                })
+                .catch(error => {
+                    console.error('Error al buscar usuarios:', error);
+                    resultadosDiv.innerHTML = '<div class="search-item error">Error al buscar usuarios</div>';
+                    resultadosDiv.style.display = 'block';
+                });
+        }
+
+        function mostrarResultadosBusqueda(usuarios) {
+            const resultadosDiv = document.getElementById('resultadosBusqueda');
+            
+            if (usuarios.length === 0) {
+                resultadosDiv.innerHTML = '<div class="search-item no-results">No se encontraron usuarios</div>';
+            } else {
+                const html = usuarios.map(usuario => {
+                    const yaSeleccionado = usuariosSeleccionados.some(u => u.id === usuario.id);
+                    const claseDisabled = yaSeleccionado ? 'disabled' : '';
+                    const textoDisabled = yaSeleccionado ? ' (ya seleccionado)' : '';
+                    
+                    return `
+                        <div class="search-item ${claseDisabled}" onclick="${yaSeleccionado ? '' : `seleccionarUsuario('${usuario.id}', '${usuario.nombre}', '${usuario.correo}')`}">
+                            <div class="usuario-info">
+                                <strong>${usuario.nombre}</strong>
+                                <small>${usuario.correo}</small>
+                                <span class="usuario-id">ID: ${usuario.id}</span>
+                            </div>
+                            ${textoDisabled}
+                        </div>
+                    `;
+                }).join('');
+                resultadosDiv.innerHTML = html;
+            }
+            
+            resultadosDiv.style.display = 'block';
+        }
+
+        function seleccionarUsuario(id, nombre, correo) {
+            // Verificar si ya está seleccionado
+            if (usuariosSeleccionados.some(u => u.id === id)) {
+                return;
+            }
+            
+            // Agregar usuario a la lista
+            usuariosSeleccionados.push({ id, nombre, correo });
+            
+            // Actualizar vista
+            actualizarUsuariosSeleccionados();
+            
+            // Limpiar búsqueda
+            document.getElementById('buscarUsuarios').value = '';
+            document.getElementById('resultadosBusqueda').style.display = 'none';
+        }
+
+        function removerUsuario(id) {
+            usuariosSeleccionados = usuariosSeleccionados.filter(u => u.id !== id);
+            actualizarUsuariosSeleccionados();
+        }
+
+        function actualizarUsuariosSeleccionados() {
+            const container = document.getElementById('usuariosSeleccionados');
+            
+            if (usuariosSeleccionados.length === 0) {
+                container.innerHTML = '<p class="text-muted">No hay usuarios seleccionados</p>';
+            } else {
+                const html = usuariosSeleccionados.map(usuario => `
+                    <div class="usuario-seleccionado">
+                        <div class="usuario-info">
+                            <strong>${usuario.nombre}</strong>
+                            <small>${usuario.correo}</small>
+                            <span class="usuario-id">ID: ${usuario.id}</span>
+                        </div>
+                        <button type="button" class="btn-remove" onclick="removerUsuario('${usuario.id}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <input type="hidden" name="usuariosConvocados" value="${usuario.id}">
+                    </div>
+                `).join('');
+                container.innerHTML = html;
+            }
+        }
     </script>
 </body>
 </html>
