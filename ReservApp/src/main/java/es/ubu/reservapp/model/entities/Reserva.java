@@ -65,7 +65,7 @@ public class Reserva extends EntidadInfo<Integer> {
 	private LocalTime horaFin;
 
     // Relación bidireccional con Convocatoria
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Convocatoria> convocatorias = new HashSet<>();
     
 	@Override

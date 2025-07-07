@@ -409,4 +409,24 @@ class ReservaServiceImplTest {
         assertTrue(resultado.isEmpty());
         verify(reservaRepo).findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
     }
+
+    @Test
+    void testFindById() {
+        // Arrange
+        Integer id = 1;
+        Reserva reserva = new Reserva();
+        reserva.setId(id);
+        when(reservaRepo.findById(id)).thenReturn(Optional.of(reserva));
+
+        // Act
+        Optional<Reserva> resultado = reservaService.findById(id);
+
+        // Assert
+        assertNotNull(resultado);
+        assertTrue(resultado.isPresent());
+        assertEquals(reserva, resultado.get());
+
+        // Verify
+        verify(reservaRepo).findById(id);
+    }
 }

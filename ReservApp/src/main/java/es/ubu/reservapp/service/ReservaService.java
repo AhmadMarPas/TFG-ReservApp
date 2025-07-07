@@ -1,12 +1,13 @@
 package es.ubu.reservapp.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * Interfaz que representa el servicio de la entidad Reserva.
@@ -83,4 +84,13 @@ public interface ReservaService {
      * @return Lista de reservas realizadas por el usuario.
      */
     List<Reserva> findByUsuario(Usuario usuario);
+
+    /**
+     * Busca una reserva por su ID.
+     * 
+     * @param id ID de la reserva a buscar.
+     * @return Optional con la reserva si existe, vacío si no.
+     */
+    Optional<Reserva> findById(Integer id);
+
 }

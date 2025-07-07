@@ -99,4 +99,10 @@ public class ReservaServiceImpl implements ReservaService {
 	public List<Reserva> findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(Usuario usuario, Establecimiento establecimiento, LocalDateTime fechaActual) {
 		return reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
 	}
+
+	@Override
+	public Optional<Reserva> findById(Integer id) {
+		return reservaRepo.findById(id);
+	}
+
 }

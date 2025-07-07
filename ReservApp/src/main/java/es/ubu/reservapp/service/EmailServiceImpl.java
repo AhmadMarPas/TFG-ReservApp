@@ -3,8 +3,8 @@ package es.ubu.reservapp.service;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -25,11 +25,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class EmailServiceImpl implements EmailService {
     
-	@Autowired
     private JavaMailSender mailSender;
     
     @Value("${spring.mail.username:noreply@reservapp.com}")
     private String fromEmail;
+    
+    public EmailServiceImpl(JavaMailSender mailSender) {
+    	this.mailSender = mailSender;
+    }
     
     @Override
     public void enviarNotificacionesConvocatoria(List<Convocatoria> convocatorias, Reserva reserva) {
@@ -70,7 +73,7 @@ public class EmailServiceImpl implements EmailService {
             
         } catch (Exception e) {
         	log.error("Error al enviar correo de convocatoria a {}: {}", usuario.getCorreo(), e.getMessage());
-            throw new RuntimeException("Error al enviar correo de convocatoria", e);
+            throw new MailSendException("Error al enviar correo de convocatoria", e);
         }
     }
     
