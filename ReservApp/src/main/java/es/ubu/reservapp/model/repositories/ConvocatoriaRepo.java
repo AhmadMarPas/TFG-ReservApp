@@ -1,8 +1,11 @@
 package es.ubu.reservapp.model.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import es.ubu.reservapp.model.entities.Convocatoria;
@@ -46,5 +49,16 @@ public interface ConvocatoriaRepo extends JpaRepository<Convocatoria, Convocator
 	 * @param reserva Reserva cuyas convocatorias se van a eliminar.
 	 */
 	void deleteByReserva(Reserva reserva);
+
+    /**
+     * Busca una convocatoria por su ID incluyendo las marcadas como inválidas (soft delete).
+     * Usa SQL nativo para evitar que Hibernate aplique automáticamente la condición WHERE valido = true.
+     * 
+     * @param idReserva ID de la reserva
+     * @param idUsuario ID del usuario
+     * @return Optional con la convocatoria si existe, incluso si está marcada como inválida
+     */
+    @Query(value = "SELECT * FROM convocatoria WHERE id_reserva_pk = :idReserva AND id_usuario_pk = :idUsuario", nativeQuery = true)
+    Optional<Convocatoria> findByIdIgnoringValido(@Param("idReserva") Integer idReserva, @Param("idUsuario") String idUsuario);
 
 }

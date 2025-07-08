@@ -75,9 +75,22 @@ public class ConvocatoriaServiceImpl implements ConvocatoriaService {
 	}
 
 	@Override
-	@Transactional
-	public void deleteByReserva(Reserva reserva) {
-		convocatoriaRepo.deleteByReserva(reserva);
+    @Transactional
+    public void deleteByReserva(Reserva reserva) {
+        convocatoriaRepo.deleteByReserva(reserva);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Convocatoria> findByIdIgnoringValido(Integer idReserva, String idUsuario) {
+        return convocatoriaRepo.findByIdIgnoringValido(idReserva, idUsuario);
 	}
+
+    @Override
+    @Transactional
+    public Convocatoria merge(Convocatoria convocatoria) {
+        // Usar save() que internamente hace merge si la entidad ya tiene ID
+        return convocatoriaRepo.save(convocatoria);
+    }
 
 }

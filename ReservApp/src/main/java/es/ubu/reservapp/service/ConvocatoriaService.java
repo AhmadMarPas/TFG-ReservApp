@@ -63,4 +63,23 @@ public interface ConvocatoriaService {
      */
     void deleteByReserva(Reserva reserva);
 
+    /**
+     * Busca una convocatoria por su ID incluyendo las marcadas como inválidas (soft delete).
+     * 
+     * @param idReserva ID de la reserva
+     * @param idUsuario ID del usuario
+     * @return Optional con la convocatoria si existe, incluso si está marcada como inválida
+     */
+    Optional<Convocatoria> findByIdIgnoringValido(Integer idReserva, String idUsuario);
+
+    
+    /**
+     * Fusiona una convocatoria existente con el contexto de persistencia.
+     * Útil para entidades recuperadas con consultas nativas.
+     * 
+     * @param convocatoria la convocatoria a fusionar
+     * @return la convocatoria fusionada
+     */
+    Convocatoria merge(Convocatoria convocatoria);
+
 }
