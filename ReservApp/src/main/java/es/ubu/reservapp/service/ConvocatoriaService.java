@@ -55,5 +55,12 @@ public interface ConvocatoriaService {
 	 * @return una lista de todas las convocatorias.
 	 */
 	List<Convocatoria> findAll();
+    
+    /**
+     * Elimina todas las convocatorias asociadas a una reserva.
+     * 
+     * @param reserva Reserva cuyas convocatorias se van a eliminar.
+     */
+    void deleteByReserva(Reserva reserva);
 
 }

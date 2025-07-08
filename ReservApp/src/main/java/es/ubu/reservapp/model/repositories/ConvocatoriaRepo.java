@@ -39,4 +39,12 @@ public interface ConvocatoriaRepo extends JpaRepository<Convocatoria, Convocator
 	 */
 	List<Convocatoria> findConvocatoriaByReserva(Reserva reserva);
 
+
+	/**
+	 * Método que elimina todas las convocatorias asociadas a una reserva.
+	 * 
+	 * @param reserva Reserva cuyas convocatorias se van a eliminar.
+	 */
+	void deleteByReserva(Reserva reserva);
+
 }

@@ -74,4 +74,10 @@ public class ConvocatoriaServiceImpl implements ConvocatoriaService {
 		return convocatoriaRepo.findConvocatoriaByReserva(reserva);
 	}
 
+	@Override
+	@Transactional
+	public void deleteByReserva(Reserva reserva) {
+		convocatoriaRepo.deleteByReserva(reserva);
+	}
+
 }

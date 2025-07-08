@@ -53,7 +53,7 @@ public class Convocatoria extends EntidadInfo<ConvocatoriaPK> {
 	@Column(name = "observaciones", columnDefinition = "TEXT")
 	private String observaciones;
 
-    @Override
+	@Override
     public ConvocatoriaPK getId() {
     	return id;
     }
