@@ -2,8 +2,8 @@ package es.ubu.reservapp.model.entities;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -12,11 +12,13 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,7 +32,11 @@ import lombok.Setter;
  * @since 1.0
  */
 @Entity
-@Table(name = "reserva")
+@Table(name = "reserva", indexes = {
+		@Index(name = "idx_reserva_fecha", columnList = "fecha_reserva"),
+		@Index(name = "idx_reserva_usuario", columnList = "id_usuario_fk"),
+		@Index(name = "idx_reserva_establecimiento", columnList = "id_establecimiento_fk")
+	})
 @Getter
 @Setter
 @AllArgsConstructor
@@ -63,10 +69,17 @@ public class Reserva extends EntidadInfo<Integer> {
 	
 	@Column(name = "hora_fin")
 	private LocalTime horaFin;
+	
+    @Column(name = "enlace", length = 120)
+    private String enlace;
+    
+	@Size(max = 250)
+	@Column(name = "observaciones", columnDefinition = "TEXT")
+	private String observaciones;
 
     // Relación bidireccional con Convocatoria
-    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<Convocatoria> convocatorias = new HashSet<>();
+    @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Convocatoria> convocatorias = new ArrayList<>();
     
 	@Override
 	public Integer getId() {
@@ -94,7 +107,9 @@ public class Reserva extends EntidadInfo<Integer> {
 		this.setEstablecimiento(reserva.getEstablecimiento());
 		this.setFechaReserva(reserva.getFechaReserva());
 		this.setHoraFin(reserva.getHoraFin());
-		this.setConvocatorias(reserva.getConvocatorias() == null ? new HashSet<>() : new HashSet<>(reserva.getConvocatorias()));
+		this.setEnlace(reserva.getEnlace());
+		this.setObservaciones(reserva.getObservaciones());
+		this.setConvocatorias(reserva.getConvocatorias() == null ? new ArrayList<>() : new ArrayList<>(reserva.getConvocatorias()));
 	}
 
 }

@@ -10,6 +10,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -28,7 +29,11 @@ import lombok.Setter;
  * @since 1.0
  */
 @Entity
-@Table(name = "franja_horaria")
+@Table(name = "franja_horaria", indexes = {
+		@Index(name = "idx_franja_dia_semana", columnList = "dia_semana"),
+		@Index(name = "idx_franja_establecimiento", columnList = "id_establecimiento_fk"),
+		@Index(name = "idx_franja_horario", columnList = "hora_inicio, hora_fin")
+	})
 @Getter
 @Setter
 @NoArgsConstructor

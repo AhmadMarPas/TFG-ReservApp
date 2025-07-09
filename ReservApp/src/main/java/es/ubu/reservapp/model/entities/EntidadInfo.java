@@ -5,6 +5,11 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.SoftDeleteType;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
@@ -28,7 +33,7 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 @MappedSuperclass
-@EntityListeners(value = EntidadInfoInterceptor.class)
+@EntityListeners({AuditingEntityListener.class, EntidadInfoInterceptor.class})
 @SoftDelete(strategy = SoftDeleteType.ACTIVE, columnName = "valido")
 public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
 
@@ -40,32 +45,36 @@ public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
     /**
      * orden
      */
-    @Column(name = "ORDEN")
+    @Column(name = "orden")
     private Integer orden;
+    
+    /**
+     * Usuario que creó el registro
+     */
+    @CreatedBy
+    @Column(name = "id_usuario_creacion_fk")
+    private String usuarioCreaReg;
+    
+    /**
+     * Fecha de creación
+     */
+    @CreatedDate
+    @Column(name = "tst_creacion")
+    private LocalDateTime fechaCreaReg;
 
     /**
-     * usuarioModReg
+     * Usuario que modificó el registro
      */
-    @Column(name = "ID_USUARIO_MODIFICACION_FK")
+    @LastModifiedBy
+    @Column(name = "id_usuario_modificacion_fk")
     private String usuarioModReg;
 
     /**
-     * usuarioCreaReg
+     * Fecha de última modificación
      */
-    @Column(name = "ID_USUARIO_CREACION_FK")
-    private String usuarioCreaReg;
-
-    /**
-     * fechaModReg
-     */
-    @Column(name = "TST_MODIFICACION")
+    @LastModifiedDate
+    @Column(name = "tst_modificacion")
     private LocalDateTime fechaModReg;
-
-    /**
-     * fechaCreaReg
-     */
-    @Column(name = "TST_CREACION")
-    private LocalDateTime fechaCreaReg;
 
     @Override
     public String toString() {

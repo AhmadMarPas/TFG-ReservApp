@@ -1,10 +1,9 @@
 package es.ubu.reservapp.service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,14 +34,13 @@ public class ReservaServiceImpl implements ReservaService {
 
     @Override
     @Transactional
-	public Reserva crearReservaConConvocatorias(Reserva reserva, List<String> idUsuariosConvocados, String enlaceReunion, 
-			String observacionesConvocatoria, Usuario usuarioQueReserva) throws UserNotFoundException {
+	public Reserva crearReservaConConvocatorias(Reserva reserva, Usuario usuarioQueReserva, List<String> idUsuariosConvocados) throws UserNotFoundException {
         reserva.setUsuario(usuarioQueReserva);
         
         // Guardar la reserva principal primero para obtener su ID generado
         Reserva reservaGuardada = reservaRepo.save(reserva);
 
-        Set<Convocatoria> convocatorias = new HashSet<>();
+        List<Convocatoria> convocatorias = new ArrayList<>();
         if (idUsuariosConvocados != null && !idUsuariosConvocados.isEmpty()) {
             for (String idUsuarioConvocado : idUsuariosConvocados) {
                 Optional<Usuario> optUsuarioConvocado = usuarioRepo.findById(idUsuarioConvocado);
@@ -54,8 +52,6 @@ public class ReservaServiceImpl implements ReservaService {
                     convocatoria.setId(convocatoriaPK);
                     convocatoria.setReserva(reservaGuardada);
                     convocatoria.setUsuario(usuarioConvocado);
-                    convocatoria.setEnlace(enlaceReunion);
-                    convocatoria.setObservaciones(observacionesConvocatoria);
                     
                     convocatoriaService.save(convocatoria); // Guardar a través del servicio de convocatoria
                     convocatorias.add(convocatoria);

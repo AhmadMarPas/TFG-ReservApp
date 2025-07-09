@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,7 +92,7 @@ class ReservaServiceImplTest {
         reserva.setId(1);
         reserva.setFechaReserva(fechaReserva);
         reserva.setEstablecimiento(establecimiento);
-        reserva.setConvocatorias(new HashSet<>());
+        reserva.setConvocatorias(new ArrayList<>());
     }
 
     @Test
@@ -102,6 +101,8 @@ class ReservaServiceImplTest {
         List<String> idUsuariosConvocados = Arrays.asList("convocado1", "convocado2");
         String enlaceReunion = "https://meet.google.com/abc-def-ghi";
         String observaciones = "Reunión importante";
+        reserva.setEnlace(enlaceReunion);
+        reserva.setObservaciones(observaciones);
 
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
         when(usuarioRepo.findById("convocado1")).thenReturn(Optional.of(usuarioConvocado1));
@@ -109,8 +110,7 @@ class ReservaServiceImplTest {
         when(convocatoriaService.save(any(Convocatoria.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        Reserva resultado = reservaService.crearReservaConConvocatorias(
-            reserva, idUsuariosConvocados, enlaceReunion, observaciones, usuario);
+        Reserva resultado = reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
 
         // Assert
         assertNotNull(resultado);
@@ -128,12 +128,13 @@ class ReservaServiceImplTest {
         List<String> idUsuariosConvocados = new ArrayList<>();
         String enlaceReunion = "https://meet.google.com/abc-def-ghi";
         String observaciones = "Sin convocados";
+        reserva.setEnlace(enlaceReunion);
+        reserva.setObservaciones(observaciones);
 
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
 
         // Act
-        Reserva resultado = reservaService.crearReservaConConvocatorias(
-            reserva, idUsuariosConvocados, enlaceReunion, observaciones, usuario);
+        Reserva resultado = reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
 
         // Assert
         assertNotNull(resultado);
@@ -150,12 +151,13 @@ class ReservaServiceImplTest {
         List<String> idUsuariosConvocados = null;
         String enlaceReunion = "https://meet.google.com/abc-def-ghi";
         String observaciones = "Lista null";
+        reserva.setEnlace(enlaceReunion);
+        reserva.setObservaciones(observaciones);
 
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
 
         // Act
-        Reserva resultado = reservaService.crearReservaConConvocatorias(
-            reserva, idUsuariosConvocados, enlaceReunion, observaciones, usuario);
+        Reserva resultado = reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
 
         // Assert
         assertNotNull(resultado);
@@ -172,14 +174,15 @@ class ReservaServiceImplTest {
         List<String> idUsuariosConvocados = Arrays.asList("usuarioInexistente");
         String enlaceReunion = "https://meet.google.com/abc-def-ghi";
         String observaciones = "Usuario no existe";
+        reserva.setEnlace(enlaceReunion);
+        reserva.setObservaciones(observaciones);
 
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
         when(usuarioRepo.findById("usuarioInexistente")).thenReturn(Optional.empty());
 
         // Act & Assert
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
-            reservaService.crearReservaConConvocatorias(
-                reserva, idUsuariosConvocados, enlaceReunion, observaciones, usuario);
+            reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
         });
 
         assertEquals("El Usuario con ID usuarioInexistente no fue encontrado.", exception.getMessage());
@@ -194,6 +197,8 @@ class ReservaServiceImplTest {
         List<String> idUsuariosConvocados = Arrays.asList("convocado1", "usuarioInexistente");
         String enlaceReunion = "https://meet.google.com/abc-def-ghi";
         String observaciones = "Algunos usuarios no existen";
+        reserva.setEnlace(enlaceReunion);
+        reserva.setObservaciones(observaciones);
 
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
         when(usuarioRepo.findById("convocado1")).thenReturn(Optional.of(usuarioConvocado1));
@@ -202,8 +207,7 @@ class ReservaServiceImplTest {
 
         // Act & Assert
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
-            reservaService.crearReservaConConvocatorias(
-                reserva, idUsuariosConvocados, enlaceReunion, observaciones, usuario);
+            reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
         });
 
         assertEquals("El Usuario con ID usuarioInexistente no fue encontrado.", exception.getMessage());
@@ -219,14 +223,15 @@ class ReservaServiceImplTest {
         List<String> idUsuariosConvocados = Arrays.asList("convocado1");
         String enlaceReunion = null;
         String observaciones = null;
+        reserva.setEnlace(enlaceReunion);
+        reserva.setObservaciones(observaciones);
 
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
         when(usuarioRepo.findById("convocado1")).thenReturn(Optional.of(usuarioConvocado1));
         when(convocatoriaService.save(any(Convocatoria.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        Reserva resultado = reservaService.crearReservaConConvocatorias(
-            reserva, idUsuariosConvocados, enlaceReunion, observaciones, usuario);
+        Reserva resultado = reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
 
         // Assert
         assertNotNull(resultado);

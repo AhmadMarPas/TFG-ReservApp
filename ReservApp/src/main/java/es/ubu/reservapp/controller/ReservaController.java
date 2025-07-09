@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -55,10 +56,11 @@ public class ReservaController {
     private static final String REDIRECT = "redirect:/";
     private static final String REDIRECT_CALENDARIO = "reservas/calendario_reserva";
     private static final String REDIRECT_MIS_RESERVAS = REDIRECT + "misreservas";
-    private static final String REDIRECT_RESERVAS_ESTABLECIMIENTO = REDIRECT + "reservas/establecimiento/";
+    private static final String REDIRECT_RESERVAS_ESTABLECIMIENTO = REDIRECT + "misreservas/establecimiento/";
     private static final String ERROR = "error";
     private static final String EXITO = "exito";
     private static final String MIS_RESERVAS_VIEW = "reservas/misreservas";
+    private static final String REDIRECT_MIS_RESERVAS_EDITAR = REDIRECT_MIS_RESERVAS + "/editar/";
     
     // Servicios inyectados
     private final SessionData sessionData;
@@ -172,7 +174,9 @@ public class ReservaController {
 			return errorFranja;
 		}
 
-		return guardarReservaConConvocatoria(reserva, establecimiento, horario, enlaceReunion, observaciones, usuariosConvocados, redirectAttributes);
+		reserva.setEnlace(enlaceReunion);
+		reserva.setObservaciones(observaciones);
+		return guardarReservaConConvocatoria(reserva, establecimiento, horario, usuariosConvocados, redirectAttributes);
     }
 
     /**
@@ -370,8 +374,7 @@ public class ReservaController {
      * @param redirectAttributes
      */
     private String guardarReservaConConvocatoria(Reserva reserva, Establecimiento establecimiento, HorarioReserva horario, 
-                                                String enlaceReunion, String observaciones, String[] usuariosConvocados, 
-                                                RedirectAttributes redirectAttributes) {
+                                                String[] usuariosConvocados, RedirectAttributes redirectAttributes) {
         configurarReserva(reserva, establecimiento, horario);
 
         try {
@@ -380,7 +383,7 @@ public class ReservaController {
             
             // Crear convocatorias si hay usuarios seleccionados
             if (usuariosConvocados != null && usuariosConvocados.length > 0) {
-                crearConvocatorias(reservaGuardada, enlaceReunion, observaciones, usuariosConvocados);
+                crearConvocatorias(reservaGuardada, usuariosConvocados);
             }
             
             redirectAttributes.addFlashAttribute(EXITO, construirMensajeExito(horario));
@@ -406,14 +409,70 @@ public class ReservaController {
     }
 
     /**
+     * Gestiona las convocatorias considerando el soft delete.
+     * Reutiliza convocatorias existentes (incluso las marcadas como inválidas) o crea nuevas.
+     */
+    private void gestionarConvocatorias(Reserva reserva, String[] usuariosConvocados) {
+        // Primero marcar todas las convocatorias existentes como inválidas
+        convocatoriaService.deleteByReserva(reserva);
+        
+        List<Convocatoria> convocatoriasActivas = new ArrayList<>();
+        
+        if (usuariosConvocados != null && usuariosConvocados.length > 0) {
+            for (String usuarioId : usuariosConvocados) {
+                if (usuarioId != null && !usuarioId.trim().isEmpty()) {
+                    Usuario usuario = usuarioService.findUsuarioById(usuarioId.trim());
+                    if (usuario != null) {
+                        ConvocatoriaPK convocatoriaId = new ConvocatoriaPK(reserva.getId(), usuario.getId());
+                        
+                        // Buscar si ya existe una convocatoria (incluso inválida)
+                        Optional<Convocatoria> convocatoriaExistente = convocatoriaService.findByIdIgnoringValido(reserva.getId(), usuario.getId());
+                        
+                        Convocatoria convocatoria;
+                        if (convocatoriaExistente.isPresent()) {
+                            // Reutilizar la convocatoria existente
+                            convocatoria = convocatoriaExistente.get();
+                            log.info("Reutilizando convocatoria existente para usuario: {} en reserva: {}", usuario.getId(), reserva.getId());
+                            
+                            // Con @SoftDelete, Hibernate maneja automáticamente el campo valido
+                            // Usar merge para entidades recuperadas con consulta nativa
+                            convocatoriaService.merge(convocatoria);
+                        } else {
+                            // Crear nueva convocatoria solo si no existe
+                            convocatoria = new Convocatoria();
+                            convocatoria.setId(convocatoriaId);
+                            convocatoria.setReserva(reserva);
+                            convocatoria.setUsuario(usuario);
+                            log.info("Creando nueva convocatoria para usuario: {} en reserva: {}", usuario.getId(), reserva.getId());
+                            
+                            // Para nuevas entidades usar save
+                            convocatoriaService.save(convocatoria);
+                        }
+                        convocatoriasActivas.add(convocatoria);
+                    }
+                }
+            }
+        }
+        
+        // Enviar notificaciones por correo electrónico
+        if (!convocatoriasActivas.isEmpty()) {
+            try {
+                emailService.enviarNotificacionesConvocatoria(convocatoriasActivas, reserva);
+                log.info("Notificaciones de convocatoria enviadas para {} usuarios", convocatoriasActivas.size());
+            } catch (Exception e) {
+                log.error("Error al enviar notificaciones de convocatoria: {}", e.getMessage(), e);
+                // No interrumpir el flujo, solo registrar el error
+            }
+        }
+    }
+
+    /**
      * Crea las convocatorias para los usuarios seleccionados.
      * 
      * @param reserva
-     * @param enlaceReunion
-     * @param observaciones
      * @param usuariosConvocados
      */
-    private void crearConvocatorias(Reserva reserva, String enlaceReunion, String observaciones, String[] usuariosConvocados) {
+    private void crearConvocatorias(Reserva reserva, String[] usuariosConvocados) {
         List<Convocatoria> convocatoriasCreadas = new ArrayList<>();
         
         for (String usuarioId : usuariosConvocados) {
@@ -425,8 +484,6 @@ public class ReservaController {
                     convocatoria.setId(convocatoriaId);
                     convocatoria.setReserva(reserva);
                     convocatoria.setUsuario(usuario);
-					convocatoria.setEnlace(enlaceReunion);
-					convocatoria.setObservaciones(observaciones);
 
 					convocatoriaService.save(convocatoria);
 					convocatoriasCreadas.add(convocatoria);
@@ -484,6 +541,157 @@ public class ReservaController {
                 .map(usuario -> new UsuarioDTO(usuario.getId(), 
                     usuario.getNombre() + " " + usuario.getApellidos(), 
                     usuario.getCorreo())).toList();
+    }
+
+    /**
+     * Muestra el formulario de edición de una reserva.
+     *
+     * @param reservaId ID de la reserva a editar.
+     * @param model Modelo para pasar datos a la vista.
+     * @param redirectAttributes Atributos para redirección con mensajes flash.
+     * @return Nombre de la vista a mostrar.
+     */
+    @GetMapping("/editar/{id}")
+    public String mostrarFormularioEditar(@PathVariable("id") Integer reservaId, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            // Validar usuario autenticado
+            String errorUsuario = validarUsuarioAutenticado(redirectAttributes);
+            if (errorUsuario != null) return errorUsuario;
+            
+            Usuario usuario = sessionData.getUsuario();
+            
+            Optional<Reserva> reservaOpt = reservaService.findById(reservaId);
+            if (reservaOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute(ERROR, "Reserva no encontrada.");
+                return REDIRECT_MIS_RESERVAS;
+            }
+            
+            Reserva reserva = reservaOpt.get();
+            
+            // Verificar que la reserva pertenece al usuario autenticado
+            if (!reserva.getUsuario().getId().equals(usuario.getId())) {
+                redirectAttributes.addFlashAttribute(ERROR, "No tienes permisos para editar esta reserva.");
+                return REDIRECT_MIS_RESERVAS;
+            }
+            
+            // Verificar que la reserva es futura
+            if (reserva.getFechaReserva().isBefore(LocalDateTime.now())) {
+                redirectAttributes.addFlashAttribute(ERROR, "No se pueden editar reservas pasadas.");
+                return REDIRECT_RESERVAS_ESTABLECIMIENTO + reserva.getEstablecimiento().getId();
+            }
+            
+            // Preparar datos para el formulario
+            model.addAttribute("reserva", reserva);
+            model.addAttribute("establecimiento", reserva.getEstablecimiento());
+            model.addAttribute("isEdit", true);
+			if (!reserva.getConvocatorias().isEmpty()) {
+				model.addAttribute("convocatoria", reserva.getConvocatorias().iterator().next());
+				List<UsuarioSimpleDTO> convocados = reserva.getConvocatorias().stream()
+					.map(Convocatoria::getUsuario)
+					.filter(Objects::nonNull)
+					.map(usr -> new UsuarioSimpleDTO(usr.getId(), usr.getNombre(), usr.getApellidos(), usr.getCorreo()))
+					.toList();
+				model.addAttribute("convocados", convocados);
+			}
+            
+            // Obtener franjas horarias del establecimiento
+            List<FranjaHoraria> franjasActivas = obtenerFranjasActivas(reserva.getEstablecimiento());
+            model.addAttribute("franjasHorarias", franjasActivas);
+            
+            return "reservas/editar_reserva";
+            
+        } catch (Exception e) {
+            log.error("Error al mostrar formulario de edición de reserva: ", e);
+            redirectAttributes.addFlashAttribute(ERROR, "Error al cargar la reserva para edición.");
+            return REDIRECT_MIS_RESERVAS;
+        }
+    }
+
+    /**
+     * Actualiza una reserva existente.
+     *
+     * @param reservaId ID de la reserva a actualizar.
+     * @param fechaStr Fecha de la reserva como String.
+     * @param horaInicioStr Hora de inicio como String.
+     * @param horaFinStr Hora de fin como String.
+     * @param slotSeleccionado Slot seleccionado como String.
+     * @param enlaceReunion Enlace de reunión opcional.
+     * @param observaciones Observaciones opcionales.
+     * @param usuariosConvocados Array de IDs de usuarios convocados.
+     * @param redirectAttributes Atributos para redirección con mensajes flash.
+     * @return Redirección a la página correspondiente.
+     */
+    @PostMapping("/editar/{id}")
+    public String actualizarReserva(@PathVariable("id") Integer reservaId,
+                                   @RequestParam("fecha") String fechaStr,
+                                   @RequestParam(value = "horaInicio", required = false) String horaInicioStr,
+                                   @RequestParam(value = "horaFin", required = false) String horaFinStr,
+                                   @RequestParam(value = "slotSeleccionado", required = false) String slotSeleccionado,
+                                   @RequestParam(value = "enlaceReunion", required = false) String enlaceReunion,
+                                   @RequestParam(value = "observaciones", required = false) String observaciones,
+                                   @RequestParam(value = "usuariosConvocados", required = false) String[] usuariosConvocados,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            // Validar usuario autenticado
+            String errorUsuario = validarUsuarioAutenticado(redirectAttributes);
+            if (errorUsuario != null) return errorUsuario;
+            
+            Usuario usuario = sessionData.getUsuario();
+            
+            Optional<Reserva> reservaOpt = reservaService.findById(reservaId);
+            if (reservaOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute(ERROR, "Reserva no encontrada.");
+                return REDIRECT_MIS_RESERVAS;
+            }
+            
+            Reserva reservaExistente = reservaOpt.get();
+            
+            // Verificar permisos
+            if (!reservaExistente.getUsuario().getId().equals(usuario.getId())) {
+                redirectAttributes.addFlashAttribute(ERROR, "No tienes permisos para editar esta reserva.");
+                return REDIRECT_MIS_RESERVAS;
+            }
+            
+            // Verificar que la reserva es futura
+            if (reservaExistente.getFechaReserva().isBefore(LocalDateTime.now())) {
+                redirectAttributes.addFlashAttribute(ERROR, "No se pueden editar reservas pasadas.");
+                return REDIRECT_RESERVAS_ESTABLECIMIENTO + reservaExistente.getEstablecimiento().getId();
+            }
+            
+            Establecimiento establecimiento = reservaExistente.getEstablecimiento();
+            
+            // Procesar horarios
+            HorarioReserva horario = parsearHorarios(fechaStr, horaInicioStr, horaFinStr, slotSeleccionado, redirectAttributes);
+            if (horario == null) {
+                return REDIRECT_MIS_RESERVAS_EDITAR + reservaId;
+            }
+            
+            // Validar franja horaria
+            String errorFranja = validarFranjaHoraria(establecimiento, horario, redirectAttributes);
+            if (errorFranja != null) {
+                return REDIRECT_MIS_RESERVAS_EDITAR + reservaId;
+            }
+            
+            // Actualizar la reserva
+            reservaExistente.setFechaReserva(LocalDateTime.of(horario.getFecha(), horario.getHoraInicio()));
+            reservaExistente.setHoraFin(horario.getHoraFin());
+            reservaExistente.setEnlace(enlaceReunion);
+            reservaExistente.setObservaciones(observaciones);
+            
+            // Guardar la reserva actualizada
+            Reserva reservaActualizada = reservaService.save(reservaExistente);
+            
+            // Gestionar convocatorias con soft delete
+            gestionarConvocatorias(reservaActualizada, usuariosConvocados);
+            
+            redirectAttributes.addFlashAttribute(EXITO, "Reserva actualizada correctamente.");
+            return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimiento.getId();
+            
+        } catch (Exception e) {
+            log.error("Error al actualizar reserva: ", e);
+            redirectAttributes.addFlashAttribute(ERROR, "Error al actualizar la reserva: " + e.getMessage());
+            return REDIRECT_MIS_RESERVAS_EDITAR + reservaId;
+        }
     }
 
     // ================================
@@ -660,5 +868,27 @@ public class ReservaController {
         public void setNombre(String nombre) { this.nombre = nombre; }
         public String getCorreo() { return correo; }
         public void setCorreo(String correo) { this.correo = correo; }
+    }
+    
+    /**
+     * DTO simplificado para transferir datos de usuario sin relaciones complejas.
+     */
+    public static class UsuarioSimpleDTO {
+        private String id;
+        private String nombre;
+        private String apellidos;
+        private String correo;
+
+        public UsuarioSimpleDTO(String id, String nombre, String apellidos, String correo) {
+            this.id = id;
+            this.nombre = nombre;
+            this.apellidos = apellidos;
+            this.correo = correo;
+        }
+
+        public String getId() { return id; }
+        public String getNombre() { return nombre; }
+        public String getApellidos() { return apellidos; }
+        public String getCorreo() { return correo; }
     }
 }

@@ -50,7 +50,7 @@ class ConvocatoriaTest {
     @Test
     @DisplayName("Constructor con Reserva y Usuario")
     void testConstructorWithReservaAndUsuario() {
-        Convocatoria conv = new Convocatoria(convocatoriaId, reserva, usuario, null, null);
+        Convocatoria conv = new Convocatoria(convocatoriaId, reserva, usuario);
         
         assertNotNull(conv.getId());
         assertEquals(ID_RESERVA, conv.getId().getIdReserva());
@@ -134,28 +134,6 @@ class ConvocatoriaTest {
         convocatoria.setId(convocatoriaId);
         convocatoria.setUsuario(null);
         assertNull(convocatoria.getUsuario());
-    }
-    
-    @Test
-    @DisplayName("Getter y Setter de enlace")
-    void testEnlaceGetterSetter() {
-        String enlace = "https://meet.google.com/abc-123";
-        convocatoria.setEnlace(enlace);
-        assertEquals(enlace, convocatoria.getEnlace());
-        
-        convocatoria.setEnlace(null);
-        assertNull(convocatoria.getEnlace());
-    }
-    
-    @Test
-    @DisplayName("Getter y Setter de observaciones")
-    void testObservacionesGetterSetter() {
-        String observaciones = "Reunión importante del equipo";
-        convocatoria.setObservaciones(observaciones);
-        assertEquals(observaciones, convocatoria.getObservaciones());
-        
-        convocatoria.setObservaciones(null);
-        assertNull(convocatoria.getObservaciones());
     }
     
     @Test
@@ -301,8 +279,6 @@ class ConvocatoriaTest {
     @DisplayName("toString")
     void testToString() {
         convocatoria.setId(convocatoriaId);
-        convocatoria.setEnlace("https://test.com");
-        convocatoria.setObservaciones("Test observaciones");
         convocatoria.setOrden(1);
         convocatoria.setUsuarioCreaReg("ADMIN001");
         convocatoria.setFechaCreaReg(LocalDateTime.now());
@@ -325,9 +301,7 @@ class ConvocatoriaTest {
         LocalDateTime now = LocalDateTime.now();
         
         // Crear convocatoria completa
-        Convocatoria conv = new Convocatoria(convocatoriaId, reserva, usuario, null, null);
-        conv.setEnlace("https://meet.google.com/test");
-        conv.setObservaciones("Reunión de seguimiento del proyecto");
+        Convocatoria conv = new Convocatoria(convocatoriaId, reserva, usuario);
         conv.setOrden(10);
         conv.setUsuarioCreaReg("CREATOR001");
         conv.setFechaCreaReg(now);
@@ -340,8 +314,6 @@ class ConvocatoriaTest {
         assertEquals(ID_USUARIO, conv.getId().getIdUsuario());
         assertEquals(reserva, conv.getReserva());
         assertEquals(usuario, conv.getUsuario());
-        assertEquals("https://meet.google.com/test", conv.getEnlace());
-        assertEquals("Reunión de seguimiento del proyecto", conv.getObservaciones());
         assertEquals(10, conv.getOrden());
         assertEquals("CREATOR001", conv.getUsuarioCreaReg());
         assertEquals(now, conv.getFechaCreaReg());
@@ -371,16 +343,12 @@ class ConvocatoriaTest {
         ConvocatoriaPK id = new ConvocatoriaPK();
         id.setIdUsuario(usuarioTest.getId());
         id.setIdReserva(reservaTest.getId());
-        String enlace = "URL";
-        String observaciones = "Reunión";
         
-        Convocatoria convocatoriaCompleta = new Convocatoria(id, reservaTest, usuarioTest, enlace, observaciones);
+        Convocatoria convocatoriaCompleta = new Convocatoria(id, reservaTest, usuarioTest);
         
         assertEquals(id, convocatoriaCompleta.getId());
         assertEquals(reservaTest, convocatoriaCompleta.getReserva());
         assertEquals(usuarioTest, convocatoriaCompleta.getUsuario());
-        assertEquals(enlace, convocatoriaCompleta.getEnlace());
-        assertEquals(observaciones, convocatoriaCompleta.getObservaciones());
     }
     
     @Test
@@ -393,10 +361,8 @@ class ConvocatoriaTest {
         ConvocatoriaPK id = new ConvocatoriaPK();
         id.setIdUsuario(usuarioTest.getId());
         id.setIdReserva(reservaTest.getId());
-        String enlace = "URL";
-        String observaciones = "Reunión";
         
-        Convocatoria convocatoriaOriginal = new Convocatoria(id, reservaTest, usuarioTest, enlace, observaciones);
+        Convocatoria convocatoriaOriginal = new Convocatoria(id, reservaTest, usuarioTest);
 
         // Create a copy using the copy constructor
         Convocatoria convocatoriaCopia = new Convocatoria(convocatoriaOriginal);
@@ -405,19 +371,13 @@ class ConvocatoriaTest {
         assertEquals(convocatoriaOriginal.getId(), convocatoriaCopia.getId());
         assertEquals(convocatoriaOriginal.getReserva(), convocatoriaCopia.getReserva());
         assertEquals(convocatoriaOriginal.getUsuario(), convocatoriaCopia.getUsuario());
-        assertEquals(convocatoriaOriginal.getEnlace(), convocatoriaCopia.getEnlace());
-        assertEquals(convocatoriaOriginal.getObservaciones(), convocatoriaCopia.getObservaciones());
 
         // Verify they are different objects
         assertNotSame(convocatoriaOriginal, convocatoriaCopia);
 
         // Verify modifying the copy doesn't affect the original
         convocatoriaCopia.setId(new ConvocatoriaPK(123, "UsuarioCopia"));
-        convocatoriaCopia.setEnlace("nueva URL");
-        convocatoriaCopia.setObservaciones("Nueva Reunión");
         assertNotEquals(convocatoriaOriginal.getId(), convocatoriaCopia.getId());
-        assertNotEquals(convocatoriaOriginal.getEnlace(), convocatoriaCopia.getEnlace());
-        assertNotEquals(convocatoriaOriginal.getObservaciones(), convocatoriaCopia.getObservaciones());
     }
 
     @Test
@@ -428,8 +388,6 @@ class ConvocatoriaTest {
         convocatoriaOriginal.setId(new ConvocatoriaPK(reserva.getId(), usuario.getId()));
         convocatoriaOriginal.setReserva(reserva);
         convocatoriaOriginal.setUsuario(usuario);
-        convocatoriaOriginal.setEnlace("Enlace");
-        convocatoriaOriginal.setObservaciones("Observaciones");
 
         // Create a copy using the copia() method
         Convocatoria convocatoriaCopia = (Convocatoria) convocatoriaOriginal.copia();
@@ -438,19 +396,13 @@ class ConvocatoriaTest {
         assertEquals(convocatoriaOriginal.getId(), convocatoriaCopia.getId());
         assertEquals(convocatoriaOriginal.getUsuario(), convocatoriaCopia.getUsuario());
         assertEquals(convocatoriaOriginal.getReserva(), convocatoriaCopia.getReserva());
-        assertEquals(convocatoriaOriginal.getEnlace(), convocatoriaCopia.getEnlace());
-        assertEquals(convocatoriaOriginal.getObservaciones(), convocatoriaCopia.getObservaciones());
 
         // Verify they are different objects
         assertNotSame(convocatoriaOriginal, convocatoriaCopia);
 
         // Verify modifying the copy doesn't affect the original
         convocatoriaCopia.setId(new ConvocatoriaPK(123, "UsuarioCopia"));
-        convocatoriaCopia.setEnlace("nueva URL");
-        convocatoriaCopia.setObservaciones("Nueva Reunión");
        assertNotEquals(convocatoriaOriginal.getId(), convocatoriaCopia.getId());
-       assertNotEquals(convocatoriaOriginal.getEnlace(), convocatoriaCopia.getEnlace());
-       assertNotEquals(convocatoriaOriginal.getObservaciones(), convocatoriaCopia.getObservaciones());
    }
 
 }

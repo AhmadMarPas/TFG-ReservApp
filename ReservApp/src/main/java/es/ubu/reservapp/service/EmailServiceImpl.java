@@ -45,12 +45,7 @@ public class EmailServiceImpl implements EmailService {
         
         for (Convocatoria convocatoria : convocatorias) {
             try {
-                enviarCorreoConvocatoria(
-                    convocatoria.getUsuario(), 
-                    reserva, 
-                    convocatoria.getEnlace(), 
-                    convocatoria.getObservaciones()
-                );
+                enviarCorreoConvocatoria(convocatoria.getUsuario(), reserva);
             } catch (Exception e) {
             	log.error("Error al enviar correo de convocatoria a usuario {}: {}", convocatoria.getUsuario().getCorreo(), e.getMessage());
             }
@@ -58,14 +53,14 @@ public class EmailServiceImpl implements EmailService {
     }
     
     @Override
-    public void enviarCorreoConvocatoria(Usuario usuario, Reserva reserva, String enlaceReunion, String observaciones) {
+    public void enviarCorreoConvocatoria(Usuario usuario, Reserva reserva) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(usuario.getCorreo());
             message.setSubject("Convocatoria de Reunión - " + reserva.getEstablecimiento().getNombre());
             
-            String contenido = construirContenidoCorreo(usuario, reserva, enlaceReunion, observaciones);
+            String contenido = construirContenidoCorreo(usuario, reserva, reserva.getEnlace(), reserva.getObservaciones());
             message.setText(contenido);
             
             mailSender.send(message);

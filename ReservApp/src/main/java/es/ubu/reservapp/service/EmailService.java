@@ -30,6 +30,6 @@ public interface EmailService {
 	 * @param enlaceReunion Enlace de la reunión (opcional)
 	 * @param observaciones Observaciones de la reunión (opcional)
 	 */
-    void enviarCorreoConvocatoria(Usuario usuario, Reserva reserva, String enlaceReunion, String observaciones);
+    void enviarCorreoConvocatoria(Usuario usuario, Reserva reserva);
 
 }

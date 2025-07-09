@@ -2,15 +2,14 @@ package es.ubu.reservapp.model.entities;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -36,7 +35,10 @@ import lombok.Setter;
  * @since 1.0
  */
 @Entity
-@Table(name = "usuario")
+@Table(name = "usuario", indexes = {
+		@Index(name = "idx_usuario_correo", columnList = "correo"),
+		@Index(name = "idx_usuario_telefono", columnList = "telefono")
+	})
 @Getter
 @Setter
 @AllArgsConstructor
@@ -102,24 +104,24 @@ public class Usuario extends EntidadInfo<String> {
     @Column(name = "email_verified")
     private boolean emailVerified = false;
 
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "usuario_perfil", 
 		joinColumns = @JoinColumn(name = "id_usuario_pk", referencedColumnName = "id"), 
 		inverseJoinColumns = @JoinColumn(name = "id_perfil_pk", referencedColumnName = "id"))
 	private List<Perfil> lstPerfiles = new ArrayList<>();
 
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "usuario_establecimiento", 
 		joinColumns = @JoinColumn(name = "id_usuario_pk", referencedColumnName = "id"), 
 		inverseJoinColumns = @JoinColumn(name = "id_establecimiento_pk", referencedColumnName = "id"))
 	private List<Establecimiento> lstEstablecimientos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "usuario")
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Reserva> lstReservas = new ArrayList<>();
     
     // Relación bidireccional con Convocatoria
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Convocatoria> convocatorias = new HashSet<>();
+    private List<Convocatoria> convocatorias = new ArrayList<>();
 
 	/**
 	 * Función que prepara los datos del correo antes de guardarlos.
@@ -160,7 +162,7 @@ public class Usuario extends EntidadInfo<String> {
 		this.setLstEstablecimientos(usuario.getLstEstablecimientos() == null ? new ArrayList<>() : new ArrayList<>(usuario.getLstEstablecimientos()));
 		this.setLstPerfiles(usuario.getLstPerfiles() == null ? new ArrayList<>() : new ArrayList<>(usuario.getLstPerfiles()));
 		this.setLstReservas(usuario.getLstReservas() == null ? new ArrayList<>() : new ArrayList<>(usuario.getLstReservas()));
-		this.setConvocatorias(usuario.getConvocatorias() == null ? new HashSet<>() : new HashSet<>(usuario.getConvocatorias()));
+		this.setConvocatorias(usuario.getConvocatorias() == null ? new ArrayList<>() : new ArrayList<>(usuario.getConvocatorias()));
 	}
 	
 }

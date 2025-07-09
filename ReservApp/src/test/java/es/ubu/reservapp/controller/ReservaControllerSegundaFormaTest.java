@@ -260,7 +260,7 @@ class ReservaControllerSegundaFormaTest {
         String result = reservaController.crearReserva(new Reserva(), 1, "fecha-invalida", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
-        assertEquals("redirect:/reservas/establecimiento/1", result);
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
         verify(redirectAttributes).addFlashAttribute("error", "Formato de fecha u hora inválido.");
     }
 
@@ -274,7 +274,7 @@ class ReservaControllerSegundaFormaTest {
         String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "11:00", "10:00", null, null, null, null, redirectAttributes);
 
         // Assert
-        assertEquals("redirect:/reservas/establecimiento/1", result);
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
         verify(redirectAttributes).addFlashAttribute("error", "La hora de fin debe ser posterior a la hora de inicio.");
     }
 
@@ -288,7 +288,7 @@ class ReservaControllerSegundaFormaTest {
         String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", null, null, null, null, null, null, redirectAttributes);
 
         // Assert
-        assertEquals("redirect:/reservas/establecimiento/1", result);
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
         verify(redirectAttributes).addFlashAttribute("error", "Debe especificar hora de inicio y fin");
     }
 
@@ -302,7 +302,7 @@ class ReservaControllerSegundaFormaTest {
         String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", null, null, "slot-invalido", null, null, null, redirectAttributes);
 
         // Assert
-        assertEquals("redirect:/reservas/establecimiento/1", result);
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
         verify(redirectAttributes).addFlashAttribute("error", "Formato de slot inválido");
     }
 
@@ -316,7 +316,7 @@ class ReservaControllerSegundaFormaTest {
         String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "08:00", "09:00", null, null, null, null, redirectAttributes);
 
         // Assert
-        assertEquals("redirect:/reservas/establecimiento/1", result);
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
         verify(redirectAttributes).addFlashAttribute("error", "La hora seleccionada está fuera del horario de apertura del establecimiento para ese día o no es válida.");
     }
 
@@ -363,7 +363,7 @@ class ReservaControllerSegundaFormaTest {
         String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
-        assertEquals("redirect:/reservas/establecimiento/1", result);
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
         verify(redirectAttributes).addFlashAttribute(eq("error"), contains("Error al guardar la reserva"));
     }
 
@@ -445,7 +445,7 @@ class ReservaControllerSegundaFormaTest {
         String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", "10:00", "11:00", null, null, null, null, redirectAttributes);
 
         // Assert
-        assertEquals("redirect:/reservas/establecimiento/1", result);
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
         verify(redirectAttributes).addFlashAttribute("error", "La hora seleccionada está fuera del horario de apertura del establecimiento para ese día o no es válida.");
     }
 
@@ -474,7 +474,7 @@ class ReservaControllerSegundaFormaTest {
         String result = reservaController.crearReserva(new Reserva(), 1, "2024-01-15", null, null, "   ", null, null, null, redirectAttributes);
 
         // Assert
-        assertEquals("redirect:/reservas/establecimiento/1", result);
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
         verify(redirectAttributes).addFlashAttribute("error", "Debe especificar hora de inicio y fin");
     }
 

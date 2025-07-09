@@ -1,13 +1,11 @@
 package es.ubu.reservapp.model.entities;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,13 +43,6 @@ public class Convocatoria extends EntidadInfo<ConvocatoriaPK> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario_pk", insertable = false, updatable = false)
     private Usuario usuario;
-	
-    @Column(name = "enlace", length = 120)
-    private String enlace;
-    
-	@Size(max = 250)
-	@Column(name = "observaciones", columnDefinition = "TEXT")
-	private String observaciones;
 
 	@Override
     public ConvocatoriaPK getId() {
@@ -61,12 +52,6 @@ public class Convocatoria extends EntidadInfo<ConvocatoriaPK> {
     @Override
     public void setId(ConvocatoriaPK id) {
     	this.id = id;
-		if (id != null) {
-			this.reserva = new Reserva();
-			this.reserva.setId(id.getIdReserva() == null ? null : id.getIdReserva());
-			this.usuario = new Usuario();
-			this.usuario.setId(id.getIdUsuario() == null ? null : id.getIdUsuario());
-		}
     }
     
     public void setReserva(Reserva reserva) {
@@ -96,8 +81,6 @@ public class Convocatoria extends EntidadInfo<ConvocatoriaPK> {
 	 */
 	public Convocatoria(Convocatoria convocatoria) {
 		this.setId(convocatoria.getId());
-		this.setEnlace(convocatoria.getEnlace());
-		this.setObservaciones(convocatoria.getObservaciones());
 		this.setReserva(convocatoria.getReserva());
 		this.setUsuario(convocatoria.getUsuario());
 	}

@@ -1,17 +1,15 @@
 package es.ubu.reservapp.model.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -146,7 +144,7 @@ class UsuarioTest {
         perfil.setNombre("Perfil Test");
         perfiles.add(perfil);
         
-        Set<Convocatoria> convocatorias = new HashSet<>();
+        List<Convocatoria> convocatorias = new ArrayList<>();
         Convocatoria conv = new Convocatoria();
         conv.setReserva(new Reserva());
         conv.setUsuario(usuario);
@@ -194,7 +192,7 @@ class UsuarioTest {
         perfil.setNombre("Perfil Test");
         perfiles.add(perfil);
 
-        Set<Convocatoria> convocatorias = new HashSet<>();
+        List<Convocatoria> convocatorias = new ArrayList<>();
         Convocatoria conv = new Convocatoria();
         conv.setReserva(new Reserva());
         conv.setUsuario(usuario);
@@ -275,7 +273,7 @@ class UsuarioTest {
         perfil.setNombre("Perfil Test");
         perfiles.add(perfil);
 
-        Set<Convocatoria> convocatorias = new HashSet<>();
+        List<Convocatoria> convocatorias = new ArrayList<>();
         Convocatoria conv = new Convocatoria();
         conv.setReserva(new Reserva());
         conv.setUsuario(usuario);

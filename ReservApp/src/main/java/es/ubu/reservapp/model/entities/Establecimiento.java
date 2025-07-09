@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
@@ -28,7 +29,11 @@ import lombok.Setter;
  * @since 1.0
  */
 @Entity
-@Table(name = "establecimiento")
+@Table(name = "establecimiento", indexes = {
+		@Index(name = "idx_establecimiento_nombre", columnList = "nombre"),
+		@Index(name = "idx_establecimiento_tipo", columnList = "tipo"),
+		@Index(name = "idx_establecimiento_activo", columnList = "activo")
+	})
 @Getter
 @Setter
 @AllArgsConstructor
@@ -94,13 +99,13 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	/**
 	 * Lista de reservas que tiene el establecimiento.
 	 */
-	@OneToMany(mappedBy = "establecimiento", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "establecimiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Reserva> lstReservas = new ArrayList<>();
 
     /**
      * Lista de franjas horarias de apertura del establecimiento.
      */
-    @OneToMany(mappedBy = "establecimiento", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "establecimiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<FranjaHoraria> franjasHorarias = new ArrayList<>();
     
     @Override

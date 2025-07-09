@@ -24,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,9 +31,13 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -50,7 +53,14 @@ import es.ubu.reservapp.service.PerfilService;
 import es.ubu.reservapp.service.ReservaService;
 import es.ubu.reservapp.service.UsuarioService;
 
-@WebMvcTest(UserManagementController.class)
+@WebMvcTest(value = UserManagementController.class, excludeAutoConfiguration = {
+	    JpaRepositoriesAutoConfiguration.class,
+	    DataSourceAutoConfiguration.class,
+	    HibernateJpaAutoConfiguration.class
+	})
+@TestPropertySource(properties = {
+	    "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration"
+	})
 class UserManagementControllerSegundaFormaTest {
 
     @Autowired
@@ -107,9 +117,9 @@ class UserManagementControllerSegundaFormaTest {
 
     @BeforeEach
     void setUp() {
-        usuarioAdminLogueado = new Usuario("adminId", "Admin Logueado", "Apellidos1", "admin@test.com", "password1", "123456", true, LocalDateTime.now(), false, "confirmation", true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new HashSet<>());
-        usuarioExistente1 = new Usuario("userId1", "User Test 1", "Apellidos2", "user1@test.com", "pass2", "123456", false, LocalDateTime.now(), false, "confirmation", true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new HashSet<>());
-        usuarioExistente2Bloqueado = new Usuario("userId2", "User Test 2 Bloqueado", "Apellidos3", "user2@test.com", "pass3", "123456", false, LocalDateTime.now(), true, "confirmation", true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new HashSet<>());
+        usuarioAdminLogueado = new Usuario("adminId", "Admin Logueado", "Apellidos1", "admin@test.com", "password1", "123456", true, LocalDateTime.now(), false, "confirmation", true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        usuarioExistente1 = new Usuario("userId1", "User Test 1", "Apellidos2", "user1@test.com", "pass2", "123456", false, LocalDateTime.now(), false, "confirmation", true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        usuarioExistente2Bloqueado = new Usuario("userId2", "User Test 2 Bloqueado", "Apellidos3", "user2@test.com", "pass3", "123456", false, LocalDateTime.now(), true, "confirmation", true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         
         // Configuración por defecto para sessionData si es necesario globalmente
         when(sessionData.getUsuario()).thenReturn(usuarioAdminLogueado);
@@ -339,7 +349,7 @@ class UserManagementControllerSegundaFormaTest {
     @Test
     @Disabled("Revisar secuencia")
     void saveOrUpdateUser_edicion_exito_sinCambioPassword() throws Exception {
-        Usuario usuarioParaEditar = new Usuario(usuarioExistente1.getId(), "Nombre Original", "Apellidos4", usuarioExistente1.getCorreo(), "hashedOriginalPassword", "123456", false, LocalDateTime.now(), false, "confirmation", true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new HashSet<>());
+        Usuario usuarioParaEditar = new Usuario(usuarioExistente1.getId(), "Nombre Original", "Apellidos4", usuarioExistente1.getCorreo(), "hashedOriginalPassword", "123456", false, LocalDateTime.now(), false, "confirmation", true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         
         when(usuarioService.existeId(usuarioExistente1.getId())).thenReturn(true);
         when(usuarioService.findUsuarioByCorreo(usuarioExistente1.getCorreo().toLowerCase())).thenReturn(usuarioParaEditar); // Email no cambia, devuelve el mismo usuario
@@ -369,7 +379,7 @@ class UserManagementControllerSegundaFormaTest {
     @Disabled("Revisar secuencia")
     void saveOrUpdateUser_edicion_exito_conCambioPassword() throws Exception {
         String newPassword = "nuevaPasswordSegura";
-    	Usuario usuarioParaEditar = new Usuario(usuarioExistente1.getId(), "Nombre Original", "Apellidos4", usuarioExistente1.getCorreo(), "hashedOriginalPassword", "123456", false, LocalDateTime.now(), false, "confirmation", true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new HashSet<>());
+    	Usuario usuarioParaEditar = new Usuario(usuarioExistente1.getId(), "Nombre Original", "Apellidos4", usuarioExistente1.getCorreo(), "hashedOriginalPassword", "123456", false, LocalDateTime.now(), false, "confirmation", true, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         when(usuarioService.existeId(usuarioExistente1.getId())).thenReturn(true);
         when(usuarioService.findUsuarioByCorreo(usuarioExistente1.getCorreo().toLowerCase())).thenReturn(usuarioParaEditar);

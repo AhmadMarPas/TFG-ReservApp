@@ -23,12 +23,10 @@ public interface ReservaService {
 	 * 
 	 * @param reserva
 	 * @param idUsuariosConvocados
-	 * @param enlaceReunion
-	 * @param observacionesConvocatoria
 	 * @param usuarioQueReserva
 	 * @return La reserva creara.
 	 */
-    Reserva crearReservaConConvocatorias(Reserva reserva, List<String> idUsuariosConvocados, String enlaceReunion, String observacionesConvocatoria, Usuario usuarioQueReserva) throws UserNotFoundException;
+    Reserva crearReservaConConvocatorias(Reserva reserva, Usuario usuarioQueReserva, List<String> idUsuariosConvocados) throws UserNotFoundException;
 
     /**
      * Recupera las reservas de un establecimiento entre dos fechas.

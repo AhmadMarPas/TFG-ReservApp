@@ -53,8 +53,6 @@ class ConvocatoriaServiceImplTest {
         Usuario usuario = new Usuario();
         usuario.setId("USER0001");
         convocatoria.setUsuario(usuario);
-        convocatoria.setEnlace("https://meeting.com");
-        convocatoria.setObservaciones("Reunión importante");
     }
 
     @Test

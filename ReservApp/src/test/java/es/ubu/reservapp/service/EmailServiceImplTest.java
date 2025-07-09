@@ -94,16 +94,12 @@ class EmailServiceImplTest {
         convocatoria1.setId(id1);
         convocatoria1.setUsuario(usuario1);
         convocatoria1.setReserva(reserva);
-        convocatoria1.setEnlace("https://meet.google.com/abc-defg-hij");
-        convocatoria1.setObservaciones("Reunión importante sobre el proyecto");
         
         convocatoria2 = new Convocatoria();
         ConvocatoriaPK id2 = new ConvocatoriaPK(1, "2");
         convocatoria2.setId(id2);
         convocatoria2.setUsuario(usuario2);
         convocatoria2.setReserva(reserva);
-        convocatoria2.setEnlace("https://zoom.us/j/123456789");
-        convocatoria2.setObservaciones("Traer documentos del proyecto");
     }
 
     // ================================
@@ -166,7 +162,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva, "https://meet.google.com/abc-defg-hij", "Reunión importante");
+        emailService.enviarCorreoConvocatoria(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -182,8 +178,6 @@ class EmailServiceImplTest {
         assertTrue(contenido.contains("15/12/2024 10:30"));
         assertTrue(contenido.contains("Sala de Reuniones A"));
         assertTrue(contenido.contains("Calle Principal 123, Planta 2"));
-        assertTrue(contenido.contains("https://meet.google.com/abc-defg-hij"));
-        assertTrue(contenido.contains("Reunión importante"));
     }
 
     @Test
@@ -192,7 +186,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario2, reserva, null, null);
+        emailService.enviarCorreoConvocatoria(usuario2, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -206,49 +200,13 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void testEnviarCorreoConvocatoria_ConEnlaceVacio() {
-        // Arrange
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
-        // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva, "   ", "Observación importante");
-        
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        String contenido = sentMessage.getText();
-        assertNotNull(contenido);
-        assertFalse(contenido.contains("🔗 Enlace de reunión:"));
-        assertTrue(contenido.contains("Observación importante"));
-    }
-
-    @Test
-    void testEnviarCorreoConvocatoria_ConObservacionesVacias() {
-        // Arrange
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
-        // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva, "https://zoom.us/j/123", "   ");
-        
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        String contenido = sentMessage.getText();
-        assertNotNull(contenido);
-        assertTrue(contenido.contains("https://zoom.us/j/123"));
-        assertFalse(contenido.contains("📝 Observaciones:"));
-    }
-
-    @Test
     void testEnviarCorreoConvocatoria_EstablecimientoSinDireccion() {
         // Arrange
         establecimiento.setDireccion(null);
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva, "https://meet.google.com/test", "Test");
+        emailService.enviarCorreoConvocatoria(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -266,7 +224,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva, "https://meet.google.com/test", "Test");
+        emailService.enviarCorreoConvocatoria(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -284,7 +242,7 @@ class EmailServiceImplTest {
         
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            emailService.enviarCorreoConvocatoria(usuario1, reserva, "https://meet.google.com/test", "Test");
+            emailService.enviarCorreoConvocatoria(usuario1, reserva);
         });
         
         assertEquals("Error al enviar correo de convocatoria", exception.getMessage());
@@ -302,7 +260,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva, "https://teams.microsoft.com/test", "Reunión de seguimiento del proyecto X");
+        emailService.enviarCorreoConvocatoria(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -316,9 +274,6 @@ class EmailServiceImplTest {
         assertTrue(contenido.contains("📅 Fecha: 15/12/2024 10:30"));
         assertTrue(contenido.contains("📍 Lugar: Sala de Reuniones A"));
         assertTrue(contenido.contains("🗺️ Ubicación: Calle Principal 123, Planta 2"));
-        assertTrue(contenido.contains("🔗 Enlace de reunión: https://teams.microsoft.com/test"));
-        assertTrue(contenido.contains("📝 Observaciones:"));
-        assertTrue(contenido.contains("Reunión de seguimiento del proyecto X"));
         assertTrue(contenido.contains("Por favor, confirme su asistencia"));
         assertTrue(contenido.contains("Saludos cordiales"));
         assertTrue(contenido.contains("Sistema de Reservas ReservApp"));
@@ -331,7 +286,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario2, reserva, null, null);
+        emailService.enviarCorreoConvocatoria(usuario2, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -368,7 +323,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva, "https://meet.google.com/test", "Reunión con temas específicos & importantes");
+        emailService.enviarCorreoConvocatoria(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -378,7 +333,6 @@ class EmailServiceImplTest {
         assertTrue(contenido.contains("José María Ñoño"));
         assertTrue(contenido.contains("Sala de Reuniones & Conferencias"));
         assertTrue(contenido.contains("Calle Ñoño #123, Piso 2º"));
-        assertTrue(contenido.contains("Reunión con temas específicos & importantes"));
     }
 
     @Test
