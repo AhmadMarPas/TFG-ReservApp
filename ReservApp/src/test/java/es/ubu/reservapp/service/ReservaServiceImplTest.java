@@ -419,9 +419,9 @@ class ReservaServiceImplTest {
     void testFindById() {
         // Arrange
         Integer id = 1;
-        Reserva reserva = new Reserva();
-        reserva.setId(id);
-        when(reservaRepo.findById(id)).thenReturn(Optional.of(reserva));
+        Reserva reservaTest = new Reserva();
+        reservaTest.setId(id);
+        when(reservaRepo.findById(id)).thenReturn(Optional.of(reservaTest));
 
         // Act
         Optional<Reserva> resultado = reservaService.findById(id);
@@ -429,7 +429,7 @@ class ReservaServiceImplTest {
         // Assert
         assertNotNull(resultado);
         assertTrue(resultado.isPresent());
-        assertEquals(reserva, resultado.get());
+        assertEquals(reservaTest, resultado.get());
 
         // Verify
         verify(reservaRepo).findById(id);

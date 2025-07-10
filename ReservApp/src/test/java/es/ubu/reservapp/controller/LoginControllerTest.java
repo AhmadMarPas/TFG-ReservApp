@@ -87,7 +87,7 @@ class LoginControllerTest {
     void testLoginPageWithLogout() {
         String viewName = loginController.loginPage(model, null, "true");
         
-        verify(model).addAttribute(eq("logout"), eq("Has cerrado sesión correctamente."));
+        verify(model).addAttribute("logout", "Has cerrado sesión correctamente.");
         verify(model).addAttribute(eq("usuario"), any(Usuario.class));
         
         assertEquals("login", viewName);
