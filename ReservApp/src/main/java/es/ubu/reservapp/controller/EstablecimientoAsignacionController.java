@@ -1,8 +1,6 @@
 package es.ubu.reservapp.controller;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -107,14 +105,11 @@ public class EstablecimientoAsignacionController {
             return REDIRECT_ERROR;
         }
 
+        model = usuarioService.recuperarEstablecimientosUsuario(userId, model);
         List<Establecimiento> todosEstablecimientos = establecimientoService.findAll();
-        Set<Integer> establecimientosAsignados = usuario.getLstEstablecimientos().stream()
-                .map(Establecimiento::getId)
-                .collect(Collectors.toSet());
 
         model.addAttribute(USUARIO, usuario);
         model.addAttribute("establecimientos", todosEstablecimientos);
-        model.addAttribute("establecimientosAsignados", establecimientosAsignados);
         model.addAttribute("origen", origen);
 
         return ASIGNACION;
@@ -168,12 +163,9 @@ public class EstablecimientoAsignacionController {
                 return ADMIN.equals(origen) ? REDIRECT_ADMIN_USUARIOS : REDIRECT_MENUPRINCIPAL;
             }
 
-            // Limpiar establecimientos actuales
-            usuario.getLstEstablecimientos().clear();
-
             // Agregar nuevos establecimientos si se seleccionaron
             if (establecimientosIds != null && !establecimientosIds.isEmpty()) {
-            	establecimientoService.findAllById(establecimientosIds).forEach(establecimiento -> usuario.getLstEstablecimientos().add(establecimiento));
+            	usuario = usuarioService.asignarEstablecimientos(usuario, establecimientoService.findAllById(establecimientosIds));
             }
 
             usuarioService.save(usuario);

@@ -1,13 +1,15 @@
 package es.ubu.reservapp.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import es.ubu.reservapp.model.entities.Establecimiento;
+import es.ubu.reservapp.model.entities.FranjaHoraria;
 import es.ubu.reservapp.model.repositories.EstablecimientoRepo;
 
 /**
@@ -32,13 +34,11 @@ public class EstablecimientoServiceImpl implements EstablecimientoService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Establecimiento> findAll() {
         return establecimientoRepo.findAll();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<Establecimiento> findById(Integer id) {
         Optional<Establecimiento> establecimientoOptional = establecimientoRepo.findById(id);
         establecimientoOptional.ifPresent(establecimiento -> Hibernate.initialize(establecimiento.getFranjasHorarias()));
@@ -46,13 +46,11 @@ public class EstablecimientoServiceImpl implements EstablecimientoService {
     }
 
     @Override
-    @Transactional
     public Establecimiento save(Establecimiento establecimiento) {
         return establecimientoRepo.save(establecimiento);
     }
 
     @Override
-    @Transactional
     public void deleteById(Integer id) {
     	// TODO: Manejar excepciones si el establecimiento tiene reservas asociadas
         establecimientoRepo.deleteById(id);
@@ -62,4 +60,17 @@ public class EstablecimientoServiceImpl implements EstablecimientoService {
 	public List<Establecimiento> findAllById(List<Integer> ids) {
 		return establecimientoRepo.findAllById(ids);
 	}
+
+	@Override
+	public List<Establecimiento> findAllAndFranjaHoraria() {
+		List<Establecimiento> establecimientos = establecimientoRepo.findAll();
+        for (Establecimiento establecimiento : establecimientos) {
+            if (establecimiento.getFranjasHorarias() != null) {
+                establecimiento.setFranjasHorarias(new ArrayList<>(establecimiento.getFranjasHorarias()));
+                establecimiento.getFranjasHorarias().sort(Comparator.comparing(FranjaHoraria::getDiaSemana));
+            }
+        }
+		return establecimientos;
+	}
+
 }

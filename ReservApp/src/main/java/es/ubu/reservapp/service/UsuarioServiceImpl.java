@@ -1,13 +1,16 @@
 package es.ubu.reservapp.service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 
 import es.ubu.reservapp.exception.UserNotFoundException;
+import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
 
@@ -40,7 +43,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 	@Override
-	@Transactional
 	public void save(Usuario user) {
 		// codificación de la contraseña
         if (user.getPassword() != null && !user.getPassword().isEmpty() && !BCRYPT_PATTERN.matcher(user.getPassword()).matches()) {
@@ -90,7 +92,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 	@Override
-	@Transactional
 	public void blockUser(String id) throws UserNotFoundException {
 		Usuario usuario = findUsuarioById(id);
 		if (usuario != null) {
@@ -102,7 +103,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 	@Override
-	@Transactional
 	public void unblockUser(String id) throws UserNotFoundException {
 		Usuario usuario = findUsuarioById(id);
 		if (usuario != null) {
@@ -114,11 +114,64 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 	@Override
-    @Transactional
 	public void deleteById(String id) throws UserNotFoundException {
         if (findUsuarioById(id) == null) {
             throw new UserNotFoundException("No se pudo eliminar el usuario con ID: " + id);
         }
         usuarioRepo.deleteById(id);
 	}
+	
+    /**
+     * Método común para mostrar la asignación de establecimientos.
+     * 
+     * @param userId ID del usuario
+     * @param model Modelo de la vista
+     * @return model Modelo con los objetos a mostrar
+     */
+	@Override
+	public Model recuperarEstablecimientosUsuario(String userId, Model model) {
+		Usuario usuario = findUsuarioById(userId);
+		if (usuario != null) {
+			Set<Integer> establecimientosAsignados = usuario.getLstEstablecimientos().stream()
+					.map(Establecimiento::getId).collect(Collectors.toSet());
+
+			model.addAttribute("usuario", usuario);
+			model.addAttribute("establecimientosAsignados", establecimientosAsignados);
+		}
+		return model;
+	}
+
+	@Override
+	public Usuario asignarEstablecimientos(Usuario usuario, List<Establecimiento> establecimientos) {
+		usuario = findUsuarioById(usuario.getId());
+		if (usuario != null) {
+			usuario.getLstEstablecimientos().clear();
+			usuario.setLstEstablecimientos(establecimientos);
+		}
+		return usuario;
+	}
+
+	@Override
+	public Model obtenerEstablecimientosUsuario(Usuario usuario, Model model) {
+		usuario = findUsuarioById(usuario.getId());
+		if (usuario != null) {
+			List<Establecimiento> establecimientos = usuario.getLstEstablecimientos().stream().toList();
+
+			model.addAttribute("usuario", usuario);
+			model.addAttribute("establecimientos", establecimientos);
+		}
+		return model;
+	}
+
+	@Override
+	public boolean establecimientoAsignado(Usuario usuario, Establecimiento establecimiento) {
+		boolean asignado = false;
+		usuario = findUsuarioById(usuario.getId());
+		if (usuario != null) {
+			List<Establecimiento> establecimientos = usuario.getLstEstablecimientos().stream().toList();
+			asignado = establecimientos.contains(establecimiento);
+		}
+		return asignado;
+	}
+
 }

@@ -2,11 +2,11 @@ package es.ubu.reservapp.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Convocatoria;
@@ -26,6 +26,13 @@ public class ReservaServiceImpl implements ReservaService {
     private final UsuarioRepo usuarioRepo;
     private final ConvocatoriaService convocatoriaService;
 
+    /**
+     * Constructor para la inyección de dependencias.
+     * 
+     * @param reservaRepo
+     * @param usuarioRepo
+     * @param convocatoriaService
+     */
     public ReservaServiceImpl(ReservaRepo reservaRepo, UsuarioRepo usuarioRepo, ConvocatoriaService convocatoriaService) {
         this.reservaRepo = reservaRepo;
         this.usuarioRepo = usuarioRepo;
@@ -33,7 +40,6 @@ public class ReservaServiceImpl implements ReservaService {
     }
 
     @Override
-    @Transactional
 	public Reserva crearReservaConConvocatorias(Reserva reserva, Usuario usuarioQueReserva, List<String> idUsuariosConvocados) throws UserNotFoundException {
         reserva.setUsuario(usuarioQueReserva);
         
@@ -71,7 +77,6 @@ public class ReservaServiceImpl implements ReservaService {
     }
 
     @Override
-    @Transactional
     public Reserva save(Reserva reserva) {
         return reservaRepo.save(reserva);
     }
@@ -83,22 +88,40 @@ public class ReservaServiceImpl implements ReservaService {
 
 	@Override
 	public List<Reserva> findByEstablecimientoAndFechaReservaBetween(Establecimiento establecimiento, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-		return reservaRepo.findByEstablecimientoAndFechaReservaBetween(establecimiento, fechaInicio, fechaFin);
+		List<Reserva> reservas = reservaRepo.findByEstablecimientoAndFechaReservaBetween(establecimiento, fechaInicio, fechaFin);
+		return obtenerConvocatorias(reservas);
 	}
 
 	@Override
 	public List<Reserva> findByUsuarioAndEstablecimientoAndFechaReservaBefore(Usuario usuario, Establecimiento establecimiento, LocalDateTime fechaActual) {
-		return reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual);
+		List<Reserva> reservas = reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual); 
+		return obtenerConvocatorias(reservas);
 	}
 
 	@Override
 	public List<Reserva> findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(Usuario usuario, Establecimiento establecimiento, LocalDateTime fechaActual) {
-		return reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
+		List<Reserva> reservas = reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual); 
+		return obtenerConvocatorias(reservas);
 	}
 
 	@Override
 	public Optional<Reserva> findById(Integer id) {
 		return reservaRepo.findById(id);
+	}
+
+	/**
+	 * Recupera las convocatorias de las reserva
+	 * 
+	 * @param reservas
+	 */
+	private List<Reserva> obtenerConvocatorias(List<Reserva> reservas) {
+		for (Reserva reserva : reservas) {
+            if (reserva.getConvocatorias() != null) {
+            	reserva.setConvocatorias(new ArrayList<>(reserva.getConvocatorias()));
+            	reserva.getConvocatorias().sort(Comparator.comparing(convocatoria -> convocatoria.getUsuario().getNombre()));
+            }
+        }
+		return reservas;
 	}
 
 }

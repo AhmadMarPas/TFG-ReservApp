@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
@@ -38,6 +39,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	}
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Usuario usuario = usuarioRepo.findById(username).orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 

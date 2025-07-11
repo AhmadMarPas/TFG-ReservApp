@@ -243,7 +243,7 @@ public class ReservaController {
      */
     private String validarPermisoEstablecimiento(Establecimiento establecimiento, RedirectAttributes redirectAttributes) {
         Usuario usuario = sessionData.getUsuario();
-        boolean asignado = usuario.getLstEstablecimientos().stream().anyMatch(e -> e.getId().equals(establecimiento.getId()));
+        boolean asignado = usuarioService.establecimientoAsignado(usuario, establecimiento);
         
         if (!asignado) {
             redirectAttributes.addFlashAttribute(ERROR, "No tiene permiso para reservar en este establecimiento.");

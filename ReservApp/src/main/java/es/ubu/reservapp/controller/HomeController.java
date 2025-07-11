@@ -1,15 +1,13 @@
 package es.ubu.reservapp.controller;
 
-import java.util.List;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.shared.SessionData;
+import es.ubu.reservapp.service.UsuarioService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -27,14 +25,20 @@ public class HomeController {
 	 * Datos de la sesión.
 	 */
 	private SessionData sessionData;
+	/**
+	 * Servicio de Usuario
+	 */
+    private final UsuarioService usuarioService;
 
 	/**
 	 * Constructor del controlador que inyecta los datos de la sesión.
 	 * 
 	 * @param sessionData
+	 * @param usuarioService
 	 */
-    public HomeController(SessionData sessionData) {
+    public HomeController(SessionData sessionData, UsuarioService usuarioService) {
     	this.sessionData = sessionData;
+    	this.usuarioService = usuarioService;
     }
 
     @GetMapping("/")
@@ -55,8 +59,7 @@ public class HomeController {
 			log.warn("Usuario no autenticado al intentar acceder a mis reservas.");
 			return "redirect:/login";
 		}
-        List<Establecimiento> establecimientos = usuario.getLstEstablecimientos();
-        model.addAttribute("establecimientos", establecimientos);
+		model = usuarioService.obtenerEstablecimientosUsuario(usuario, model);
         return "reservas/misreservas";
     }
 }

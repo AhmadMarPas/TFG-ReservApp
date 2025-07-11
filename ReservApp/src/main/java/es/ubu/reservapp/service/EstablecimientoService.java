@@ -3,6 +3,8 @@ package es.ubu.reservapp.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import es.ubu.reservapp.model.entities.Establecimiento;
 
 /**
@@ -19,7 +21,16 @@ public interface EstablecimientoService {
      * 
      * @return una lista de todos los establecimientos.
      */
+    @Transactional(readOnly = true)
     List<Establecimiento> findAll();
+
+    /**
+     * Recupera todos los establecimientos.
+     * 
+     * @return una lista de todos los establecimientos.
+     */
+    @Transactional(readOnly = true)
+    List<Establecimiento> findAllAndFranjaHoraria();
 
     /**
      * Busca un establecimiento por su ID.
@@ -27,6 +38,7 @@ public interface EstablecimientoService {
      * @param id el ID del establecimiento a buscar.
      * @return un Optional conteniendo el establecimiento si se encuentra, o un Optional vacío si no.
      */
+    @Transactional(readOnly = true)
     Optional<Establecimiento> findById(Integer id);
 
     /**
@@ -37,6 +49,7 @@ public interface EstablecimientoService {
      * @param establecimiento el establecimiento a guardar.
      * @return el establecimiento guardado (puede tener el ID actualizado si es nuevo).
      */
+    @Transactional
     Establecimiento save(Establecimiento establecimiento);
     
     /**
@@ -45,6 +58,7 @@ public interface EstablecimientoService {
      * @param ids lista de IDs de los establecimientos a buscar
      * @return lista de establecimientos encontrados que corresponden a los IDs proporcionados
      */
+    @Transactional(readOnly = true)
     List<Establecimiento> findAllById(List<Integer> ids);
 
     /**
@@ -52,5 +66,7 @@ public interface EstablecimientoService {
      * 
      * @param id el ID del establecimiento a eliminar.
      */
+    @Transactional
     void deleteById(Integer id);
+
 }

@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Reserva;
@@ -26,6 +28,7 @@ public interface ReservaService {
 	 * @param usuarioQueReserva
 	 * @return La reserva creara.
 	 */
+    @Transactional
     Reserva crearReservaConConvocatorias(Reserva reserva, Usuario usuarioQueReserva, List<String> idUsuariosConvocados) throws UserNotFoundException;
 
     /**
@@ -36,6 +39,7 @@ public interface ReservaService {
      * @param fechaFin Fecha de fin del rango de búsqueda.
      * @return Lista de resrvas dentro del rango de fechas para el establecimiento indicado.
      */
+    @Transactional(readOnly = true)
     List<Reserva> findByEstablecimientoAndFechaReservaBetween(Establecimiento establecimiento, LocalDateTime fechaInicio, LocalDateTime fechaFin);
     
 	/**
@@ -47,6 +51,7 @@ public interface ReservaService {
 	 * @param fechaActual     Fecha actual para comparar
 	 * @return Lista de reservas futuras
 	 */
+    @Transactional(readOnly = true)
     List<Reserva> findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(Usuario usuario, Establecimiento establecimiento, LocalDateTime fechaActual);
 
 	/**
@@ -58,6 +63,7 @@ public interface ReservaService {
 	 * @param fechaActual     Fecha actual para comparar
 	 * @return Lista de reservas pasadas
 	 */
+    @Transactional(readOnly = true)
     List<Reserva> findByUsuarioAndEstablecimientoAndFechaReservaBefore(Usuario usuario, Establecimiento establecimiento, LocalDateTime fechaActual);
 
     /**
@@ -65,6 +71,7 @@ public interface ReservaService {
      * 
      * @return Lista con todas las reservas.
      */
+    @Transactional(readOnly = true)
     List<Reserva> findAll();
 
     /**
@@ -73,6 +80,7 @@ public interface ReservaService {
      * @param reserva a guardar.
      * @return Reserva guardada.
      */
+    @Transactional
     Reserva save(Reserva reserva);
     
     /**
@@ -81,6 +89,7 @@ public interface ReservaService {
      * @param usuario Usuario al que se quiere consultar las reservas.
      * @return Lista de reservas realizadas por el usuario.
      */
+    @Transactional(readOnly = true)
     List<Reserva> findByUsuario(Usuario usuario);
 
     /**
@@ -89,6 +98,7 @@ public interface ReservaService {
      * @param id ID de la reserva a buscar.
      * @return Optional con la reserva si existe, vacío si no.
      */
+    @Transactional(readOnly = true)
     Optional<Reserva> findById(Integer id);
 
 }
