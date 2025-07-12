@@ -121,7 +121,7 @@ public class Usuario extends EntidadInfo<String> {
     
     // Relación bidireccional con Convocatoria
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Convocatoria> convocatorias = new ArrayList<>();
+    private List<Convocado> convocados = new ArrayList<>();
 
 	/**
 	 * Función que prepara los datos del correo antes de guardarlos.
@@ -162,7 +162,7 @@ public class Usuario extends EntidadInfo<String> {
 		this.setLstEstablecimientos(usuario.getLstEstablecimientos() == null ? new ArrayList<>() : new ArrayList<>(usuario.getLstEstablecimientos()));
 		this.setLstPerfiles(usuario.getLstPerfiles() == null ? new ArrayList<>() : new ArrayList<>(usuario.getLstPerfiles()));
 		this.setLstReservas(usuario.getLstReservas() == null ? new ArrayList<>() : new ArrayList<>(usuario.getLstReservas()));
-		this.setConvocatorias(usuario.getConvocatorias() == null ? new ArrayList<>() : new ArrayList<>(usuario.getConvocatorias()));
+		this.setConvocados(usuario.getConvocados() == null ? new ArrayList<>() : new ArrayList<>(usuario.getConvocados()));
 	}
 	
 }

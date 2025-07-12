@@ -20,9 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.ubu.reservapp.model.entities.Convocatoria;
-import es.ubu.reservapp.model.entities.ConvocatoriaPK;
 import es.ubu.reservapp.model.entities.Reserva;
-import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.ConvocatoriaRepo;
 
 /**
@@ -46,13 +44,12 @@ class ConvocatoriaServiceImplTest {
     void setUp() {
         convocatoriaService = new ConvocatoriaServiceImpl(convocatoriaRepo);
         convocatoria = new Convocatoria();
-        convocatoria.setId(new ConvocatoriaPK(1, "USER0001"));
+        Reserva id = new Reserva();
+        id.setId(1);
+        convocatoria.setId(id.getId());
         Reserva reserva = new Reserva();
         reserva.setId(1);
         convocatoria.setReserva(reserva);
-        Usuario usuario = new Usuario();
-        usuario.setId("USER0001");
-        convocatoria.setUsuario(usuario);
     }
 
     @Test
@@ -73,30 +70,32 @@ class ConvocatoriaServiceImplTest {
     @Test
     void findById_WhenConvocatoriaExists_ShouldReturnConvocatoria() {
         // Given
-    	ConvocatoriaPK id = new ConvocatoriaPK(1, "USER0001");
-        when(convocatoriaRepo.findById(id)).thenReturn(Optional.of(convocatoria));
+    	Reserva id = new Reserva();
+    	id.setId(1);
+        when(convocatoriaRepo.findById(id.getId())).thenReturn(Optional.of(convocatoria));
 
         // When
-        Optional<Convocatoria> result = convocatoriaService.findById(id);
+        Optional<Convocatoria> result = convocatoriaService.findById(id.getId());
 
         // Then
         assertTrue(result.isPresent());
         assertEquals(convocatoria, result.get());
-        verify(convocatoriaRepo).findById(id);
+        verify(convocatoriaRepo).findById(id.getId());
     }
 
     @Test
     void findById_WhenConvocatoriaDoesNotExist_ShouldReturnEmptyOptional() {
         // Given
-    	ConvocatoriaPK id = new ConvocatoriaPK(1, "USER0001");
-        when(convocatoriaRepo.findById(id)).thenReturn(Optional.empty());
+    	Reserva id = new Reserva();
+    	id.setId(1);
+        when(convocatoriaRepo.findById(id.getId())).thenReturn(Optional.empty());
 
         // When
-        Optional<Convocatoria> result = convocatoriaService.findById(id);
+        Optional<Convocatoria> result = convocatoriaService.findById(id.getId());
 
         // Then
         assertFalse(result.isPresent());
-        verify(convocatoriaRepo).findById(id);
+        verify(convocatoriaRepo).findById(id.getId());
     }
 
     @Test
@@ -113,33 +112,32 @@ class ConvocatoriaServiceImplTest {
         verify(convocatoriaRepo).save(convocatoria);
     }
 
-    @Test
-    void testFindConvocatoriaByUsuario() {
-        // Preparar datos
-        Usuario usuario = new Usuario();
-        usuario.setId("usuario1");
-
-        Convocatoria convocatoria1 = new Convocatoria();
-        convocatoria1.setId(new ConvocatoriaPK());
-        convocatoria1.setUsuario(usuario);
-
-        Convocatoria convocatoria2 = new Convocatoria();
-        convocatoria2.setId(new ConvocatoriaPK());
-        convocatoria2.setUsuario(usuario);
-
-        List<Convocatoria> convocatorias = new ArrayList<>();
-        convocatorias.add(convocatoria1);
-        convocatorias.add(convocatoria2);
-
-        // Configurar mock
-        when(convocatoriaRepo.findConvocatoriaByUsuario(usuario)).thenReturn(convocatorias);
-
-        // Ejecutar método
-        List<Convocatoria> resultado = convocatoriaService.findConvocatoriaByUsuario(usuario);
-
-        // Verificar resultado
-        assertEquals(convocatorias, resultado);
-    }
+//    @Test
+//    void testFindConvocatoriaByUsuario() {
+//        // Preparar datos
+//        Usuario usuario = new Usuario();
+//        usuario.setId("usuario1");
+//
+//        Convocatoria convocatoria1 = new Convocatoria();
+//    	Reserva id = new Reserva();
+//        convocatoria1.setId(id.getId());
+//
+//        Convocatoria convocatoria2 = new Convocatoria();
+//        convocatoria2.setId(id.getId());
+//
+//        List<Convocatoria> convocatorias = new ArrayList<>();
+//        convocatorias.add(convocatoria1);
+//        convocatorias.add(convocatoria2);
+//
+//        // Configurar mock
+//        when(convocatoriaRepo.findConvocatoriaByUsuario(usuario)).thenReturn(convocatorias);
+//
+//        // Ejecutar método
+//        List<Convocatoria> resultado = convocatoriaService.findConvocatoriaByUsuario(usuario);
+//
+//        // Verificar resultado
+//        assertEquals(convocatorias, resultado);
+//    }
 
     @Test
     void testFindConvocatoriaByReserva() {
@@ -148,11 +146,11 @@ class ConvocatoriaServiceImplTest {
         reserva.setId(1);
 
         Convocatoria convocatoria1 = new Convocatoria();
-        convocatoria1.setId(new ConvocatoriaPK());
+        convocatoria1.setId(reserva.getId());
         convocatoria1.setReserva(reserva);
 
         Convocatoria convocatoria2 = new Convocatoria();
-        convocatoria2.setId(new ConvocatoriaPK());
+        convocatoria2.setId(reserva.getId());
         convocatoria2.setReserva(reserva);
 
         List<Convocatoria> convocatorias = new ArrayList<>();

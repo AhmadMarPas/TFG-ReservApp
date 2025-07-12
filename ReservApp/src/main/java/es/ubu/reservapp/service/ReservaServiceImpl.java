@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 
 import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Convocatoria;
-import es.ubu.reservapp.model.entities.ConvocatoriaPK;
+import es.ubu.reservapp.model.entities.Convocado;
+import es.ubu.reservapp.model.entities.ConvocadoPK;
 import es.ubu.reservapp.model.entities.Establecimiento;
+import es.ubu.reservapp.model.entities.FranjaHoraria;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.ReservaRepo;
@@ -24,7 +26,6 @@ public class ReservaServiceImpl implements ReservaService {
 
     private final ReservaRepo reservaRepo;
     private final UsuarioRepo usuarioRepo;
-    private final ConvocatoriaService convocatoriaService;
 
     /**
      * Constructor para la inyección de dependencias.
@@ -33,41 +34,49 @@ public class ReservaServiceImpl implements ReservaService {
      * @param usuarioRepo
      * @param convocatoriaService
      */
-    public ReservaServiceImpl(ReservaRepo reservaRepo, UsuarioRepo usuarioRepo, ConvocatoriaService convocatoriaService) {
+    public ReservaServiceImpl(ReservaRepo reservaRepo, UsuarioRepo usuarioRepo) {
         this.reservaRepo = reservaRepo;
         this.usuarioRepo = usuarioRepo;
-        this.convocatoriaService = convocatoriaService;
     }
 
     @Override
-	public Reserva crearReservaConConvocatorias(Reserva reserva, Usuario usuarioQueReserva, List<String> idUsuariosConvocados) throws UserNotFoundException {
+    public Reserva crearReservaConConvocatorias(Reserva reserva, Usuario usuarioQueReserva, List<String> idUsuariosConvocados) throws UserNotFoundException {
         reserva.setUsuario(usuarioQueReserva);
+        
+        // Si la reserva ya tiene ID, es una edición, no crear nueva convocatoria automáticamente
+        if (reserva.getId() != null) {
+            return reserva;
+        }
         
         // Guardar la reserva principal primero para obtener su ID generado
         Reserva reservaGuardada = reservaRepo.save(reserva);
 
-        List<Convocatoria> convocatorias = new ArrayList<>();
+        // Solo crear convocatoria si hay usuarios convocados
         if (idUsuariosConvocados != null && !idUsuariosConvocados.isEmpty()) {
+            Convocatoria convocatoria = new Convocatoria();
+            convocatoria.setReserva(reservaGuardada);
+            List<Convocado> convocatorias = new ArrayList<>();
+            
             for (String idUsuarioConvocado : idUsuariosConvocados) {
                 Optional<Usuario> optUsuarioConvocado = usuarioRepo.findById(idUsuarioConvocado);
                 if (optUsuarioConvocado.isPresent()) {
                     Usuario usuarioConvocado = optUsuarioConvocado.get();
 
-                    ConvocatoriaPK convocatoriaPK = new ConvocatoriaPK(reservaGuardada.getId(), usuarioConvocado.getId());
-                    Convocatoria convocatoria = new Convocatoria();
-                    convocatoria.setId(convocatoriaPK);
-                    convocatoria.setReserva(reservaGuardada);
-                    convocatoria.setUsuario(usuarioConvocado);
+                    ConvocadoPK convocadoPK = new ConvocadoPK(reservaGuardada.getId(), usuarioConvocado.getId());
+                    Convocado convocado = new Convocado();
+                    convocado.setId(convocadoPK);
+                    convocado.setUsuario(usuarioConvocado);
                     
-                    convocatoriaService.save(convocatoria); // Guardar a través del servicio de convocatoria
-                    convocatorias.add(convocatoria);
+                    convocatorias.add(convocado);
                 } else {
                 	log.error("Usuario convocado con ID " + idUsuarioConvocado + " no encontrado.");
                 	throw new UserNotFoundException("El Usuario con ID " + idUsuarioConvocado + " no fue encontrado.");
                 }
             }
+            convocatoria.setConvocados(convocatorias);
+            reservaGuardada.setConvocatoria(convocatoria);
         }
-        reservaGuardada.setConvocatorias(convocatorias);
+        
         return reservaGuardada;
     }
 
@@ -106,6 +115,14 @@ public class ReservaServiceImpl implements ReservaService {
 
 	@Override
 	public Optional<Reserva> findById(Integer id) {
+		Reserva reserva = reservaRepo.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Reserva con ID " + id + " no encontrada."));
+		reserva.getEstablecimiento().getId();
+        if (reserva.getEstablecimiento().getFranjasHorarias() != null) {
+        	reserva.getEstablecimiento().setFranjasHorarias(new ArrayList<>(reserva.getEstablecimiento().getFranjasHorarias()));
+        	reserva.getEstablecimiento().getFranjasHorarias().sort(Comparator.comparing(FranjaHoraria::getDiaSemana));
+        }
+
 		return reservaRepo.findById(id);
 	}
 
@@ -116,9 +133,8 @@ public class ReservaServiceImpl implements ReservaService {
 	 */
 	private List<Reserva> obtenerConvocatorias(List<Reserva> reservas) {
 		for (Reserva reserva : reservas) {
-            if (reserva.getConvocatorias() != null) {
-            	reserva.setConvocatorias(new ArrayList<>(reserva.getConvocatorias()));
-            	reserva.getConvocatorias().sort(Comparator.comparing(convocatoria -> convocatoria.getUsuario().getNombre()));
+            if (reserva.getConvocatoria() != null) {
+            	reserva.setConvocatoria(reserva.getConvocatoria());
             }
         }
 		return reservas;

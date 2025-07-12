@@ -9,14 +9,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import es.ubu.reservapp.model.entities.Convocatoria;
-import es.ubu.reservapp.model.entities.ConvocatoriaPK;
 import es.ubu.reservapp.model.entities.Reserva;
-import es.ubu.reservapp.model.entities.Usuario;
 
 /**
  * Repositorio de Convocatoria.
  * <p>
- * Extiende de JpaRepository<Convocatoria, ConvocatoriaPK>
+ * Extiende de JpaRepository<Convocatoria, Integer>
  * <p>
  * 
  * @autor Ahmad Mareie Pascual
@@ -24,15 +22,7 @@ import es.ubu.reservapp.model.entities.Usuario;
  * @since 1.0
  */
 @Repository
-public interface ConvocatoriaRepo extends JpaRepository<Convocatoria, ConvocatoriaPK> {
-
-	/**
-     * Método que busca las convocatorias de un usuario.
-     * 
-     * @param usuario Usuario para el que se buscan las convocatorias.
-     * @return Lista de convocatorias para las que tiene reservas el usuario.
-	 */
-	List<Convocatoria> findConvocatoriaByUsuario(Usuario usuario);
+public interface ConvocatoriaRepo extends JpaRepository<Convocatoria, Integer> {
 
 	/**
 	 * Método que busca un usuario por su id.
@@ -58,7 +48,7 @@ public interface ConvocatoriaRepo extends JpaRepository<Convocatoria, Convocator
      * @param idUsuario ID del usuario
      * @return Optional con la convocatoria si existe, incluso si está marcada como inválida
      */
-    @Query(value = "SELECT * FROM convocatoria WHERE id_reserva_pk = :idReserva AND id_usuario_pk = :idUsuario", nativeQuery = true)
-    Optional<Convocatoria> findByIdIgnoringValido(@Param("idReserva") Integer idReserva, @Param("idUsuario") String idUsuario);
+    @Query(value = "SELECT * FROM convocatoria WHERE id_reserva_pk = :idReserva", nativeQuery = true)
+    Optional<Convocatoria> findByIdReservaIgnoringValido(@Param("idReserva") Integer idReserva);
 
 }

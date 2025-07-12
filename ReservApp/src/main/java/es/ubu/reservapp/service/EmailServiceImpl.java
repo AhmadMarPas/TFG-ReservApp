@@ -9,7 +9,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import es.ubu.reservapp.model.entities.Convocatoria;
+import es.ubu.reservapp.model.entities.Convocado;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class EmailServiceImpl implements EmailService {
     }
     
     @Override
-    public void enviarNotificacionesConvocatoria(List<Convocatoria> convocatorias, Reserva reserva) {
+    public void enviarNotificacionesConvocatoria(List<Convocado> convocatorias, Reserva reserva) {
         if (convocatorias == null || convocatorias.isEmpty()) {
             log.info("No hay convocatorias para enviar notificaciones");
             return;
@@ -43,7 +43,7 @@ public class EmailServiceImpl implements EmailService {
         
         log.info("Enviando {} notificaciones de convocatoria para la reserva ID: {}", convocatorias.size(), reserva.getId());
         
-        for (Convocatoria convocatoria : convocatorias) {
+        for (Convocado convocatoria : convocatorias) {
             try {
                 enviarCorreoConvocatoria(convocatoria.getUsuario(), reserva);
             } catch (Exception e) {
@@ -60,7 +60,7 @@ public class EmailServiceImpl implements EmailService {
             message.setTo(usuario.getCorreo());
             message.setSubject("Convocatoria de Reunión - " + reserva.getEstablecimiento().getNombre());
             
-            String contenido = construirContenidoCorreo(usuario, reserva, reserva.getEnlace(), reserva.getObservaciones());
+            String contenido = construirContenidoCorreo(usuario, reserva, reserva.getConvocatoria().getEnlace(), reserva.getConvocatoria().getObservaciones());
             message.setText(contenido);
             
             mailSender.send(message);

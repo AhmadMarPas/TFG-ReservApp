@@ -1,11 +1,19 @@
 package es.ubu.reservapp.model.entities;
 
-import jakarta.persistence.EmbeddedId;
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,52 +32,43 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Convocatoria extends EntidadInfo<ConvocatoriaPK> {
+public class Convocatoria extends EntidadInfo<Integer> {
 
 	/**
 	 * serialVersionUID
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	@EmbeddedId
-    private ConvocatoriaPK id;
-	
-    // Relación Many-to-One con Reserva
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_reserva_pk", insertable = false, updatable = false)
-    private Reserva reserva;
+	@Id
+    private Integer id;
+
+//	@MapsId
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "id_reserva_pk", insertable = false, updatable = false)
+	private Reserva reserva;
     
     // Relación Many-to-One con Usuario
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario_pk", insertable = false, updatable = false)
-    private Usuario usuario;
+    @OneToMany(mappedBy = "convocatoria", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Convocado> convocados;
+	
+    @Column(name = "enlace", length = 120)
+    private String enlace;
+    
+	@Size(max = 250)
+	@Column(name = "observaciones", columnDefinition = "TEXT")
+	private String observaciones;
 
 	@Override
-    public ConvocatoriaPK getId() {
+    public Integer getId() {
     	return id;
     }
-    
     @Override
-    public void setId(ConvocatoriaPK id) {
+    public void setId(Integer id) {
     	this.id = id;
     }
     
-    public void setReserva(Reserva reserva) {
-        this.reserva = reserva;
-        if (reserva != null && id != null) {
-            id.setIdReserva(reserva.getId());
-        }
-    }
-    
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-        if (usuario != null && id != null) {
-            id.setIdUsuario(usuario.getId());
-        }
-    }
-    
     @Override
-    public EntidadPK<ConvocatoriaPK> copia() {
+    public EntidadPK<Integer> copia() {
     	return new Convocatoria(this);
     }
 
@@ -82,7 +81,9 @@ public class Convocatoria extends EntidadInfo<ConvocatoriaPK> {
 	public Convocatoria(Convocatoria convocatoria) {
 		this.setId(convocatoria.getId());
 		this.setReserva(convocatoria.getReserva());
-		this.setUsuario(convocatoria.getUsuario());
+		this.setConvocados(convocatoria.getConvocados() == null ? new ArrayList<>() : new ArrayList<>(convocatoria.getConvocados()));
+		this.setEnlace(convocatoria.getEnlace());
+		this.setObservaciones(convocatoria.getObservaciones());
 	}
 
 }

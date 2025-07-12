@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Clase que representa la clave primaria compuesta de la entidad Convocatoria.
+ * Clase que representa la clave primaria compuesta de la entidad Convocado.
  * 
  * @autor Ahmad Mareie Pascual
  * @version 1.0
@@ -22,7 +22,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable
-public class ConvocatoriaPK implements Serializable {
+public class ConvocadoPK implements Serializable {
 
     /**
 	 * serialVersionUID
@@ -48,13 +48,13 @@ public class ConvocatoriaPK implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ConvocatoriaPK other = (ConvocatoriaPK) obj;
+		ConvocadoPK other = (ConvocadoPK) obj;
 		return Objects.equals(idReserva, other.idReserva) && Objects.equals(idUsuario, other.idUsuario);
 	}
 
 	@Override
 	public String toString() {
-		return "ConvocatoriaPK [idReserva=" + idReserva + ", idUsuario=" + idUsuario + "]";
+		return "ConvocadoPK [idReserva=" + idReserva + ", idUsuario=" + idUsuario + "]";
 	}
     
 }

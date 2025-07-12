@@ -1,9 +1,10 @@
 package es.ubu.reservapp.service;
 
-import es.ubu.reservapp.model.entities.Convocatoria;
+import java.util.List;
+
+import es.ubu.reservapp.model.entities.Convocado;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
-import java.util.List;
 
 /**
  * Interface que representa el servicio para el envío de correos.
@@ -17,10 +18,10 @@ public interface EmailService {
 	/**
 	 * Envía notificaciones por correo a los usuarios convocados
 	 * 
-	 * @param convocatorias Lista de convocatorias creadas
+	 * @param convocatorias Lista de Usuarios convocados a la reserva
 	 * @param reserva       Reserva asociada a las convocatorias
 	 */
-    void enviarNotificacionesConvocatoria(List<Convocatoria> convocatorias, Reserva reserva);
+    void enviarNotificacionesConvocatoria(List<Convocado> convocatorias, Reserva reserva);
     
 	/**
 	 * Envía un correo individual de convocatoria

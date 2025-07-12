@@ -7,9 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.ubu.reservapp.model.entities.Convocatoria;
-import es.ubu.reservapp.model.entities.ConvocatoriaPK;
 import es.ubu.reservapp.model.entities.Reserva;
-import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.ConvocatoriaRepo;
 
 /**
@@ -37,7 +35,7 @@ public class ConvocatoriaServiceImpl implements ConvocatoriaService {
     }
 
 	@Override
-	public Optional<Convocatoria> findById(ConvocatoriaPK id) {
+	public Optional<Convocatoria> findById(Integer id) {
 		return convocatoriaRepo.findById(id);
 	}
 
@@ -65,11 +63,6 @@ public class ConvocatoriaServiceImpl implements ConvocatoriaService {
     }
 
 	@Override
-	public List<Convocatoria> findConvocatoriaByUsuario(Usuario usuario) {
-		return convocatoriaRepo.findConvocatoriaByUsuario(usuario);
-	}
-
-	@Override
 	public List<Convocatoria> findConvocatoriaByReserva(Reserva reserva) {
 		return convocatoriaRepo.findConvocatoriaByReserva(reserva);
 	}
@@ -82,8 +75,8 @@ public class ConvocatoriaServiceImpl implements ConvocatoriaService {
     
     @Override
     @Transactional(readOnly = true)
-    public Optional<Convocatoria> findByIdIgnoringValido(Integer idReserva, String idUsuario) {
-        return convocatoriaRepo.findByIdIgnoringValido(idReserva, idUsuario);
+    public Optional<Convocatoria> findByIdIgnoringValido(Integer idReserva) {
+        return convocatoriaRepo.findByIdReservaIgnoringValido(idReserva);
 	}
 
     @Override

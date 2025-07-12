@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import es.ubu.reservapp.model.entities.Convocatoria;
-import es.ubu.reservapp.model.entities.ConvocatoriaPK;
 import es.ubu.reservapp.model.entities.Reserva;
-import es.ubu.reservapp.model.entities.Usuario;
 
 /**
  * Interface que representa el servicio de la entidad Convocatoria.
@@ -23,7 +21,7 @@ public interface ConvocatoriaService {
 	 * @param id Id de la convocatoria.
 	 * @return en caso de encontrarlo, devuelve la convocatoria.
 	 */
-	Optional<Convocatoria> findById(ConvocatoriaPK id);
+	Optional<Convocatoria> findById(Integer id);
 	
 	/**
 	 * Guarda o actualiza una convocatoria.
@@ -32,14 +30,6 @@ public interface ConvocatoriaService {
 	 * @return 
 	 */
 	Convocatoria save(Convocatoria convocatoria);
-
-	/**
-	 * Busca las convocatorias de un usuario.
-	 * 
-	 * @param usuario usuario al que se buscan las convocatorias.
-	 * @return Lista de convocatorias del usuario.
-	 */
-	List<Convocatoria> findConvocatoriaByUsuario(Usuario usuario);
 
 	/**
 	 * Busca las convocatorias de una reserva.
@@ -67,10 +57,9 @@ public interface ConvocatoriaService {
      * Busca una convocatoria por su ID incluyendo las marcadas como inválidas (soft delete).
      * 
      * @param idReserva ID de la reserva
-     * @param idUsuario ID del usuario
      * @return Optional con la convocatoria si existe, incluso si está marcada como inválida
      */
-    Optional<Convocatoria> findByIdIgnoringValido(Integer idReserva, String idUsuario);
+    Optional<Convocatoria> findByIdIgnoringValido(Integer idReserva);
 
     
     /**

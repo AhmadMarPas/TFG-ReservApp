@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,20 +24,17 @@ import org.junit.jupiter.api.Test;
 class ConvocatoriaTest {
     
     private Convocatoria convocatoria;
-    private ConvocatoriaPK convocatoriaId;
     private Reserva reserva;
-    private Usuario usuario;
+    private List<Convocado> convocados;
+    private String enlace;
+    private String observaciones;
     private static final Integer ID_RESERVA = 123;
-    private static final String ID_USUARIO = "USER001";
     
     @BeforeEach
     void setUp() {
         convocatoria = new Convocatoria();
-        convocatoriaId = new ConvocatoriaPK(ID_RESERVA, ID_USUARIO);
         reserva = new Reserva();
         reserva.setId(ID_RESERVA);
-        usuario = new Usuario();
-        usuario.setId(ID_USUARIO);
     }
     
     @Test
@@ -44,48 +43,25 @@ class ConvocatoriaTest {
         assertNotNull(convocatoria);
         assertNull(convocatoria.getId());
         assertNull(convocatoria.getReserva());
-        assertNull(convocatoria.getUsuario());
     }
     
     @Test
     @DisplayName("Constructor con Reserva y Usuario")
     void testConstructorWithReservaAndUsuario() {
-        Convocatoria conv = new Convocatoria(convocatoriaId, reserva, usuario);
+        Convocatoria conv = new Convocatoria(reserva.getId(), reserva, convocados, enlace, observaciones);
         
         assertNotNull(conv.getId());
-        assertEquals(ID_RESERVA, conv.getId().getIdReserva());
-        assertEquals(ID_USUARIO, conv.getId().getIdUsuario());
+        assertEquals(ID_RESERVA, conv.getReserva().getId());
         assertEquals(reserva, conv.getReserva());
-        assertEquals(usuario, conv.getUsuario());
-    }
-    
-    @Test
-    @DisplayName("Constructor con ConvocatoriaId")
-    void testConstructorWithConvocatoriaId() {
-        Convocatoria conv = new Convocatoria();
-        conv.setId(convocatoriaId);
-        
-        assertEquals(convocatoriaId, conv.getId());
-    }
-    
-    @Test
-    @DisplayName("Getter y Setter de id")
-    void testIdGetterSetter() {
-        convocatoria.setId(convocatoriaId);
-        assertEquals(convocatoriaId, convocatoria.getId());
-        
-        convocatoria.setId(null);
-        assertNull(convocatoria.getId());
     }
     
     @Test
     @DisplayName("Getter y Setter de reserva")
     void testReservaGetterSetter() {
-        convocatoria.setId(new ConvocatoriaPK());
         convocatoria.setReserva(reserva);
         
         assertEquals(reserva, convocatoria.getReserva());
-        assertEquals(ID_RESERVA, convocatoria.getId().getIdReserva());
+        assertEquals(ID_RESERVA, convocatoria.getReserva().getId());
         
         convocatoria.setReserva(null);
         assertNull(convocatoria.getReserva());
@@ -102,38 +78,8 @@ class ConvocatoriaTest {
     @Test
     @DisplayName("Setter de reserva null")
     void testSetReservaNullWithId() {
-        convocatoria.setId(convocatoriaId);
         convocatoria.setReserva(null);
         assertNull(convocatoria.getReserva());
-    }
-    
-    @Test
-    @DisplayName("Getter y Setter de usuario")
-    void testUsuarioGetterSetter() {
-        convocatoria.setId(new ConvocatoriaPK());
-        convocatoria.setUsuario(usuario);
-        
-        assertEquals(usuario, convocatoria.getUsuario());
-        assertEquals(ID_USUARIO, convocatoria.getId().getIdUsuario());
-        
-        convocatoria.setUsuario(null);
-        assertNull(convocatoria.getUsuario());
-    }
-    
-    @Test
-    @DisplayName("Setter de usuario con id null")
-    void testSetUsuarioWithNullId() {
-        convocatoria.setId(null);
-        assertDoesNotThrow(() -> convocatoria.setUsuario(usuario));
-        assertEquals(usuario, convocatoria.getUsuario());
-    }
-    
-    @Test
-    @DisplayName("Setter de usuario null")
-    void testSetUsuarioNullWithId() {
-        convocatoria.setId(convocatoriaId);
-        convocatoria.setUsuario(null);
-        assertNull(convocatoria.getUsuario());
     }
     
     @Test
@@ -205,9 +151,9 @@ class ConvocatoriaTest {
         @DisplayName("Equals con objetos iguales")
         void testEqualsWithEqualObjects() {
             Convocatoria conv1 = new Convocatoria();
-            conv1.setId(convocatoriaId);
+            conv1.setId(reserva.getId());
             Convocatoria conv2 = new Convocatoria();
-            conv2.setId(convocatoriaId);
+            conv2.setId(reserva.getId());
             
             assertEquals(conv1, conv2);
             assertEquals(conv2, conv1);
@@ -217,15 +163,16 @@ class ConvocatoriaTest {
         @DisplayName("Equals con objetos diferentes")
         void testEqualsWithDifferentObjects() {
             Convocatoria conv1 = new Convocatoria();
-            conv1.setId(convocatoriaId);
+            conv1.setId(reserva.getId());
+            Reserva reserva2 = new Reserva();
+            reserva2.setId(456);
             Convocatoria conv2 = new Convocatoria();
-            conv2.setId(new ConvocatoriaPK(456, "USER002"));
+            conv2.setId(reserva2.getId());
             Reserva res = new Reserva();
             res.setId(456);
             Usuario usr = new Usuario();
             usr.setId("USER002");
             conv2.setReserva(res);
-            conv2.setUsuario(usr);
             
             assertNotEquals(conv1, conv2);
         }
@@ -234,7 +181,7 @@ class ConvocatoriaTest {
         @DisplayName("Equals con null")
         void testEqualsWithNull() {
             Convocatoria conv = new Convocatoria();
-            conv.setId(convocatoriaId);
+            conv.setId(reserva.getId());
             assertNotEquals(null, conv);
         }
         
@@ -242,7 +189,7 @@ class ConvocatoriaTest {
         @DisplayName("Equals con clase diferente")
         void testEqualsWithDifferentClass() {
             Convocatoria conv = new Convocatoria();
-            conv.setId(convocatoriaId);
+            conv.setId(reserva.getId());
             String differentClass = "different";
             assertNotEquals(conv, differentClass);
         }
@@ -255,7 +202,7 @@ class ConvocatoriaTest {
             
             assertEquals(conv1, conv2);
             
-            conv1.setId(convocatoriaId);
+            conv1.setId(reserva.getId());
             assertNotEquals(conv1, conv2);
         }
     }
@@ -264,9 +211,9 @@ class ConvocatoriaTest {
     @DisplayName("hashCode consistente")
     void testHashCode() {
         Convocatoria conv1 = new Convocatoria();
-        conv1.setId(convocatoriaId);
+        conv1.setId(reserva.getId());
         Convocatoria conv2 = new Convocatoria();
-        conv2.setId(convocatoriaId);
+        conv2.setId(reserva.getId());
         
         assertEquals(conv1.hashCode(), conv2.hashCode());
         
@@ -278,7 +225,7 @@ class ConvocatoriaTest {
     @Test
     @DisplayName("toString")
     void testToString() {
-        convocatoria.setId(convocatoriaId);
+        convocatoria.setId(reserva.getId());
         convocatoria.setOrden(1);
         convocatoria.setUsuarioCreaReg("ADMIN001");
         convocatoria.setFechaCreaReg(LocalDateTime.now());
@@ -301,7 +248,7 @@ class ConvocatoriaTest {
         LocalDateTime now = LocalDateTime.now();
         
         // Crear convocatoria completa
-        Convocatoria conv = new Convocatoria(convocatoriaId, reserva, usuario);
+        Convocatoria conv = new Convocatoria(reserva.getId(), reserva, convocados, enlace, observaciones);
         conv.setOrden(10);
         conv.setUsuarioCreaReg("CREATOR001");
         conv.setFechaCreaReg(now);
@@ -310,10 +257,8 @@ class ConvocatoriaTest {
         
         // Verificar todos los campos
         assertNotNull(conv.getId());
-        assertEquals(ID_RESERVA, conv.getId().getIdReserva());
-        assertEquals(ID_USUARIO, conv.getId().getIdUsuario());
+        assertEquals(ID_RESERVA, conv.getReserva().getId());
         assertEquals(reserva, conv.getReserva());
-        assertEquals(usuario, conv.getUsuario());
         assertEquals(10, conv.getOrden());
         assertEquals("CREATOR001", conv.getUsuarioCreaReg());
         assertEquals(now, conv.getFechaCreaReg());
@@ -336,33 +281,43 @@ class ConvocatoriaTest {
 
     @Test
     void testConstructorConParametros() {
-        Usuario usuarioTest = new Usuario();
-        usuarioTest.setId("user3");
+    	Usuario usuarioTest = new Usuario();
+    	usuarioTest.setId("user3");
+    	Convocado convocadoTest = new Convocado();
+        convocadoTest.setUsuario(usuarioTest);
+        List<Convocado> convocadosTest = new ArrayList<>();
+        convocadosTest.add(convocadoTest);
         Reserva reservaTest = new Reserva();
         reservaTest.setId(3);
-        ConvocatoriaPK id = new ConvocatoriaPK();
-        id.setIdUsuario(usuarioTest.getId());
-        id.setIdReserva(reservaTest.getId());
+        String enlaceTest = "enlaceTest";
+        String obsrvacionesTest = "observacionesTest";
         
-        Convocatoria convocatoriaCompleta = new Convocatoria(id, reservaTest, usuarioTest);
+        Convocatoria convocatoriaCompleta = new Convocatoria(reservaTest.getId(), reservaTest, convocadosTest, enlaceTest, obsrvacionesTest);
         
-        assertEquals(id, convocatoriaCompleta.getId());
         assertEquals(reservaTest, convocatoriaCompleta.getReserva());
-        assertEquals(usuarioTest, convocatoriaCompleta.getUsuario());
+        assertEquals(convocadosTest, convocatoriaCompleta.getConvocados());
+        assertEquals(enlaceTest, convocatoriaCompleta.getEnlace());
+        assertEquals(obsrvacionesTest, convocatoriaCompleta.getObservaciones());
     }
     
     @Test
     void testConstructorCopia() {
         // Use the existing test data from setUp()
-        Usuario usuarioTest = new Usuario();
-        usuarioTest.setId("user3");
         Reserva reservaTest = new Reserva();
         reservaTest.setId(3);
-        ConvocatoriaPK id = new ConvocatoriaPK();
+        Usuario usuarioTest = new Usuario();
+        usuarioTest.setId("user3");
+    	Convocado convocadoTest = new Convocado();
+        convocadoTest.setUsuario(usuarioTest);
+        List<Convocado> convocadosTest = new ArrayList<>();
+        convocadosTest.add(convocadoTest);
+        String enlaceTest = "enlaceTest";
+        String obsrvacionesTest = "observacionesTest";
+        ConvocadoPK id = new ConvocadoPK();
         id.setIdUsuario(usuarioTest.getId());
         id.setIdReserva(reservaTest.getId());
         
-        Convocatoria convocatoriaOriginal = new Convocatoria(id, reservaTest, usuarioTest);
+        Convocatoria convocatoriaOriginal = new Convocatoria(reservaTest.getId(), reservaTest, convocadosTest, enlaceTest, obsrvacionesTest);
 
         // Create a copy using the copy constructor
         Convocatoria convocatoriaCopia = new Convocatoria(convocatoriaOriginal);
@@ -370,13 +325,17 @@ class ConvocatoriaTest {
         // Verify all attributes are equal
         assertEquals(convocatoriaOriginal.getId(), convocatoriaCopia.getId());
         assertEquals(convocatoriaOriginal.getReserva(), convocatoriaCopia.getReserva());
-        assertEquals(convocatoriaOriginal.getUsuario(), convocatoriaCopia.getUsuario());
+        assertEquals(convocatoriaOriginal.getConvocados(), convocatoriaCopia.getConvocados());
+        assertEquals(convocatoriaOriginal.getEnlace(), convocatoriaCopia.getEnlace());
+        assertEquals(convocatoriaOriginal.getObservaciones(), convocatoriaCopia.getObservaciones());
 
         // Verify they are different objects
         assertNotSame(convocatoriaOriginal, convocatoriaCopia);
 
         // Verify modifying the copy doesn't affect the original
-        convocatoriaCopia.setId(new ConvocatoriaPK(123, "UsuarioCopia"));
+        Reserva reservaCopia = new Reserva();
+        reservaCopia.setId(123);
+        convocatoriaCopia.setId(reservaCopia.getId());
         assertNotEquals(convocatoriaOriginal.getId(), convocatoriaCopia.getId());
     }
 
@@ -385,24 +344,28 @@ class ConvocatoriaTest {
         // Use the existing test data from setUp()
     	Convocatoria convocatoriaOriginal = new Convocatoria();
         
-        convocatoriaOriginal.setId(new ConvocatoriaPK(reserva.getId(), usuario.getId()));
         convocatoriaOriginal.setReserva(reserva);
-        convocatoriaOriginal.setUsuario(usuario);
+        convocatoriaOriginal.setConvocados(convocados);
+        convocatoriaOriginal.setEnlace(enlace);
+        convocatoriaOriginal.setObservaciones(observaciones);
 
         // Create a copy using the copia() method
         Convocatoria convocatoriaCopia = (Convocatoria) convocatoriaOriginal.copia();
 
         // Verify all attributes are equal
         assertEquals(convocatoriaOriginal.getId(), convocatoriaCopia.getId());
-        assertEquals(convocatoriaOriginal.getUsuario(), convocatoriaCopia.getUsuario());
         assertEquals(convocatoriaOriginal.getReserva(), convocatoriaCopia.getReserva());
+        assertEquals(convocatoriaOriginal.getEnlace(), convocatoriaCopia.getEnlace());
+        assertEquals(convocatoriaOriginal.getObservaciones(), convocatoriaCopia.getObservaciones());
 
         // Verify they are different objects
         assertNotSame(convocatoriaOriginal, convocatoriaCopia);
 
         // Verify modifying the copy doesn't affect the original
-        convocatoriaCopia.setId(new ConvocatoriaPK(123, "UsuarioCopia"));
-       assertNotEquals(convocatoriaOriginal.getId(), convocatoriaCopia.getId());
+        Reserva reservaCopia = new Reserva();
+        reservaCopia.setId(124);
+        convocatoriaCopia.setId(reservaCopia.getId());
+        assertNotEquals(convocatoriaOriginal.getId(), convocatoriaCopia.getId());
    }
 
 }

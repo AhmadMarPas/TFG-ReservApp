@@ -29,8 +29,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import es.ubu.reservapp.model.entities.Convocatoria;
-import es.ubu.reservapp.model.entities.ConvocatoriaPK;
+import es.ubu.reservapp.model.entities.Convocado;
+import es.ubu.reservapp.model.entities.ConvocadoPK;
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
@@ -55,8 +55,8 @@ class EmailServiceImplTest {
     private Usuario usuario2;
     private Establecimiento establecimiento;
     private Reserva reserva;
-    private Convocatoria convocatoria1;
-    private Convocatoria convocatoria2;
+    private Convocado convocado1;
+    private Convocado convocado2;
 
     @BeforeEach
     void setUp() {
@@ -89,17 +89,15 @@ class EmailServiceImplTest {
         reserva.setHoraFin(LocalTime.of(11, 30));
         
         // Configurar convocatorias
-        convocatoria1 = new Convocatoria();
-        ConvocatoriaPK id1 = new ConvocatoriaPK(1, "1");
-        convocatoria1.setId(id1);
-        convocatoria1.setUsuario(usuario1);
-        convocatoria1.setReserva(reserva);
+        convocado1 = new Convocado();
+        ConvocadoPK id1 = new ConvocadoPK(1, "1");
+        convocado1.setId(id1);
+        convocado1.setUsuario(usuario1);
         
-        convocatoria2 = new Convocatoria();
-        ConvocatoriaPK id2 = new ConvocatoriaPK(1, "2");
-        convocatoria2.setId(id2);
-        convocatoria2.setUsuario(usuario2);
-        convocatoria2.setReserva(reserva);
+        convocado2 = new Convocado();
+        ConvocadoPK id2 = new ConvocadoPK(1, "2");
+        convocado2.setId(id2);
+        convocado2.setUsuario(usuario2);
     }
 
     // ================================
@@ -109,7 +107,7 @@ class EmailServiceImplTest {
     @Test
     void testEnviarNotificacionesConvocatoria_ConListaVacia() {
         // Arrange
-        List<Convocatoria> convocatorias = new ArrayList<>();
+        List<Convocado> convocatorias = new ArrayList<>();
         
         // Act
         emailService.enviarNotificacionesConvocatoria(convocatorias, reserva);
@@ -130,7 +128,7 @@ class EmailServiceImplTest {
     @Test
     void testEnviarNotificacionesConvocatoria_Exitoso() {
         // Arrange
-        List<Convocatoria> convocatorias = Arrays.asList(convocatoria1, convocatoria2);
+        List<Convocado> convocatorias = Arrays.asList(convocado1, convocado2);
         
         // Act
         emailService.enviarNotificacionesConvocatoria(convocatorias, reserva);
@@ -142,7 +140,7 @@ class EmailServiceImplTest {
     @Test
     void testEnviarNotificacionesConvocatoria_ConErrorEnEnvio() {
         // Arrange
-        List<Convocatoria> convocatorias = Arrays.asList(convocatoria1, convocatoria2);
+        List<Convocado> convocatorias = Arrays.asList(convocado1, convocado2);
         doThrow(new RuntimeException("Error de conexión")).when(mailSender).send(any(SimpleMailMessage.class));
         
         // Act & Assert - No debe lanzar excepción, solo loggear el error
@@ -338,7 +336,7 @@ class EmailServiceImplTest {
     @Test
     void testEnviarNotificacionesConvocatoria_ConUnaConvocatoria() {
         // Arrange
-        List<Convocatoria> convocatorias = Arrays.asList(convocatoria1);
+        List<Convocado> convocatorias = Arrays.asList(convocado1);
         
         // Act
         emailService.enviarNotificacionesConvocatoria(convocatorias, reserva);
@@ -350,17 +348,16 @@ class EmailServiceImplTest {
     @Test
     void testEnviarNotificacionesConvocatoria_ConMultiplesConvocatorias() {
         // Arrange
-        Convocatoria convocatoria3 = new Convocatoria();
+    	Convocado convocado3 = new Convocado();
         Usuario usuario3 = new Usuario();
         usuario3.setId("3");
         usuario3.setNombre("Carlos López");
         usuario3.setCorreo("carlos.lopez@email.com");
-        ConvocatoriaPK id3 = new ConvocatoriaPK(1, "3");
-        convocatoria3.setId(id3);
-        convocatoria3.setUsuario(usuario3);
-        convocatoria3.setReserva(reserva);
+        ConvocadoPK id3 = new ConvocadoPK(1, "3");
+        convocado3.setId(id3);
+        convocado3.setUsuario(usuario3);
         
-        List<Convocatoria> convocatorias = Arrays.asList(convocatoria1, convocatoria2, convocatoria3);
+        List<Convocado> convocatorias = Arrays.asList(convocado1, convocado2, convocado3);
         
         // Act
         emailService.enviarNotificacionesConvocatoria(convocatorias, reserva);
@@ -372,7 +369,7 @@ class EmailServiceImplTest {
     @Test
     void testEnviarNotificacionesConvocatoria_ErrorParcial() {
         // Arrange
-        List<Convocatoria> convocatorias = Arrays.asList(convocatoria1, convocatoria2);
+        List<Convocado> convocatorias = Arrays.asList(convocado1, convocado2);
         
         // Simular error solo en el primer envío
         doThrow(new RuntimeException("Error SMTP"))

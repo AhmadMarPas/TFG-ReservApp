@@ -56,6 +56,7 @@ class ReservaServiceImplTest {
 
     private Reserva reserva;
     private Usuario usuario;
+    private Convocatoria convocatoria;
     private Usuario usuarioConvocado1;
     private Usuario usuarioConvocado2;
     private Establecimiento establecimiento;
@@ -68,6 +69,8 @@ class ReservaServiceImplTest {
         usuario.setId("user1");
         usuario.setNombre("Usuario Test");
         usuario.setCorreo("user@test.com");
+        convocatoria = new Convocatoria();
+        convocatoria.setId(reserva.getId());
 
         // Setup usuarios convocados
         usuarioConvocado1 = new Usuario();
@@ -92,7 +95,7 @@ class ReservaServiceImplTest {
         reserva.setId(1);
         reserva.setFechaReserva(fechaReserva);
         reserva.setEstablecimiento(establecimiento);
-        reserva.setConvocatorias(new ArrayList<>());
+        reserva.setConvocatoria(convocatoria);
     }
 
     @Test
@@ -101,8 +104,8 @@ class ReservaServiceImplTest {
         List<String> idUsuariosConvocados = Arrays.asList("convocado1", "convocado2");
         String enlaceReunion = "https://meet.google.com/abc-def-ghi";
         String observaciones = "Reunión importante";
-        reserva.setEnlace(enlaceReunion);
-        reserva.setObservaciones(observaciones);
+        convocatoria.setEnlace(enlaceReunion);
+        convocatoria.setObservaciones(observaciones);
 
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
         when(usuarioRepo.findById("convocado1")).thenReturn(Optional.of(usuarioConvocado1));
@@ -115,7 +118,7 @@ class ReservaServiceImplTest {
         // Assert
         assertNotNull(resultado);
         assertEquals(usuario, resultado.getUsuario());
-        assertEquals(2, resultado.getConvocatorias().size());
+        assertEquals(2, resultado.getConvocatoria().getConvocados().size());
         verify(reservaRepo).save(reserva);
         verify(usuarioRepo).findById("convocado1");
         verify(usuarioRepo).findById("convocado2");
@@ -128,8 +131,8 @@ class ReservaServiceImplTest {
         List<String> idUsuariosConvocados = new ArrayList<>();
         String enlaceReunion = "https://meet.google.com/abc-def-ghi";
         String observaciones = "Sin convocados";
-        reserva.setEnlace(enlaceReunion);
-        reserva.setObservaciones(observaciones);
+        convocatoria.setEnlace(enlaceReunion);
+        convocatoria.setObservaciones(observaciones);
 
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
 
@@ -139,7 +142,7 @@ class ReservaServiceImplTest {
         // Assert
         assertNotNull(resultado);
         assertEquals(usuario, resultado.getUsuario());
-        assertEquals(0, resultado.getConvocatorias().size());
+        assertEquals(0, resultado.getConvocatoria().getConvocados().size());
         verify(reservaRepo).save(reserva);
         verify(usuarioRepo, never()).findById(anyString());
         verify(convocatoriaService, never()).save(any(Convocatoria.class));
@@ -151,8 +154,8 @@ class ReservaServiceImplTest {
         List<String> idUsuariosConvocados = null;
         String enlaceReunion = "https://meet.google.com/abc-def-ghi";
         String observaciones = "Lista null";
-        reserva.setEnlace(enlaceReunion);
-        reserva.setObservaciones(observaciones);
+        convocatoria.setEnlace(enlaceReunion);
+        convocatoria.setObservaciones(observaciones);
 
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
 
@@ -162,7 +165,7 @@ class ReservaServiceImplTest {
         // Assert
         assertNotNull(resultado);
         assertEquals(usuario, resultado.getUsuario());
-        assertEquals(0, resultado.getConvocatorias().size());
+        assertEquals(0, resultado.getConvocatoria().getConvocados().size());
         verify(reservaRepo).save(reserva);
         verify(usuarioRepo, never()).findById(anyString());
         verify(convocatoriaService, never()).save(any(Convocatoria.class));
@@ -174,8 +177,8 @@ class ReservaServiceImplTest {
         List<String> idUsuariosConvocados = Arrays.asList("usuarioInexistente");
         String enlaceReunion = "https://meet.google.com/abc-def-ghi";
         String observaciones = "Usuario no existe";
-        reserva.setEnlace(enlaceReunion);
-        reserva.setObservaciones(observaciones);
+        convocatoria.setEnlace(enlaceReunion);
+        convocatoria.setObservaciones(observaciones);
 
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
         when(usuarioRepo.findById("usuarioInexistente")).thenReturn(Optional.empty());
@@ -197,8 +200,8 @@ class ReservaServiceImplTest {
         List<String> idUsuariosConvocados = Arrays.asList("convocado1", "usuarioInexistente");
         String enlaceReunion = "https://meet.google.com/abc-def-ghi";
         String observaciones = "Algunos usuarios no existen";
-        reserva.setEnlace(enlaceReunion);
-        reserva.setObservaciones(observaciones);
+        convocatoria.setEnlace(enlaceReunion);
+        convocatoria.setObservaciones(observaciones);
 
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
         when(usuarioRepo.findById("convocado1")).thenReturn(Optional.of(usuarioConvocado1));
@@ -223,8 +226,8 @@ class ReservaServiceImplTest {
         List<String> idUsuariosConvocados = Arrays.asList("convocado1");
         String enlaceReunion = null;
         String observaciones = null;
-        reserva.setEnlace(enlaceReunion);
-        reserva.setObservaciones(observaciones);
+        convocatoria.setEnlace(enlaceReunion);
+        convocatoria.setObservaciones(observaciones);
 
         when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
         when(usuarioRepo.findById("convocado1")).thenReturn(Optional.of(usuarioConvocado1));
@@ -236,7 +239,7 @@ class ReservaServiceImplTest {
         // Assert
         assertNotNull(resultado);
         assertEquals(usuario, resultado.getUsuario());
-        assertEquals(1, resultado.getConvocatorias().size());
+        assertEquals(1, resultado.getConvocatoria().getConvocados().size());
         verify(reservaRepo).save(reserva);
         verify(usuarioRepo).findById("convocado1");
         verify(convocatoriaService).save(any(Convocatoria.class));

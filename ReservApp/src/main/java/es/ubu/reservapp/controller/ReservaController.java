@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,8 +25,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import es.ubu.reservapp.model.entities.Convocado;
+import es.ubu.reservapp.model.entities.ConvocadoPK;
 import es.ubu.reservapp.model.entities.Convocatoria;
-import es.ubu.reservapp.model.entities.ConvocatoriaPK;
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.FranjaHoraria;
 import es.ubu.reservapp.model.entities.Reserva;
@@ -174,8 +176,11 @@ public class ReservaController {
 			return errorFranja;
 		}
 
-		reserva.setEnlace(enlaceReunion);
-		reserva.setObservaciones(observaciones);
+		Convocatoria convocatoria = new Convocatoria();
+		convocatoria.setReserva(reserva);
+		convocatoria.setEnlace(enlaceReunion);
+		convocatoria.setObservaciones(observaciones);
+		reserva.setConvocatoria(convocatoria);
 		return guardarReservaConConvocatoria(reserva, establecimiento, horario, usuariosConvocados, redirectAttributes);
     }
 
@@ -416,41 +421,55 @@ public class ReservaController {
         // Primero marcar todas las convocatorias existentes como inválidas
         convocatoriaService.deleteByReserva(reserva);
         
-        List<Convocatoria> convocatoriasActivas = new ArrayList<>();
+        List<Convocado> convocatoriasActivas = new ArrayList<>();
         
         if (usuariosConvocados != null && usuariosConvocados.length > 0) {
+            // Buscar si ya existe una convocatoria (incluso inválida)
+            Optional<Convocatoria> convocatoriaExistente = convocatoriaService.findByIdIgnoringValido(reserva.getId());
+            
+            Convocatoria convocatoria;
+            if (convocatoriaExistente.isPresent()) {
+                // Reutilizar la convocatoria existente
+                convocatoria = convocatoriaExistente.get();
+                log.info("Reutilizando convocatoria existente para reserva: {}", reserva.getId());
+                
+                // Con @SoftDelete, Hibernate maneja automáticamente el campo valido
+                // Usar merge para entidades recuperadas con consulta nativa
+                convocatoriaService.merge(convocatoria);
+            } else {
+                // Crear nueva convocatoria solo si no existe
+                convocatoria = new Convocatoria();
+                convocatoria.setReserva(reserva);
+                reserva.setConvocatoria(convocatoria);
+                log.info("Creando nueva convocatoria para reserva: {}", reserva.getId());
+            }
+            
+            // Inicializar lista de convocados si no existe
+            if (convocatoria.getConvocados() == null) {
+                convocatoria.setConvocados(new ArrayList<>());
+            }
+            
             for (String usuarioId : usuariosConvocados) {
                 if (usuarioId != null && !usuarioId.trim().isEmpty()) {
                     Usuario usuario = usuarioService.findUsuarioById(usuarioId.trim());
                     if (usuario != null) {
-                        ConvocatoriaPK convocatoriaId = new ConvocatoriaPK(reserva.getId(), usuario.getId());
+                        Convocado convocado = new Convocado();
+                        ConvocadoPK convocadoId = new ConvocadoPK(reserva.getId(), usuario.getId());
+                        convocado.setId(convocadoId);
+                        convocado.setConvocatoria(convocatoria);
+                        convocado.setUsuario(usuario);
                         
-                        // Buscar si ya existe una convocatoria (incluso inválida)
-                        Optional<Convocatoria> convocatoriaExistente = convocatoriaService.findByIdIgnoringValido(reserva.getId(), usuario.getId());
-                        
-                        Convocatoria convocatoria;
-                        if (convocatoriaExistente.isPresent()) {
-                            // Reutilizar la convocatoria existente
-                            convocatoria = convocatoriaExistente.get();
-                            log.info("Reutilizando convocatoria existente para usuario: {} en reserva: {}", usuario.getId(), reserva.getId());
-                            
-                            // Con @SoftDelete, Hibernate maneja automáticamente el campo valido
-                            // Usar merge para entidades recuperadas con consulta nativa
-                            convocatoriaService.merge(convocatoria);
-                        } else {
-                            // Crear nueva convocatoria solo si no existe
-                            convocatoria = new Convocatoria();
-                            convocatoria.setId(convocatoriaId);
-                            convocatoria.setReserva(reserva);
-                            convocatoria.setUsuario(usuario);
-                            log.info("Creando nueva convocatoria para usuario: {} en reserva: {}", usuario.getId(), reserva.getId());
-                            
-                            // Para nuevas entidades usar save
-                            convocatoriaService.save(convocatoria);
-                        }
-                        convocatoriasActivas.add(convocatoria);
+                        // Añadir el convocado a la lista de la convocatoria
+                        convocatoria.getConvocados().add(convocado);
+                        convocatoriasActivas.add(convocado);
+                        log.info("Convocado creado para usuario: {} en reserva: {}", usuario.getId(), reserva.getId());
                     }
                 }
+            }
+            
+            // Guardar la convocatoria solo una vez al final (el cascade guardará los convocados)
+            if (!convocatoriasActivas.isEmpty()) {
+                convocatoriaService.save(convocatoria);
             }
         }
         
@@ -473,23 +492,42 @@ public class ReservaController {
      * @param usuariosConvocados
      */
     private void crearConvocatorias(Reserva reserva, String[] usuariosConvocados) {
-        List<Convocatoria> convocatoriasCreadas = new ArrayList<>();
+        List<Convocado> convocatoriasCreadas = new ArrayList<>();
+        
+        // Crear convocatoria solo si no existe y hay usuarios convocados
+        Convocatoria convocatoria = reserva.getConvocatoria();
+        if (convocatoria == null) {
+            convocatoria = new Convocatoria();
+            convocatoria.setReserva(reserva);
+            reserva.setConvocatoria(convocatoria);
+        }
+        
+        // Inicializar lista de convocados si no existe
+        if (convocatoria.getConvocados() == null) {
+            convocatoria.setConvocados(new ArrayList<>());
+        }
         
         for (String usuarioId : usuariosConvocados) {
             if (usuarioId != null && !usuarioId.trim().isEmpty()) {
                 Usuario usuario = usuarioService.findUsuarioById(usuarioId.trim());
                 if (usuario != null) {
-                    Convocatoria convocatoria = new Convocatoria();
-                    ConvocatoriaPK convocatoriaId = new ConvocatoriaPK(reserva.getId(), usuario.getId());
-                    convocatoria.setId(convocatoriaId);
-                    convocatoria.setReserva(reserva);
-                    convocatoria.setUsuario(usuario);
+                    Convocado convocado = new Convocado();
+                    ConvocadoPK convocadoId = new ConvocadoPK(reserva.getId(), usuario.getId());
+                    convocado.setId(convocadoId);
+                    convocado.setConvocatoria(convocatoria);
+                    convocado.setUsuario(usuario);
 
-					convocatoriaService.save(convocatoria);
-					convocatoriasCreadas.add(convocatoria);
+                    // Añadir el convocado a la lista de la convocatoria
+                    convocatoria.getConvocados().add(convocado);
+                    convocatoriasCreadas.add(convocado);
                     log.info("Convocatoria creada para usuario: {} en reserva: {}", usuario.getId(), reserva.getId());
                 }
             }
+        }
+        
+        // Guardar la convocatoria solo una vez al final (el cascade guardará los convocados)
+        if (!convocatoriasCreadas.isEmpty()) {
+            convocatoriaService.save(convocatoria);
         }
         
         // Enviar notificaciones por correo electrónico
@@ -581,13 +619,18 @@ public class ReservaController {
             }
             
             // Preparar datos para el formulario
+            reserva = reservaService.crearReservaConConvocatorias(reserva, usuario, null);
             model.addAttribute("reserva", reserva);
             model.addAttribute("establecimiento", reserva.getEstablecimiento());
             model.addAttribute("isEdit", true);
-			if (!reserva.getConvocatorias().isEmpty()) {
-				model.addAttribute("convocatoria", reserva.getConvocatorias().iterator().next());
-				List<UsuarioSimpleDTO> convocados = reserva.getConvocatorias().stream()
-					.map(Convocatoria::getUsuario)
+			
+			// Manejar convocatoria solo si existe y tiene convocados
+			if (reserva.getConvocatoria() != null && 
+			    reserva.getConvocatoria().getConvocados() != null && 
+			    !reserva.getConvocatoria().getConvocados().isEmpty()) {
+				model.addAttribute("convocatoria", reserva.getConvocatoria().getConvocados().iterator().next());
+				List<UsuarioSimpleDTO> convocados = reserva.getConvocatoria().getConvocados().stream()
+					.map(Convocado::getUsuario)
 					.filter(Objects::nonNull)
 					.map(usr -> new UsuarioSimpleDTO(usr.getId(), usr.getNombre(), usr.getApellidos(), usr.getCorreo()))
 					.toList();
@@ -675,8 +718,22 @@ public class ReservaController {
             // Actualizar la reserva
             reservaExistente.setFechaReserva(LocalDateTime.of(horario.getFecha(), horario.getHoraInicio()));
             reservaExistente.setHoraFin(horario.getHoraFin());
-            reservaExistente.setEnlace(enlaceReunion);
-            reservaExistente.setObservaciones(observaciones);
+            
+            // Solo crear/actualizar convocatoria si hay datos de convocatoria o usuarios convocados
+            if (StringUtils.isNotBlank(enlaceReunion) || StringUtils.isNotBlank(observaciones) || (usuariosConvocados != null && usuariosConvocados.length > 0)) {
+				
+				// Si ya existe una convocatoria, actualizarla; si no, crear una nueva
+				Convocatoria convocatoria = reservaExistente.getConvocatoria();
+				if (convocatoria == null) {
+					convocatoria = new Convocatoria();
+					convocatoria.setReserva(reservaExistente);
+					reservaExistente.setConvocatoria(convocatoria);
+				}
+				
+				// Actualizar enlace y observaciones
+				convocatoria.setEnlace(enlaceReunion);
+				convocatoria.setObservaciones(observaciones);
+            }
             
             // Guardar la reserva actualizada
             Reserva reservaActualizada = reservaService.save(reservaExistente);

@@ -16,15 +16,15 @@ import org.junit.jupiter.api.Test;
  * Tests para la clase ConvocatoriaId
  */
 @DisplayName("ConvocatoriaPK Tests")
-class ConvocatoriaPKTest {
+class ConvocadoPKTest {
     
-    private ConvocatoriaPK convocatoriaId;
+    private ConvocadoPK convocatoriaId;
     private static final Integer ID_RESERVA = 123;
     private static final String ID_USUARIO = "USER001";
     
     @BeforeEach
     void setUp() {
-        convocatoriaId = new ConvocatoriaPK();
+        convocatoriaId = new ConvocadoPK();
     }
     
     @Test
@@ -38,7 +38,7 @@ class ConvocatoriaPKTest {
     @Test
     @DisplayName("Constructor con parámetros")
     void testParameterizedConstructor() {
-    	ConvocatoriaPK id = new ConvocatoriaPK(ID_RESERVA, ID_USUARIO);
+    	ConvocadoPK id = new ConvocadoPK(ID_RESERVA, ID_USUARIO);
         
         assertEquals(ID_RESERVA, id.getIdReserva());
         assertEquals(ID_USUARIO, id.getIdUsuario());
@@ -71,15 +71,15 @@ class ConvocatoriaPKTest {
         @Test
         @DisplayName("Equals con el mismo objeto")
         void testEqualsWithSameObject() {
-        	ConvocatoriaPK id = new ConvocatoriaPK(ID_RESERVA, ID_USUARIO);
+        	ConvocadoPK id = new ConvocadoPK(ID_RESERVA, ID_USUARIO);
             assertEquals(id, id);
         }
         
         @Test
         @DisplayName("Equals con objetos iguales")
         void testEqualsWithEqualObjects() {
-        	ConvocatoriaPK id1 = new ConvocatoriaPK(ID_RESERVA, ID_USUARIO);
-        	ConvocatoriaPK id2 = new ConvocatoriaPK(ID_RESERVA, ID_USUARIO);
+        	ConvocadoPK id1 = new ConvocadoPK(ID_RESERVA, ID_USUARIO);
+        	ConvocadoPK id2 = new ConvocadoPK(ID_RESERVA, ID_USUARIO);
             
             assertEquals(id1, id2);
             assertEquals(id2, id1);
@@ -88,8 +88,8 @@ class ConvocatoriaPKTest {
         @Test
         @DisplayName("Equals con objetos diferentes")
         void testEqualsWithDifferentObjects() {
-        	ConvocatoriaPK id1 = new ConvocatoriaPK(ID_RESERVA, ID_USUARIO);
-            ConvocatoriaPK id2 = new ConvocatoriaPK(456, "USER002");
+        	ConvocadoPK id1 = new ConvocadoPK(ID_RESERVA, ID_USUARIO);
+            ConvocadoPK id2 = new ConvocadoPK(456, "USER002");
             
             assertNotEquals(id1, id2);
         }
@@ -97,14 +97,14 @@ class ConvocatoriaPKTest {
         @Test
         @DisplayName("Equals con null")
         void testEqualsWithNull() {
-        	ConvocatoriaPK id = new ConvocatoriaPK(ID_RESERVA, ID_USUARIO);
+        	ConvocadoPK id = new ConvocadoPK(ID_RESERVA, ID_USUARIO);
             assertNotEquals(null, id);
         }
         
         @Test
         @DisplayName("Equals con clase diferente")
         void testEqualsWithDifferentClass() {
-        	ConvocatoriaPK id = new ConvocatoriaPK(ID_RESERVA, ID_USUARIO);
+        	ConvocadoPK id = new ConvocadoPK(ID_RESERVA, ID_USUARIO);
             String differentClass = "different";
             assertNotEquals(id, differentClass);
         }
@@ -112,10 +112,10 @@ class ConvocatoriaPKTest {
         @Test
         @DisplayName("Equals con campos null")
         void testEqualsWithNullFields() {
-        	ConvocatoriaPK id1 = new ConvocatoriaPK(null, null);
-            ConvocatoriaPK id2 = new ConvocatoriaPK(null, null);
-            ConvocatoriaPK id3 = new ConvocatoriaPK(ID_RESERVA, null);
-            ConvocatoriaPK id4 = new ConvocatoriaPK(null, ID_USUARIO);
+        	ConvocadoPK id1 = new ConvocadoPK(null, null);
+            ConvocadoPK id2 = new ConvocadoPK(null, null);
+            ConvocadoPK id3 = new ConvocadoPK(ID_RESERVA, null);
+            ConvocadoPK id4 = new ConvocadoPK(null, ID_USUARIO);
             
             assertEquals(id1, id2);
             assertNotEquals(id1, id3);
@@ -127,29 +127,29 @@ class ConvocatoriaPKTest {
     @Test
     @DisplayName("hashCode consistente")
     void testHashCode() {
-    	ConvocatoriaPK id1 = new ConvocatoriaPK(ID_RESERVA, ID_USUARIO);
-    	ConvocatoriaPK id2 = new ConvocatoriaPK(ID_RESERVA, ID_USUARIO);
+    	ConvocadoPK id1 = new ConvocadoPK(ID_RESERVA, ID_USUARIO);
+    	ConvocadoPK id2 = new ConvocadoPK(ID_RESERVA, ID_USUARIO);
         
         assertEquals(id1.hashCode(), id2.hashCode());
         
         // hashCode con campos null
-        ConvocatoriaPK idNull = new ConvocatoriaPK(null, null);
+        ConvocadoPK idNull = new ConvocadoPK(null, null);
         assertDoesNotThrow(idNull::hashCode);
     }
     
     @Test
     @DisplayName("toString")
     void testToString() {
-    	ConvocatoriaPK id = new ConvocatoriaPK(ID_RESERVA, ID_USUARIO);
+    	ConvocadoPK id = new ConvocadoPK(ID_RESERVA, ID_USUARIO);
         String toString = id.toString();
         
         assertNotNull(toString);
-        assertTrue(toString.contains("ConvocatoriaPK"));
+        assertTrue(toString.contains("ConvocadoPK"));
         assertTrue(toString.contains(ID_RESERVA.toString()));
         assertTrue(toString.contains(ID_USUARIO));
         
         // toString con campos null
-        ConvocatoriaPK idNull = new ConvocatoriaPK(null, null);
+        ConvocadoPK idNull = new ConvocadoPK(null, null);
         assertDoesNotThrow(idNull::toString);
     }
 }
