@@ -427,12 +427,12 @@ class ReservaServiceImplTest {
         when(reservaRepo.findById(id)).thenReturn(Optional.of(reservaTest));
 
         // Act
-        Optional<Reserva> resultado = reservaService.findById(id);
+        Reserva resultado = reservaService.findById(id);
 
         // Assert
         assertNotNull(resultado);
-        assertTrue(resultado.isPresent());
-        assertEquals(reservaTest, resultado.get());
+        assertTrue(resultado.getId() != null);
+        assertEquals(reservaTest, resultado);
 
         // Verify
         verify(reservaRepo).findById(id);

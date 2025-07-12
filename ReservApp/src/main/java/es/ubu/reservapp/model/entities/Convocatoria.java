@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToMany;
@@ -27,7 +28,9 @@ import lombok.Setter;
  * @since 1.0
  */
 @Entity
-@Table(name = "convocatoria")
+@Table(name = "convocatoria", indexes = {
+	    @Index(name = "idx_convocatoria_reserva", columnList = "id_reserva_pk")
+})
 @Getter
 @Setter
 @AllArgsConstructor
@@ -40,9 +43,10 @@ public class Convocatoria extends EntidadInfo<Integer> {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
+	@JoinColumn(name = "id_reserva_pk", insertable = false, updatable = false)
     private Integer id;
 
-//	@MapsId
+	@MapsId
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_reserva_pk", insertable = false, updatable = false)
 	private Reserva reserva;

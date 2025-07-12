@@ -114,7 +114,7 @@ public class ReservaServiceImpl implements ReservaService {
 	}
 
 	@Override
-	public Optional<Reserva> findById(Integer id) {
+	public Reserva findById(Integer id) {
 		Reserva reserva = reservaRepo.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("Reserva con ID " + id + " no encontrada."));
 		reserva.getEstablecimiento().getId();
@@ -123,7 +123,7 @@ public class ReservaServiceImpl implements ReservaService {
         	reserva.getEstablecimiento().getFranjasHorarias().sort(Comparator.comparing(FranjaHoraria::getDiaSemana));
         }
 
-		return reservaRepo.findById(id);
+		return reserva;
 	}
 
 	/**

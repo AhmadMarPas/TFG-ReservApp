@@ -99,6 +99,6 @@ public interface ReservaService {
      * @return Optional con la reserva si existe, vacío si no.
      */
     @Transactional(readOnly = true)
-    Optional<Reserva> findById(Integer id);
+    Reserva findById(Integer id);
 
 }

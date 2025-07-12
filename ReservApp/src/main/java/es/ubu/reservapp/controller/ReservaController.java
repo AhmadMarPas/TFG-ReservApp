@@ -598,13 +598,11 @@ public class ReservaController {
             
             Usuario usuario = sessionData.getUsuario();
             
-            Optional<Reserva> reservaOpt = reservaService.findById(reservaId);
-            if (reservaOpt.isEmpty()) {
+            Reserva reserva = reservaService.findById(reservaId);
+            if (reserva == null) {
                 redirectAttributes.addFlashAttribute(ERROR, "Reserva no encontrada.");
                 return REDIRECT_MIS_RESERVAS;
             }
-            
-            Reserva reserva = reservaOpt.get();
             
             // Verificar que la reserva pertenece al usuario autenticado
             if (!reserva.getUsuario().getId().equals(usuario.getId())) {
@@ -681,13 +679,11 @@ public class ReservaController {
             
             Usuario usuario = sessionData.getUsuario();
             
-            Optional<Reserva> reservaOpt = reservaService.findById(reservaId);
-            if (reservaOpt.isEmpty()) {
+            Reserva reservaExistente = reservaService.findById(reservaId);
+            if (reservaExistente == null) {
                 redirectAttributes.addFlashAttribute(ERROR, "Reserva no encontrada.");
                 return REDIRECT_MIS_RESERVAS;
             }
-            
-            Reserva reservaExistente = reservaOpt.get();
             
             // Verificar permisos
             if (!reservaExistente.getUsuario().getId().equals(usuario.getId())) {
