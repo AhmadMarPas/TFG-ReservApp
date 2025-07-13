@@ -418,69 +418,51 @@ public class ReservaController {
      * Reutiliza convocatorias existentes (incluso las marcadas como inválidas) o crea nuevas.
      */
     private void gestionarConvocatorias(Reserva reserva, String[] usuariosConvocados) {
-        // Primero marcar todas las convocatorias existentes como inválidas
+        // Eliminar todas las convocatorias existentes
         convocatoriaService.deleteByReserva(reserva);
+        
+        // Si no hay usuarios convocados, no hacer nada más
+        if (usuariosConvocados == null || usuariosConvocados.length == 0) {
+            return;
+        }
         
         List<Convocado> convocatoriasActivas = new ArrayList<>();
         
-        if (usuariosConvocados != null && usuariosConvocados.length > 0) {
-            // Buscar si ya existe una convocatoria (incluso inválida)
-            Optional<Convocatoria> convocatoriaExistente = convocatoriaService.findByIdIgnoringValido(reserva.getId());
-            
-            Convocatoria convocatoria;
-            if (convocatoriaExistente.isPresent()) {
-                // Reutilizar la convocatoria existente
-                convocatoria = convocatoriaExistente.get();
-                log.info("Reutilizando convocatoria existente para reserva: {}", reserva.getId());
-                
-                // Con @SoftDelete, Hibernate maneja automáticamente el campo valido
-                // Usar merge para entidades recuperadas con consulta nativa
-                convocatoriaService.merge(convocatoria);
-            } else {
-                // Crear nueva convocatoria solo si no existe
-                convocatoria = new Convocatoria();
-                convocatoria.setReserva(reserva);
-                reserva.setConvocatoria(convocatoria);
-                log.info("Creando nueva convocatoria para reserva: {}", reserva.getId());
-            }
-            
-            // Inicializar lista de convocados si no existe
-            if (convocatoria.getConvocados() == null) {
-                convocatoria.setConvocados(new ArrayList<>());
-            }
-            
-            for (String usuarioId : usuariosConvocados) {
-                if (usuarioId != null && !usuarioId.trim().isEmpty()) {
-                    Usuario usuario = usuarioService.findUsuarioById(usuarioId.trim());
-                    if (usuario != null) {
-                        Convocado convocado = new Convocado();
-                        ConvocadoPK convocadoId = new ConvocadoPK(reserva.getId(), usuario.getId());
-                        convocado.setId(convocadoId);
-                        convocado.setConvocatoria(convocatoria);
-                        convocado.setUsuario(usuario);
-                        
-                        // Añadir el convocado a la lista de la convocatoria
-                        convocatoria.getConvocados().add(convocado);
-                        convocatoriasActivas.add(convocado);
-                        log.info("Convocado creado para usuario: {} en reserva: {}", usuario.getId(), reserva.getId());
-                    }
+        // Crear siempre una nueva convocatoria para evitar conflictos
+        Convocatoria nuevaConvocatoria = new Convocatoria();
+        nuevaConvocatoria.setReserva(reserva);
+        reserva.setConvocatoria(nuevaConvocatoria);
+        nuevaConvocatoria.setConvocados(new ArrayList<>());
+        log.info("Creando nueva convocatoria para reserva: {}", reserva.getId());
+        
+        for (String usuarioId : usuariosConvocados) {
+            if (usuarioId != null && !usuarioId.trim().isEmpty()) {
+                Usuario usuario = usuarioService.findUsuarioById(usuarioId.trim());
+                if (usuario != null) {
+                    Convocado convocado = new Convocado();
+                    ConvocadoPK convocadoId = new ConvocadoPK(reserva.getId(), usuario.getId());
+                    convocado.setId(convocadoId);
+                    convocado.setConvocatoria(nuevaConvocatoria);
+                    convocado.setUsuario(usuario);
+                    
+                    // Añadir el convocado a la lista de la convocatoria
+                    nuevaConvocatoria.getConvocados().add(convocado);
+                    convocatoriasActivas.add(convocado);
+                    log.info("Convocado creado para usuario: {} en reserva: {}", usuario.getId(), reserva.getId());
                 }
-            }
-            
-            // Guardar la convocatoria solo una vez al final (el cascade guardará los convocados)
-            if (!convocatoriasActivas.isEmpty()) {
-                convocatoriaService.save(convocatoria);
             }
         }
         
-        // Enviar notificaciones por correo electrónico
+        // Guardar la convocatoria solo si hay convocados
         if (!convocatoriasActivas.isEmpty()) {
+            convocatoriaService.save(nuevaConvocatoria);
+            
+            // Enviar notificaciones por correo electrónico
             try {
                 emailService.enviarNotificacionesConvocatoria(convocatoriasActivas, reserva);
                 log.info("Notificaciones de convocatoria enviadas para {} usuarios", convocatoriasActivas.size());
             } catch (Exception e) {
                 log.error("Error al enviar notificaciones de convocatoria: {}", e.getMessage(), e);
-                // No interrumpir el flujo, solo registrar el error
             }
         }
     }
@@ -604,6 +586,16 @@ public class ReservaController {
                 return REDIRECT_MIS_RESERVAS;
             }
             
+            // Log para depuración
+            log.info("Reserva cargada para edición - ID: {}, tiene convocatoria: {}", 
+                    reservaId, reserva.getConvocatoria() != null);
+            if (reserva.getConvocatoria() != null) {
+                log.info("Convocatoria - enlace: {}, observaciones: {}, convocados: {}", 
+                        reserva.getConvocatoria().getEnlace(),
+                        reserva.getConvocatoria().getObservaciones(),
+                        reserva.getConvocatoria().getConvocados() != null ? reserva.getConvocatoria().getConvocados().size() : 0);
+            }
+            
             // Verificar que la reserva pertenece al usuario autenticado
             if (!reserva.getUsuario().getId().equals(usuario.getId())) {
                 redirectAttributes.addFlashAttribute(ERROR, "No tienes permisos para editar esta reserva.");
@@ -617,22 +609,34 @@ public class ReservaController {
             }
             
             // Preparar datos para el formulario
-            reserva = reservaService.crearReservaConConvocatorias(reserva, usuario, null);
+            // No llamar a crearReservaConConvocatorias para edición, ya que la reserva ya existe
             model.addAttribute("reserva", reserva);
             model.addAttribute("establecimiento", reserva.getEstablecimiento());
             model.addAttribute("isEdit", true);
 			
-			// Manejar convocatoria solo si existe y tiene convocados
-			if (reserva.getConvocatoria() != null && 
-			    reserva.getConvocatoria().getConvocados() != null && 
-			    !reserva.getConvocatoria().getConvocados().isEmpty()) {
-				model.addAttribute("convocatoria", reserva.getConvocatoria().getConvocados().iterator().next());
-				List<UsuarioSimpleDTO> convocados = reserva.getConvocatoria().getConvocados().stream()
-					.map(Convocado::getUsuario)
-					.filter(Objects::nonNull)
-					.map(usr -> new UsuarioSimpleDTO(usr.getId(), usr.getNombre(), usr.getApellidos(), usr.getCorreo()))
-					.toList();
-				model.addAttribute("convocados", convocados);
+			// Manejar convocatoria si existe (independientemente de si tiene convocados)
+			if (reserva.getConvocatoria() != null) {
+				log.info("Agregando convocatoria al modelo para edición - enlace: {}, observaciones: {}", 
+						reserva.getConvocatoria().getEnlace(), reserva.getConvocatoria().getObservaciones());
+				model.addAttribute("convocatoria", reserva.getConvocatoria());
+				
+				// Agregar convocados si existen
+				if (reserva.getConvocatoria().getConvocados() != null && 
+				    !reserva.getConvocatoria().getConvocados().isEmpty()) {
+					List<UsuarioSimpleDTO> convocados = reserva.getConvocatoria().getConvocados().stream()
+						.map(Convocado::getUsuario)
+						.filter(Objects::nonNull)
+						.map(usr -> new UsuarioSimpleDTO(usr.getId(), usr.getNombre(), usr.getApellidos(), usr.getCorreo()))
+						.toList();
+					log.info("Agregando {} convocados al modelo: {}", convocados.size(), 
+							convocados.stream().map(UsuarioSimpleDTO::getNombre).toList());
+					model.addAttribute("convocados", convocados);
+				} else {
+					log.info("Convocatoria sin convocados - solo enlace/observaciones");
+					model.addAttribute("convocados", new ArrayList<>());
+				}
+			} else {
+				log.info("No hay convocatoria asociada a la reserva");
 			}
             
             // Obtener franjas horarias del establecimiento
@@ -715,27 +719,32 @@ public class ReservaController {
             reservaExistente.setFechaReserva(LocalDateTime.of(horario.getFecha(), horario.getHoraInicio()));
             reservaExistente.setHoraFin(horario.getHoraFin());
             
-            // Solo crear/actualizar convocatoria si hay datos de convocatoria o usuarios convocados
-            if (StringUtils.isNotBlank(enlaceReunion) || StringUtils.isNotBlank(observaciones) || (usuariosConvocados != null && usuariosConvocados.length > 0)) {
-				
-				// Si ya existe una convocatoria, actualizarla; si no, crear una nueva
-				Convocatoria convocatoria = reservaExistente.getConvocatoria();
-				if (convocatoria == null) {
-					convocatoria = new Convocatoria();
-					convocatoria.setReserva(reservaExistente);
-					reservaExistente.setConvocatoria(convocatoria);
-				}
-				
-				// Actualizar enlace y observaciones
-				convocatoria.setEnlace(enlaceReunion);
-				convocatoria.setObservaciones(observaciones);
-            }
+            // IMPORTANTE: Determinar si hay datos de convocatoria
+			boolean tieneConvocatoria = StringUtils.isNotBlank(enlaceReunion) || StringUtils.isNotBlank(observaciones)
+					|| (usuariosConvocados != null && usuariosConvocados.length > 0);
             
-            // Guardar la reserva actualizada
+            // SIEMPRE limpiar la referencia de convocatoria antes de guardar para evitar problemas de cascada
+            reservaExistente.setConvocatoria(null);
+            
+            // Eliminar convocatorias existentes ANTES de guardar la reserva
+            convocatoriaService.deleteByReserva(reservaExistente);
+            
+            // Guardar la reserva actualizada sin referencias a convocatorias
             Reserva reservaActualizada = reservaService.save(reservaExistente);
             
-            // Gestionar convocatorias con soft delete
-            gestionarConvocatorias(reservaActualizada, usuariosConvocados);
+            // Solo crear/actualizar convocatoria si hay datos de convocatoria o usuarios convocados
+            if (tieneConvocatoria) {
+                // Crear nueva convocatoria
+                Convocatoria convocatoria = new Convocatoria();
+                convocatoria.setReserva(reservaActualizada);
+                convocatoria.setEnlace(enlaceReunion);
+                convocatoria.setObservaciones(observaciones);
+                reservaActualizada.setConvocatoria(convocatoria);
+                
+                // Gestionar convocatorias con soft delete
+                gestionarConvocatorias(reservaActualizada, usuariosConvocados);
+				convocatoriaService.save(convocatoria);
+            }
             
             redirectAttributes.addFlashAttribute(EXITO, "Reserva actualizada correctamente.");
             return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimiento.getId();
@@ -746,6 +755,7 @@ public class ReservaController {
             return REDIRECT_MIS_RESERVAS_EDITAR + reservaId;
         }
     }
+
 
     // ================================
     // MÉTODOS PRIVADOS DE PREPARACIÓN DE DATOS

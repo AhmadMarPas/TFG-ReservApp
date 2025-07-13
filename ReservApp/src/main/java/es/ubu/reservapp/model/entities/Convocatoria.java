@@ -14,6 +14,7 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -49,6 +50,8 @@ public class Convocatoria extends EntidadInfo<Integer> {
 	@MapsId
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_reserva_pk", insertable = false, updatable = false)
+//	@JoinColumn(name = "id_reserva_pk")
+	@NotNull
 	private Reserva reserva;
     
     // Relación Many-to-One con Usuario
@@ -69,6 +72,13 @@ public class Convocatoria extends EntidadInfo<Integer> {
     @Override
     public void setId(Integer id) {
     	this.id = id;
+    }
+    
+    public void setReserva(Reserva reserva) {
+        this.reserva = reserva;
+        if (reserva != null) {
+            this.setId(reserva.getId());
+        }
     }
     
     @Override

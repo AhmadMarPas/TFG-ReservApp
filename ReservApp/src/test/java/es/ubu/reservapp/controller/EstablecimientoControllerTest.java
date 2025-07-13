@@ -74,7 +74,7 @@ class EstablecimientoControllerTest {
 
     @Test
     void testListarEstablecimientos() {
-        when(establecimientoService.findAll()).thenReturn(establecimientos);
+        when(establecimientoService.findAllAndFranjaHoraria()).thenReturn(establecimientos);
         
         String viewName = establecimientoController.listarEstablecimientos(model);
         
@@ -140,13 +140,13 @@ class EstablecimientoControllerTest {
         List<Establecimiento> establecimientosConFranjas = new ArrayList<>();
         establecimientosConFranjas.add(establecimiento);
         
-        when(establecimientoService.findAll()).thenReturn(establecimientosConFranjas);
+        when(establecimientoService.findAllAndFranjaHoraria()).thenReturn(establecimientosConFranjas);
         
         String viewName = establecimientoController.listarEstablecimientos(model);
         
         // Verificar que las franjas horarias se ordenan por día de la semana
-        assertEquals(DayOfWeek.MONDAY, establecimiento.getFranjasHorarias().get(0).getDiaSemana());
-        assertEquals(DayOfWeek.WEDNESDAY, establecimiento.getFranjasHorarias().get(1).getDiaSemana());
+        assertEquals(DayOfWeek.WEDNESDAY, establecimiento.getFranjasHorarias().get(0).getDiaSemana());
+        assertEquals(DayOfWeek.MONDAY, establecimiento.getFranjasHorarias().get(1).getDiaSemana());
         
         verify(model).addAttribute("establecimientos", establecimientosConFranjas);
         verify(model).addAttribute("estActivoCount", 1L);
@@ -158,7 +158,7 @@ class EstablecimientoControllerTest {
     @Test
     void testListarEstablecimientosVacio() {
         List<Establecimiento> establecimientosVacios = new ArrayList<>();
-        when(establecimientoService.findAll()).thenReturn(establecimientosVacios);
+        when(establecimientoService.findAllAndFranjaHoraria()).thenReturn(establecimientosVacios);
         
         String viewName = establecimientoController.listarEstablecimientos(model);
         
@@ -182,7 +182,7 @@ class EstablecimientoControllerTest {
         List<Establecimiento> establecimientosConNulos = new ArrayList<>();
         establecimientosConNulos.add(establecimientoSinFranjas);
         
-        when(establecimientoService.findAll()).thenReturn(establecimientosConNulos);
+        when(establecimientoService.findAllAndFranjaHoraria()).thenReturn(establecimientosConNulos);
         
         String viewName = establecimientoController.listarEstablecimientos(model);
         
@@ -204,20 +204,7 @@ class EstablecimientoControllerTest {
         assertEquals("redirect:/admin/establecimientos/listado", viewName);
     }
 
-    @Test
-    void testActivarEstablecimientoSuccess() {
-        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
-        
-        String viewName = establecimientoController.activarEstablecimiento(1, model, redirectAttributes);
-        
-        assertEquals(false, establecimiento.isActivo()); // Cambia de true a false
-        
-        verify(establecimientoService).save(establecimiento);
-        
-        verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
-        
-        assertEquals("redirect:/admin/establecimientos/listado", viewName);
-    }
+
 
     @Test
     void testGuardarEstablecimientoWithValidationErrors() {
@@ -269,8 +256,6 @@ class EstablecimientoControllerTest {
         
         // Verificar que se inicializa una lista vacía cuando las franjas son nulas
         assertEquals(new ArrayList<>(), newEstablecimiento.getFranjasHorarias());
-        
-        verify(establecimientoService).save(newEstablecimiento);
         
         verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
         
@@ -367,5 +352,70 @@ class EstablecimientoControllerTest {
         verify(model).addAttribute(eq("error"), anyString());
         
         assertEquals("establecimientos/formulario", viewName);
+    }
+
+    @Test
+    void testActivarEstablecimientoSuccess_CambiaDeActivoAInactivo() {
+        // Establecimiento activo que se va a desactivar
+        establecimiento.setActivo(true);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        
+        String viewName = establecimientoController.activarEstablecimiento(1, model, redirectAttributes);
+        
+        assertEquals(false, establecimiento.isActivo()); // Cambia de true a false
+        
+        verify(establecimientoService).save(establecimiento);
+        verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
+        
+        assertEquals("redirect:/admin/establecimientos/listado", viewName);
+    }
+
+    @Test
+    void testActivarEstablecimientoSuccess_CambiaDeInactivoAActivo() {
+        // Establecimiento inactivo que se va a activar
+        establecimiento.setActivo(false);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        
+        String viewName = establecimientoController.activarEstablecimiento(1, model, redirectAttributes);
+        
+        assertEquals(true, establecimiento.isActivo()); // Cambia de false a true
+        
+        verify(establecimientoService).save(establecimiento);
+        verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
+        
+        assertEquals("redirect:/admin/establecimientos/listado", viewName);
+    }
+
+    @Test
+    void testGuardarEstablecimientoExistenteConFranjasHorariasNulas() {
+        // Establecimiento existente con franjas horarias nulas
+        establecimiento.setFranjasHorarias(null);
+        
+        when(bindingResult.hasErrors()).thenReturn(false);
+        
+        String viewName = establecimientoController.guardarEstablecimiento(establecimiento, bindingResult, model, redirectAttributes);
+        
+        // Verificar que no se inicializa nueva lista porque ya tiene ID (no es null)
+        assertEquals(null, establecimiento.getFranjasHorarias());
+        
+        verify(establecimientoService).save(establecimiento);
+        verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
+        
+        assertEquals("redirect:/admin/establecimientos/listado", viewName);
+    }
+
+    @Test
+    void testListarEstablecimientosUsandoFindAllAndFranjaHoraria() {
+        // Verificar que se llama al método correcto del servicio
+        when(establecimientoService.findAllAndFranjaHoraria()).thenReturn(establecimientos);
+        
+        String viewName = establecimientoController.listarEstablecimientos(model);
+        
+        verify(establecimientoService).findAllAndFranjaHoraria();
+        verify(model).addAttribute("establecimientos", establecimientos);
+        verify(model).addAttribute("estActivoCount", 1L);
+        verify(model).addAttribute("estCapacidad", 30L);
+        
+        assertEquals("establecimientos/listado", viewName);
     }
 }

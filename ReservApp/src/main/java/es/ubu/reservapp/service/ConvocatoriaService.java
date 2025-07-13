@@ -59,7 +59,7 @@ public interface ConvocatoriaService {
      * @param idReserva ID de la reserva
      * @return Optional con la convocatoria si existe, incluso si está marcada como inválida
      */
-    Optional<Convocatoria> findByIdIgnoringValido(Integer idReserva);
+    Convocatoria findByIdIgnoringValido(Integer idReserva);
 
     
     /**

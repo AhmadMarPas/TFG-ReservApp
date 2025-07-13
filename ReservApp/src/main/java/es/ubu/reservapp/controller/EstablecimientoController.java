@@ -143,8 +143,10 @@ public class EstablecimientoController {
             if (establecimiento.getId() == null && establecimiento.getFranjasHorarias() == null) {
                 establecimiento.setFranjasHorarias(new ArrayList<>());
             }
-            for (FranjaHoraria franja : establecimiento.getFranjasHorarias()) {
-                franja.setEstablecimiento(establecimiento);
+            if (establecimiento.getFranjasHorarias() != null) {
+            	for (FranjaHoraria franja : establecimiento.getFranjasHorarias()) {
+            		franja.setEstablecimiento(establecimiento);
+            	}
             }
 
             establecimientoService.save(establecimiento);

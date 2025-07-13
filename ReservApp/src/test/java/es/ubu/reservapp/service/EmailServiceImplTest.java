@@ -27,10 +27,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import es.ubu.reservapp.model.entities.Convocado;
 import es.ubu.reservapp.model.entities.ConvocadoPK;
+import es.ubu.reservapp.model.entities.Convocatoria;
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
@@ -55,14 +55,12 @@ class EmailServiceImplTest {
     private Usuario usuario2;
     private Establecimiento establecimiento;
     private Reserva reserva;
+    private Convocatoria convocatoria;
     private Convocado convocado1;
     private Convocado convocado2;
 
     @BeforeEach
     void setUp() {
-        // Configurar el fromEmail usando ReflectionTestUtils
-        ReflectionTestUtils.setField(emailService, "fromEmail", "test@reservapp.com");
-        
         // Configurar usuarios
         usuario1 = new Usuario();
         usuario1.setId("1");
@@ -87,6 +85,14 @@ class EmailServiceImplTest {
         reserva.setEstablecimiento(establecimiento);
         reserva.setFechaReserva(LocalDateTime.of(2024, 12, 15, 10, 30));
         reserva.setHoraFin(LocalTime.of(11, 30));
+        
+        // Configurar convocatoria
+        convocatoria = new Convocatoria();
+        convocatoria.setId(1);
+        convocatoria.setReserva(reserva);
+        convocatoria.setEnlace("https://meet.google.com/abc-defg-hij");
+        convocatoria.setObservaciones("Por favor, traer documentos necesarios para la reunión.");
+        reserva.setConvocatoria(convocatoria);
         
         // Configurar convocatorias
         convocado1 = new Convocado();
@@ -166,7 +172,7 @@ class EmailServiceImplTest {
         verify(mailSender).send(messageCaptor.capture());
         SimpleMailMessage sentMessage = messageCaptor.getValue();
         
-        assertEquals("test@reservapp.com", sentMessage.getFrom());
+        assertEquals("noreply@reservapp.com", sentMessage.getFrom());
         assertEquals("juan.perez@email.com", sentMessage.getTo()[0]);
         assertEquals("Convocatoria de Reunión - Sala de Reuniones A", sentMessage.getSubject());
         
@@ -181,6 +187,8 @@ class EmailServiceImplTest {
     @Test
     void testEnviarCorreoConvocatoria_SinEnlaceNiObservaciones() {
         // Arrange
+        convocatoria.setEnlace(null);
+        convocatoria.setObservaciones(null);
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
@@ -272,6 +280,9 @@ class EmailServiceImplTest {
         assertTrue(contenido.contains("📅 Fecha: 15/12/2024 10:30"));
         assertTrue(contenido.contains("📍 Lugar: Sala de Reuniones A"));
         assertTrue(contenido.contains("🗺️ Ubicación: Calle Principal 123, Planta 2"));
+        assertTrue(contenido.contains("🔗 Enlace de reunión: https://meet.google.com/abc-defg-hij"));
+        assertTrue(contenido.contains("📝 Observaciones:"));
+        assertTrue(contenido.contains("Por favor, traer documentos necesarios para la reunión."));
         assertTrue(contenido.contains("Por favor, confirme su asistencia"));
         assertTrue(contenido.contains("Saludos cordiales"));
         assertTrue(contenido.contains("Sistema de Reservas ReservApp"));
@@ -281,6 +292,7 @@ class EmailServiceImplTest {
     void testContenidoCorreo_FormatoMinimo() {
         // Arrange
         establecimiento.setDireccion(null);
+        reserva.setConvocatoria(null);
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
@@ -381,5 +393,57 @@ class EmailServiceImplTest {
         
         // Assert
         verify(mailSender, times(2)).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void testEnviarCorreoConvocatoria_ConEnlaceVacio() {
+        // Arrange
+        convocatoria.setEnlace("   ");
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        
+        // Act
+        emailService.enviarCorreoConvocatoria(usuario1, reserva);
+        
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertNotNull(contenido);
+        assertFalse(contenido.contains("🔗 Enlace de reunión:"));
+    }
+
+    @Test
+    void testEnviarCorreoConvocatoria_ConObservacionesVacias() {
+        // Arrange
+        convocatoria.setObservaciones("   ");
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        
+        // Act
+        emailService.enviarCorreoConvocatoria(usuario1, reserva);
+        
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertNotNull(contenido);
+        assertFalse(contenido.contains("📝 Observaciones:"));
+    }
+
+    @Test
+    void testEnviarCorreoConvocatoria_ConFromEmailPorDefecto() {
+        // Arrange
+        EmailServiceImpl emailServiceSinFromEmail = new EmailServiceImpl(mailSender);
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        
+        // Act
+        emailServiceSinFromEmail.enviarCorreoConvocatoria(usuario1, reserva);
+        
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        assertEquals("noreply@reservapp.com", sentMessage.getFrom());
     }
 }

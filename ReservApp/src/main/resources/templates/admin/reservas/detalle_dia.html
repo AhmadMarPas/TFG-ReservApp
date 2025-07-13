@@ -31,6 +31,34 @@
             .alert i {
                 margin-right: 10px;
             }
+            
+            .convocatoria-info {
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 1px solid #e9ecef;
+            }
+            
+            .usuarios-convocados {
+                margin-top: 10px;
+            }
+            
+            .lista-usuarios {
+                list-style: none;
+                padding-left: 20px;
+                margin: 5px 0;
+            }
+            
+            .lista-usuarios li {
+                padding: 2px 0;
+                font-size: 0.9em;
+                color: #6c757d;
+            }
+            
+            .lista-usuarios li:before {
+                content: "• ";
+                color: #007bff;
+                margin-right: 5px;
+            }
         </style>
     </th:block>
 </head>
@@ -84,13 +112,18 @@
         <div class="reservas-list" th:if="${reservas != null and !reservas.isEmpty()}">
             <h2><i class="fas fa-list"></i> Reservas del día (<span th:text="${reservas.size()}">0</span>)</h2>
             
-            <div class="reserva-card" th:each="reserva : ${reservas}">
+            <div class="reserva-card" th:each="reserva : ${reservas}" th:attr="data-reserva-id=${reserva.id}">
                 <div class="reserva-header">
                     <div class="reserva-id">
                         <i class="fas fa-bookmark"></i> Reserva #<span th:text="${reserva.id}">ID</span>
                     </div>
                     <div class="reserva-hora">
                         <i class="fas fa-clock"></i> <span th:text="${#temporals.format(reserva.fechaReserva, 'HH:mm') + (reserva.horaFin != null ? ' - ' + reserva.horaFin : '')}">Hora</span>
+                    </div>
+                    <div class="reserva-actions">
+                        <button type="button" class="btn btn-sm btn-outline-info" th:onclick="'toggleConvocatoria(' + ${reserva.id} + ')'">
+                            <i class="fas fa-info-circle"></i> Detalles
+                        </button>
                     </div>
                 </div>
                 <div class="reserva-info">
@@ -105,6 +138,31 @@
                     <div class="reserva-info-item">
                         <i class="fas fa-calendar-plus"></i> 
                         <span>Creada: <strong th:text="${#temporals.format(reserva.fechaReserva, 'dd/MM/yyyy HH:mm')}">01/01/2023 12:00</strong></span>
+                    </div>
+                    
+                    <!-- Información adicional de convocatoria -->
+                    <div th:if="${reserva.convocatoria != null}" class="convocatoria-info" style="display: none;">
+                        <div th:with="primeraConvocatoria=${reserva.convocatoria}">
+                            <div th:if="${primeraConvocatoria.enlace != null and !primeraConvocatoria.enlace.isEmpty()}" class="reserva-info-item">
+                                <i class="fas fa-link"></i> 
+                                <span>Enlace: <strong><a th:href="${primeraConvocatoria.enlace}" target="_blank" th:text="${primeraConvocatoria.enlace}">Enlace de reunión</a></strong></span>
+                            </div>
+                            <div th:if="${primeraConvocatoria.observaciones != null and !primeraConvocatoria.observaciones.isEmpty()}" class="reserva-info-item">
+                                <i class="fas fa-sticky-note"></i> 
+                                <span>Observaciones: <strong th:text="${primeraConvocatoria.observaciones}">Observaciones de la reunión</strong></span>
+                            </div>
+                            <div class="usuarios-convocados" th:if="${primeraConvocatoria.convocados != null and !primeraConvocatoria.convocados.isEmpty()}">
+                                <div class="reserva-info-item">
+                                    <i class="fas fa-users"></i> 
+                                    <span>Usuarios convocados:</span>
+                                </div>
+                                <ul class="lista-usuarios">
+                                    <li th:each="convocado : ${primeraConvocatoria.convocados}">
+                                        <span th:text="${convocado.usuario.nombre + ' ' + convocado.usuario.apellidos + ' (' + convocado.usuario.correo + ')'}">Usuario Convocado</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -139,6 +197,26 @@
                 }, 5000);
             });
         });
+
+        function toggleConvocatoria(reservaId) {
+            const convocatoriaInfo = document.querySelector(`[data-reserva-id="${reservaId}"] .convocatoria-info`);
+            
+            if (convocatoriaInfo) {
+                const currentDisplay = convocatoriaInfo.style.display;
+                
+                if (currentDisplay === 'none' || currentDisplay === '') {
+                    convocatoriaInfo.style.display = 'block';
+                } else {
+                    convocatoriaInfo.style.display = 'none';
+                }
+            } else {
+                // Buscar todos los elementos con data-reserva-id para depuración
+                const allReservas = document.querySelectorAll('[data-reserva-id]');
+                allReservas.forEach(reserva => {
+                    console.log('Reserva ID:', reserva.getAttribute('data-reserva-id'));
+                });
+            }
+        }
     </script>
 </body>
 </html>

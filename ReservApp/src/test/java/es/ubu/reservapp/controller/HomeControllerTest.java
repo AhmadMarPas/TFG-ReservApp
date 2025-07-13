@@ -3,6 +3,7 @@ package es.ubu.reservapp.controller;
 import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.shared.SessionData;
+import es.ubu.reservapp.service.UsuarioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 /**
@@ -25,6 +27,9 @@ class HomeControllerTest {
 
     @Mock
     private SessionData sessionData;
+
+    @Mock
+    private UsuarioService usuarioService;
 
     @Mock
     private Model model;
@@ -41,6 +46,15 @@ class HomeControllerTest {
         usuario.setNombre("Usuario");
         usuario.setApellidos("Test");
         usuario.setLstEstablecimientos(new ArrayList<>());
+    }
+
+    @Test
+    void testConstructor() {
+        // Arrange & Act
+        HomeController controller = new HomeController(sessionData, usuarioService);
+        
+        // Assert
+        assertNotNull(controller);
     }
 
     @Test
@@ -67,10 +81,11 @@ class HomeControllerTest {
         
         usuario.setLstEstablecimientos(establecimientos);
         when(sessionData.getUsuario()).thenReturn(usuario);
+        when(usuarioService.obtenerEstablecimientosUsuario(usuario, model)).thenReturn(model);
         
         String viewName = homeController.misReservas(model);
         
-        verify(model).addAttribute("establecimientos", establecimientos);
+        verify(usuarioService).obtenerEstablecimientosUsuario(usuario, model);
         
         assertEquals("reservas/misreservas", viewName);
     }
@@ -90,10 +105,11 @@ class HomeControllerTest {
     void testMisReservasSinEstablecimientos() {
         usuario.setLstEstablecimientos(new ArrayList<>());
         when(sessionData.getUsuario()).thenReturn(usuario);
+        when(usuarioService.obtenerEstablecimientosUsuario(usuario, model)).thenReturn(model);
         
         String viewName = homeController.misReservas(model);
         
-        verify(model).addAttribute("establecimientos", new ArrayList<>());
+        verify(usuarioService).obtenerEstablecimientosUsuario(usuario, model);
         
         assertEquals("reservas/misreservas", viewName);
     }
@@ -102,10 +118,11 @@ class HomeControllerTest {
     void testMisReservasConEstablecimientosNulos() {
         usuario.setLstEstablecimientos(null);
         when(sessionData.getUsuario()).thenReturn(usuario);
+        when(usuarioService.obtenerEstablecimientosUsuario(usuario, model)).thenReturn(model);
         
         String viewName = homeController.misReservas(model);
         
-        verify(model).addAttribute("establecimientos", null);
+        verify(usuarioService).obtenerEstablecimientosUsuario(usuario, model);
         
         assertEquals("reservas/misreservas", viewName);
     }

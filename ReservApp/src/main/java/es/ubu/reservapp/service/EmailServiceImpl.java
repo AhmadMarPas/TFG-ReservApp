@@ -3,7 +3,6 @@ package es.ubu.reservapp.service;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -25,10 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class EmailServiceImpl implements EmailService {
     
-    private JavaMailSender mailSender;
-    
-    @Value("${spring.mail.username:noreply@reservapp.com}")
-    private String fromEmail;
+	private static final String FROM_EMAIL = "noreply@reservapp.com";
+
+	private JavaMailSender mailSender;
     
     public EmailServiceImpl(JavaMailSender mailSender) {
     	this.mailSender = mailSender;
@@ -56,11 +54,15 @@ public class EmailServiceImpl implements EmailService {
     public void enviarCorreoConvocatoria(Usuario usuario, Reserva reserva) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(FROM_EMAIL);
             message.setTo(usuario.getCorreo());
             message.setSubject("Convocatoria de Reunión - " + reserva.getEstablecimiento().getNombre());
-            
-            String contenido = construirContenidoCorreo(usuario, reserva, reserva.getConvocatoria().getEnlace(), reserva.getConvocatoria().getObservaciones());
+            String contenido;
+            if (reserva.getConvocatoria() != null) {
+            	contenido = construirContenidoCorreo(usuario, reserva, reserva.getConvocatoria().getEnlace(), reserva.getConvocatoria().getObservaciones());
+			} else {
+				contenido = construirContenidoCorreo(usuario, reserva, null, null);
+			}
             message.setText(contenido);
             
             mailSender.send(message);

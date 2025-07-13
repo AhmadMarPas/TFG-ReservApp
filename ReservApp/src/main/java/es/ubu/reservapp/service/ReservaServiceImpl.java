@@ -26,6 +26,7 @@ public class ReservaServiceImpl implements ReservaService {
 
     private final ReservaRepo reservaRepo;
     private final UsuarioRepo usuarioRepo;
+    private final ConvocatoriaService convocatoriaService;
 
     /**
      * Constructor para la inyección de dependencias.
@@ -34,19 +35,15 @@ public class ReservaServiceImpl implements ReservaService {
      * @param usuarioRepo
      * @param convocatoriaService
      */
-    public ReservaServiceImpl(ReservaRepo reservaRepo, UsuarioRepo usuarioRepo) {
+    public ReservaServiceImpl(ReservaRepo reservaRepo, UsuarioRepo usuarioRepo, ConvocatoriaService convocatoriaService) {
         this.reservaRepo = reservaRepo;
         this.usuarioRepo = usuarioRepo;
+        this.convocatoriaService = convocatoriaService;
     }
 
     @Override
     public Reserva crearReservaConConvocatorias(Reserva reserva, Usuario usuarioQueReserva, List<String> idUsuariosConvocados) throws UserNotFoundException {
         reserva.setUsuario(usuarioQueReserva);
-        
-        // Si la reserva ya tiene ID, es una edición, no crear nueva convocatoria automáticamente
-        if (reserva.getId() != null) {
-            return reserva;
-        }
         
         // Guardar la reserva principal primero para obtener su ID generado
         Reserva reservaGuardada = reservaRepo.save(reserva);
@@ -123,7 +120,7 @@ public class ReservaServiceImpl implements ReservaService {
         	reserva.getEstablecimiento().getFranjasHorarias().sort(Comparator.comparing(FranjaHoraria::getDiaSemana));
         }
 
-		return reserva;
+		return obtenerConvocatoria(reserva);
 	}
 
 	/**
@@ -133,11 +130,31 @@ public class ReservaServiceImpl implements ReservaService {
 	 */
 	private List<Reserva> obtenerConvocatorias(List<Reserva> reservas) {
 		for (Reserva reserva : reservas) {
-            if (reserva.getConvocatoria() != null) {
-            	reserva.setConvocatoria(reserva.getConvocatoria());
-            }
+			obtenerConvocatoria(reserva);
         }
 		return reservas;
+	}
+
+	private Reserva obtenerConvocatoria(Reserva reserva) {
+		// Si no hay convocatoria cargada, intentar cargarla desde la base de datos
+		if (reserva.getConvocatoria() == null) {
+			Convocatoria convocatoria = convocatoriaService.findByIdIgnoringValido(reserva.getId());
+			if (convocatoria != null) {
+				reserva.setConvocatoria(convocatoria);
+			}
+		}
+		
+		// Procesar la convocatoria si existe
+		if (reserva.getConvocatoria() != null && reserva.getConvocatoria().getConvocados() != null) {
+			// Asegurarse de que la lista de convocados no sea nula y convertirla a una lista mutable
+			reserva.getConvocatoria().setConvocados(new ArrayList<>(reserva.getConvocatoria().getConvocados()));
+
+			// Asegurarse de que cada convocado tenga su usuario cargado
+			for (Convocado convocado : reserva.getConvocatoria().getConvocados()) {
+				convocado.setUsuario(convocado.getUsuario());
+			}
+		}
+		return reserva;
 	}
 
 }

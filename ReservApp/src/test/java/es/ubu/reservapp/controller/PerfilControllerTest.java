@@ -1,16 +1,12 @@
 package es.ubu.reservapp.controller;
 
-import static org.hamcrest.Matchers.instanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
@@ -19,348 +15,341 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import es.ubu.config.SecurityConfig;
 import es.ubu.reservapp.model.entities.Perfil;
-import es.ubu.reservapp.model.repositories.UsuarioRepo;
-import es.ubu.reservapp.service.ConvocatoriaService;
-import es.ubu.reservapp.service.EmailService;
-import es.ubu.reservapp.service.EstablecimientoService;
 import es.ubu.reservapp.service.PerfilService;
-import es.ubu.reservapp.service.ReservaService;
 
-@WebMvcTest(PerfilController.class)
-@Import({SecurityConfig.class})
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+/**
+ * Clase de test para PerfilController.
+ * 
+ * @autor Ahmad Mareie Pascual
+ * @version 1.0
+ * @since 1.0
+ */
+@ExtendWith(MockitoExtension.class)
 class PerfilControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-    
-    @MockitoBean
-    private EstablecimientoService establecimientoService;
-
-    @MockitoBean
+    @Mock
     private PerfilService perfilService;
-    
-    @MockitoBean
-    private ReservaService reservaService;
 
-    @MockitoBean
-    private ConvocatoriaService convocatoriaService;
-    
-    @MockitoBean
-    private EmailService mailService;
-    
-    @MockitoBean
-    private UsuarioRepo usrRepo;
+    @InjectMocks
+    private PerfilController perfilController;
 
-    private Perfil perfilAdmin;
-    private Perfil perfilUser;
-
-    private static final String BASE_URL = "/admin/perfiles";
-    private static final String LISTADO_URL = BASE_URL + "/listado";
-    private static final String NUEVO_URL = BASE_URL + "/nuevo";
-    private static final String EDITAR_URL = BASE_URL + "/editar/";
-    private static final String GUARDAR_URL = BASE_URL + "/guardar";
-    private static final String ELIMINAR_URL = BASE_URL + "/eliminar/";
-
-    private static final String LISTADO_VIEW = "perfiles/listado";
-    private static final String FORMULARIO_VIEW = "perfiles/formulario";
-
-    private static final String PERFIL_ATTRIBUTE = "perfil";
-    private static final String ERROR_ATTRIBUTE = "error";
-    private static final String EXITO_ATTRIBUTE = "exito";
-    private static final String EDIT_MODE_ATTRIBUTE = "isEdit";
+    private MockMvc mockMvc;
+    private Perfil perfil;
+    private List<Perfil> perfiles;
 
     @BeforeEach
     void setUp() {
-        perfilAdmin = new Perfil(1, "ADMIN", new ArrayList<>());
-        perfilUser = new Perfil(2, "USER", new ArrayList<>());
-    }
-
-    // Helper para simular usuario ADMIN
-    private static RequestPostProcessor adminUser() {
-        return user("admin").authorities(new SimpleGrantedAuthority("ADMIN"));
+        mockMvc = MockMvcBuilders.standaloneSetup(perfilController).build();
+        
+        perfil = new Perfil();
+        perfil.setId(1);
+        perfil.setNombre("Test Perfil");
+        
+        Perfil perfil2 = new Perfil();
+        perfil2.setId(2);
+        perfil2.setNombre("Otro Perfil");
+        
+        perfiles = Arrays.asList(perfil, perfil2);
     }
 
     @Test
-    void listarPerfiles_conPerfiles_devuelveVistaYModeloCorrectos() throws Exception {
-        List<Perfil> perfiles = List.of(perfilAdmin, perfilUser);
+    void testListarPerfiles_Success() throws Exception {
         when(perfilService.findAll()).thenReturn(perfiles);
 
-        mockMvc.perform(get(LISTADO_URL).with(adminUser()))
+        mockMvc.perform(get("/admin/perfiles"))
                 .andExpect(status().isOk())
-                .andExpect(view().name(LISTADO_VIEW))
+                .andExpect(view().name("perfiles/listado"))
                 .andExpect(model().attribute("perfiles", perfiles))
                 .andExpect(model().attribute("perfilActivoCount", 2L));
 
-        verify(perfilService).findAll();
+        verify(perfilService, times(1)).findAll();
     }
 
     @Test
-    void listarPerfiles_listaVacia_devuelveVistaYModeloCorrectos() throws Exception {
-        when(perfilService.findAll()).thenReturn(Collections.emptyList());
+    void testListarPerfiles_WithSlash() throws Exception {
+        when(perfilService.findAll()).thenReturn(perfiles);
 
-        mockMvc.perform(get(LISTADO_URL).with(adminUser()))
+        mockMvc.perform(get("/admin/perfiles/"))
                 .andExpect(status().isOk())
-                .andExpect(view().name(LISTADO_VIEW))
-                .andExpect(model().attribute("perfiles", Collections.emptyList()))
-                .andExpect(model().attribute("perfilActivoCount", 0L));
-        
-        verify(perfilService).findAll();
+                .andExpect(view().name("perfiles/listado"))
+                .andExpect(model().attribute("perfiles", perfiles))
+                .andExpect(model().attribute("perfilActivoCount", 2L));
+
+        verify(perfilService, times(1)).findAll();
     }
 
     @Test
-    @Disabled("Revisar comportamiento")
-    void listarPerfiles_servicioLanzaExcepcion_devuelveVistaConError() throws Exception {
-        when(perfilService.findAll()).thenThrow(new RuntimeException("Error de servicio"));
+    void testListarPerfiles_WithListado() throws Exception {
+        when(perfilService.findAll()).thenReturn(perfiles);
 
-        mockMvc.perform(get(LISTADO_URL).with(adminUser()))
+        mockMvc.perform(get("/admin/perfiles/listado"))
                 .andExpect(status().isOk())
-                .andExpect(view().name(LISTADO_VIEW))
-                .andExpect(model().attribute(ERROR_ATTRIBUTE, "Error al cargar la lista de perfiles: Error de servicio"));
-        
-        verify(perfilService).findAll();
+                .andExpect(view().name("perfiles/listado"))
+                .andExpect(model().attribute("perfiles", perfiles))
+                .andExpect(model().attribute("perfilActivoCount", 2L));
+
+        verify(perfilService, times(1)).findAll();
     }
-    
+
     @Test
-    void mostrarFormularioNuevoPerfil_devuelveVistaYModeloCorrectos() throws Exception {
-        mockMvc.perform(get(NUEVO_URL).with(adminUser()))
+    void testListarPerfiles_WithException() throws Exception {
+        when(perfilService.findAll()).thenThrow(new RuntimeException("Error de base de datos"));
+
+        mockMvc.perform(get("/admin/perfiles"))
                 .andExpect(status().isOk())
-                .andExpect(view().name(FORMULARIO_VIEW))
-                .andExpect(model().attributeExists(PERFIL_ATTRIBUTE))
-                .andExpect(model().attribute(PERFIL_ATTRIBUTE, instanceOf(Perfil.class)))
-                .andExpect(model().attribute(EDIT_MODE_ATTRIBUTE, false));
+                .andExpect(view().name("perfiles/listado"))
+                .andExpect(model().attribute("error", "Error al cargar la lista de perfiles: Error de base de datos"));
+
+        verify(perfilService, times(1)).findAll();
     }
 
     @Test
-    void mostrarFormularioEditarPerfil_perfilExiste_devuelveVistaYModeloCorrectos() throws Exception {
-        when(perfilService.findById(perfilUser.getId())).thenReturn(Optional.of(perfilUser));
-
-        mockMvc.perform(get(EDITAR_URL + perfilUser.getId()).with(adminUser()))
+    void testMostrarFormularioNuevoPerfil() throws Exception {
+        mockMvc.perform(get("/admin/perfiles/nuevo"))
                 .andExpect(status().isOk())
-                .andExpect(view().name(FORMULARIO_VIEW))
-                .andExpect(model().attribute(PERFIL_ATTRIBUTE, perfilUser))
-                .andExpect(model().attribute(EDIT_MODE_ATTRIBUTE, true));
-
-        verify(perfilService).findById(perfilUser.getId());
+                .andExpect(view().name("perfiles/formulario"))
+                .andExpect(model().attributeExists("perfil"))
+                .andExpect(model().attribute("isEdit", false));
     }
 
     @Test
-    void mostrarFormularioEditarPerfil_perfilNoExiste_redirigeAListadoConError() throws Exception {
-        when(perfilService.findById(99)).thenReturn(Optional.empty());
+    void testMostrarFormularioEditarPerfil_Success() throws Exception {
+        when(perfilService.findById(1)).thenReturn(Optional.of(perfil));
 
-        mockMvc.perform(get(EDITAR_URL + 99).with(adminUser()))
+        mockMvc.perform(get("/admin/perfiles/editar/1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("perfiles/formulario"))
+                .andExpect(model().attribute("perfil", perfil))
+                .andExpect(model().attribute("isEdit", true));
+
+        verify(perfilService, times(1)).findById(1);
+    }
+
+    @Test
+    void testMostrarFormularioEditarPerfil_NotFound() throws Exception {
+        when(perfilService.findById(1)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/admin/perfiles/editar/1"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(LISTADO_URL))
-                .andExpect(flash().attribute(ERROR_ATTRIBUTE, "Perfil no encontrado"));
-        
-        verify(perfilService).findById(99);
+                .andExpect(redirectedUrl("/admin/perfiles/listado"))
+                .andExpect(flash().attribute("error", "Perfil no encontrado"));
+
+        verify(perfilService, times(1)).findById(1);
     }
 
     @Test
-    void mostrarFormularioEditarPerfil_servicioLanzaExcepcion_redirigeAListadoConError() throws Exception {
-        when(perfilService.findById(perfilUser.getId())).thenThrow(new RuntimeException("Error de servicio"));
+    void testMostrarFormularioEditarPerfil_WithException() throws Exception {
+        when(perfilService.findById(1)).thenThrow(new RuntimeException("Error de base de datos"));
 
-        mockMvc.perform(get(EDITAR_URL + perfilUser.getId()).with(adminUser()))
+        mockMvc.perform(get("/admin/perfiles/editar/1"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(LISTADO_URL))
-                .andExpect(flash().attribute(ERROR_ATTRIBUTE, "Error al cargar el perfil: Error de servicio"));
-        
-        verify(perfilService).findById(perfilUser.getId());
-    }
-    
-    // Tests para guardarPerfil - Creación
-    @Test
-    void guardarPerfil_creacion_exito() throws Exception {
-    	when(perfilService.save(any(Perfil.class))).thenReturn(perfilUser);
+                .andExpect(redirectedUrl("/admin/perfiles/listado"))
+                .andExpect(flash().attribute("error", "Error al cargar el perfil: Error de base de datos"));
 
-        mockMvc.perform(post(GUARDAR_URL).with(adminUser()).with(csrf())
-                .param("nombre", "NUEVO_PERFIL"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(LISTADO_URL))
-                .andExpect(flash().attribute(EXITO_ATTRIBUTE, "Perfil creado correctamente"));
-
-        verify(perfilService).save(argThat(p -> "NUEVO_PERFIL".equals(p.getNombre()) && p.getId() == null));
+        verify(perfilService, times(1)).findById(1);
     }
 
     @Test
-    void guardarPerfil_creacion_errorValidacion() throws Exception {
-        mockMvc.perform(post(GUARDAR_URL).with(adminUser()).with(csrf())
-                // Sin el parámetro "nombre", que es requerido por @Valid si Perfil lo tiene anotado como NotBlank/NotEmpty
-                .param("nombre", "")) 
-                .andExpect(status().isOk())
-                .andExpect(view().name(FORMULARIO_VIEW))
-                .andExpect(model().attributeHasFieldErrors(PERFIL_ATTRIBUTE, "nombre"))
-                .andExpect(model().attribute(EDIT_MODE_ATTRIBUTE, false));
-
-        verify(perfilService, never()).save(any(Perfil.class));
-    }
-    
-    @Test
-    void guardarPerfil_creacion_servicioLanzaExcepcion() throws Exception {
-        when(perfilService.save(any(Perfil.class))).thenThrow(new RuntimeException("Error de guardado"));
-
-        mockMvc.perform(post(GUARDAR_URL).with(adminUser()).with(csrf())
-                .param("nombre", "OTRO_PERFIL"))
-                .andExpect(status().isOk())
-                .andExpect(view().name(FORMULARIO_VIEW))
-                .andExpect(model().attribute(ERROR_ATTRIBUTE, "Error al guardar el perfil: Error de guardado"))
-                .andExpect(model().attribute(EDIT_MODE_ATTRIBUTE, false));
-        
-        verify(perfilService).save(any(Perfil.class));
-    }
-
-    // Tests para guardarPerfil - Actualización
-    @Test
-    void guardarPerfil_actualizacion_exito() throws Exception {
-        when(perfilService.findById(perfilUser.getId())).thenReturn(Optional.of(perfilUser));
-        when(perfilService.save(any(Perfil.class))).thenReturn(perfilUser);
-        
-        mockMvc.perform(post(GUARDAR_URL).with(adminUser()).with(csrf())
-                .param("id", perfilUser.getId().toString())
-                .param("nombre", "USER_MODIFICADO"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(LISTADO_URL))
-                .andExpect(flash().attribute(EXITO_ATTRIBUTE, "Perfil actualizado correctamente"));
-
-        verify(perfilService).findById(perfilUser.getId());
-        verify(perfilService).save(perfilUser);
-        verify(perfilService).save(argThat(p -> "USER_MODIFICADO".equals(p.getNombre()) && perfilUser.getId().equals(p.getId())));
-    }
-    
-    @Test
-    void guardarPerfil_actualizacion_errorValidacion() throws Exception {
-         mockMvc.perform(post(GUARDAR_URL).with(adminUser()).with(csrf())
-                .param("id", perfilUser.getId().toString())
+    void testGuardarPerfil_ValidationErrors() throws Exception {
+        mockMvc.perform(post("/admin/perfiles/guardar")
                 .param("nombre", "")) // Nombre vacío para provocar error de validación
                 .andExpect(status().isOk())
-                .andExpect(view().name(FORMULARIO_VIEW))
-                .andExpect(model().attributeHasFieldErrors(PERFIL_ATTRIBUTE, "nombre"))
-                .andExpect(model().attribute(EDIT_MODE_ATTRIBUTE, true));
+                .andExpect(view().name("perfiles/formulario"))
+                .andExpect(model().attribute("isEdit", false));
 
         verify(perfilService, never()).save(any(Perfil.class));
     }
 
     @Test
-    void guardarPerfil_actualizacion_perfilNoEncontrado() throws Exception {
-        when(perfilService.findById(99)).thenReturn(Optional.empty());
-
-        mockMvc.perform(post(GUARDAR_URL).with(adminUser()).with(csrf())
-                .param("id", "99")
-                .param("nombre", "NO_EXISTE_MOD"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(LISTADO_URL))
-                .andExpect(flash().attribute(ERROR_ATTRIBUTE, "Perfil no encontrado para actualizar"));
-        
-        verify(perfilService).findById(99);
-        verify(perfilService, never()).save(any(Perfil.class));
-    }
-    
-    @Test
-    void guardarPerfil_actualizacion_nombreDuplicado_logicaActual() throws Exception {
-        Perfil perfilExistenteConOtroId = new Perfil(3, "OTRO_NOMBRE", new ArrayList<>()); // Perfil que se encuentra en BBDD
-        when(perfilService.findById(perfilUser.getId())).thenReturn(Optional.of(perfilExistenteConOtroId)); // Al buscar por perfilUser.id, devolvemos uno con ID 3
-        
-        mockMvc.perform(post(GUARDAR_URL).with(adminUser()).with(csrf())
-                .param("id", perfilUser.getId().toString()) // ID del formulario es 2
-                .param("nombre", "USER_INTENTANDO_ACTUALIZAR"))
+    void testGuardarPerfil_ValidationErrors_EditMode() throws Exception {
+        mockMvc.perform(post("/admin/perfiles/guardar")
+                .param("id", "1")
+                .param("nombre", "")) // Nombre vacío para provocar error de validación
                 .andExpect(status().isOk())
-                .andExpect(view().name(FORMULARIO_VIEW))
-                .andExpect(model().attributeHasFieldErrors(PERFIL_ATTRIBUTE, "nombre")); // Esperamos el error "nombre"
-//                .andExpect(model().attribute(EDIT_MODE_ATTRIBUTE, true)); // Se mantiene en modo edición
+                .andExpect(view().name("perfiles/formulario"))
+                .andExpect(model().attribute("isEdit", true));
 
-        verify(perfilService).findById(perfilUser.getId());
         verify(perfilService, never()).save(any(Perfil.class));
     }
 
     @Test
-    void guardarPerfil_actualizacion_servicioLanzaExcepcion() throws Exception {
-        when(perfilService.findById(perfilUser.getId())).thenReturn(Optional.of(perfilUser));
-        when(perfilService.save(any(Perfil.class))).thenThrow(new RuntimeException("Error de guardado actualizando"));
+    void testGuardarPerfil_NewPerfil_Success() throws Exception {
+        when(perfilService.save(any(Perfil.class))).thenReturn(perfil);
 
-        mockMvc.perform(post(GUARDAR_URL).with(adminUser()).with(csrf())
-                .param("id", perfilUser.getId().toString())
-                .param("nombre", "USER_MODIFICADO_ERROR"))
-                .andExpect(status().isOk())
-                .andExpect(view().name(FORMULARIO_VIEW))
-                .andExpect(model().attribute(ERROR_ATTRIBUTE, "Error al guardar el perfil: Error de guardado actualizando"))
-                .andExpect(model().attribute(EDIT_MODE_ATTRIBUTE, true));
+        mockMvc.perform(post("/admin/perfiles/guardar")
+                .param("nombre", "Nuevo Perfil"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/perfiles/listado"))
+                .andExpect(flash().attribute("exito", "Perfil creado correctamente"));
+
+        verify(perfilService, times(1)).save(any(Perfil.class));
+    }
+
+    @Test
+    void testGuardarPerfil_UpdatePerfil_Success() throws Exception {
+        when(perfilService.findById(1)).thenReturn(Optional.of(perfil));
+        when(perfilService.save(any(Perfil.class))).thenReturn(perfil);
+
+        mockMvc.perform(post("/admin/perfiles/guardar")
+                .param("id", "1")
+                .param("nombre", "Perfil Actualizado"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/perfiles/listado"))
+                .andExpect(flash().attribute("exito", "Perfil actualizado correctamente"));
+
+        verify(perfilService, times(1)).findById(1);
+        verify(perfilService, times(1)).save(any(Perfil.class));
+    }
+
+    @Test
+    void testGuardarPerfil_UpdatePerfil_NotFound() throws Exception {
+        when(perfilService.findById(1)).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/admin/perfiles/guardar")
+                .param("id", "1")
+                .param("nombre", "Perfil Actualizado"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/perfiles/listado"))
+                .andExpect(flash().attribute("error", "Perfil no encontrado para actualizar"));
+
+        verify(perfilService, times(1)).findById(1);
+        verify(perfilService, never()).save(any(Perfil.class));
+    }
+
+    @Test
+    void testGuardarPerfil_UpdatePerfil_IdMismatch() throws Exception {
+        Perfil existingPerfil = new Perfil();
+        existingPerfil.setId(2); // ID diferente
+        existingPerfil.setNombre("Perfil Existente");
         
-        verify(perfilService).findById(perfilUser.getId());
-        verify(perfilService).save(any(Perfil.class));
-    }
-    
-    // Tests para eliminarPerfil
-    @Test
-    void eliminarPerfil_exito() throws Exception {
-        when(perfilService.findById(perfilUser.getId())).thenReturn(Optional.of(perfilUser));
-        doNothing().when(perfilService).deleteById(perfilUser.getId());
+        when(perfilService.findById(1)).thenReturn(Optional.of(existingPerfil));
 
-        mockMvc.perform(post(ELIMINAR_URL + perfilUser.getId()).with(adminUser()).with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(LISTADO_URL))
-                .andExpect(flash().attribute(EXITO_ATTRIBUTE, "Perfil eliminado correctamente."));
+        mockMvc.perform(post("/admin/perfiles/guardar")
+                .param("id", "1")
+                .param("nombre", "Perfil Actualizado"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("perfiles/formulario"));
 
-        verify(perfilService).findById(perfilUser.getId());
-        verify(perfilService).deleteById(perfilUser.getId());
+        verify(perfilService, times(1)).findById(1);
+        verify(perfilService, never()).save(any(Perfil.class));
     }
 
     @Test
-    void eliminarPerfil_intentoEliminarAdmin() throws Exception {
-        when(perfilService.findById(perfilAdmin.getId())).thenReturn(Optional.of(perfilAdmin));
+    void testGuardarPerfil_NewPerfil_WithException() throws Exception {
+        when(perfilService.save(any(Perfil.class))).thenThrow(new RuntimeException("Error de base de datos"));
 
-        mockMvc.perform(post(ELIMINAR_URL + perfilAdmin.getId()).with(adminUser()).with(csrf()))
+        mockMvc.perform(post("/admin/perfiles/guardar")
+                .param("nombre", "Nuevo Perfil"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("perfiles/formulario"))
+                .andExpect(model().attribute("error", "Error al guardar el perfil: Error de base de datos"))
+                .andExpect(model().attribute("isEdit", false));
+
+        verify(perfilService, times(1)).save(any(Perfil.class));
+    }
+
+    @Test
+    void testGuardarPerfil_UpdatePerfil_WithException() throws Exception {
+        when(perfilService.findById(1)).thenReturn(Optional.of(perfil));
+        when(perfilService.save(any(Perfil.class))).thenThrow(new RuntimeException("Error de base de datos"));
+
+        mockMvc.perform(post("/admin/perfiles/guardar")
+                .param("id", "1")
+                .param("nombre", "Perfil Actualizado"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("perfiles/formulario"))
+                .andExpect(model().attribute("error", "Error al guardar el perfil: Error de base de datos"))
+                .andExpect(model().attribute("isEdit", true));
+
+        verify(perfilService, times(1)).findById(1);
+        verify(perfilService, times(1)).save(any(Perfil.class));
+    }
+
+    @Test
+    void testEliminarPerfil_Success() throws Exception {
+        when(perfilService.findById(1)).thenReturn(Optional.of(perfil));
+
+        mockMvc.perform(post("/admin/perfiles/eliminar/1"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(LISTADO_URL))
-                .andExpect(flash().attribute(ERROR_ATTRIBUTE, "El perfil 'ADMIN' no puede ser eliminado."));
+                .andExpect(redirectedUrl("/admin/perfiles/listado"))
+                .andExpect(flash().attribute("exito", "Perfil eliminado correctamente."));
 
-        verify(perfilService).findById(perfilAdmin.getId());
+        verify(perfilService, times(1)).findById(1);
+        verify(perfilService, times(1)).deleteById(1);
+    }
+
+    @Test
+    void testEliminarPerfil_AdminProfile() throws Exception {
+        Perfil adminPerfil = new Perfil();
+        adminPerfil.setId(1);
+        adminPerfil.setNombre("ADMIN");
+        
+        when(perfilService.findById(1)).thenReturn(Optional.of(adminPerfil));
+
+        mockMvc.perform(post("/admin/perfiles/eliminar/1"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/perfiles/listado"))
+                .andExpect(flash().attribute("error", "El perfil 'ADMIN' no puede ser eliminado."));
+
+        verify(perfilService, times(1)).findById(1);
         verify(perfilService, never()).deleteById(anyInt());
     }
-    
-    @Test
-    void eliminarPerfil_perfilNoEncontrado() throws Exception {
-        when(perfilService.findById(99)).thenReturn(Optional.empty());
 
-        mockMvc.perform(post(ELIMINAR_URL + 99).with(adminUser()).with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(LISTADO_URL))
-                .andExpect(flash().attribute(ERROR_ATTRIBUTE, "Perfil no encontrado con ID: 99"));
+    @Test
+    void testEliminarPerfil_AdminProfile_CaseInsensitive() throws Exception {
+        Perfil adminPerfil = new Perfil();
+        adminPerfil.setId(1);
+        adminPerfil.setNombre("admin"); // Minúsculas
         
-        verify(perfilService).findById(99);
+        when(perfilService.findById(1)).thenReturn(Optional.of(adminPerfil));
+
+        mockMvc.perform(post("/admin/perfiles/eliminar/1"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/perfiles/listado"))
+                .andExpect(flash().attribute("error", "El perfil 'ADMIN' no puede ser eliminado."));
+
+        verify(perfilService, times(1)).findById(1);
         verify(perfilService, never()).deleteById(anyInt());
     }
 
     @Test
-    void eliminarPerfil_servicioLanzaExcepcion() throws Exception {
-        when(perfilService.findById(perfilUser.getId())).thenReturn(Optional.of(perfilUser));
-        doThrow(new DataIntegrityViolationException("Perfil asignado")).when(perfilService).deleteById(perfilUser.getId());
+    void testEliminarPerfil_NotFound() throws Exception {
+        when(perfilService.findById(1)).thenReturn(Optional.empty());
 
-        mockMvc.perform(post(ELIMINAR_URL + perfilUser.getId()).with(adminUser()).with(csrf()))
+        mockMvc.perform(post("/admin/perfiles/eliminar/1"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(LISTADO_URL))
-                .andExpect(flash().attribute(ERROR_ATTRIBUTE, "Error al eliminar el perfil. Es posible que esté asignado a usuarios."));
-        
-        verify(perfilService).findById(perfilUser.getId());
-        verify(perfilService).deleteById(perfilUser.getId());
+                .andExpect(redirectedUrl("/admin/perfiles/listado"))
+                .andExpect(flash().attribute("error", "Perfil no encontrado con ID: 1"));
+
+        verify(perfilService, times(1)).findById(1);
+        verify(perfilService, never()).deleteById(anyInt());
+    }
+
+    @Test
+    void testEliminarPerfil_WithException() throws Exception {
+        when(perfilService.findById(1)).thenReturn(Optional.of(perfil));
+        doThrow(new RuntimeException("Error de base de datos")).when(perfilService).deleteById(1);
+
+        mockMvc.perform(post("/admin/perfiles/eliminar/1"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/perfiles/listado"))
+                .andExpect(flash().attribute("error", "Error al eliminar el perfil. Es posible que esté asignado a usuarios."));
+
+        verify(perfilService, times(1)).findById(1);
+        verify(perfilService, times(1)).deleteById(1);
     }
 }

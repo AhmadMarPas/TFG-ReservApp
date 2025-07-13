@@ -2,15 +2,17 @@ package es.ubu.reservapp.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,8 +27,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.ubu.reservapp.exception.UserNotFoundException;
+import es.ubu.reservapp.model.entities.Convocado;
 import es.ubu.reservapp.model.entities.Convocatoria;
 import es.ubu.reservapp.model.entities.Establecimiento;
+import es.ubu.reservapp.model.entities.FranjaHoraria;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.ReservaRepo;
@@ -69,8 +73,6 @@ class ReservaServiceImplTest {
         usuario.setId("user1");
         usuario.setNombre("Usuario Test");
         usuario.setCorreo("user@test.com");
-        convocatoria = new Convocatoria();
-        convocatoria.setId(reserva.getId());
 
         // Setup usuarios convocados
         usuarioConvocado1 = new Usuario();
@@ -95,6 +97,11 @@ class ReservaServiceImplTest {
         reserva.setId(1);
         reserva.setFechaReserva(fechaReserva);
         reserva.setEstablecimiento(establecimiento);
+        
+        // Setup convocatoria (después de reserva)
+        convocatoria = new Convocatoria();
+        convocatoria.setId(reserva.getId());
+        convocatoria.setConvocados(new ArrayList<>());
         reserva.setConvocatoria(convocatoria);
     }
 
@@ -106,23 +113,31 @@ class ReservaServiceImplTest {
         String observaciones = "Reunión importante";
         convocatoria.setEnlace(enlaceReunion);
         convocatoria.setObservaciones(observaciones);
+        
+        // Crear reserva sin ID para que se ejecute la lógica completa
+        Reserva reservaSinId = new Reserva();
+        reservaSinId.setFechaReserva(fechaReserva);
+        reservaSinId.setEstablecimiento(establecimiento);
 
-        when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
+        when(reservaRepo.save(any(Reserva.class))).thenAnswer(invocation -> {
+            Reserva reservaGuardada = invocation.getArgument(0);
+            reservaGuardada.setId(1); // Simular ID generado
+            return reservaGuardada;
+        });
         when(usuarioRepo.findById("convocado1")).thenReturn(Optional.of(usuarioConvocado1));
         when(usuarioRepo.findById("convocado2")).thenReturn(Optional.of(usuarioConvocado2));
-        when(convocatoriaService.save(any(Convocatoria.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        Reserva resultado = reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
+        Reserva resultado = reservaService.crearReservaConConvocatorias(reservaSinId, usuario, idUsuariosConvocados);
 
         // Assert
         assertNotNull(resultado);
         assertEquals(usuario, resultado.getUsuario());
+        assertNotNull(resultado.getConvocatoria());
         assertEquals(2, resultado.getConvocatoria().getConvocados().size());
-        verify(reservaRepo).save(reserva);
+        verify(reservaRepo).save(reservaSinId);
         verify(usuarioRepo).findById("convocado1");
         verify(usuarioRepo).findById("convocado2");
-        verify(convocatoriaService, times(2)).save(any(Convocatoria.class));
     }
 
     @Test
@@ -133,19 +148,27 @@ class ReservaServiceImplTest {
         String observaciones = "Sin convocados";
         convocatoria.setEnlace(enlaceReunion);
         convocatoria.setObservaciones(observaciones);
+        
+        // Crear reserva sin ID para que se ejecute la lógica completa
+        Reserva reservaSinId = new Reserva();
+        reservaSinId.setFechaReserva(fechaReserva);
+        reservaSinId.setEstablecimiento(establecimiento);
 
-        when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
+        when(reservaRepo.save(any(Reserva.class))).thenAnswer(invocation -> {
+            Reserva reservaGuardada = invocation.getArgument(0);
+            reservaGuardada.setId(1); // Simular ID generado
+            return reservaGuardada;
+        });
 
         // Act
-        Reserva resultado = reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
+        Reserva resultado = reservaService.crearReservaConConvocatorias(reservaSinId, usuario, idUsuariosConvocados);
 
         // Assert
         assertNotNull(resultado);
         assertEquals(usuario, resultado.getUsuario());
-        assertEquals(0, resultado.getConvocatoria().getConvocados().size());
-        verify(reservaRepo).save(reserva);
+        // Sin usuarios convocados, no se crea convocatoria
+        verify(reservaRepo).save(reservaSinId);
         verify(usuarioRepo, never()).findById(anyString());
-        verify(convocatoriaService, never()).save(any(Convocatoria.class));
     }
 
     @Test
@@ -156,19 +179,27 @@ class ReservaServiceImplTest {
         String observaciones = "Lista null";
         convocatoria.setEnlace(enlaceReunion);
         convocatoria.setObservaciones(observaciones);
+        
+        // Crear reserva sin ID para que se ejecute la lógica completa
+        Reserva reservaSinId = new Reserva();
+        reservaSinId.setFechaReserva(fechaReserva);
+        reservaSinId.setEstablecimiento(establecimiento);
 
-        when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
+        when(reservaRepo.save(any(Reserva.class))).thenAnswer(invocation -> {
+            Reserva reservaGuardada = invocation.getArgument(0);
+            reservaGuardada.setId(1); // Simular ID generado
+            return reservaGuardada;
+        });
 
         // Act
-        Reserva resultado = reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
+        Reserva resultado = reservaService.crearReservaConConvocatorias(reservaSinId, usuario, idUsuariosConvocados);
 
         // Assert
         assertNotNull(resultado);
         assertEquals(usuario, resultado.getUsuario());
-        assertEquals(0, resultado.getConvocatoria().getConvocados().size());
-        verify(reservaRepo).save(reserva);
+        // Con lista null, no se crea convocatoria
+        verify(reservaRepo).save(reservaSinId);
         verify(usuarioRepo, never()).findById(anyString());
-        verify(convocatoriaService, never()).save(any(Convocatoria.class));
     }
 
     @Test
@@ -180,18 +211,26 @@ class ReservaServiceImplTest {
         convocatoria.setEnlace(enlaceReunion);
         convocatoria.setObservaciones(observaciones);
 
-        when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
+        // Crear reserva sin ID para que se ejecute la lógica completa
+        Reserva reservaSinId = new Reserva();
+        reservaSinId.setFechaReserva(fechaReserva);
+        reservaSinId.setEstablecimiento(establecimiento);
+
+        when(reservaRepo.save(any(Reserva.class))).thenAnswer(invocation -> {
+            Reserva reservaGuardada = invocation.getArgument(0);
+            reservaGuardada.setId(1); // Simular ID generado
+            return reservaGuardada;
+        });
         when(usuarioRepo.findById("usuarioInexistente")).thenReturn(Optional.empty());
 
         // Act & Assert
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
-            reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
+            reservaService.crearReservaConConvocatorias(reservaSinId, usuario, idUsuariosConvocados);
         });
 
         assertEquals("El Usuario con ID usuarioInexistente no fue encontrado.", exception.getMessage());
-        verify(reservaRepo).save(reserva);
+        verify(reservaRepo).save(reservaSinId);
         verify(usuarioRepo).findById("usuarioInexistente");
-        verify(convocatoriaService, never()).save(any(Convocatoria.class));
     }
 
     @Test
@@ -203,46 +242,57 @@ class ReservaServiceImplTest {
         convocatoria.setEnlace(enlaceReunion);
         convocatoria.setObservaciones(observaciones);
 
-        when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
+        // Crear reserva sin ID para que se ejecute la lógica completa
+        Reserva reservaSinId = new Reserva();
+        reservaSinId.setFechaReserva(fechaReserva);
+        reservaSinId.setEstablecimiento(establecimiento);
+
+        when(reservaRepo.save(any(Reserva.class))).thenAnswer(invocation -> {
+            Reserva reservaGuardada = invocation.getArgument(0);
+            reservaGuardada.setId(1); // Simular ID generado
+            return reservaGuardada;
+        });
         when(usuarioRepo.findById("convocado1")).thenReturn(Optional.of(usuarioConvocado1));
         when(usuarioRepo.findById("usuarioInexistente")).thenReturn(Optional.empty());
-        when(convocatoriaService.save(any(Convocatoria.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act & Assert
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
-            reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
+            reservaService.crearReservaConConvocatorias(reservaSinId, usuario, idUsuariosConvocados);
         });
 
         assertEquals("El Usuario con ID usuarioInexistente no fue encontrado.", exception.getMessage());
-        verify(reservaRepo).save(reserva);
+        verify(reservaRepo).save(reservaSinId);
         verify(usuarioRepo).findById("convocado1");
         verify(usuarioRepo).findById("usuarioInexistente");
-        verify(convocatoriaService, times(1)).save(any(Convocatoria.class));
     }
 
     @Test
     void testCrearReservaConConvocatorias_ConEnlaceYObservacionesNull() throws UserNotFoundException {
         // Arrange
         List<String> idUsuariosConvocados = Arrays.asList("convocado1");
-        String enlaceReunion = null;
-        String observaciones = null;
-        convocatoria.setEnlace(enlaceReunion);
-        convocatoria.setObservaciones(observaciones);
+        
+        // Crear reserva sin ID para que se ejecute la lógica completa
+        Reserva reservaSinId = new Reserva();
+        reservaSinId.setFechaReserva(fechaReserva);
+        reservaSinId.setEstablecimiento(establecimiento);
 
-        when(reservaRepo.save(any(Reserva.class))).thenReturn(reserva);
+        when(reservaRepo.save(any(Reserva.class))).thenAnswer(invocation -> {
+            Reserva reservaGuardada = invocation.getArgument(0);
+            reservaGuardada.setId(1); // Simular ID generado
+            return reservaGuardada;
+        });
         when(usuarioRepo.findById("convocado1")).thenReturn(Optional.of(usuarioConvocado1));
-        when(convocatoriaService.save(any(Convocatoria.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        Reserva resultado = reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
+        Reserva resultado = reservaService.crearReservaConConvocatorias(reservaSinId, usuario, idUsuariosConvocados);
 
         // Assert
         assertNotNull(resultado);
         assertEquals(usuario, resultado.getUsuario());
+        assertNotNull(resultado.getConvocatoria());
         assertEquals(1, resultado.getConvocatoria().getConvocados().size());
-        verify(reservaRepo).save(reserva);
+        verify(reservaRepo).save(reservaSinId);
         verify(usuarioRepo).findById("convocado1");
-        verify(convocatoriaService).save(any(Convocatoria.class));
     }
 
     @Test
@@ -424,7 +474,9 @@ class ReservaServiceImplTest {
         Integer id = 1;
         Reserva reservaTest = new Reserva();
         reservaTest.setId(id);
+        reservaTest.setEstablecimiento(establecimiento);
         when(reservaRepo.findById(id)).thenReturn(Optional.of(reservaTest));
+        when(convocatoriaService.findByIdIgnoringValido(id)).thenReturn(null);
 
         // Act
         Reserva resultado = reservaService.findById(id);
@@ -436,5 +488,281 @@ class ReservaServiceImplTest {
 
         // Verify
         verify(reservaRepo).findById(id);
+        verify(convocatoriaService).findByIdIgnoringValido(id);
+    }
+
+    @Test
+    void testFindById_ConFranjasHorarias() {
+        // Arrange
+        Integer id = 1;
+        Reserva reservaTest = new Reserva();
+        reservaTest.setId(id);
+        reservaTest.setEstablecimiento(establecimiento);
+        
+        List<FranjaHoraria> franjas = new ArrayList<>();
+        FranjaHoraria franja1 = new FranjaHoraria();
+        franja1.setDiaSemana(DayOfWeek.TUESDAY);
+        FranjaHoraria franja2 = new FranjaHoraria();
+        franja2.setDiaSemana(DayOfWeek.MONDAY);
+        franjas.add(franja1);
+        franjas.add(franja2);
+        establecimiento.setFranjasHorarias(franjas);
+        
+        when(reservaRepo.findById(id)).thenReturn(Optional.of(reservaTest));
+        when(convocatoriaService.findByIdIgnoringValido(id)).thenReturn(null);
+
+        // Act
+        Reserva resultado = reservaService.findById(id);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(reservaTest, resultado);
+        // Verificar que las franjas están ordenadas por día de semana
+        assertEquals(DayOfWeek.MONDAY, resultado.getEstablecimiento().getFranjasHorarias().get(0).getDiaSemana());
+        assertEquals(DayOfWeek.TUESDAY, resultado.getEstablecimiento().getFranjasHorarias().get(1).getDiaSemana());
+
+        // Verify
+        verify(reservaRepo).findById(id);
+        verify(convocatoriaService).findByIdIgnoringValido(id);
+    }
+
+    @Test
+    void testFindById_ConConvocatoria() {
+        // Arrange
+        Integer id = 1;
+        Reserva reservaTest = new Reserva();
+        reservaTest.setId(id);
+        reservaTest.setEstablecimiento(establecimiento);
+        
+        Convocatoria convocatoriaTest = new Convocatoria();
+        List<Convocado> convocados = new ArrayList<>();
+        Convocado convocado = new Convocado();
+        convocado.setUsuario(usuarioConvocado1);
+        convocados.add(convocado);
+        convocatoriaTest.setConvocados(convocados);
+        
+        when(reservaRepo.findById(id)).thenReturn(Optional.of(reservaTest));
+        when(convocatoriaService.findByIdIgnoringValido(id)).thenReturn(convocatoriaTest);
+
+        // Act
+        Reserva resultado = reservaService.findById(id);
+
+        // Assert
+        assertNotNull(resultado);
+        assertNotNull(resultado.getConvocatoria());
+        assertEquals(1, resultado.getConvocatoria().getConvocados().size());
+
+        // Verify
+        verify(reservaRepo).findById(id);
+        verify(convocatoriaService).findByIdIgnoringValido(id);
+    }
+
+    @Test
+    void testFindById_ConConvocatoriaYaExistente() {
+        // Arrange
+        Integer id = 1;
+        Reserva reservaTest = new Reserva();
+        reservaTest.setId(id);
+        reservaTest.setEstablecimiento(establecimiento);
+        
+        Convocatoria convocatoriaExistente = new Convocatoria();
+        List<Convocado> convocados = new ArrayList<>();
+        Convocado convocado = new Convocado();
+        convocado.setUsuario(usuarioConvocado1);
+        convocados.add(convocado);
+        convocatoriaExistente.setConvocados(convocados);
+        reservaTest.setConvocatoria(convocatoriaExistente);
+        
+        when(reservaRepo.findById(id)).thenReturn(Optional.of(reservaTest));
+
+        // Act
+        Reserva resultado = reservaService.findById(id);
+
+        // Assert
+        assertNotNull(resultado);
+        assertNotNull(resultado.getConvocatoria());
+        assertEquals(1, resultado.getConvocatoria().getConvocados().size());
+
+        // Verify
+        verify(reservaRepo).findById(id);
+        // No debe llamar al servicio de convocatoria porque ya existe
+        verify(convocatoriaService, never()).findByIdIgnoringValido(anyInt());
+    }
+
+    @Test
+    void testFindById_ReservaNoEncontrada() {
+        // Arrange
+        Integer id = 999;
+        when(reservaRepo.findById(id)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            reservaService.findById(id);
+        });
+
+        assertEquals("Reserva con ID 999 no encontrada.", exception.getMessage());
+        verify(reservaRepo).findById(id);
+    }
+
+    @Test
+    void testFindByEstablecimientoAndFechaReservaBetween_ConConvocatorias() {
+        // Arrange
+        LocalDateTime fechaInicio = LocalDateTime.now();
+        LocalDateTime fechaFin = LocalDateTime.now().plusDays(7);
+        
+        // Crear reserva sin convocatoria para que se llame al servicio
+        Reserva reservaSinConvocatoria = new Reserva();
+        reservaSinConvocatoria.setId(1);
+        reservaSinConvocatoria.setFechaReserva(fechaReserva);
+        reservaSinConvocatoria.setEstablecimiento(establecimiento);
+        reservaSinConvocatoria.setConvocatoria(null);
+        
+        List<Reserva> reservasEsperadas = Arrays.asList(reservaSinConvocatoria);
+        
+        Convocatoria convocatoriaTest = new Convocatoria();
+        List<Convocado> convocados = new ArrayList<>();
+        Convocado convocado = new Convocado();
+        convocado.setUsuario(usuarioConvocado1);
+        convocados.add(convocado);
+        convocatoriaTest.setConvocados(convocados);
+        
+        when(reservaRepo.findByEstablecimientoAndFechaReservaBetween(establecimiento, fechaInicio, fechaFin))
+            .thenReturn(reservasEsperadas);
+        when(convocatoriaService.findByIdIgnoringValido(reservaSinConvocatoria.getId())).thenReturn(convocatoriaTest);
+
+        // Act
+        List<Reserva> resultado = reservaService.findByEstablecimientoAndFechaReservaBetween(
+            establecimiento, fechaInicio, fechaFin);
+
+        // Assert
+        assertEquals(reservasEsperadas, resultado);
+        verify(reservaRepo).findByEstablecimientoAndFechaReservaBetween(establecimiento, fechaInicio, fechaFin);
+        verify(convocatoriaService).findByIdIgnoringValido(reservaSinConvocatoria.getId());
+    }
+
+    @Test
+    void testFindByUsuarioAndEstablecimientoAndFechaReservaBefore_ConConvocatorias() {
+        // Arrange
+        LocalDateTime fechaActual = LocalDateTime.now();
+        
+        // Crear reserva sin convocatoria para que se llame al servicio
+        Reserva reservaSinConvocatoria = new Reserva();
+        reservaSinConvocatoria.setId(2);
+        reservaSinConvocatoria.setFechaReserva(fechaReserva);
+        reservaSinConvocatoria.setEstablecimiento(establecimiento);
+        reservaSinConvocatoria.setConvocatoria(null);
+        
+        List<Reserva> reservasEsperadas = Arrays.asList(reservaSinConvocatoria);
+        
+        Convocatoria convocatoriaTest = new Convocatoria();
+        List<Convocado> convocados = new ArrayList<>();
+        Convocado convocado = new Convocado();
+        convocado.setUsuario(usuarioConvocado1);
+        convocados.add(convocado);
+        convocatoriaTest.setConvocados(convocados);
+        
+        when(reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual))
+            .thenReturn(reservasEsperadas);
+        when(convocatoriaService.findByIdIgnoringValido(reservaSinConvocatoria.getId())).thenReturn(convocatoriaTest);
+
+        // Act
+        List<Reserva> resultado = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(
+            usuario, establecimiento, fechaActual);
+
+        // Assert
+        assertEquals(reservasEsperadas, resultado);
+        verify(reservaRepo).findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual);
+        verify(convocatoriaService).findByIdIgnoringValido(reservaSinConvocatoria.getId());
+    }
+
+    @Test
+    void testFindByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual_ConConvocatorias() {
+        // Arrange
+        LocalDateTime fechaActual = LocalDateTime.now();
+        
+        // Crear reserva sin convocatoria para que se llame al servicio
+        Reserva reservaSinConvocatoria = new Reserva();
+        reservaSinConvocatoria.setId(3);
+        reservaSinConvocatoria.setFechaReserva(fechaReserva);
+        reservaSinConvocatoria.setEstablecimiento(establecimiento);
+        reservaSinConvocatoria.setConvocatoria(null);
+        
+        List<Reserva> reservasEsperadas = Arrays.asList(reservaSinConvocatoria);
+        
+        Convocatoria convocatoriaTest = new Convocatoria();
+        List<Convocado> convocados = new ArrayList<>();
+        Convocado convocado = new Convocado();
+        convocado.setUsuario(usuarioConvocado1);
+        convocados.add(convocado);
+        convocatoriaTest.setConvocados(convocados);
+        
+        when(reservaRepo.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual))
+            .thenReturn(reservasEsperadas);
+        when(convocatoriaService.findByIdIgnoringValido(reservaSinConvocatoria.getId())).thenReturn(convocatoriaTest);
+
+        // Act
+        List<Reserva> resultado = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(
+            usuario, establecimiento, fechaActual);
+
+        // Assert
+        assertEquals(reservasEsperadas, resultado);
+        verify(reservaRepo).findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
+        verify(convocatoriaService).findByIdIgnoringValido(reservaSinConvocatoria.getId());
+    }
+
+    @Test
+    void testCrearReservaConConvocatorias_ReservaConIdExistente() throws UserNotFoundException {
+        // Arrange
+        reserva.setId(1); // Reserva ya tiene ID
+        List<String> idUsuariosConvocados = Arrays.asList("convocado1");
+        String enlaceReunion = "https://meet.google.com/abc-def-ghi";
+        String observaciones = "Reserva editada";
+        convocatoria.setEnlace(enlaceReunion);
+        convocatoria.setObservaciones(observaciones);
+        
+        when(reservaRepo.save(any(Reserva.class))).thenAnswer(invocation -> {
+            Reserva reservaGuardada = invocation.getArgument(0);
+            return reservaGuardada; // Mantener el ID existente
+        });
+        when(usuarioRepo.findById("convocado1")).thenReturn(Optional.of(usuarioConvocado1));
+
+        // Act
+        Reserva resultado = reservaService.crearReservaConConvocatorias(reserva, usuario, idUsuariosConvocados);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(usuario, resultado.getUsuario());
+        assertEquals(Integer.valueOf(1), resultado.getId());
+        assertNotNull(resultado.getConvocatoria());
+        assertEquals(1, resultado.getConvocatoria().getConvocados().size());
+        
+        verify(reservaRepo).save(reserva);
+        verify(usuarioRepo).findById("convocado1");
+    }
+
+    @Test
+    void testObtenerConvocatoria_ConConvocatoriaNull() {
+        // Arrange
+        Reserva reservaTest = new Reserva();
+        reservaTest.setId(1);
+        reservaTest.setConvocatoria(null);
+        
+        when(convocatoriaService.findByIdIgnoringValido(1)).thenReturn(null);
+
+        // Act
+        List<Reserva> reservas = Arrays.asList(reservaTest);
+        List<Reserva> resultado = reservaService.findByEstablecimientoAndFechaReservaBetween(
+            establecimiento, LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+        
+        when(reservaRepo.findByEstablecimientoAndFechaReservaBetween(any(), any(), any()))
+            .thenReturn(reservas);
+        
+        resultado = reservaService.findByEstablecimientoAndFechaReservaBetween(
+            establecimiento, LocalDateTime.now(), LocalDateTime.now().plusDays(1));
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertNull(resultado.get(0).getConvocatoria());
     }
 }
