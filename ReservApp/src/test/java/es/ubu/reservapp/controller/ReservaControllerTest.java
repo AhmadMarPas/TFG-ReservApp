@@ -696,7 +696,6 @@ class ReservaControllerTest {
         // Then
         assertEquals("redirect:/misreservas/establecimiento/1", result);
         verify(reservaService).save(any(Reserva.class));
-//        verify(emailService).enviarNotificacionReservaCreada(any(Reserva.class));
         verify(redirectAttributes).addFlashAttribute("exito", "Reserva actualizada correctamente.");
     }
     

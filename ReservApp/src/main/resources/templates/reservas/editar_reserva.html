@@ -98,64 +98,6 @@
                 margin-bottom: 20px;
             }
             
-            /* Estilos para slots predefinidos */
-            .slots-container {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 10px;
-                margin-top: 15px;
-            }
-            
-            .slot-option {
-                padding: 12px 16px;
-                border: 2px solid #e9ecef;
-                border-radius: 12px;
-                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-                text-align: center;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                margin: 8px;
-                display: inline-block;
-                font-weight: 500;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                position: relative;
-                overflow: hidden;
-            }
-            
-            .slot-option::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-                transition: left 0.5s;
-            }
-            
-            .slot-option:hover::before {
-                left: 100%;
-            }
-            
-            .slot-option:hover {
-                border-color: #007bff;
-                background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 15px rgba(0,123,255,0.2);
-            }
-            
-            .slot-option.selected {
-                border-color: #007bff;
-                background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-                color: white;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 15px rgba(0,123,255,0.3);
-            }
-            
-            .slot-option.selected::before {
-                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            }
-            
             /* Estilos para búsqueda de usuarios */
             .usuario-search-container {
                 position: relative;

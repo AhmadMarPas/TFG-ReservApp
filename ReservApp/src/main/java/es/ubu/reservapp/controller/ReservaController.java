@@ -391,14 +391,7 @@ public class ReservaController {
                 crearConvocatorias(reservaGuardada, usuariosConvocados);
             }
             
-            // Enviar correo de confirmación al usuario que crea la reserva
-            try {
-                emailService.enviarNotificacionReservaCreada(reservaGuardada);
-                log.info("Correo de confirmación de reserva enviado al usuario: {}", reservaGuardada.getUsuario().getCorreo());
-            } catch (Exception e) {
-                log.error("Error al enviar correo de confirmación de reserva: {}", e.getMessage(), e);
-                // No interrumpir el flujo, solo registrar el error
-            }
+            enviarCorreoAlPropioUsuario(reservaGuardada);
             
             redirectAttributes.addFlashAttribute(EXITO, construirMensajeExito(horario));
             return REDIRECT_MIS_RESERVAS;
@@ -407,6 +400,22 @@ public class ReservaController {
             return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimiento.getId();
         }
     }
+
+    /**
+	 * Envía un correo de confirmación al usuario que crea la reserva.
+	 * 
+	 * @param reservaGuardada Reserva de la que se envía el correo.
+	 */
+	private void enviarCorreoAlPropioUsuario(Reserva reservaGuardada) {
+		// Enviar correo de confirmación al usuario que crea la reserva
+		try {
+		    emailService.enviarNotificacionReservaCreada(reservaGuardada);
+		    log.info("Correo de confirmación de reserva enviado al usuario: {}", reservaGuardada.getUsuario().getCorreo());
+		} catch (Exception e) {
+		    log.error("Error al enviar correo de confirmación de reserva: {}", e.getMessage(), e);
+		    // No interrumpir el flujo, solo registrar el error
+		}
+	}
 
     /**
      * Configura los datos de la reserva antes de guardarla.
