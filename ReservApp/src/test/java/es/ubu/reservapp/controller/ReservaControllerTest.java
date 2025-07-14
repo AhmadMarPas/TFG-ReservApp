@@ -442,7 +442,6 @@ class ReservaControllerTest {
     @Test
     void testBuscarUsuarios_QueryCorto() {
         // Given
-//        when(sessionData.getUsuario()).thenReturn(usuario);
         
         // When
         List<ReservaController.UsuarioDTO> result = reservaController.buscarUsuarios("a");
@@ -454,7 +453,6 @@ class ReservaControllerTest {
     @Test
     void testBuscarUsuarios_QueryNulo() {
         // Given
-//        when(sessionData.getUsuario()).thenReturn(usuario);
         
         // When
         List<ReservaController.UsuarioDTO> result = reservaController.buscarUsuarios(null);

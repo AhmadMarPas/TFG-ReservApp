@@ -13,15 +13,6 @@
 					<span class="me-3" sec:authorize="isAuthenticated()"> <i class="fas fa-user me-1"></i>
 						Bienvenido, <strong th:text="${session.sessionData != null && session.sessionData.usuario != null ? session.sessionData.usuario.nombre : 'Usuario'}">Usuario</strong>
 					</span>
-					
-                        <!-- 
-					<span class="me-3" sec:authorize="isAuthenticated()">
-                        <i class="fas fa-user me-1"></i>
-                        Bienvenido, <strong th:text="${session.sessionData != null ? session.sessionData.usuario.nombre : 'Usuario'}">Usuario</strong>
-                        Bienvenido, Authenticated as <span sec:authentication="name"></span>
-                        <strong sec:authentication="name">Usuario</strong>
-                    </span>
-                         -->
                     <a href="/logout" class="btn btn-logout">
                         <i class="fas fa-sign-out-alt me-1"></i>
                         Cerrar Sesión

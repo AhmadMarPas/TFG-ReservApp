@@ -190,8 +190,8 @@ class ConvocatoriaServiceImplTest {
     void findByIdIgnoringValido_WhenConvocatoriaExists_ShouldReturnConvocatoriaWithInitializedConvocados() {
         // Given
         Integer idReserva = 1;
-        Convocatoria convocatoria = new Convocatoria();
-        convocatoria.setId(idReserva);
+        Convocatoria convo = new Convocatoria();
+        convo.setId(idReserva);
         
         // Crear convocados con usuarios
         List<Convocado> convocados = new ArrayList<>();
@@ -207,16 +207,16 @@ class ConvocatoriaServiceImplTest {
         convocado2.setUsuario(usuario2);
         convocados.add(convocado2);
         
-        convocatoria.setConvocados(convocados);
+        convo.setConvocados(convocados);
         
-        when(convocatoriaRepo.findByIdReservaIgnoringValido(idReserva)).thenReturn(Optional.of(convocatoria));
+        when(convocatoriaRepo.findByIdReservaIgnoringValido(idReserva)).thenReturn(Optional.of(convo));
 
         // When
         Convocatoria result = convocatoriaService.findByIdIgnoringValido(idReserva);
 
         // Then
         assertNotNull(result);
-        assertEquals(convocatoria, result);
+        assertEquals(convo, result);
         assertNotNull(result.getConvocados());
         assertEquals(2, result.getConvocados().size());
         verify(convocatoriaRepo).findByIdReservaIgnoringValido(idReserva);
@@ -226,18 +226,18 @@ class ConvocatoriaServiceImplTest {
     void findByIdIgnoringValido_WhenConvocatoriaExistsWithNullConvocados_ShouldReturnConvocatoria() {
         // Given
         Integer idReserva = 1;
-        Convocatoria convocatoria = new Convocatoria();
-        convocatoria.setId(idReserva);
-        convocatoria.setConvocados(null);
+        Convocatoria convo = new Convocatoria();
+        convo.setId(idReserva);
+        convo.setConvocados(null);
         
-        when(convocatoriaRepo.findByIdReservaIgnoringValido(idReserva)).thenReturn(Optional.of(convocatoria));
+        when(convocatoriaRepo.findByIdReservaIgnoringValido(idReserva)).thenReturn(Optional.of(convo));
 
         // When
         Convocatoria result = convocatoriaService.findByIdIgnoringValido(idReserva);
 
         // Then
         assertNotNull(result);
-        assertEquals(convocatoria, result);
+        assertEquals(convo, result);
         assertNull(result.getConvocados());
         verify(convocatoriaRepo).findByIdReservaIgnoringValido(idReserva);
     }
@@ -246,18 +246,18 @@ class ConvocatoriaServiceImplTest {
     void findByIdIgnoringValido_WhenConvocatoriaExistsWithEmptyConvocados_ShouldReturnConvocatoria() {
         // Given
         Integer idReserva = 1;
-        Convocatoria convocatoria = new Convocatoria();
-        convocatoria.setId(idReserva);
-        convocatoria.setConvocados(new ArrayList<>());
+        Convocatoria convo = new Convocatoria();
+        convo.setId(idReserva);
+        convo.setConvocados(new ArrayList<>());
         
-        when(convocatoriaRepo.findByIdReservaIgnoringValido(idReserva)).thenReturn(Optional.of(convocatoria));
+        when(convocatoriaRepo.findByIdReservaIgnoringValido(idReserva)).thenReturn(Optional.of(convo));
 
         // When
         Convocatoria result = convocatoriaService.findByIdIgnoringValido(idReserva);
 
         // Then
         assertNotNull(result);
-        assertEquals(convocatoria, result);
+        assertEquals(convo, result);
         assertNotNull(result.getConvocados());
         assertTrue(result.getConvocados().isEmpty());
         verify(convocatoriaRepo).findByIdReservaIgnoringValido(idReserva);
@@ -267,24 +267,24 @@ class ConvocatoriaServiceImplTest {
     void findByIdIgnoringValido_WhenConvocatoriaExistsWithConvocadosWithNullUsuario_ShouldReturnConvocatoria() {
         // Given
         Integer idReserva = 1;
-        Convocatoria convocatoria = new Convocatoria();
-        convocatoria.setId(idReserva);
+        Convocatoria convo = new Convocatoria();
+        convo.setId(idReserva);
         
         List<Convocado> convocados = new ArrayList<>();
         Convocado convocado = new Convocado();
         convocado.setUsuario(null); // Usuario null
         convocados.add(convocado);
         
-        convocatoria.setConvocados(convocados);
+        convo.setConvocados(convocados);
         
-        when(convocatoriaRepo.findByIdReservaIgnoringValido(idReserva)).thenReturn(Optional.of(convocatoria));
+        when(convocatoriaRepo.findByIdReservaIgnoringValido(idReserva)).thenReturn(Optional.of(convo));
 
         // When
         Convocatoria result = convocatoriaService.findByIdIgnoringValido(idReserva);
 
         // Then
         assertNotNull(result);
-        assertEquals(convocatoria, result);
+        assertEquals(convo, result);
         assertNotNull(result.getConvocados());
         assertEquals(1, result.getConvocados().size());
         assertNull(result.getConvocados().get(0).getUsuario());
@@ -308,17 +308,17 @@ class ConvocatoriaServiceImplTest {
     @Test
     void merge_ShouldCallRepositorySave() {
         // Given
-        Convocatoria convocatoria = new Convocatoria();
-        convocatoria.setId(1);
-        when(convocatoriaRepo.save(convocatoria)).thenReturn(convocatoria);
+        Convocatoria convo = new Convocatoria();
+        convo.setId(1);
+        when(convocatoriaRepo.save(convo)).thenReturn(convo);
 
         // When
-        Convocatoria result = convocatoriaService.merge(convocatoria);
+        Convocatoria result = convocatoriaService.merge(convo);
 
         // Then
         assertNotNull(result);
-        assertEquals(convocatoria, result);
-        verify(convocatoriaRepo).save(convocatoria);
+        assertEquals(convo, result);
+        verify(convocatoriaRepo).save(convo);
     }
 
     @Test
