@@ -8,6 +8,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -152,6 +153,100 @@ class EstablecimientoServiceImplTest {
 
         // Verificar que la lista sea vacía
         assertTrue(establecimientos.isEmpty());
+    }
+
+    @Test
+    void findAllAndFranjaHoraria_ShouldReturnEstablecimientosWithSortedFranjas() {
+        // Given
+        FranjaHoraria franja1 = new FranjaHoraria();
+        franja1.setDiaSemana(DayOfWeek.WEDNESDAY); // Miércoles
+        FranjaHoraria franja2 = new FranjaHoraria();
+        franja2.setDiaSemana(DayOfWeek.MONDAY); // Lunes
+        FranjaHoraria franja3 = new FranjaHoraria();
+        franja3.setDiaSemana(DayOfWeek.FRIDAY); // Viernes
+        
+        List<FranjaHoraria> franjasDesordenadas = Arrays.asList(franja1, franja2, franja3);
+        establecimiento.setFranjasHorarias(franjasDesordenadas);
+        
+        List<Establecimiento> establecimientos = Arrays.asList(establecimiento);
+        when(establecimientoRepo.findAll()).thenReturn(establecimientos);
+
+        // When
+        List<Establecimiento> result = establecimientoService.findAllAndFranjaHoraria();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        Establecimiento resultEstablecimiento = result.get(0);
+        assertNotNull(resultEstablecimiento.getFranjasHorarias());
+        assertEquals(3, resultEstablecimiento.getFranjasHorarias().size());
+        
+        // Verificar que las franjas están ordenadas por día de la semana
+        assertEquals(DayOfWeek.MONDAY, resultEstablecimiento.getFranjasHorarias().get(0).getDiaSemana());
+        assertEquals(DayOfWeek.WEDNESDAY, resultEstablecimiento.getFranjasHorarias().get(1).getDiaSemana());
+        assertEquals(DayOfWeek.FRIDAY, resultEstablecimiento.getFranjasHorarias().get(2).getDiaSemana());
+        
+        verify(establecimientoRepo).findAll();
+    }
+
+    @Test
+    void findAllAndFranjaHoraria_WhenEstablecimientoHasNullFranjas_ShouldReturnEstablecimiento() {
+        // Given
+        establecimiento.setFranjasHorarias(null);
+        List<Establecimiento> establecimientos = Arrays.asList(establecimiento);
+        when(establecimientoRepo.findAll()).thenReturn(establecimientos);
+
+        // When
+        List<Establecimiento> result = establecimientoService.findAllAndFranjaHoraria();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(establecimiento, result.get(0));
+        verify(establecimientoRepo).findAll();
+    }
+
+    @Test
+    void findAllAndFranjaHoraria_WhenEstablecimientoHasEmptyFranjas_ShouldReturnEstablecimiento() {
+        // Given
+        establecimiento.setFranjasHorarias(new ArrayList<>());
+        List<Establecimiento> establecimientos = Arrays.asList(establecimiento);
+        when(establecimientoRepo.findAll()).thenReturn(establecimientos);
+
+        // When
+        List<Establecimiento> result = establecimientoService.findAllAndFranjaHoraria();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        Establecimiento resultEstablecimiento = result.get(0);
+        assertNotNull(resultEstablecimiento.getFranjasHorarias());
+        assertTrue(resultEstablecimiento.getFranjasHorarias().isEmpty());
+        verify(establecimientoRepo).findAll();
+    }
+
+    @Test
+    void findById_WhenEstablecimientoExistsWithNullFranjas_ShouldReturnEstablecimiento() {
+        // Given
+        establecimiento.setFranjasHorarias(null);
+        when(establecimientoRepo.findById(1)).thenReturn(Optional.of(establecimiento));
+
+        // When
+        Optional<Establecimiento> result = establecimientoService.findById(1);
+
+        // Then
+        assertTrue(result.isPresent());
+        assertEquals(establecimiento, result.get());
+        verify(establecimientoRepo).findById(1);
+    }
+
+    @Test
+    void constructor_ShouldInitializeServiceCorrectly() {
+        // Given & When
+        EstablecimientoServiceImpl newService = new EstablecimientoServiceImpl(establecimientoRepo);
+        
+        // Then
+        assertNotNull(newService);
     }
 
 }

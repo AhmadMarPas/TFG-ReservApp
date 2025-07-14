@@ -17,15 +17,19 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.ui.Model;
 
 import es.ubu.reservapp.exception.UserNotFoundException;
 import es.ubu.reservapp.model.entities.Usuario;
+import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
 
 /**
@@ -40,9 +44,15 @@ class UsuarioServiceImplTest {
 
     @Mock
     private UsuarioRepo usuarioRepo;
+    
+    @Mock
+    private Model model;
 
     private UsuarioServiceImpl usuarioService;
     private Usuario usuario;
+    private Establecimiento establecimiento1;
+    private Establecimiento establecimiento2;
+    private List<Establecimiento> establecimientos;
     private static final String ENCRYPTED_PASSWORD = "$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG";
 
     @BeforeEach
@@ -52,6 +62,17 @@ class UsuarioServiceImplTest {
         usuario.setId("test123");
         usuario.setCorreo("test@test.com");
         usuario.setPassword("password");
+        usuario.setLstEstablecimientos(new ArrayList<>());
+        
+        establecimiento1 = new Establecimiento();
+        establecimiento1.setId(1);
+        establecimiento1.setNombre("Establecimiento 1");
+        
+        establecimiento2 = new Establecimiento();
+        establecimiento2.setId(2);
+        establecimiento2.setNombre("Establecimiento 2");
+        
+        establecimientos = Arrays.asList(establecimiento1, establecimiento2);
     }
 
     @Test
@@ -426,5 +447,138 @@ class UsuarioServiceImplTest {
         // Then
         assertNull(result);
     }
+    
+    @Test
+    void recuperarEstablecimientosUsuario_WhenUserExists_ShouldAddAttributesToModel() {
+        // Given
+        usuario.setLstEstablecimientos(establecimientos);
+        when(usuarioRepo.findById("test123")).thenReturn(Optional.of(usuario));
+        when(model.addAttribute("usuario", usuario)).thenReturn(model);
+        when(model.addAttribute(any(String.class), any(Set.class))).thenReturn(model);
+        
+        // When
+        Model result = usuarioService.recuperarEstablecimientosUsuario("test123", model);
+        
+        // Then
+        assertNotNull(result);
+        verify(model).addAttribute("usuario", usuario);
+        verify(model).addAttribute(any(String.class), any(Set.class));
+    }
+    
+    @Test
+    void recuperarEstablecimientosUsuario_WhenUserNotExists_ShouldReturnModel() {
+        // Given
+        when(usuarioRepo.findById("nonexistent")).thenReturn(Optional.empty());
+        
+        // When
+        Model result = usuarioService.recuperarEstablecimientosUsuario("nonexistent", model);
+        
+        // Then
+        assertNotNull(result);
+        verify(model, never()).addAttribute(any(String.class), any());
+    }
+    
+    @Test
+    void asignarEstablecimientos_WhenUserExists_ShouldAssignEstablecimientos() {
+        // Given
+        when(usuarioRepo.findById("test123")).thenReturn(Optional.of(usuario));
+        
+        // When
+        Usuario result = usuarioService.asignarEstablecimientos(usuario, establecimientos);
+        
+        // Then
+        assertNotNull(result);
+        assertEquals(establecimientos, result.getLstEstablecimientos());
+    }
+    
+    @Test
+    void asignarEstablecimientos_WhenUserNotExists_ShouldReturnNull() {
+        // Given
+        when(usuarioRepo.findById("test123")).thenReturn(Optional.empty());
+        
+        // When
+        Usuario result = usuarioService.asignarEstablecimientos(usuario, establecimientos);
+        
+        // Then
+        assertNull(result);
+    }
+    
+    @Test
+    void obtenerEstablecimientosUsuario_WhenUserExists_ShouldAddAttributesToModel() {
+        // Given
+        usuario.setLstEstablecimientos(establecimientos);
+        when(usuarioRepo.findById("test123")).thenReturn(Optional.of(usuario));
+        when(model.addAttribute("usuario", usuario)).thenReturn(model);
+        when(model.addAttribute("establecimientos", establecimientos)).thenReturn(model);
+        
+        // When
+        Model result = usuarioService.obtenerEstablecimientosUsuario(usuario, model);
+        
+        // Then
+        assertNotNull(result);
+        verify(model).addAttribute("usuario", usuario);
+        verify(model).addAttribute("establecimientos", establecimientos);
+    }
+    
+    @Test
+    void obtenerEstablecimientosUsuario_WhenUserNotExists_ShouldReturnModel() {
+        // Given
+        when(usuarioRepo.findById("test123")).thenReturn(Optional.empty());
+        
+        // When
+        Model result = usuarioService.obtenerEstablecimientosUsuario(usuario, model);
+        
+        // Then
+        assertNotNull(result);
+        verify(model, never()).addAttribute(any(String.class), any());
+    }
+    
+    @Test
+    void establecimientoAsignado_WhenUserExistsAndEstablecimientoAssigned_ShouldReturnTrue() {
+        // Given
+        usuario.setLstEstablecimientos(establecimientos);
+        when(usuarioRepo.findById("test123")).thenReturn(Optional.of(usuario));
+        
+        // When
+        boolean result = usuarioService.establecimientoAsignado(usuario, establecimiento1);
+        
+        // Then
+        assertTrue(result);
+    }
+    
+    @Test
+    void establecimientoAsignado_WhenUserExistsAndEstablecimientoNotAssigned_ShouldReturnFalse() {
+        // Given
+        Establecimiento establecimiento3 = new Establecimiento();
+        establecimiento3.setId(3);
+        usuario.setLstEstablecimientos(establecimientos);
+        when(usuarioRepo.findById("test123")).thenReturn(Optional.of(usuario));
+        
+        // When
+        boolean result = usuarioService.establecimientoAsignado(usuario, establecimiento3);
+        
+        // Then
+        assertFalse(result);
+    }
+    
+    @Test
+    void establecimientoAsignado_WhenUserNotExists_ShouldReturnFalse() {
+        // Given
+        when(usuarioRepo.findById("test123")).thenReturn(Optional.empty());
+        
+        // When
+        boolean result = usuarioService.establecimientoAsignado(usuario, establecimiento1);
+        
+        // Then
+        assertFalse(result);
+    }
+    
+    @Test
+    void constructor_ShouldInitializeFields() {
+        // When
+        UsuarioServiceImpl service = new UsuarioServiceImpl(usuarioRepo);
+        
+        // Then
+        assertNotNull(service);
+    }
 }
-

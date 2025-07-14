@@ -762,4 +762,63 @@ class ReservaServiceImplTest {
         assertEquals(1, resultado.size());
         assertNull(resultado.get(0).getConvocatoria());
     }
+
+    @Test
+    void testFindById_EstablecimientoSinFranjasHorarias() {
+        // Arrange
+        Integer id = 1;
+        Reserva reservaTest = new Reserva();
+        reservaTest.setId(id);
+        reservaTest.setFechaReserva(fechaReserva);
+        
+        // Establecimiento sin franjas horarias (null)
+        Establecimiento establecimientoSinFranjas = new Establecimiento();
+        establecimientoSinFranjas.setId(1);
+        establecimientoSinFranjas.setNombre("Establecimiento Test");
+        establecimientoSinFranjas.setFranjasHorarias(null); // Franjas horarias null
+        reservaTest.setEstablecimiento(establecimientoSinFranjas);
+        
+        when(reservaRepo.findById(id)).thenReturn(Optional.of(reservaTest));
+        when(convocatoriaService.findByIdIgnoringValido(id)).thenReturn(null);
+
+        // Act
+        Reserva resultado = reservaService.findById(id);
+
+        // Assert
+        assertNotNull(resultado);
+        assertNotNull(resultado.getEstablecimiento());
+        assertNull(resultado.getEstablecimiento().getFranjasHorarias());
+        
+        verify(reservaRepo).findById(id);
+        verify(convocatoriaService).findByIdIgnoringValido(id);
+    }
+
+    @Test
+    void testFindById_ConvocatoriaConConvocadosNull() {
+        // Arrange
+        Integer id = 1;
+        Reserva reservaTest = new Reserva();
+        reservaTest.setId(id);
+        reservaTest.setFechaReserva(fechaReserva);
+        reservaTest.setEstablecimiento(establecimiento);
+        
+        // Convocatoria con lista de convocados null
+        Convocatoria convocatoriaConConvocadosNull = new Convocatoria();
+        convocatoriaConConvocadosNull.setConvocados(null); // Lista de convocados null
+        reservaTest.setConvocatoria(convocatoriaConConvocadosNull);
+        
+        when(reservaRepo.findById(id)).thenReturn(Optional.of(reservaTest));
+
+        // Act
+        Reserva resultado = reservaService.findById(id);
+
+        // Assert
+        assertNotNull(resultado);
+        assertNotNull(resultado.getConvocatoria());
+        assertNull(resultado.getConvocatoria().getConvocados());
+        
+        verify(reservaRepo).findById(id);
+        // No debe llamar al servicio de convocatoria porque ya existe
+        verify(convocatoriaService, never()).findByIdIgnoringValido(anyInt());
+    }
 }

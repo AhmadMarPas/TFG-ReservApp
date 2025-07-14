@@ -13,26 +13,26 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests para la clase ConvocatoriaId
+ * Tests para la clase ConvocadoPK
  */
-@DisplayName("ConvocatoriaPK Tests")
+@DisplayName("ConvocadoPK Tests")
 class ConvocadoPKTest {
     
-    private ConvocadoPK convocatoriaId;
+    private ConvocadoPK convocadoId;
     private static final Integer ID_RESERVA = 123;
     private static final String ID_USUARIO = "USER001";
     
     @BeforeEach
     void setUp() {
-        convocatoriaId = new ConvocadoPK();
+        convocadoId = new ConvocadoPK();
     }
     
     @Test
     @DisplayName("Constructor por defecto")
     void testDefaultConstructor() {
-        assertNotNull(convocatoriaId);
-        assertNull(convocatoriaId.getIdReserva());
-        assertNull(convocatoriaId.getIdUsuario());
+        assertNotNull(convocadoId);
+        assertNull(convocadoId.getIdReserva());
+        assertNull(convocadoId.getIdUsuario());
     }
     
     @Test
@@ -47,21 +47,21 @@ class ConvocadoPKTest {
     @Test
     @DisplayName("Getter y Setter de idReserva")
     void testIdReservaGetterSetter() {
-        convocatoriaId.setIdReserva(ID_RESERVA);
-        assertEquals(ID_RESERVA, convocatoriaId.getIdReserva());
+        convocadoId.setIdReserva(ID_RESERVA);
+        assertEquals(ID_RESERVA, convocadoId.getIdReserva());
         
-        convocatoriaId.setIdReserva(null);
-        assertNull(convocatoriaId.getIdReserva());
+        convocadoId.setIdReserva(null);
+        assertNull(convocadoId.getIdReserva());
     }
     
     @Test
     @DisplayName("Getter y Setter de idUsuario")
     void testIdUsuarioGetterSetter() {
-        convocatoriaId.setIdUsuario(ID_USUARIO);
-        assertEquals(ID_USUARIO, convocatoriaId.getIdUsuario());
+        convocadoId.setIdUsuario(ID_USUARIO);
+        assertEquals(ID_USUARIO, convocadoId.getIdUsuario());
         
-        convocatoriaId.setIdUsuario(null);
-        assertNull(convocatoriaId.getIdUsuario());
+        convocadoId.setIdUsuario(null);
+        assertNull(convocadoId.getIdUsuario());
     }
     
     @Nested
@@ -99,6 +99,8 @@ class ConvocadoPKTest {
         void testEqualsWithNull() {
         	ConvocadoPK id = new ConvocadoPK(ID_RESERVA, ID_USUARIO);
             assertNotEquals(null, id);
+            id.equals(null);
+            assertNotEquals(true, id.equals(null));
         }
         
         @Test
@@ -152,4 +154,6 @@ class ConvocadoPKTest {
         ConvocadoPK idNull = new ConvocadoPK(null, null);
         assertDoesNotThrow(idNull::toString);
     }
+    
+
 }

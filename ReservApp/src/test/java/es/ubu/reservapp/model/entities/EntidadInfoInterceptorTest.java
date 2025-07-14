@@ -2,6 +2,8 @@ package es.ubu.reservapp.model.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -134,5 +136,31 @@ class EntidadInfoInterceptorTest {
         mockInterceptor.guardar(entidadInfo);
         
         assertEquals("dynamicUser", entidadInfo.getUsuarioCreaReg());
+    }
+    
+    @Test
+    void testGetSessionData_whenSessionDataIsNull_attemptsCdiLookup() {
+        // Crear interceptor con sessionData null para activar la búsqueda CDI
+        EntidadInfoInterceptor interceptorWithNullSession = new EntidadInfoInterceptor(null);
+
+        // Preparar un objeto EntidadInfo dummy para el test
+        EntidadInfo<Integer> dummyEntidadInfo = new EntidadInfo<Integer>() {
+            private Integer id;
+            private static final long serialVersionUID = 1L;
+            @Override public Integer getId() { return id; }
+            @Override public void setId(Integer id) { this.id = id; }
+            @Override public EntidadPK<Integer> copia() { return null; }
+        };
+        dummyEntidadInfo.setId(2);
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            interceptorWithNullSession.guardar(dummyEntidadInfo);
+        }, "Debería lanzar una excepción cuando la búsqueda CDI falla.");
+
+        // Verificar si la excepción es uno de los tipos esperados de CDI
+        assertTrue(exception instanceof IllegalStateException || 
+                   exception instanceof jakarta.enterprise.inject.UnsatisfiedResolutionException,
+                   "Se esperaba IllegalStateException o UnsatisfiedResolutionException cuando CDI no está disponible o el bean no se encuentra, pero se obtuvo " + 
+                   exception.getClass().getName() + ": " + exception.getMessage());
     }
 }

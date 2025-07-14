@@ -78,15 +78,9 @@ public class ConvocatoriaServiceImpl implements ConvocatoriaService {
     public Convocatoria findByIdIgnoringValido(Integer idReserva) {
     	Convocatoria convocatoria = convocatoriaRepo.findByIdReservaIgnoringValido(idReserva).orElse(null);
     	if (convocatoria != null && convocatoria.getConvocados() != null && !convocatoria.getConvocados().isEmpty()) {
-			// Evitar LazyInitializationException al acceder a los convocados
-			// Esto es necesario si la sesión de Hibernate ya se ha cerrado
-			// y queremos acceder a los datos de los convocados.
-			// Se inicializa la colección para evitar problemas de carga perezosa.
-			// Inicializar la lista de convocados para evitar LazyInitializationException
 			convocatoria.getConvocados().forEach(convocado -> {
-				// Asegurarse de que cada convocado tenga su usuario inicializado
 				if (convocado.getUsuario() != null) {
-					convocado.getUsuario().getId(); // Acceder al ID para forzar la carga
+					convocado.getUsuario().getId();
 				}
 			});
     		
@@ -97,7 +91,6 @@ public class ConvocatoriaServiceImpl implements ConvocatoriaService {
     @Override
     @Transactional
     public Convocatoria merge(Convocatoria convocatoria) {
-        // Usar save() que internamente hace merge si la entidad ya tiene ID
         return convocatoriaRepo.save(convocatoria);
     }
 
