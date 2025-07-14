@@ -4,10 +4,10 @@
     <th:block id="page-specific-links">
     </th:block>
 </head>
-<body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; padding-top: 2rem; padding-bottom: 2rem;">
+<body class="gradient-body-register">
     <div class="register-card">
         <div class="text-center mb-4">
-            <i class="fas fa-user-plus fa-3x" style="color: #667eea;"></i> <!-- Theme color for icon -->
+            <i class="fas fa-user-plus fa-3x icon-theme-color"></i>
             <h2 class="mt-3 mb-1">Crear Cuenta</h2>
             <p class="text-muted">Únete a ReservApp y gestiona tus reservas fácilmente.</p>
         </div>
@@ -17,7 +17,7 @@
         <!-- Global Error Messages from RedirectAttributes or BindingResult -->
         <div th:if="${error}" class="alert alert-danger p-2 text-center" role="alert" th:text="${error}"></div>
         <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger p-2 text-center" role="alert">
-            <ul class="mb-0 ps-0" style="list-style-type: none;">
+            <ul class="list-unstyled">
                 <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
             </ul>
         </div>

@@ -166,7 +166,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva);
+        emailService.enviarCorreoConvocado(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -192,7 +192,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario2, reserva);
+        emailService.enviarCorreoConvocado(usuario2, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -212,7 +212,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva);
+        emailService.enviarCorreoConvocado(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -230,7 +230,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva);
+        emailService.enviarCorreoConvocado(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -248,7 +248,7 @@ class EmailServiceImplTest {
         
         // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            emailService.enviarCorreoConvocatoria(usuario1, reserva);
+            emailService.enviarCorreoConvocado(usuario1, reserva);
         });
         
         assertEquals("Error al enviar correo de convocatoria", exception.getMessage());
@@ -266,7 +266,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva);
+        emailService.enviarCorreoConvocado(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -296,7 +296,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario2, reserva);
+        emailService.enviarCorreoConvocado(usuario2, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -333,7 +333,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva);
+        emailService.enviarCorreoConvocado(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -402,7 +402,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva);
+        emailService.enviarCorreoConvocado(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -420,7 +420,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailService.enviarCorreoConvocatoria(usuario1, reserva);
+        emailService.enviarCorreoConvocado(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -438,7 +438,7 @@ class EmailServiceImplTest {
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         
         // Act
-        emailServiceSinFromEmail.enviarCorreoConvocatoria(usuario1, reserva);
+        emailServiceSinFromEmail.enviarCorreoConvocado(usuario1, reserva);
         
         // Assert
         verify(mailSender).send(messageCaptor.capture());
@@ -446,4 +446,144 @@ class EmailServiceImplTest {
         
         assertEquals("noreply@reservapp.com", sentMessage.getFrom());
     }
+    
+    // ================================
+    // TESTS PARA enviarNotificacionReservaCreada
+    // ================================
+
+    @Test
+    void testEnviarNotificacionReservaCreada_Exitoso() {
+        // Arrange
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        
+        // Act
+        emailService.enviarNotificacionReservaCreada(reserva);
+        
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        assertEquals("noreply@reservapp.com", sentMessage.getFrom());
+        assertEquals("juan.perez@email.com", sentMessage.getTo()[0]);
+        assertEquals("Confirmación de Reserva - Sala de Reuniones A", sentMessage.getSubject());
+        
+        String contenido = sentMessage.getText();
+        assertNotNull(contenido);
+        assertTrue(contenido.contains("Juan Pérez"));
+        assertTrue(contenido.contains("Su reserva ha sido creada exitosamente"));
+        assertTrue(contenido.contains("15/12/2024 10:30"));
+        assertTrue(contenido.contains("Sala de Reuniones A"));
+        assertTrue(contenido.contains("Calle Principal 123, Planta 2"));
+    }
+
+    @Test
+    void testEnviarNotificacionReservaCreada_ConConvocados() {
+        // Arrange
+        convocatoria.setConvocados(Arrays.asList(convocado1, convocado2));
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        
+        // Act
+        emailService.enviarNotificacionReservaCreada(reserva);
+        
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertNotNull(contenido);
+        assertTrue(contenido.contains("Usuarios convocados:"));
+        assertTrue(contenido.contains("- Juan Pérez (juan.perez@email.com)"));
+        assertTrue(contenido.contains("- María García (maria.garcia@email.com)"));
+    }
+
+    @Test
+    void testEnviarNotificacionReservaCreada_SinConvocados() {
+        // Arrange
+        reserva.setConvocatoria(null);
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        
+        // Act
+        emailService.enviarNotificacionReservaCreada(reserva);
+        
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertNotNull(contenido);
+        assertFalse(contenido.contains("Usuarios convocados:"));
+    }
+
+    @Test
+    void testEnviarNotificacionReservaCreada_ErrorAlEnviar() {
+        // Arrange
+        doThrow(new RuntimeException("Error de conexión SMTP")).when(mailSender).send(any(SimpleMailMessage.class));
+        
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            emailService.enviarNotificacionReservaCreada(reserva);
+        });
+        
+        assertEquals("Error al enviar correo de confirmación de reserva", exception.getMessage());
+        assertTrue(exception.getCause() instanceof RuntimeException);
+        assertEquals("Error de conexión SMTP", exception.getCause().getMessage());
+    }
+
+    @Test
+    void testEnviarNotificacionReservaCreada_EstablecimientoSinDireccion() {
+        // Arrange
+        establecimiento.setDireccion(null);
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        
+        // Act
+        emailService.enviarNotificacionReservaCreada(reserva);
+        
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertNotNull(contenido);
+        assertFalse(contenido.contains("🗺️ Ubicación:"));
+        assertTrue(contenido.contains("Sala de Reuniones A"));
+    }
+
+    @Test
+    void testEnviarNotificacionReservaCreada_EstablecimientoConDireccionVacia() {
+        // Arrange
+        establecimiento.setDireccion("   ");
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        
+        // Act
+        emailService.enviarNotificacionReservaCreada(reserva);
+        
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertNotNull(contenido);
+        assertFalse(contenido.contains("🗺️ Ubicación:"));
+        assertTrue(contenido.contains("Sala de Reuniones A"));
+    }
+
+    @Test
+    void testEnviarNotificacionReservaCreada_ConvocatoriaConListaVacia() {
+        // Arrange
+        convocatoria.setConvocados(Arrays.asList()); // Lista vacía
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        
+        // Act
+        emailService.enviarNotificacionReservaCreada(reserva);
+        
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertNotNull(contenido);
+        assertFalse(contenido.contains("👥 Usuarios convocados:"));
+        assertTrue(contenido.contains("Su reserva ha sido creada exitosamente"));
+    }
+
 }

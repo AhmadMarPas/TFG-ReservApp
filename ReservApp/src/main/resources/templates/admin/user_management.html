@@ -10,50 +10,7 @@
             --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         }
 
-        .btn-primary-custom {
-            background: var(--primary-gradient);
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 25px;
-            font-weight: 500;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
 
-        .btn-primary-custom:hover {
-            transform: scale(1.05);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary-custom {
-            background: #6c757d;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 25px;
-            font-weight: 500;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary-custom:hover {
-            transform: scale(1.05);
-            color: white;
-            background: #5a6268;
-        }
-
-        .breadcrumb {
-            background: transparent;
-            padding: 0;
-        }
-
-        .breadcrumb-item + .breadcrumb-item::before {
-            color: #6c757d;
-        }
         
         .main-header { 
             background: rgba(255, 255, 255, 0.95);
@@ -204,7 +161,7 @@
     </style>
     </th:block>
 </head>
-<body>
+<body class="gradient-body-with-header">
     <!-- Header -->
     <header class="main-header py-3 mb-4">
         <div class="container-fluid">
@@ -379,7 +336,7 @@
                                         </a>
 									<form
 										th:action="@{/admin/usuarios/bloquear/{id}(id=${user.id})}"
-										method="post" style="display: inline;"
+										method="post" class="form-inline"
 										th:if="${!user.bloqueado}">
 										<button type="submit" class="btn btn-sm btn-danger"
 											title="Bloquear usuario"
@@ -389,7 +346,7 @@
 									</form>
 									<form
 										th:action="@{/admin/usuarios/desbloquear/{id}(id=${user.id})}"
-										method="post" style="display: inline;"
+										method="post" class="form-inline"
 										th:if="${user.bloqueado}">
 										<button type="submit" class="btn btn-sm btn-success"
 											title="Desbloquear usuario"

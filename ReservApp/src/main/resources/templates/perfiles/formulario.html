@@ -91,7 +91,7 @@
     </style>
     </th:block>
 </head>
-<body style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+<body class="gradient-body-with-header">
 
     <div th:replace="~{fragments/_header :: header(pageTitle=${perfil != null && perfil.id != null ? 'ReservApp - Editar Perfil' : 'ReservApp - Crear Perfil'})}"></div>
 

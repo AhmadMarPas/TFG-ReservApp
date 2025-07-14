@@ -27,6 +27,7 @@ public class ReservaServiceImpl implements ReservaService {
     private final ReservaRepo reservaRepo;
     private final UsuarioRepo usuarioRepo;
     private final ConvocatoriaService convocatoriaService;
+    private final EmailService emailService;
 
     /**
      * Constructor para la inyección de dependencias.
@@ -34,11 +35,13 @@ public class ReservaServiceImpl implements ReservaService {
      * @param reservaRepo
      * @param usuarioRepo
      * @param convocatoriaService
+     * @param emailService
      */
-    public ReservaServiceImpl(ReservaRepo reservaRepo, UsuarioRepo usuarioRepo, ConvocatoriaService convocatoriaService) {
+    public ReservaServiceImpl(ReservaRepo reservaRepo, UsuarioRepo usuarioRepo, ConvocatoriaService convocatoriaService, EmailService emailService) {
         this.reservaRepo = reservaRepo;
         this.usuarioRepo = usuarioRepo;
         this.convocatoriaService = convocatoriaService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -72,10 +75,13 @@ public class ReservaServiceImpl implements ReservaService {
             }
             convocatoria.setConvocados(convocatorias);
             reservaGuardada.setConvocatoria(convocatoria);
-        }
-        
-        return reservaGuardada;
-    }
+		}
+
+		// Enviar correo de confirmación al usuario que reserva
+		emailService.enviarNotificacionReservaCreada(reservaGuardada);
+
+		return reservaGuardada;
+	}
 
     @Override
     public List<Reserva> findAll() {

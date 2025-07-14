@@ -2,56 +2,10 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Gestión de Establecimientos', customLinks=~{:: #page-specific-links})}">
     <th:block id="page-specific-links">
-        <style>
 
-        .btn-primary-custom {
-            background: var(--primary-gradient);
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 25px;
-            font-weight: 500;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary-custom:hover {
-            transform: scale(1.05);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary-custom {
-            background: #6c757d;
-            border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 25px;
-            font-weight: 500;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary-custom:hover {
-            transform: scale(1.05);
-            color: white;
-            background: #5a6268;
-        }
-
-        .breadcrumb {
-            background: transparent;
-            padding: 0;
-        }
-
-        .breadcrumb-item + .breadcrumb-item::before {
-            color: #6c757d;
-        }
-    </style>
     </th:block>
 </head>
-<body>
+<body class="gradient-body-with-header">
     <!-- Header -->
     <header class="main-header py-3 mb-4">
         <div class="container-fluid">
@@ -62,7 +16,7 @@
                         Gestión de Establecimientos
                     </h2>
                     <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0">
+                        <ol class="breadcrumb breadcrumb-transparent mb-0">
                             <li class="breadcrumb-item"><a href="/menuprincipal">Menú Principal</a></li>
                             <li class="breadcrumb-item"><a href="/admin">Administración</a></li>
                             <li class="breadcrumb-item active">Gestión de Establecimientos</li>
@@ -250,7 +204,7 @@
                                 Editar
                             </a>
                             <form th:action="@{/admin/establecimientos/activar/{id}(id=${establecimiento.id})}" 
-                                  method="post" style="display: inline; flex: 1;">
+                                  method="post" class="form-inline" style="flex: 1;">
                                 <button type="submit" 
                                         class="action-btn btn-toggle w-100" 
                                         th:title="${establecimiento.activo ? 'Desactivar establecimiento' : 'Activar establecimiento'}"
@@ -260,7 +214,7 @@
                                 </button>
                             </form>
                             <form th:action="@{/admin/establecimientos/eliminar/{id}(id=${establecimiento.id})}" 
-                                  method="post" style="display: inline; flex: 1;">
+                                  method="post" class="form-inline" style="flex: 1;">
                                 <button type="submit" 
                                         class="action-btn btn-delete w-100" 
                                         title="Eliminar establecimiento"

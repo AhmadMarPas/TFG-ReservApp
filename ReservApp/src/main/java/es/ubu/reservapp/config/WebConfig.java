@@ -1,6 +1,7 @@
 package es.ubu.reservapp.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.lang.NonNull;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @since 1.0
  */
 @Configuration
+@EnableAsync
 public class WebConfig implements WebMvcConfigurer {
 
 	private static final String CLASSPATH_STATIC = "classpath:/static/";

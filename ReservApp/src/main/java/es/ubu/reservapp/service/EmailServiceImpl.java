@@ -2,10 +2,12 @@ package es.ubu.reservapp.service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import es.ubu.reservapp.model.entities.Convocado;
@@ -32,6 +34,7 @@ public class EmailServiceImpl implements EmailService {
     	this.mailSender = mailSender;
     }
     
+    @Async
     @Override
     public void enviarNotificacionesConvocatoria(List<Convocado> convocatorias, Reserva reserva) {
         if (convocatorias == null || convocatorias.isEmpty()) {
@@ -43,7 +46,7 @@ public class EmailServiceImpl implements EmailService {
         
         for (Convocado convocatoria : convocatorias) {
             try {
-                enviarCorreoConvocatoria(convocatoria.getUsuario(), reserva);
+                enviarCorreoConvocado(convocatoria.getUsuario(), reserva);
             } catch (Exception e) {
             	log.error("Error al enviar correo de convocatoria a usuario {}: {}", convocatoria.getUsuario().getCorreo(), e.getMessage());
             }
@@ -51,7 +54,7 @@ public class EmailServiceImpl implements EmailService {
     }
     
     @Override
-    public void enviarCorreoConvocatoria(Usuario usuario, Reserva reserva) {
+    public void enviarCorreoConvocado(Usuario usuario, Reserva reserva) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(FROM_EMAIL);
@@ -71,6 +74,26 @@ public class EmailServiceImpl implements EmailService {
         } catch (Exception e) {
         	log.error("Error al enviar correo de convocatoria a {}: {}", usuario.getCorreo(), e.getMessage());
             throw new MailSendException("Error al enviar correo de convocatoria", e);
+        }
+    }
+    
+    @Async
+    @Override
+    public void enviarNotificacionReservaCreada(Reserva reserva) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(FROM_EMAIL);
+            message.setTo(reserva.getUsuario().getCorreo());
+            message.setSubject("Confirmación de Reserva - " + reserva.getEstablecimiento().getNombre());
+            String contenido = construirContenidoCorreoReservaCreada(reserva);
+            message.setText(contenido);
+            
+            mailSender.send(message);
+            log.info("Correo de confirmación de reserva enviado exitosamente a: {}", reserva.getUsuario().getCorreo());
+            
+        } catch (Exception e) {
+        	log.error("Error al enviar correo de confirmación de reserva a {}: {}", reserva.getUsuario().getCorreo(), e.getMessage());
+            throw new MailSendException("Error al enviar correo de confirmación de reserva", e);
         }
     }
     
@@ -103,6 +126,39 @@ public class EmailServiceImpl implements EmailService {
         
         contenido.append("\n\nPor favor, confirme su asistencia.\n\n");
         contenido.append("Saludos cordiales,\n");
+        contenido.append("Sistema de Reservas ReservApp");
+        
+        return contenido.toString();
+    }
+    
+    /**
+	 * Construye el contenido del correo de confirmación de reserva creada.
+	 * 
+	 * @param reserva Reserva creada.
+	 */
+    private String construirContenidoCorreoReservaCreada(Reserva reserva) {
+        StringBuilder contenido = new StringBuilder();
+        
+        contenido.append("Estimado/a ").append(reserva.getUsuario().getNombre()).append(",\n\n");
+        contenido.append("Su reserva ha sido creada exitosamente con los siguientes detalles:\n\n");
+        
+        // Información de la reserva
+        contenido.append("📅 Fecha: ").append(reserva.getFechaReserva().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))).append("\n");
+        contenido.append("📍 Lugar: ").append(reserva.getEstablecimiento().getNombre()).append("\n");
+        
+        if (reserva.getEstablecimiento().getDireccion() != null && !reserva.getEstablecimiento().getDireccion().trim().isEmpty()) {
+            contenido.append("🗺️ Ubicación: ").append(reserva.getEstablecimiento().getDireccion()).append("\n");
+        }
+        
+        if (reserva.getConvocatoria() != null && reserva.getConvocatoria().getConvocados() != null && !reserva.getConvocatoria().getConvocados().isEmpty()) {
+            contenido.append("\n👥 Usuarios convocados:\n");
+            String convocadosStr = reserva.getConvocatoria().getConvocados().stream()
+                .map(convocado -> "- " + convocado.getUsuario().getNombre() + " (" + convocado.getUsuario().getCorreo() + ")")
+                .collect(Collectors.joining("\n"));
+            contenido.append(convocadosStr).append("\n");
+        }
+        
+        contenido.append("\n\nSaludos cordiales,\n");
         contenido.append("Sistema de Reservas ReservApp");
         
         return contenido.toString();

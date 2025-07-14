@@ -55,6 +55,9 @@ class ReservaServiceImplTest {
     @Mock
     private ConvocatoriaService convocatoriaService;
 
+    @Mock
+    private EmailService emailService;
+
     @InjectMocks
     private ReservaServiceImpl reservaService;
 

@@ -31,6 +31,13 @@ public interface EmailService {
 	 * @param enlaceReunion Enlace de la reunión (opcional)
 	 * @param observaciones Observaciones de la reunión (opcional)
 	 */
-    void enviarCorreoConvocatoria(Usuario usuario, Reserva reserva);
+    void enviarCorreoConvocado(Usuario usuario, Reserva reserva);
+
+    /**
+	 * Envía un correo de notificación al usuario que ha creado la reserva
+	 * 
+	 * @param reserva       Reserva creada
+	 */
+    void enviarNotificacionReservaCreada(Reserva reserva);
 
 }

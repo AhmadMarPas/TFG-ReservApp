@@ -3,14 +3,6 @@
 <head th:replace="~{fragments/_common_head :: common_head(pageTitle='Mis Establecimientos para Reservar', customLinks=~{:: #page-specific-links})}">
     <th:block id="page-specific-links">
         <style>
-			body {
-				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-				margin: 0;
-				padding: 20px;
-				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-				min-height: 100vh;
-				color: #333;
-			}
 			
 			.container {
 				background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
@@ -227,7 +219,7 @@
 </style>
     </th:block>
 </head>
-<body>
+<body class="gradient-body-with-header">
     <div th:replace="~{fragments/_header :: header(pageTitle='Mis Establecimientos para Reservar')}"></div>
 
     <div class="container">
