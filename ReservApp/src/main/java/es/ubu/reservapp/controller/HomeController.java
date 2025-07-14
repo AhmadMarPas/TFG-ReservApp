@@ -59,7 +59,7 @@ public class HomeController {
 			log.warn("Usuario no autenticado al intentar acceder a mis reservas.");
 			return "redirect:/login";
 		}
-		model = usuarioService.obtenerEstablecimientosUsuario(usuario, model);
+		usuarioService.obtenerEstablecimientosUsuario(usuario, model);
         return "reservas/misreservas";
     }
 }
