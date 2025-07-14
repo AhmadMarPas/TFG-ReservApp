@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -312,6 +313,7 @@ class ReservaControllerTest {
         // Then
         assertEquals("redirect:/misreservas", result);
         verify(reservaService).save(any(Reserva.class));
+        verify(emailService).enviarNotificacionReservaCreada(any(Reserva.class));
         verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
     }
     
@@ -694,6 +696,7 @@ class ReservaControllerTest {
         // Then
         assertEquals("redirect:/misreservas/establecimiento/1", result);
         verify(reservaService).save(any(Reserva.class));
+//        verify(emailService).enviarNotificacionReservaCreada(any(Reserva.class));
         verify(redirectAttributes).addFlashAttribute("exito", "Reserva actualizada correctamente.");
     }
     
@@ -876,6 +879,51 @@ class ReservaControllerTest {
         // Then
         assertEquals("redirect:/misreservas", result);
         verify(reservaService).save(any(Reserva.class));
+        verify(emailService).enviarNotificacionReservaCreada(any(Reserva.class));
         // No debe crear convocatorias para usuarios vacíos
+    }
+    
+    @Test
+    void testCrearReserva_SinConvocados_EnviaEmailConfirmacion() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(true);
+        when(reservaService.save(any(Reserva.class))).thenReturn(reserva);
+        
+        // When
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-12-23", "10:00", "11:00", 
+            null, null, null, null, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas", result);
+        verify(reservaService).save(any(Reserva.class));
+        verify(emailService).enviarNotificacionReservaCreada(any(Reserva.class));
+        verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
+        // No debe llamar a enviarNotificacionesConvocatoria cuando no hay convocados
+        verify(emailService, never()).enviarNotificacionesConvocatoria(any(), any());
+    }
+    
+    @Test
+    void testCrearReserva_ErrorEnvioEmailConfirmacion() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(true);
+        when(reservaService.save(any(Reserva.class))).thenReturn(reserva);
+        
+        doThrow(new RuntimeException("Error de email confirmación")).when(emailService)
+            .enviarNotificacionReservaCreada(any(Reserva.class));
+        
+        // When
+        String result = reservaController.crearReserva(new Reserva(), 1, "2024-12-23", "10:00", "11:00", 
+            null, null, null, null, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas", result);
+        verify(reservaService).save(any(Reserva.class));
+        verify(emailService).enviarNotificacionReservaCreada(any(Reserva.class));
+        // El error de email no debe interrumpir el flujo
+        verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
     }
 }
