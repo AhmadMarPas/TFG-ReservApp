@@ -22,6 +22,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -66,37 +68,12 @@ class PerfilControllerTest {
         perfiles = Arrays.asList(perfil, perfil2);
     }
 
-    @Test
-    void testListarPerfiles_Success() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"/admin/perfiles", "/admin/perfiles/", "/admin/perfiles/listado"})
+    void testListarPerfiles_Success(String url) throws Exception {
         when(perfilService.findAll()).thenReturn(perfiles);
 
-        mockMvc.perform(get("/admin/perfiles"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("perfiles/listado"))
-                .andExpect(model().attribute("perfiles", perfiles))
-                .andExpect(model().attribute("perfilActivoCount", 2L));
-
-        verify(perfilService, times(1)).findAll();
-    }
-
-    @Test
-    void testListarPerfiles_WithSlash() throws Exception {
-        when(perfilService.findAll()).thenReturn(perfiles);
-
-        mockMvc.perform(get("/admin/perfiles/"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("perfiles/listado"))
-                .andExpect(model().attribute("perfiles", perfiles))
-                .andExpect(model().attribute("perfilActivoCount", 2L));
-
-        verify(perfilService, times(1)).findAll();
-    }
-
-    @Test
-    void testListarPerfiles_WithListado() throws Exception {
-        when(perfilService.findAll()).thenReturn(perfiles);
-
-        mockMvc.perform(get("/admin/perfiles/listado"))
+        mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(view().name("perfiles/listado"))
                 .andExpect(model().attribute("perfiles", perfiles))

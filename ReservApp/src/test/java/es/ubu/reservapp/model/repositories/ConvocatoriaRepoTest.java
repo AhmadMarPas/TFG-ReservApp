@@ -108,8 +108,7 @@ class ConvocatoriaRepoTest {
         List<Convocatoria> result = convocatoriaRepo.findConvocatoriaByReserva(reserva);
 
         // Then
-        assertThat(result).isNotEmpty();
-        assertThat(result).hasSize(1);
+        assertThat(result).isNotEmpty().hasSize(1);
         assertThat(result.get(0).getReserva().getId()).isEqualTo(reserva.getId());
     }
 
@@ -230,9 +229,7 @@ class ConvocatoriaRepoTest {
         List<Convocatoria> all = convocatoriaRepo.findAll();
 
         // Then
-        assertThat(all).isNotEmpty();
-        assertThat(all).hasSizeGreaterThanOrEqualTo(1);
-        assertThat(all).anyMatch(c -> c.getId().equals(convocatoria.getId()));
+        assertThat(all).isNotEmpty().hasSizeGreaterThanOrEqualTo(1).anyMatch(c -> c.getId().equals(convocatoria.getId()));
     }
 
     @Test
@@ -304,8 +301,7 @@ class ConvocatoriaRepoTest {
         List<Convocatoria> saved = convocatoriaRepo.saveAll(convocatorias);
 
         // Then
-        assertThat(saved).hasSize(2);
-        assertThat(saved).allMatch(c -> c.getId() != null);
+        assertThat(saved).hasSize(2).allMatch(c -> c.getId() != null);
     }
 
     @Test
@@ -320,7 +316,7 @@ class ConvocatoriaRepoTest {
         entityManager.clear();
 
         // Then
-        assertThat(convocatoriaRepo.count()).isEqualTo(0);
+        assertThat(convocatoriaRepo.count()).isZero();
     }
 
     @Test

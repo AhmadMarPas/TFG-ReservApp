@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.ubu.reservapp.model.entities.Convocatoria;
 import es.ubu.reservapp.model.entities.Reserva;
+import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.ConvocatoriaRepo;
 
 /**
@@ -112,32 +113,32 @@ class ConvocatoriaServiceImplTest {
         verify(convocatoriaRepo).save(convocatoria);
     }
 
-//    @Test
-//    void testFindConvocatoriaByUsuario() {
-//        // Preparar datos
-//        Usuario usuario = new Usuario();
-//        usuario.setId("usuario1");
-//
-//        Convocatoria convocatoria1 = new Convocatoria();
-//    	Reserva id = new Reserva();
-//        convocatoria1.setId(id.getId());
-//
-//        Convocatoria convocatoria2 = new Convocatoria();
-//        convocatoria2.setId(id.getId());
-//
-//        List<Convocatoria> convocatorias = new ArrayList<>();
-//        convocatorias.add(convocatoria1);
-//        convocatorias.add(convocatoria2);
-//
-//        // Configurar mock
-//        when(convocatoriaRepo.findConvocatoriaByUsuario(usuario)).thenReturn(convocatorias);
-//
-//        // Ejecutar método
-//        List<Convocatoria> resultado = convocatoriaService.findConvocatoriaByUsuario(usuario);
-//
-//        // Verificar resultado
-//        assertEquals(convocatorias, resultado);
-//    }
+    @Test
+    void testFindConvocatoriaByUsuario() {
+        // Preparar datos
+        Usuario usuario = new Usuario();
+        usuario.setId("usuario1");
+
+        Convocatoria convocatoria1 = new Convocatoria();
+    	Reserva id = new Reserva();
+        convocatoria1.setId(id.getId());
+
+        Convocatoria convocatoria2 = new Convocatoria();
+        convocatoria2.setId(id.getId());
+
+        List<Convocatoria> convocatorias = new ArrayList<>();
+        convocatorias.add(convocatoria1);
+        convocatorias.add(convocatoria2);
+
+        // Configurar mock
+        when(convocatoriaRepo.findConvocatoriaByReserva(id)).thenReturn(convocatorias);
+
+        // Ejecutar método
+        List<Convocatoria> resultado = convocatoriaService.findConvocatoriaByReserva(id);
+
+        // Verificar resultado
+        assertEquals(convocatorias, resultado);
+    }
 
     @Test
     void testFindConvocatoriaByReserva() {

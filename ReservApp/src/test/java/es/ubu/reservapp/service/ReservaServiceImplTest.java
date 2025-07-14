@@ -483,7 +483,7 @@ class ReservaServiceImplTest {
 
         // Assert
         assertNotNull(resultado);
-        assertTrue(resultado.getId() != null);
+        assertNotNull(resultado.getId());
         assertEquals(reservaTest, resultado);
 
         // Verify
@@ -721,8 +721,7 @@ class ReservaServiceImplTest {
         convocatoria.setObservaciones(observaciones);
         
         when(reservaRepo.save(any(Reserva.class))).thenAnswer(invocation -> {
-            Reserva reservaGuardada = invocation.getArgument(0);
-            return reservaGuardada; // Mantener el ID existente
+            return invocation.getArgument(0);
         });
         when(usuarioRepo.findById("convocado1")).thenReturn(Optional.of(usuarioConvocado1));
 
@@ -751,13 +750,11 @@ class ReservaServiceImplTest {
 
         // Act
         List<Reserva> reservas = Arrays.asList(reservaTest);
-        List<Reserva> resultado = reservaService.findByEstablecimientoAndFechaReservaBetween(
-            establecimiento, LocalDateTime.now(), LocalDateTime.now().plusDays(1));
         
         when(reservaRepo.findByEstablecimientoAndFechaReservaBetween(any(), any(), any()))
             .thenReturn(reservas);
         
-        resultado = reservaService.findByEstablecimientoAndFechaReservaBetween(
+        List<Reserva> resultado = reservaService.findByEstablecimientoAndFechaReservaBetween(
             establecimiento, LocalDateTime.now(), LocalDateTime.now().plusDays(1));
 
         // Assert
