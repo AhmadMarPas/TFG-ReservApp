@@ -1,5 +1,6 @@
 package es.ubu.reservapp.model.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -45,4 +46,14 @@ public interface UsuarioRepo extends JpaRepository<Usuario, String> {
 	 */
 	Optional<Usuario> findByCorreo(String correoUsuario);
 
+	/**
+	 * Método que comprueba si existe un usuario con el correo proporcionado.
+	 * 
+	 * @param id Id del usuario a comprobar.
+	 * @param nombre Nombre del usuario a comprobar.
+	 * @param apellidos Apellidos del usuario a comprobar.
+	 * @param correoUsuario Correo del usuario a comprobar.
+	 * @return true si existe un usuario con ese correo, false en caso contrario.
+	 */
+	List<Usuario> findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(String id, String nombre, String apellidos, String correo);
 }

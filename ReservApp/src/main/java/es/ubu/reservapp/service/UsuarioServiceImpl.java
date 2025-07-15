@@ -174,4 +174,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 		return asignado;
 	}
 
+	@Override
+	public List<Usuario> buscarUsuarioSegunQuery(String query) {
+		return usuarioRepo.findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(query, query, query, query);
+	}
 }

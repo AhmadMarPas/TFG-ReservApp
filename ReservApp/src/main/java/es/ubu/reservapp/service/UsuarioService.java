@@ -148,4 +148,12 @@ public interface UsuarioService {
     @Transactional(readOnly=true)
 	boolean establecimientoAsignado(Usuario usuario, Establecimiento establecimiento);
 
+    /**
+	 * Busca usuarios por un criterio de búsqueda.
+	 * 
+	 * @param query el criterio de búsqueda.
+	 * @return una lista de usuarios que coinciden con el criterio de búsqueda.
+	 */
+    @Transactional(readOnly=true)
+    List<Usuario> buscarUsuarioSegunQuery(String query);
 }
