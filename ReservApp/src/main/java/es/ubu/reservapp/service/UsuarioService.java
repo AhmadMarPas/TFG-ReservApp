@@ -156,4 +156,12 @@ public interface UsuarioService {
 	 */
     @Transactional(readOnly=true)
     List<Usuario> buscarUsuarioSegunQuery(String query);
+
+    /**
+     * Busca usuarios por una lista de ID.
+     * @param ids
+     * @return
+     */
+    @Transactional(readOnly=true)
+	List<Usuario> findUsuariosByIds(List<String> ids);
 }

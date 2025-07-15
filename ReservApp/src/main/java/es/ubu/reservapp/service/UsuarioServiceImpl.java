@@ -178,4 +178,11 @@ public class UsuarioServiceImpl implements UsuarioService {
 	public List<Usuario> buscarUsuarioSegunQuery(String query) {
 		return usuarioRepo.findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(query, query, query, query);
 	}
+
+	@Override
+	public List<Usuario> findUsuariosByIds(List<String> ids) {
+		return usuarioRepo.findAll().stream()
+				.filter(usuario -> ids.contains(usuario.getId()))
+				.toList();
+	}
 }
