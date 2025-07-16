@@ -1958,6 +1958,7 @@ body:has(header.main-header) .hero-section {
 	overflow: hidden;
 	margin: 8px;
 	display: inline-block;
+	color: #495057;
 }
 
 .slot-option::before {

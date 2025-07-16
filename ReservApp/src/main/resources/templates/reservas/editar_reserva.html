@@ -112,24 +112,32 @@
             }
             
             .usuario-tag {
-                background: #e3f2fd;
-                border: 1px solid #2196f3;
+                background: #007bff;
+                color: #ffffff;
+                border: 1px solid #0056b3;
                 border-radius: 20px;
                 padding: 5px 12px;
                 font-size: 0.9em;
                 display: flex;
                 align-items: center;
                 gap: 5px;
+                font-weight: 500;
             }
             
             .usuario-tag .remove-btn {
                 background: none;
                 border: none;
-                color: #1976d2;
+                color: #ffffff;
                 cursor: pointer;
                 font-weight: bold;
                 padding: 0;
                 margin-left: 5px;
+                opacity: 0.8;
+            }
+            
+            .usuario-tag .remove-btn:hover {
+                opacity: 1;
+                color: #ffcccc;
             }
             
             .search-results {
@@ -151,14 +159,41 @@
                 padding: 10px 15px;
                 cursor: pointer;
                 border-bottom: 1px solid #f8f9fa;
+                color: #495057;
+                background-color: #ffffff;
             }
             
             .search-result-item:hover {
-                background-color: #f8f9fa;
+                background-color: #e9ecef;
+                color: #212529;
             }
             
             .search-result-item:last-child {
                 border-bottom: none;
+            }
+            
+            .search-result-item strong {
+                color: #212529;
+            }
+            
+            .search-result-item .text-muted {
+                color: #6c757d !important;
+            }
+            
+            /* Estilos para slots dinámicos */
+            .form-control select {
+                appearance: none;
+                background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                background-size: 12px;
+                padding-right: 40px;
+            }
+            
+            .form-text.text-muted {
+                font-size: 0.875em;
+                color: #6c757d;
+                margin-top: 5px;
             }
         </style>
     </th:block>
@@ -219,8 +254,8 @@
                            th:value="${#temporals.format(reserva.fechaReserva, 'yyyy-MM-dd')}" required>
                 </div>
 
-                <!-- Horarios manuales -->
-                <div class="row" id="horarios-manuales">
+                <!-- Horarios manuales (solo si no requiere slots predefinidos) -->
+                <div class="row" id="horarios-manuales" th:if="${!requiereSlotsPredefinidos}">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="horaInicio" class="form-label">Hora de inicio:</label>
@@ -237,10 +272,21 @@
                     </div>
                 </div>
 
-                <!-- Slots predefinidos -->
-                <div th:if="${franjasHorarias != null and !franjasHorarias.isEmpty()}">
+                <!-- Slots predefinidos dinámicos -->
+                <div th:if="${requiereSlotsPredefinidos}">
                     <div class="form-group">
                         <label class="form-label" for="slotSeleccionado">O selecciona un horario predefinido:</label>
+                        <select class="form-control" id="slotSeleccionado" name="slotSeleccionado">
+                            <option value="">Seleccione un horario</option>
+                        </select>
+                        <small class="form-text text-muted">Los horarios disponibles se actualizarán según la fecha seleccionada</small>
+                    </div>
+                </div>
+                
+                <!-- Slots predefinidos estáticos (franjas horarias fijas) -->
+                <div th:if="${!requiereSlotsPredefinidos and franjasHorarias != null and !franjasHorarias.isEmpty()}">
+                    <div class="form-group">
+                        <label class="form-label" for="slotSeleccionadoEstatico">O selecciona un horario predefinido:</label>
                         <div class="slots-container">
                             <div class="slot-option" th:each="franja : ${franjasHorarias}" 
                                  th:data-slot="${franja.horaInicio + '-' + franja.horaFin}"
@@ -301,7 +347,8 @@
     <!-- Bootstrap JS -->
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-		integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p">
+		integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+		crossorigin="anonymous">
 	</script>
 
 	<script th:inline="javascript">
@@ -310,16 +357,81 @@
         let timeoutBusqueda;
         
         document.addEventListener('DOMContentLoaded', function() {
+            // Variables del servidor
+            const requiereSlotsPredefinidos = /*[[${requiereSlotsPredefinidos}]]*/ false;
+            const slotsDisponibles = /*[[${slotsDisponibles}]]*/ {};
+            const slotActual = /*[[${slotActual}]]*/ null;
+            
             // Configurar fecha mínima (hoy)
             const fechaInput = document.getElementById('fecha');
             const hoy = new Date().toISOString().split('T')[0];
             fechaInput.min = hoy;
+            
+            // Si requiere slots predefinidos, manejar cambio de fecha
+            if (requiereSlotsPredefinidos) {
+                fechaInput.addEventListener('change', function() {
+                    actualizarSlotsDisponibles();
+                });
+                // Actualizar slots al cargar la página
+                actualizarSlotsDisponibles();
+            }
             
             // Cargar usuarios convocados existentes
             cargarUsuariosConvocados();
             
             // Inicializar búsqueda de usuarios
             initUsuarioSearch();
+            
+            // Función para actualizar slots disponibles según la fecha
+            function actualizarSlotsDisponibles() {
+                const fechaSeleccionada = fechaInput.value;
+                const slotSelect = document.getElementById('slotSeleccionado');
+                
+                if (!fechaSeleccionada || !slotSelect) return;
+                
+                // Limpiar opciones existentes
+                slotSelect.innerHTML = '<option value="">Seleccione un horario</option>';
+                
+                // Obtener día de la semana (0=Domingo, 1=Lunes, etc.)
+                const fecha = new Date(fechaSeleccionada + 'T00:00:00');
+                const diaSemana = fecha.getDay();
+                
+                // Mapear día de la semana a enum Java (MONDAY=1, TUESDAY=2, etc.)
+                const diasSemanaJava = {
+                    0: 'SUNDAY',    // Domingo
+                    1: 'MONDAY',    // Lunes
+                    2: 'TUESDAY',   // Martes
+                    3: 'WEDNESDAY', // Miércoles
+                    4: 'THURSDAY',  // Jueves
+                    5: 'FRIDAY',    // Viernes
+                    6: 'SATURDAY'   // Sábado
+                };
+                
+                const diaJava = diasSemanaJava[diaSemana];
+                
+                // Buscar slots para este día
+                if (slotsDisponibles && slotsDisponibles[diaJava]) {
+                    const slots = slotsDisponibles[diaJava];
+                    slots.forEach(function(slot) {
+                        const option = document.createElement('option');
+                        option.value = slot.etiqueta;
+                        option.textContent = slot.etiqueta;
+                        
+                        // Preseleccionar el slot actual si coincide
+                        if (slotActual && slot.etiqueta === slotActual) {
+                            option.selected = true;
+                        }
+                        
+                        slotSelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No hay horarios disponibles para este día';
+                    option.disabled = true;
+                    slotSelect.appendChild(option);
+                }
+            }
         });
         
         function seleccionarSlot(elemento) {
@@ -335,9 +447,11 @@
             const slotValue = elemento.getAttribute('data-slot');
             document.getElementById('slotSeleccionado').value = slotValue;
             
-            // Limpiar horarios manuales
-            document.getElementById('horaInicio').value = '';
-            document.getElementById('horaFin').value = '';
+            // Limpiar horarios manuales (solo si existen)
+            const horaInicioElement = document.getElementById('horaInicio');
+            const horaFinElement = document.getElementById('horaFin');
+            if (horaInicioElement) horaInicioElement.value = '';
+            if (horaFinElement) horaFinElement.value = '';
         }
         
         function initUsuarioSearch() {
@@ -388,21 +502,26 @@
             } else {
                 resultadosDiv.innerHTML = usuarios
                     .filter(usuario => !usuariosSeleccionados.some(sel => sel.id === usuario.id))
-                    .map(usuario => `
-                        <div class="search-result-item" data-user-id="${usuario.id}" data-user-nombre="${usuario.nombre}" data-user-apellidos="${usuario.apellidos}" data-user-correo="${usuario.correo}">
-                            <strong>${usuario.nombre} ${usuario.apellidos}</strong><br>
-                            <small class="text-muted">${usuario.correo}</small>
-                        </div>
-                    `).join('');
+                    .map(usuario => {
+                        const nombre = usuario.nombre || '';
+                        const apellidos = usuario.apellidos || '';
+                        const nombreCompleto = `${nombre} ${apellidos}`.trim();
+                        return `
+                            <div class="search-result-item" data-user-id="${usuario.id}" data-user-nombre="${nombre}" data-user-apellidos="${apellidos}" data-user-correo="${usuario.correo}">
+                                <strong>${nombreCompleto}</strong><br>
+                                <small class="text-muted">${usuario.correo}</small>
+                            </div>
+                        `;
+                    }).join('');
                 
                 // Agregar event listeners a los elementos
                 resultadosDiv.querySelectorAll('.search-result-item').forEach(item => {
                     const userId = item.getAttribute('data-user-id');
-                    const userNombre = item.getAttribute('data-user-nombre');
-                    const userApellidos = item.getAttribute('data-user-apellidos');
+                    const userNombre = item.getAttribute('data-user-nombre') || '';
+                    const userApellidos = item.getAttribute('data-user-apellidos') || '';
                     const userCorreo = item.getAttribute('data-user-correo');
                     
-                    if (userId && userNombre && userApellidos && userCorreo) {
+                    if (userId && userCorreo) {
                         item.addEventListener('click', function() {
                             seleccionarUsuario(userId, userNombre, userApellidos, userCorreo);
                         });
@@ -438,15 +557,20 @@
         function actualizarUsuariosSeleccionados() {
             const container = document.getElementById('usuariosSeleccionados');
             
-            container.innerHTML = usuariosSeleccionados.map(usuario => `
-                <div class="usuario-tag">
-                    <span>${usuario.nombre} ${usuario.apellidos}</span>
-                    <button type="button" class="remove-btn" onclick="removerUsuario(${usuario.id})">
-                        ×
-                    </button>
-                    <input type="hidden" name="usuariosConvocados" value="${usuario.id}">
-                </div>
-            `).join('');
+            container.innerHTML = usuariosSeleccionados.map(usuario => {
+                const nombre = usuario.nombre || '';
+                const apellidos = usuario.apellidos || '';
+                const nombreCompleto = `${nombre} ${apellidos}`.trim();
+                return `
+                    <div class="usuario-tag">
+                        <span>${nombreCompleto}</span>
+                        <button type="button" class="remove-btn" onclick="removerUsuario('${usuario.id}')">
+                            ×
+                        </button>
+                        <input type="hidden" name="usuariosConvocados" value="${usuario.id}">
+                    </div>
+                `;
+            }).join('');
         }
         
         function cargarUsuariosConvocados() {
@@ -468,9 +592,11 @@
         // Validación del formulario
         document.getElementById('editarReservaForm').addEventListener('submit', function(e) {
             const fecha = document.getElementById('fecha').value;
-            const horaInicio = document.getElementById('horaInicio').value;
-            const horaFin = document.getElementById('horaFin').value;
-            const slotSeleccionado = document.getElementById('slotSeleccionado').value;
+            const horaInicioElement = document.getElementById('horaInicio');
+            const horaFinElement = document.getElementById('horaFin');
+            const horaInicio = horaInicioElement ? horaInicioElement.value : '';
+            const horaFin = horaFinElement ? horaFinElement.value : '';
+            const slotSeleccionado = document.getElementById('slotSeleccionado') ? document.getElementById('slotSeleccionado').value : '';
             
             if (!fecha) {
                 e.preventDefault();
@@ -478,15 +604,26 @@
                 return;
             }
             
-            if (!slotSeleccionado && (!horaInicio || !horaFin)) {
-                e.preventDefault();
-                alert('Por favor, selecciona un horario predefinido o ingresa hora de inicio y fin.');
-                return;
-            }
-            
-            if (horaInicio && horaFin && horaInicio >= horaFin) {
-                e.preventDefault();
-                alert('La hora de inicio debe ser anterior a la hora de fin.');
+            if (requiereSlotsPredefinidos) {
+                // Validación para slots predefinidos dinámicos
+                if (!slotSeleccionado) {
+                    e.preventDefault();
+                    alert('Por favor, selecciona un horario.');
+                    return;
+                }
+            } else {
+                // Validación para horarios manuales o slots estáticos
+                if (!slotSeleccionado && (!horaInicio || !horaFin)) {
+                    e.preventDefault();
+                    alert('Por favor, selecciona un horario predefinido o ingresa hora de inicio y fin.');
+                    return;
+                }
+                
+                if (horaInicio && horaFin && horaInicio >= horaFin) {
+                    e.preventDefault();
+                    alert('La hora de inicio debe ser anterior a la hora de fin.');
+                    return;
+                }
             }
         });
     </script>
