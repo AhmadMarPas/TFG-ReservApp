@@ -163,4 +163,9 @@ public class ReservaServiceImpl implements ReservaService {
 		return reserva;
 	}
 
+	@Override
+	public void delete(Reserva reserva) {
+		reservaRepo.delete(reserva);
+	}
+
 }

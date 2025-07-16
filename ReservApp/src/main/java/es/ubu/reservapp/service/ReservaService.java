@@ -100,4 +100,13 @@ public interface ReservaService {
     @Transactional(readOnly = true)
     Reserva findById(Integer id);
 
+    /**
+     * Borra o anula la reserva.
+     * 
+     * @param reserva a guardar.
+     * @return Reserva guardada.
+     */
+    @Transactional
+    void delete(Reserva reserva);
+    
 }

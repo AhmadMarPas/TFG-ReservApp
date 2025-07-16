@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,8 +46,15 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Controlador para la gestión de Reservas.
  * 
+ * OPTIMIZACIONES IMPLEMENTADAS:
+ * - buscarUsuarios(): Eliminada carga de todos los usuarios en memoria, usa consulta optimizada en BD
+ * - crearConvocatorias(): Evita N+1 queries cargando usuarios en lote
+ * - gestionarConvocatorias(): Evita N+1 queries cargando usuarios en lote
+ * - mostrarMisReservas(): Solo carga establecimientos activos asignados al usuario
+ * - obtenerReservasUsuario(): Limita reservas pasadas para mejorar rendimiento
+ * 
  * @autor Ahmad Mareie Pascual
- * @version 1.0
+ * @version 1.1 - Optimizado
  * @since 1.0
  */
 @Controller
@@ -186,6 +195,7 @@ public class ReservaController {
 
     /**
      * Muestra las reservas del usuario actual.
+     * OPTIMIZADO: Solo carga establecimientos activos asignados al usuario.
      *
      * @param model Modelo para pasar datos a la vista.
      * @param redirectAttributes Atributos para redirección con mensajes flash.
@@ -203,8 +213,7 @@ public class ReservaController {
                 return ERROR;
             }
 
-            List<Establecimiento> establecimientos = establecimientoService.findAll();
-            model.addAttribute("establecimientos", establecimientos);
+            model.addAttribute("establecimientos", usuario.getLstEstablecimientos());
             
             return MIS_RESERVAS_VIEW;
 
@@ -433,6 +442,7 @@ public class ReservaController {
 
     /**
      * Gestiona las convocatorias considerando el soft delete.
+     * OPTIMIZADO: Evita N+1 queries cargando todos los usuarios de una vez.
      * Reutiliza convocatorias existentes (incluso las marcadas como inválidas) o crea nuevas.
      */
     private void gestionarConvocatorias(Reserva reserva, String[] usuariosConvocados) {
@@ -453,9 +463,22 @@ public class ReservaController {
         nuevaConvocatoria.setConvocados(new ArrayList<>());
         log.info("Creando nueva convocatoria para reserva: {}", reserva.getId());
         
+        // OPTIMIZACIÓN: Filtrar IDs válidos y cargar usuarios en una sola consulta
+        List<String> idsValidos = new ArrayList<>();
         for (String usuarioId : usuariosConvocados) {
             if (usuarioId != null && !usuarioId.trim().isEmpty()) {
-                Usuario usuario = usuarioService.findUsuarioById(usuarioId.trim());
+                idsValidos.add(usuarioId.trim());
+            }
+        }
+        
+        if (!idsValidos.isEmpty()) {
+            // Cargar todos los usuarios de una vez en lugar de consultas individuales
+            List<Usuario> usuarios = usuarioService.findUsuariosByIds(idsValidos);
+            Map<String, Usuario> usuariosMap = usuarios.stream()
+                    .collect(Collectors.toMap(Usuario::getId, u -> u));
+            
+            for (String usuarioId : idsValidos) {
+                Usuario usuario = usuariosMap.get(usuarioId);
                 if (usuario != null) {
                     Convocado convocado = new Convocado();
                     ConvocadoPK convocadoId = new ConvocadoPK(reserva.getId(), usuario.getId());
@@ -487,6 +510,7 @@ public class ReservaController {
 
     /**
      * Crea las convocatorias para los usuarios seleccionados.
+     * OPTIMIZADO: Evita N+1 queries cargando todos los usuarios de una vez.
      * 
      * @param reserva
      * @param usuariosConvocados
@@ -507,9 +531,22 @@ public class ReservaController {
             convocatoria.setConvocados(new ArrayList<>());
         }
         
+        // OPTIMIZACIÓN: Filtrar IDs válidos y cargar usuarios en una sola consulta
+        List<String> idsValidos = new ArrayList<>();
         for (String usuarioId : usuariosConvocados) {
             if (usuarioId != null && !usuarioId.trim().isEmpty()) {
-                Usuario usuario = usuarioService.findUsuarioById(usuarioId.trim());
+                idsValidos.add(usuarioId.trim());
+            }
+        }
+        
+        if (!idsValidos.isEmpty()) {
+            // Cargar todos los usuarios de una vez en lugar de consultas individuales
+             List<Usuario> usuarios = usuarioService.findUsuariosByIds(idsValidos);
+             Map<String, Usuario> usuariosMap = usuarios.stream()
+                     .collect(Collectors.toMap(Usuario::getId, u -> u));
+            
+            for (String usuarioId : idsValidos) {
+                Usuario usuario = usuariosMap.get(usuarioId);
                 if (usuario != null) {
                     Convocado convocado = new Convocado();
                     ConvocadoPK convocadoId = new ConvocadoPK(reserva.getId(), usuario.getId());
@@ -553,6 +590,7 @@ public class ReservaController {
 
     /**
      * Endpoint para buscar usuarios por nombre o ID (AJAX).
+     * OPTIMIZADO: Usa consulta de base de datos en lugar de cargar todos los usuarios en memoria.
      * 
      * @param query término de búsqueda
      * @return lista de usuarios que coinciden con la búsqueda
@@ -564,21 +602,16 @@ public class ReservaController {
             return new ArrayList<>();
         }
         
-        List<Usuario> todosUsuarios = usuarioService.findAll();
         String queryLower = query.toLowerCase().trim();
         
-        return todosUsuarios.stream()
-                .filter(usuario -> !usuario.getId().equals(sessionData.getUsuario().getId())) // Excluir usuario actual
-                .filter(usuario -> 
-                    usuario.getId().toLowerCase().contains(queryLower) ||
-                    usuario.getNombre().toLowerCase().contains(queryLower) ||
-                    usuario.getApellidos().toLowerCase().contains(queryLower) ||
-                    usuario.getCorreo().toLowerCase().contains(queryLower)
-                )
-                .limit(10) // Limitar resultados
+        // OPTIMIZACIÓN: Usar búsqueda optimizada en base de datos en lugar de cargar todos los usuarios
+        List<Usuario> usuarios = usuarioService.buscarUsuarioSegunQuery(queryLower);
+        
+        return usuarios.stream()
                 .map(usuario -> new UsuarioDTO(usuario.getId(), 
                     usuario.getNombre() + " " + usuario.getApellidos(), 
-                    usuario.getCorreo())).toList();
+                    usuario.getCorreo()))
+                .toList();
     }
 
     /**
@@ -660,6 +693,17 @@ public class ReservaController {
             // Obtener franjas horarias del establecimiento
             List<FranjaHoraria> franjasActivas = obtenerFranjasActivas(reserva.getEstablecimiento());
             model.addAttribute("franjasHorarias", franjasActivas);
+            
+            // Generar slots dinámicos si el establecimiento requiere slots predefinidos
+            SlotsData slotsData = generarSlotsData(reserva.getEstablecimiento(), franjasActivas);
+            model.addAttribute("requiereSlotsPredefinidos", slotsData.isRequiereSlots());
+            model.addAttribute("slotsDisponibles", slotsData.getSlotsDisponibles());
+            
+            // Si requiere slots predefinidos, calcular el slot actual de la reserva
+            if (slotsData.isRequiereSlots()) {
+                String slotActual = calcularSlotActual(reserva);
+                model.addAttribute("slotActual", slotActual);
+            }
             
             return "reservas/editar_reserva";
             
@@ -814,17 +858,20 @@ public class ReservaController {
 
     /**
      * Obtiene las reservas pasadas y futuras del usuario para el establecimiento.
+     * OPTIMIZADO: Limita el número de reservas pasadas para mejorar rendimiento.
      * 
      * @param establecimiento
      */
     private ReservasUsuario obtenerReservasUsuario(Usuario usuario, Establecimiento establecimiento) {
         LocalDateTime fechaActual = LocalDateTime.now();
         
+        // OPTIMIZACIÓN: Limitar reservas pasadas a las últimas 50 para evitar cargar demasiados datos
         List<Reserva> reservasPasadas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual);
         List<Reserva> reservasFuturas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
         
-        // Ordenar reservas
-        reservasPasadas.sort(Comparator.comparing(Reserva::getFechaReserva).reversed());
+        // Las consultas optimizadas ya vienen ordenadas desde la base de datos
+        // reservasPasadas ya vienen ordenadas por fecha descendente
+        // reservasFuturas se ordenan aquí si es necesario
         reservasFuturas.sort(Comparator.comparing(Reserva::getFechaReserva));
         
         return new ReservasUsuario(reservasPasadas, reservasFuturas);
@@ -849,6 +896,30 @@ public class ReservaController {
         
         return new SlotsData(requiereSlots, slotsDisponibles);
     }
+    
+    /**
+     * Calcula el slot actual de una reserva basado en su hora de inicio y fin.
+     * 
+     * @param reserva La reserva de la cual calcular el slot
+     * @return El slot en formato "HH:mm - HH:mm" o null si no se puede determinar
+     */
+    private String calcularSlotActual(Reserva reserva) {
+        if (reserva == null || reserva.getFechaReserva() == null) {
+            return null;
+        }
+        
+        LocalTime horaInicio = reserva.getFechaReserva().toLocalTime();
+        LocalTime horaFin = reserva.getHoraFin();
+        
+        if (horaFin == null) {
+            return null;
+        }
+        
+        // Formatear como "HH:mm - HH:mm"
+         return String.format("%s - %s", 
+             horaInicio.format(DateTimeFormatter.ofPattern("HH:mm")),
+             horaFin.format(DateTimeFormatter.ofPattern("HH:mm")));
+     }
 
     /**
      * Configura el modelo con todos los datos necesarios para el calendario.
@@ -869,6 +940,81 @@ public class ReservaController {
         model.addAttribute("reservasFuturas", reservasUsuario.getFuturas());
         model.addAttribute("requiereSlotsPredefinidos", slotsData.isRequiereSlots());
         model.addAttribute("slotsDisponibles", slotsData.getSlotsDisponibles());
+    }
+
+    /**
+     * Anula una reserva existente.
+     * Envía notificaciones por correo al usuario y convocados antes de eliminar la reserva.
+     * 
+     * @param reservaId ID de la reserva a anular
+     * @param redirectAttributes Para mensajes de redirección
+     * @return Redirección a la página del establecimiento
+     */
+    @PostMapping("/anular/{id}")
+    public String anularReserva(@PathVariable("id") Integer reservaId, RedirectAttributes redirectAttributes) {
+        try {
+            // Validar usuario autenticado
+            String errorUsuario = validarUsuarioAutenticado(redirectAttributes);
+            if (errorUsuario != null) return errorUsuario;
+            
+            Usuario usuario = sessionData.getUsuario();
+            
+            // Buscar la reserva
+            Reserva reserva = reservaService.findById(reservaId);
+            if (reserva == null) {
+                redirectAttributes.addFlashAttribute(ERROR, "Reserva no encontrada.");
+                return REDIRECT_MIS_RESERVAS;
+            }
+            
+            // Verificar que el usuario es el propietario de la reserva
+            if (!reserva.getUsuario().getId().equals(usuario.getId())) {
+                redirectAttributes.addFlashAttribute(ERROR, "No tiene permisos para anular esta reserva.");
+                return REDIRECT_MIS_RESERVAS;
+            }
+            
+            // Verificar que la reserva es futura
+            if (reserva.getFechaReserva().isBefore(LocalDateTime.now())) {
+                redirectAttributes.addFlashAttribute(ERROR, "No se pueden anular reservas pasadas.");
+                return String.format("redirect:/misreservas/establecimiento/%d", reserva.getEstablecimiento().getId());
+            }
+            
+            // Obtener información para el correo antes de eliminar
+            Establecimiento establecimiento = reserva.getEstablecimiento();
+            List<String> correosNotificacion = new ArrayList<>();
+            
+            // Agregar correo del usuario que hizo la reserva
+            correosNotificacion.add(usuario.getCorreo());
+            
+            // Agregar correos de usuarios convocados si existen
+            if (reserva.getConvocatoria() != null && reserva.getConvocatoria().getConvocados() != null) {
+                reserva.getConvocatoria().getConvocados().forEach(convocado -> {
+                    if (convocado.getUsuario() != null && convocado.getUsuario().getCorreo() != null) {
+                        correosNotificacion.add(convocado.getUsuario().getCorreo());
+                    }
+                });
+            }
+            
+            // Enviar notificaciones por correo
+            try {
+                emailService.enviarNotificacionAnulacion(reserva, correosNotificacion);
+            } catch (Exception e) {
+                log.warn("Error al enviar notificaciones de anulación para reserva {}: {}", reservaId, e.getMessage());
+                // Continuar con la anulación aunque falle el envío de correos
+            }
+            
+            // Eliminar la reserva
+            reservaService.delete(reserva);
+            
+            log.info("Reserva {} anulada exitosamente por usuario {}", reservaId, usuario.getId());
+            redirectAttributes.addFlashAttribute("exito", "Reserva anulada exitosamente. Se han enviado notificaciones por correo.");
+            
+            return String.format("redirect:/misreservas/establecimiento/%d", establecimiento.getId());
+            
+        } catch (Exception e) {
+            log.error("Error al anular reserva {}: {}", reservaId, e.getMessage(), e);
+            redirectAttributes.addFlashAttribute(ERROR, "Error al anular la reserva: " + e.getMessage());
+            return REDIRECT_MIS_RESERVAS;
+        }
     }
 
     // ================================

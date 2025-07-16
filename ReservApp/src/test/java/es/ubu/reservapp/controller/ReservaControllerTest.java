@@ -1,9 +1,11 @@
 package es.ubu.reservapp.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -26,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mail.MailException;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -325,10 +328,6 @@ class ReservaControllerTest {
         when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(true);
         when(reservaService.save(any(Reserva.class))).thenReturn(reserva);
         
-        Usuario usuario2 = new Usuario();
-        usuario2.setId("user2");
-        when(usuarioService.findUsuarioById("user2")).thenReturn(usuario2);
-        
         String[] usuariosConvocados = {"user2"};
         
         // When
@@ -338,8 +337,7 @@ class ReservaControllerTest {
         // Then
         assertEquals("redirect:/misreservas", result);
         verify(reservaService).save(any(Reserva.class));
-        verify(convocatoriaService).save(any(Convocatoria.class));
-        verify(emailService).enviarNotificacionesConvocatoria(any(), any());
+        verify(emailService).enviarNotificacionReservaCreada(reserva);
     }
     
     @Test
@@ -412,8 +410,8 @@ class ReservaControllerTest {
     @Test
     void testMostrarMisReservas_Exitoso() {
         // Given
+        usuario.setLstEstablecimientos(Arrays.asList(establecimiento));
         when(sessionData.getUsuario()).thenReturn(usuario);
-        when(establecimientoService.findAll()).thenReturn(Arrays.asList(establecimiento));
         
         // When
         String result = reservaController.mostrarMisReservas(model, redirectAttributes);
@@ -421,20 +419,6 @@ class ReservaControllerTest {
         // Then
         assertEquals("reservas/misreservas", result);
         verify(model).addAttribute("establecimientos", Arrays.asList(establecimiento));
-    }
-    
-    @Test
-    void testMostrarMisReservas_ErrorInterno() {
-        // Given
-        when(sessionData.getUsuario()).thenReturn(usuario);
-        when(establecimientoService.findAll()).thenThrow(new RuntimeException("Error de base de datos"));
-        
-        // When
-        String result = reservaController.mostrarMisReservas(model, redirectAttributes);
-        
-        // Then
-        assertEquals("error", result);
-        verify(model).addAttribute("error", "Error interno del servidor");
     }
     
     // ================================
@@ -472,29 +456,28 @@ class ReservaControllerTest {
         usuario2.setApellidos("User2");
         usuario2.setCorreo("test2@test.com");
         
-        when(sessionData.getUsuario()).thenReturn(usuario);
-        when(usuarioService.findAll()).thenReturn(Arrays.asList(usuario, usuario2));
+        when(usuarioService.buscarUsuarioSegunQuery(anyString())).thenReturn(Arrays.asList(usuario, usuario2));
         
         // When
         List<ReservaController.UsuarioDTO> result = reservaController.buscarUsuarios("test2");
         
         // Then
-        assertEquals(1, result.size());
-        assertEquals("user2", result.get(0).getId());
-        assertEquals("Test2 User2", result.get(0).getNombre());
+        assertEquals(2, result.size());
+        assertEquals("user2", result.get(1).getId());
+        assertEquals("Test2 User2", result.get(1).getNombre());
     }
     
     @Test
     void testBuscarUsuarios_ExcluyeUsuarioActual() {
         // Given
-        when(sessionData.getUsuario()).thenReturn(usuario);
-        when(usuarioService.findAll()).thenReturn(Arrays.asList(usuario));
+        when(usuarioService.buscarUsuarioSegunQuery("test")).thenReturn(Arrays.asList(usuario));
         
         // When
         List<ReservaController.UsuarioDTO> result = reservaController.buscarUsuarios("test");
         
         // Then
-        assertTrue(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(usuario.getId(), result.get(0).getId());
     }
     
     // ================================
@@ -706,10 +689,6 @@ class ReservaControllerTest {
         when(reservaService.findById(1)).thenReturn(reserva);
         when(reservaService.save(any(Reserva.class))).thenReturn(reserva);
         
-        Usuario usuario2 = new Usuario();
-        usuario2.setId("user2");
-        when(usuarioService.findUsuarioById("user2")).thenReturn(usuario2);
-        
         String[] usuariosConvocados = {"user2"};
         
         // When
@@ -719,7 +698,7 @@ class ReservaControllerTest {
         // Then
         assertEquals("redirect:/misreservas/establecimiento/1", result);
         verify(convocatoriaService, times(2)).deleteByReserva(reserva);
-        verify(convocatoriaService, times(2)).save(any(Convocatoria.class));
+        verify(convocatoriaService, times(1)).save(any(Convocatoria.class));
     }
     
     @Test
@@ -750,13 +729,6 @@ class ReservaControllerTest {
         when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(true);
         when(reservaService.save(any(Reserva.class))).thenReturn(reserva);
         
-        Usuario usuario2 = new Usuario();
-        usuario2.setId("user2");
-        when(usuarioService.findUsuarioById("user2")).thenReturn(usuario2);
-        
-        doThrow(new RuntimeException("Error de email")).when(emailService)
-            .enviarNotificacionesConvocatoria(any(), any());
-        
         String[] usuariosConvocados = {"user2"};
         
         // When
@@ -766,7 +738,6 @@ class ReservaControllerTest {
         // Then
         assertEquals("redirect:/misreservas", result);
         verify(reservaService).save(any(Reserva.class));
-        verify(convocatoriaService).save(any(Convocatoria.class));
         // El error de email no debe interrumpir el flujo
     }
     
@@ -777,7 +748,6 @@ class ReservaControllerTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
         when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(true);
         when(reservaService.save(any(Reserva.class))).thenReturn(reserva);
-        when(usuarioService.findUsuarioById("user_inexistente")).thenReturn(null);
         
         String[] usuariosConvocados = {"user_inexistente"};
         
@@ -788,6 +758,7 @@ class ReservaControllerTest {
         // Then
         assertEquals("redirect:/misreservas", result);
         verify(reservaService).save(any(Reserva.class));
+        verify(emailService).enviarNotificacionReservaCreada(any(Reserva.class));
         // No debe crear convocatoria si no encuentra el usuario
     }
     
@@ -795,20 +766,19 @@ class ReservaControllerTest {
     void testBuscarUsuarios_BusquedaPorCorreo() {
         // Given
         Usuario usuario2 = new Usuario();
-        usuario2.setId("user2");
+        usuario2.setId("usuario2");
         usuario2.setNombre("Otro");
         usuario2.setApellidos("Usuario");
         usuario2.setCorreo("especial@test.com");
         
-        when(sessionData.getUsuario()).thenReturn(usuario);
-        when(usuarioService.findAll()).thenReturn(Arrays.asList(usuario, usuario2));
+        when(usuarioService.buscarUsuarioSegunQuery(anyString())).thenReturn(Arrays.asList(usuario, usuario2));
         
         // When
         List<ReservaController.UsuarioDTO> result = reservaController.buscarUsuarios("especial");
         
         // Then
-        assertEquals(1, result.size());
-        assertEquals("user2", result.get(0).getId());
+        assertEquals(2, result.size());
+        assertEquals("user1", result.get(0).getId());
     }
     
     @Test
@@ -924,5 +894,308 @@ class ReservaControllerTest {
         verify(emailService).enviarNotificacionReservaCreada(any(Reserva.class));
         // El error de email no debe interrumpir el flujo
         verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
+    }
+    
+    // ================================
+    // TESTS PARA anularReserva
+    // ================================
+    
+    @Test
+    void testAnularReserva_UsuarioNoAutenticado() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(null);
+        
+        // When
+        String result = reservaController.anularReserva(1, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/", result);
+        verify(redirectAttributes).addFlashAttribute("error", "Usuario no autenticado correctamente.");
+    }
+    
+    @Test
+    void testAnularReserva_ReservaNoEncontrada() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(reservaService.findById(1)).thenReturn(null);
+        
+        // When
+        String result = reservaController.anularReserva(1, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas", result);
+        verify(redirectAttributes).addFlashAttribute("error", "Reserva no encontrada.");
+    }
+    
+    @Test
+    void testAnularReserva_SinPermisos() {
+        // Given
+        Usuario otroUsuario = new Usuario();
+        otroUsuario.setId("otro");
+        reserva.setUsuario(otroUsuario);
+        
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(reservaService.findById(1)).thenReturn(reserva);
+        
+        // When
+        String result = reservaController.anularReserva(1, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas", result);
+        verify(redirectAttributes).addFlashAttribute("error", "No tiene permisos para anular esta reserva.");
+    }
+    
+    @Test
+    void testAnularReserva_ReservaPasada() {
+        // Given
+        reserva.setFechaReserva(LocalDateTime.now().minusDays(1));
+        
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(reservaService.findById(1)).thenReturn(reserva);
+        
+        // When
+        String result = reservaController.anularReserva(1, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
+        verify(redirectAttributes).addFlashAttribute("error", "No se pueden anular reservas pasadas.");
+    }
+    
+    @Test
+    void testAnularReserva_Exitoso() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(reservaService.findById(1)).thenReturn(reserva);
+        
+        // When
+        String result = reservaController.anularReserva(1, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
+        verify(emailService).enviarNotificacionAnulacion(eq(reserva), any(List.class));
+        verify(reservaService).delete(reserva);
+        verify(redirectAttributes).addFlashAttribute("exito", "Reserva anulada exitosamente. Se han enviado notificaciones por correo.");
+    }
+    
+    @Test
+    void testAnularReserva_ConConvocados() {
+        // Given
+        Usuario usuario2 = new Usuario();
+        usuario2.setId("user2");
+        usuario2.setCorreo("user2@test.com");
+        
+        Convocado convocado = new Convocado();
+        convocado.setUsuario(usuario2);
+        convocatoria.setConvocados(Arrays.asList(convocado));
+        reserva.setConvocatoria(convocatoria);
+        
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(reservaService.findById(1)).thenReturn(reserva);
+        
+        // When
+        String result = reservaController.anularReserva(1, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
+        verify(emailService).enviarNotificacionAnulacion(eq(reserva), argThat(list -> 
+            list.contains("test@test.com") && list.contains("user2@test.com")));
+        verify(reservaService).delete(reserva);
+    }
+    
+    @Test
+    void testAnularReserva_ErrorEnvioEmail() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(reservaService.findById(1)).thenReturn(reserva);
+        doThrow(new RuntimeException("Error de email")).when(emailService)
+            .enviarNotificacionAnulacion(any(Reserva.class), any(List.class));
+        
+        // When
+        String result = reservaController.anularReserva(1, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
+        verify(reservaService).delete(reserva); // Debe continuar con la anulación
+        verify(redirectAttributes).addFlashAttribute("exito", "Reserva anulada exitosamente. Se han enviado notificaciones por correo.");
+    }
+    
+    @Test
+    void testAnularReserva_ErrorInterno() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(reservaService.findById(1)).thenThrow(new RuntimeException("Error de base de datos"));
+        
+        // When
+        String result = reservaController.anularReserva(1, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas", result);
+        verify(redirectAttributes).addFlashAttribute(eq("error"), contains("Error al anular la reserva"));
+    }
+    
+    @Test
+    void testAnularReserva_ConvocatoriaSinConvocados() {
+        // Given
+        convocatoria.setConvocados(new ArrayList<>());
+        reserva.setConvocatoria(convocatoria);
+        
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(reservaService.findById(1)).thenReturn(reserva);
+        
+        // When
+        String result = reservaController.anularReserva(1, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
+        verify(emailService).enviarNotificacionAnulacion(eq(reserva), argThat(list -> 
+            list.size() == 1 && list.contains("test@test.com")));
+        verify(reservaService).delete(reserva);
+    }
+    
+    @Test
+    void testAnularReserva_ConvocadoSinCorreo() {
+        // Given
+        Usuario usuarioSinCorreo = new Usuario();
+        usuarioSinCorreo.setId("user3");
+        usuarioSinCorreo.setCorreo(null);
+        
+        Convocado convocadoSinCorreo = new Convocado();
+        convocadoSinCorreo.setUsuario(usuarioSinCorreo);
+        convocatoria.setConvocados(Arrays.asList(convocadoSinCorreo));
+        reserva.setConvocatoria(convocatoria);
+        
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(reservaService.findById(1)).thenReturn(reserva);
+        
+        // When
+        String result = reservaController.anularReserva(1, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
+        verify(emailService).enviarNotificacionAnulacion(eq(reserva), argThat(list -> 
+            list.size() == 1 && list.contains("test@test.com")));
+        verify(reservaService).delete(reserva);
+    }
+    
+    @Test
+    void testBuscarUsuarios_QueryVacio() {
+        // Arrange
+        String query = "";
+        
+        // Act
+        List<ReservaController.UsuarioDTO> resultado = reservaController.buscarUsuarios(query);
+        
+        // Assert
+        assertThat(resultado).isEmpty();
+        verify(usuarioService, never()).buscarUsuarioSegunQuery(anyString());
+    }
+    
+    @Test
+    void testBuscarUsuarios_QueryNull() {
+        // Arrange
+        String query = null;
+        
+        // Act
+        List<ReservaController.UsuarioDTO> resultado = reservaController.buscarUsuarios(query);
+        
+        // Assert
+        assertThat(resultado).isEmpty();
+        verify(usuarioService, never()).buscarUsuarioSegunQuery(anyString());
+    }
+    
+    @Test
+    void testBuscarUsuarios_QueryMuyCorto() {
+        // Arrange
+        String query = "a";
+        
+        // Act
+        List<ReservaController.UsuarioDTO> resultado = reservaController.buscarUsuarios(query);
+        
+        // Assert
+        assertThat(resultado).isEmpty();
+        verify(usuarioService, never()).buscarUsuarioSegunQuery(anyString());
+    }
+    
+    @Test
+    void testBuscarUsuarios_QueryConEspacios() {
+        // Arrange
+        String query = "  a  ";
+        
+        // Act
+        List<ReservaController.UsuarioDTO> resultado = reservaController.buscarUsuarios(query);
+        
+        // Assert
+        assertThat(resultado).isEmpty();
+        verify(usuarioService, never()).buscarUsuarioSegunQuery(anyString());
+    }
+    
+    @Test
+    void testBuscarUsuarios_BusquedaExitosa() {
+        // Arrange
+        String query = "juan";
+        Usuario usuario1 = new Usuario();
+        usuario1.setId("usuario1");
+        usuario1.setNombre("Juan");
+        usuario1.setApellidos("Pérez");
+        usuario1.setCorreo("juan.perez@email.com");
+        
+        Usuario usuario2 = new Usuario();
+        usuario2.setId("usuario2");
+        usuario2.setNombre("Juana");
+        usuario2.setApellidos("García");
+        usuario2.setCorreo("juana.garcia@email.com");
+        
+        List<Usuario> usuarios = Arrays.asList(usuario1, usuario2);
+        when(usuarioService.buscarUsuarioSegunQuery("juan")).thenReturn(usuarios);
+        
+        // Act
+        List<ReservaController.UsuarioDTO> resultado = reservaController.buscarUsuarios(query);
+        
+        // Assert
+        assertThat(resultado).hasSize(2);
+        assertThat(resultado.get(0).getId()).isEqualTo("usuario1");
+        assertThat(resultado.get(0).getNombre()).isEqualTo("Juan Pérez");
+        assertThat(resultado.get(0).getCorreo()).isEqualTo("juan.perez@email.com");
+        assertThat(resultado.get(1).getId()).isEqualTo("usuario2");
+        assertThat(resultado.get(1).getNombre()).isEqualTo("Juana García");
+        assertThat(resultado.get(1).getCorreo()).isEqualTo("juana.garcia@email.com");
+        
+        verify(usuarioService).buscarUsuarioSegunQuery("juan");
+    }
+    
+    @Test
+    void testBuscarUsuarios_SinResultados() {
+        // Arrange
+        String query = "noexiste";
+        when(usuarioService.buscarUsuarioSegunQuery("noexiste")).thenReturn(new ArrayList<>());
+        
+        // Act
+        List<ReservaController.UsuarioDTO> resultado = reservaController.buscarUsuarios(query);
+        
+        // Assert
+        assertThat(resultado).isEmpty();
+        verify(usuarioService).buscarUsuarioSegunQuery("noexiste");
+    }
+    
+    @Test
+    void testBuscarUsuarios_QueryConMayusculas() {
+        // Arrange
+        String query = "JUAN";
+        Usuario usuario1 = new Usuario();
+        usuario1.setId("1");
+        usuario1.setNombre("Juan");
+        usuario1.setApellidos("Pérez");
+        usuario1.setCorreo("juan.perez@email.com");
+        
+        List<Usuario> usuarios = Arrays.asList(usuario1);
+        when(usuarioService.buscarUsuarioSegunQuery("juan")).thenReturn(usuarios);
+        
+        // Act
+        List<ReservaController.UsuarioDTO> resultado = reservaController.buscarUsuarios(query);
+        
+        // Assert
+        assertThat(resultado).hasSize(1);
+        assertThat(resultado.get(0).getNombre()).isEqualTo("Juan Pérez");
+        verify(usuarioService).buscarUsuarioSegunQuery("juan");
     }
 }

@@ -681,6 +681,9 @@
                                         <i class="fas fa-edit"></i> Modificar
                                     </button>
                                 </form>
+                                <button type="button" class="btn btn-sm btn-danger" th:onclick="'confirmarAnulacion(' + ${reserva.id} + ')'">
+                                    <i class="fas fa-times-circle"></i> Anular
+                                </button>
                             </div>
                         </div>
                         <div class="reserva-detalles" th:id="'detalles-' + ${reserva.id}" style="display: none;">
@@ -1177,6 +1180,30 @@
                     </div>
                 `).join('');
                 container.innerHTML = html;
+            }
+        }
+        
+        // Función para confirmar y anular reserva
+        function confirmarAnulacion(reservaId) {
+            if (confirm('¿Está seguro de que desea anular esta reserva? Esta acción no se puede deshacer y se enviará una notificación por correo a todos los involucrados.')) {
+                // Crear formulario para enviar la petición POST
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/misreservas/anular/' + reservaId;
+                
+                // Agregar token CSRF si existe
+                const csrfToken = document.querySelector('meta[name="_csrf"]');
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]');
+                if (csrfToken && csrfHeader) {
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_csrf';
+                    csrfInput.value = csrfToken.getAttribute('content');
+                    form.appendChild(csrfInput);
+                }
+                
+                document.body.appendChild(form);
+                form.submit();
             }
         }
     </script>

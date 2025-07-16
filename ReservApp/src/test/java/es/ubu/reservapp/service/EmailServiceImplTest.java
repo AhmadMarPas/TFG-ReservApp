@@ -1,6 +1,5 @@
 package es.ubu.reservapp.service;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -25,6 +24,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
@@ -51,59 +51,55 @@ class EmailServiceImplTest {
     @InjectMocks
     private EmailServiceImpl emailService;
 
-    private Usuario usuario1;
-    private Usuario usuario2;
+    private Usuario usuario;
     private Establecimiento establecimiento;
     private Reserva reserva;
     private Convocatoria convocatoria;
-    private Convocado convocado1;
-    private Convocado convocado2;
+    private Convocado convocado;
 
     @BeforeEach
     void setUp() {
-        // Configurar usuarios
-        usuario1 = new Usuario();
-        usuario1.setId("1");
-        usuario1.setNombre("Juan Pérez");
-        usuario1.setCorreo("juan.perez@email.com");
-        
-        usuario2 = new Usuario();
-        usuario2.setId("2");
-        usuario2.setNombre("María García");
-        usuario2.setCorreo("maria.garcia@email.com");
-        
+        // Configurar usuario
+        usuario = new Usuario();
+        usuario.setId("user1");
+        usuario.setNombre("Juan Pérez");
+        usuario.setCorreo("juan.perez@test.com");
+
         // Configurar establecimiento
         establecimiento = new Establecimiento();
         establecimiento.setId(1);
         establecimiento.setNombre("Sala de Reuniones A");
-        establecimiento.setDireccion("Calle Principal 123, Planta 2");
-        
+        establecimiento.setDireccion("Calle Principal 123");
+
         // Configurar reserva
         reserva = new Reserva();
         reserva.setId(1);
-        reserva.setUsuario(usuario1);
+        reserva.setUsuario(usuario);
         reserva.setEstablecimiento(establecimiento);
-        reserva.setFechaReserva(LocalDateTime.of(2024, 12, 15, 10, 30));
-        reserva.setHoraFin(LocalTime.of(11, 30));
-        
+        reserva.setFechaReserva(LocalDateTime.of(2024, 12, 25, 10, 0));
+        reserva.setHoraFin(LocalTime.of(11, 0));
+
         // Configurar convocatoria
         convocatoria = new Convocatoria();
         convocatoria.setId(1);
         convocatoria.setReserva(reserva);
-        convocatoria.setEnlace("https://meet.google.com/abc-defg-hij");
-        convocatoria.setObservaciones("Por favor, traer documentos necesarios para la reunión.");
+        convocatoria.setEnlace("https://meet.google.com/test");
+        convocatoria.setObservaciones("Reunión importante");
+
+        // Configurar convocado
+        Usuario usuarioConvocado = new Usuario();
+        usuarioConvocado.setId("user2");
+        usuarioConvocado.setNombre("María García");
+        usuarioConvocado.setCorreo("maria.garcia@test.com");
+
+        ConvocadoPK pk = new ConvocadoPK(1, "user1");
+        convocado = new Convocado();
+        convocado.setId(pk);
+        convocado.setUsuario(usuarioConvocado);
+        convocado.setConvocatoria(convocatoria);
+
+        convocatoria.setConvocados(Arrays.asList(convocado));
         reserva.setConvocatoria(convocatoria);
-        
-        // Configurar convocatorias
-        convocado1 = new Convocado();
-        ConvocadoPK id1 = new ConvocadoPK(1, "1");
-        convocado1.setId(id1);
-        convocado1.setUsuario(usuario1);
-        
-        convocado2 = new Convocado();
-        ConvocadoPK id2 = new ConvocadoPK(1, "2");
-        convocado2.setId(id2);
-        convocado2.setUsuario(usuario2);
     }
 
     // ================================
@@ -111,22 +107,22 @@ class EmailServiceImplTest {
     // ================================
 
     @Test
-    void testEnviarNotificacionesConvocatoria_ConListaVacia() {
-        // Arrange
-        List<Convocado> convocatorias = new ArrayList<>();
-        
+    void testEnviarNotificacionesConvocatoria_ConvocadosNull() {
         // Act
-        emailService.enviarNotificacionesConvocatoria(convocatorias, reserva);
-        
+        emailService.enviarNotificacionesConvocatoria(null, reserva);
+
         // Assert
         verify(mailSender, never()).send(any(SimpleMailMessage.class));
     }
 
     @Test
-    void testEnviarNotificacionesConvocatoria_ConListaNula() {
+    void testEnviarNotificacionesConvocatoria_ConvocadosVacios() {
+        // Arrange
+        List<Convocado> convocadosVacios = new ArrayList<>();
+
         // Act
-        emailService.enviarNotificacionesConvocatoria(null, reserva);
-        
+        emailService.enviarNotificacionesConvocatoria(convocadosVacios, reserva);
+
         // Assert
         verify(mailSender, never()).send(any(SimpleMailMessage.class));
     }
@@ -134,319 +130,68 @@ class EmailServiceImplTest {
     @Test
     void testEnviarNotificacionesConvocatoria_Exitoso() {
         // Arrange
-        List<Convocado> convocatorias = Arrays.asList(convocado1, convocado2);
-        
-        // Act
-        emailService.enviarNotificacionesConvocatoria(convocatorias, reserva);
-        
-        // Assert
-        verify(mailSender, times(2)).send(any(SimpleMailMessage.class));
-    }
-
-    @Test
-    void testEnviarNotificacionesConvocatoria_ConErrorEnEnvio() {
-        // Arrange
-        List<Convocado> convocatorias = Arrays.asList(convocado1, convocado2);
-        doThrow(new RuntimeException("Error de conexión")).when(mailSender).send(any(SimpleMailMessage.class));
-        
-        // Act & Assert - No debe lanzar excepción, solo loggear el error
-        assertDoesNotThrow(() -> emailService.enviarNotificacionesConvocatoria(convocatorias, reserva));
-        
-        // Verificar que se intentó enviar ambos correos
-        verify(mailSender, times(2)).send(any(SimpleMailMessage.class));
-    }
-
-    // ================================
-    // TESTS PARA enviarCorreoConvocatoria
-    // ================================
-
-    @Test
-    void testEnviarCorreoConvocatoria_Exitoso_ConTodosLosDatos() {
-        // Arrange
+        List<Convocado> convocados = Arrays.asList(convocado);
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
+
         // Act
-        emailService.enviarCorreoConvocado(usuario1, reserva);
-        
+        emailService.enviarNotificacionesConvocatoria(convocados, reserva);
+
         // Assert
         verify(mailSender).send(messageCaptor.capture());
         SimpleMailMessage sentMessage = messageCaptor.getValue();
         
         assertEquals("noreply@reservapp.com", sentMessage.getFrom());
-        assertEquals("juan.perez@email.com", sentMessage.getTo()[0]);
+        assertEquals("maria.garcia@test.com", sentMessage.getTo()[0]);
         assertEquals("Convocatoria de Reunión - Sala de Reuniones A", sentMessage.getSubject());
         
         String contenido = sentMessage.getText();
         assertNotNull(contenido);
-        assertTrue(contenido.contains("Juan Pérez"));
-        assertTrue(contenido.contains("15/12/2024 10:30"));
-        assertTrue(contenido.contains("Sala de Reuniones A"));
-        assertTrue(contenido.contains("Calle Principal 123, Planta 2"));
-    }
-
-    @Test
-    void testEnviarCorreoConvocatoria_SinEnlaceNiObservaciones() {
-        // Arrange
-        convocatoria.setEnlace(null);
-        convocatoria.setObservaciones(null);
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
-        // Act
-        emailService.enviarCorreoConvocado(usuario2, reserva);
-        
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        String contenido = sentMessage.getText();
-        assertNotNull(contenido);
         assertTrue(contenido.contains("María García"));
-        assertFalse(contenido.contains("🔗 Enlace de reunión:"));
-        assertFalse(contenido.contains("📝 Observaciones:"));
-    }
-
-    @Test
-    void testEnviarCorreoConvocatoria_EstablecimientoSinDireccion() {
-        // Arrange
-        establecimiento.setDireccion(null);
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
-        // Act
-        emailService.enviarCorreoConvocado(usuario1, reserva);
-        
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        String contenido = sentMessage.getText();
-        assertNotNull(contenido);
-        assertFalse(contenido.contains("🗺️ Ubicación:"));
-    }
-
-    @Test
-    void testEnviarCorreoConvocatoria_EstablecimientoConDireccionVacia() {
-        // Arrange
-        establecimiento.setDireccion("   ");
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
-        // Act
-        emailService.enviarCorreoConvocado(usuario1, reserva);
-        
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        String contenido = sentMessage.getText();
-        assertNotNull(contenido);
-        assertFalse(contenido.contains("🗺️ Ubicación:"));
-    }
-
-    @Test
-    void testEnviarCorreoConvocatoria_ErrorAlEnviar() {
-        // Arrange
-        doThrow(new RuntimeException("Error de conexión SMTP")).when(mailSender).send(any(SimpleMailMessage.class));
-        
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            emailService.enviarCorreoConvocado(usuario1, reserva);
-        });
-        
-        assertEquals("Error al enviar correo de convocatoria", exception.getMessage());
-        assertTrue(exception.getCause() instanceof RuntimeException);
-        assertEquals("Error de conexión SMTP", exception.getCause().getMessage());
-    }
-
-    // ================================
-    // TESTS PARA VALIDAR CONTENIDO DEL CORREO
-    // ================================
-
-    @Test
-    void testContenidoCorreo_FormatoCompleto() {
-        // Arrange
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
-        // Act
-        emailService.enviarCorreoConvocado(usuario1, reserva);
-        
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        String contenido = sentMessage.getText();
-        
-        // Verificar estructura del correo
-        assertTrue(contenido.startsWith("Estimado/a Juan Pérez,"));
         assertTrue(contenido.contains("Ha sido convocado/a a una reunión"));
-        assertTrue(contenido.contains("📅 Fecha: 15/12/2024 10:30"));
-        assertTrue(contenido.contains("📍 Lugar: Sala de Reuniones A"));
-        assertTrue(contenido.contains("🗺️ Ubicación: Calle Principal 123, Planta 2"));
-        assertTrue(contenido.contains("🔗 Enlace de reunión: https://meet.google.com/abc-defg-hij"));
-        assertTrue(contenido.contains("📝 Observaciones:"));
-        assertTrue(contenido.contains("Por favor, traer documentos necesarios para la reunión."));
-        assertTrue(contenido.contains("Por favor, confirme su asistencia"));
-        assertTrue(contenido.contains("Saludos cordiales"));
-        assertTrue(contenido.contains("Sistema de Reservas ReservApp"));
+        assertTrue(contenido.contains("25/12/2024 10:00"));
+        assertTrue(contenido.contains("Sala de Reuniones A"));
+        assertTrue(contenido.contains("https://meet.google.com/test"));
+        assertTrue(contenido.contains("Reunión importante"));
     }
 
     @Test
-    void testContenidoCorreo_FormatoMinimo() {
+    void testEnviarNotificacionesConvocatoria_ErrorEnEnvio() {
         // Arrange
-        establecimiento.setDireccion(null);
-        reserva.setConvocatoria(null);
+        List<Convocado> convocados = Arrays.asList(convocado);
+        doThrow(new RuntimeException("Error de conexión")).when(mailSender).send(any(SimpleMailMessage.class));
+
+        // Act & Assert
+        assertThrows(MailSendException.class, () -> {
+            emailService.enviarNotificacionesConvocatoria(convocados, reserva);
+        });
+    }
+
+    @Test
+    void testEnviarNotificacionesConvocatoria_VariosConvocados() {
+        // Arrange
+        Usuario usuario2 = new Usuario();
+        usuario2.setId("user3");
+        usuario2.setNombre("Carlos López");
+        usuario2.setCorreo("carlos.lopez@test.com");
+
+        Convocado convocado2 = new Convocado();
+        convocado2.setUsuario(usuario2);
+
+        List<Convocado> convocados = Arrays.asList(convocado, convocado2);
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
+
         // Act
-        emailService.enviarCorreoConvocado(usuario2, reserva);
-        
+        emailService.enviarNotificacionesConvocatoria(convocados, reserva);
+
         // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        verify(mailSender, times(2)).send(messageCaptor.capture());
+        List<SimpleMailMessage> sentMessages = messageCaptor.getAllValues();
         
-        String contenido = sentMessage.getText();
-        
-        // Verificar que contiene elementos mínimos
-        assertTrue(contenido.contains("Estimado/a María García,"));
-        assertTrue(contenido.contains("📅 Fecha: 15/12/2024 10:30"));
-        assertTrue(contenido.contains("📍 Lugar: Sala de Reuniones A"));
-        
-        // Verificar que NO contiene elementos opcionales
-        assertFalse(contenido.contains("🗺️ Ubicación:"));
-        assertFalse(contenido.contains("🔗 Enlace de reunión:"));
-        assertFalse(contenido.contains("📝 Observaciones:"));
-        
-        // Verificar elementos de cierre
-        assertTrue(contenido.contains("Por favor, confirme su asistencia"));
-        assertTrue(contenido.contains("Sistema de Reservas ReservApp"));
+        assertEquals(2, sentMessages.size());
+        assertEquals("maria.garcia@test.com", sentMessages.get(0).getTo()[0]);
+        assertEquals("carlos.lopez@test.com", sentMessages.get(1).getTo()[0]);
     }
 
-    // ================================
-    // TESTS PARA CASOS EDGE
-    // ================================
-
-    @Test
-    void testEnviarCorreoConvocatoria_ConCaracteresEspeciales() {
-        // Arrange
-        usuario1.setNombre("José María Ñoño");
-        establecimiento.setNombre("Sala de Reuniones & Conferencias");
-        establecimiento.setDireccion("Calle Ñoño #123, Piso 2º");
-        
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
-        // Act
-        emailService.enviarCorreoConvocado(usuario1, reserva);
-        
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        String contenido = sentMessage.getText();
-        assertTrue(contenido.contains("José María Ñoño"));
-        assertTrue(contenido.contains("Sala de Reuniones & Conferencias"));
-        assertTrue(contenido.contains("Calle Ñoño #123, Piso 2º"));
-    }
-
-    @Test
-    void testEnviarNotificacionesConvocatoria_ConUnaConvocatoria() {
-        // Arrange
-        List<Convocado> convocatorias = Arrays.asList(convocado1);
-        
-        // Act
-        emailService.enviarNotificacionesConvocatoria(convocatorias, reserva);
-        
-        // Assert
-        verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
-    }
-
-    @Test
-    void testEnviarNotificacionesConvocatoria_ConMultiplesConvocatorias() {
-        // Arrange
-    	Convocado convocado3 = new Convocado();
-        Usuario usuario3 = new Usuario();
-        usuario3.setId("3");
-        usuario3.setNombre("Carlos López");
-        usuario3.setCorreo("carlos.lopez@email.com");
-        ConvocadoPK id3 = new ConvocadoPK(1, "3");
-        convocado3.setId(id3);
-        convocado3.setUsuario(usuario3);
-        
-        List<Convocado> convocatorias = Arrays.asList(convocado1, convocado2, convocado3);
-        
-        // Act
-        emailService.enviarNotificacionesConvocatoria(convocatorias, reserva);
-        
-        // Assert
-        verify(mailSender, times(3)).send(any(SimpleMailMessage.class));
-    }
-
-    @Test
-    void testEnviarNotificacionesConvocatoria_ErrorParcial() {
-        // Arrange
-        List<Convocado> convocatorias = Arrays.asList(convocado1, convocado2);
-        
-        // Simular error solo en el primer envío
-        doThrow(new RuntimeException("Error SMTP"))
-            .doNothing()
-            .when(mailSender).send(any(SimpleMailMessage.class));
-        
-        // Act
-        assertDoesNotThrow(() -> emailService.enviarNotificacionesConvocatoria(convocatorias, reserva));
-        
-        // Assert
-        verify(mailSender, times(2)).send(any(SimpleMailMessage.class));
-    }
-
-    @Test
-    void testEnviarCorreoConvocatoria_ConEnlaceVacio() {
-        // Arrange
-        convocatoria.setEnlace("   ");
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
-        // Act
-        emailService.enviarCorreoConvocado(usuario1, reserva);
-        
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        String contenido = sentMessage.getText();
-        assertNotNull(contenido);
-        assertFalse(contenido.contains("🔗 Enlace de reunión:"));
-    }
-
-    @Test
-    void testEnviarCorreoConvocatoria_ConObservacionesVacias() {
-        // Arrange
-        convocatoria.setObservaciones("   ");
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
-        // Act
-        emailService.enviarCorreoConvocado(usuario1, reserva);
-        
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        String contenido = sentMessage.getText();
-        assertNotNull(contenido);
-        assertFalse(contenido.contains("📝 Observaciones:"));
-    }
-
-    @Test
-    void testEnviarCorreoConvocatoria_ConFromEmailPorDefecto() {
-        // Arrange
-        EmailServiceImpl emailServiceSinFromEmail = new EmailServiceImpl(mailSender);
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
-        // Act
-        emailServiceSinFromEmail.enviarCorreoConvocado(usuario1, reserva);
-        
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        assertEquals("noreply@reservapp.com", sentMessage.getFrom());
-    }
-    
     // ================================
     // TESTS PARA enviarNotificacionReservaCreada
     // ================================
@@ -455,78 +200,46 @@ class EmailServiceImplTest {
     void testEnviarNotificacionReservaCreada_Exitoso() {
         // Arrange
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
+
         // Act
         emailService.enviarNotificacionReservaCreada(reserva);
-        
+
         // Assert
         verify(mailSender).send(messageCaptor.capture());
         SimpleMailMessage sentMessage = messageCaptor.getValue();
         
         assertEquals("noreply@reservapp.com", sentMessage.getFrom());
-        assertEquals("juan.perez@email.com", sentMessage.getTo()[0]);
+        assertEquals("juan.perez@test.com", sentMessage.getTo()[0]);
         assertEquals("Confirmación de Reserva - Sala de Reuniones A", sentMessage.getSubject());
         
         String contenido = sentMessage.getText();
         assertNotNull(contenido);
         assertTrue(contenido.contains("Juan Pérez"));
         assertTrue(contenido.contains("Su reserva ha sido creada exitosamente"));
-        assertTrue(contenido.contains("15/12/2024 10:30"));
+        assertTrue(contenido.contains("25/12/2024 10:00"));
         assertTrue(contenido.contains("Sala de Reuniones A"));
-        assertTrue(contenido.contains("Calle Principal 123, Planta 2"));
+        assertTrue(contenido.contains("Calle Principal 123"));
+        assertTrue(contenido.contains("👥 Usuarios convocados:"));
+        assertTrue(contenido.contains("María García"));
     }
 
     @Test
-    void testEnviarNotificacionReservaCreada_ConConvocados() {
-        // Arrange
-        convocatoria.setConvocados(Arrays.asList(convocado1, convocado2));
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
-        // Act
-        emailService.enviarNotificacionReservaCreada(reserva);
-        
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        String contenido = sentMessage.getText();
-        assertNotNull(contenido);
-        assertTrue(contenido.contains("Usuarios convocados:"));
-        assertTrue(contenido.contains("- Juan Pérez (juan.perez@email.com)"));
-        assertTrue(contenido.contains("- María García (maria.garcia@email.com)"));
-    }
-
-    @Test
-    void testEnviarNotificacionReservaCreada_SinConvocados() {
+    void testEnviarNotificacionReservaCreada_SinConvocatoria() {
         // Arrange
         reserva.setConvocatoria(null);
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        
+
         // Act
         emailService.enviarNotificacionReservaCreada(reserva);
-        
+
         // Assert
         verify(mailSender).send(messageCaptor.capture());
         SimpleMailMessage sentMessage = messageCaptor.getValue();
         
         String contenido = sentMessage.getText();
         assertNotNull(contenido);
-        assertFalse(contenido.contains("Usuarios convocados:"));
-    }
-
-    @Test
-    void testEnviarNotificacionReservaCreada_ErrorAlEnviar() {
-        // Arrange
-        doThrow(new RuntimeException("Error de conexión SMTP")).when(mailSender).send(any(SimpleMailMessage.class));
-        
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            emailService.enviarNotificacionReservaCreada(reserva);
-        });
-        
-        assertEquals("Error al enviar correo de confirmación de reserva", exception.getMessage());
-        assertTrue(exception.getCause() instanceof RuntimeException);
-        assertEquals("Error de conexión SMTP", exception.getCause().getMessage());
+        assertFalse(contenido.contains("👥 Usuarios convocados:"));
+        assertTrue(contenido.contains("Su reserva ha sido creada exitosamente"));
     }
 
     @Test
@@ -586,4 +299,420 @@ class EmailServiceImplTest {
         assertTrue(contenido.contains("Su reserva ha sido creada exitosamente"));
     }
 
+    @Test
+    void testEnviarNotificacionReservaCreada_ConvocatoriaConListaNull() {
+        // Arrange
+        convocatoria.setConvocados(null);
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        
+        // Act
+        emailService.enviarNotificacionReservaCreada(reserva);
+        
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertNotNull(contenido);
+        assertFalse(contenido.contains("👥 Usuarios convocados:"));
+    }
+
+    @Test
+    void testEnviarNotificacionReservaCreada_ErrorEnEnvio() {
+        // Arrange
+        doThrow(new RuntimeException("Error de conexión")).when(mailSender).send(any(SimpleMailMessage.class));
+
+        // Act & Assert
+        assertThrows(MailSendException.class, () -> {
+            emailService.enviarNotificacionReservaCreada(reserva);
+        });
+    }
+
+    // ================================
+    // TESTS PARA enviarNotificacionAnulacion
+    // ================================
+
+    @Test
+    void testEnviarNotificacionAnulacion_CorreosNull() {
+        // Act
+        emailService.enviarNotificacionAnulacion(reserva, null);
+
+        // Assert
+        verify(mailSender, never()).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void testEnviarNotificacionAnulacion_CorreosVacios() {
+        // Arrange
+        List<String> correosVacios = new ArrayList<>();
+
+        // Act
+        emailService.enviarNotificacionAnulacion(reserva, correosVacios);
+
+        // Assert
+        verify(mailSender, never()).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void testEnviarNotificacionAnulacion_Exitoso() {
+        // Arrange
+        List<String> correos = Arrays.asList("usuario1@test.com", "usuario2@test.com");
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionAnulacion(reserva, correos);
+
+        // Assert
+        verify(mailSender, times(2)).send(messageCaptor.capture());
+        List<SimpleMailMessage> sentMessages = messageCaptor.getAllValues();
+        
+        assertEquals(2, sentMessages.size());
+        assertEquals("usuario1@test.com", sentMessages.get(0).getTo()[0]);
+        assertEquals("usuario2@test.com", sentMessages.get(1).getTo()[0]);
+        assertEquals("Reserva Anulada - Sala de Reuniones A", sentMessages.get(0).getSubject());
+        
+        String contenido = sentMessages.get(0).getText();
+        assertTrue(contenido.contains("Le informamos que la siguiente reserva ha sido anulada"));
+        assertTrue(contenido.contains("Sala de Reuniones A"));
+        assertTrue(contenido.contains("25/12/2024"));
+        assertTrue(contenido.contains("10:00 - 11:00"));
+    }
+
+    @Test
+    void testEnviarNotificacionAnulacion_ConCorreosNulosYVacios() {
+        // Arrange
+        List<String> correos = Arrays.asList("usuario1@test.com", null, "", "   ", "usuario2@test.com");
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionAnulacion(reserva, correos);
+
+        // Assert
+        verify(mailSender, times(2)).send(messageCaptor.capture());
+        List<SimpleMailMessage> sentMessages = messageCaptor.getAllValues();
+        
+        assertEquals("usuario1@test.com", sentMessages.get(0).getTo()[0]);
+        assertEquals("usuario2@test.com", sentMessages.get(1).getTo()[0]);
+    }
+
+    @Test
+    void testEnviarNotificacionAnulacion_SinHoraFin() {
+        // Arrange
+        reserva.setHoraFin(null);
+        List<String> correos = Arrays.asList("usuario1@test.com");
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionAnulacion(reserva, correos);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertTrue(contenido.contains("10:00"));
+        assertFalse(contenido.contains("10:00 - "));
+    }
+
+    @Test
+    void testEnviarNotificacionAnulacion_ConObservaciones() {
+        // Arrange
+        List<String> correos = Arrays.asList("usuario1@test.com");
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionAnulacion(reserva, correos);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertTrue(contenido.contains("📝 Observaciones:"));
+        assertTrue(contenido.contains("Reunión importante"));
+    }
+
+    @Test
+    void testEnviarNotificacionAnulacion_SinObservaciones() {
+        // Arrange
+        convocatoria.setObservaciones(null);
+        List<String> correos = Arrays.asList("usuario1@test.com");
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionAnulacion(reserva, correos);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertFalse(contenido.contains("📝 Observaciones:"));
+    }
+
+    @Test
+    void testEnviarNotificacionAnulacion_SinConvocatoria() {
+        // Arrange
+        reserva.setConvocatoria(null);
+        List<String> correos = Arrays.asList("usuario1@test.com");
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionAnulacion(reserva, correos);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertFalse(contenido.contains("📝 Observaciones:"));
+        assertTrue(contenido.contains("Le informamos que la siguiente reserva ha sido anulada"));
+    }
+
+    @Test
+    void testEnviarNotificacionAnulacion_ErrorEnEnvio() {
+        // Arrange
+        List<String> correos = Arrays.asList("usuario1@test.com");
+        doThrow(new RuntimeException("Error de conexión")).when(mailSender).send(any(SimpleMailMessage.class));
+
+        // Act & Assert
+        assertThrows(MailSendException.class, () -> {
+            emailService.enviarNotificacionAnulacion(reserva, correos);
+        });
+    }
+
+    // ================================
+    // TESTS PARA MÉTODOS PRIVADOS (a través de métodos públicos)
+    // ================================
+
+    @Test
+    void testEnviarCorreoInterno_DestinatarioNull() {
+        // Arrange - Crear un usuario con correo null
+        Usuario usuarioSinCorreo = new Usuario();
+        usuarioSinCorreo.setId("user_sin_correo");
+        usuarioSinCorreo.setNombre("Usuario Sin Correo");
+        usuarioSinCorreo.setCorreo(null);
+        
+        Convocado convocadoSinCorreo = new Convocado();
+        convocadoSinCorreo.setUsuario(usuarioSinCorreo);
+        
+        List<Convocado> convocados = Arrays.asList(convocadoSinCorreo);
+
+        // Act
+        emailService.enviarNotificacionesConvocatoria(convocados, reserva);
+
+        // Assert
+        verify(mailSender, never()).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void testEnviarCorreoInterno_DestinatarioVacio() {
+        // Arrange - Crear un usuario con correo vacío
+        Usuario usuarioCorreoVacio = new Usuario();
+        usuarioCorreoVacio.setId("user_correo_vacio");
+        usuarioCorreoVacio.setNombre("Usuario Correo Vacío");
+        usuarioCorreoVacio.setCorreo("   ");
+        
+        Convocado convocadoCorreoVacio = new Convocado();
+        convocadoCorreoVacio.setUsuario(usuarioCorreoVacio);
+        
+        List<Convocado> convocados = Arrays.asList(convocadoCorreoVacio);
+
+        // Act
+        emailService.enviarNotificacionesConvocatoria(convocados, reserva);
+
+        // Assert
+        verify(mailSender, never()).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void testConstruirContenidoCorreoConvocado_SinEnlace() {
+        // Arrange
+        convocatoria.setEnlace(null);
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionesConvocatoria(Arrays.asList(convocado), reserva);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertFalse(contenido.contains("🔗 Enlace de reunión:"));
+    }
+
+    @Test
+    void testConstruirContenidoCorreoConvocado_EnlaceVacio() {
+        // Arrange
+        convocatoria.setEnlace("   ");
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionesConvocatoria(Arrays.asList(convocado), reserva);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertFalse(contenido.contains("🔗 Enlace de reunión:"));
+    }
+
+    @Test
+    void testConstruirContenidoCorreoConvocado_SinObservaciones() {
+        // Arrange
+        convocatoria.setObservaciones(null);
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionesConvocatoria(Arrays.asList(convocado), reserva);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertFalse(contenido.contains("📝 Observaciones:"));
+    }
+
+    @Test
+    void testConstruirContenidoCorreoConvocado_ObservacionesVacias() {
+        // Arrange
+        convocatoria.setObservaciones("   ");
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionesConvocatoria(Arrays.asList(convocado), reserva);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertFalse(contenido.contains("📝 Observaciones:"));
+    }
+
+    @Test
+    void testConstruirContenidoCorreoConvocado_SinConvocatoria() {
+        // Arrange
+        Reserva reservaSinConvocatoria = new Reserva();
+        reservaSinConvocatoria.setId(2);
+        reservaSinConvocatoria.setUsuario(usuario);
+        reservaSinConvocatoria.setEstablecimiento(establecimiento);
+        reservaSinConvocatoria.setFechaReserva(LocalDateTime.of(2024, 12, 25, 10, 0));
+        reservaSinConvocatoria.setConvocatoria(null);
+        
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionesConvocatoria(Arrays.asList(convocado), reservaSinConvocatoria);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertFalse(contenido.contains("🔗 Enlace de reunión:"));
+        assertFalse(contenido.contains("📝 Observaciones:"));
+        assertTrue(contenido.contains("Ha sido convocado/a a una reunión"));
+    }
+
+    // ================================
+    // TESTS ADICIONALES PARA COBERTURA COMPLETA
+    // ================================
+
+    @Test
+    void testCrearMensajeBase() {
+        // Arrange
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionReservaCreada(reserva);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        assertEquals("noreply@reservapp.com", sentMessage.getFrom());
+        assertEquals("juan.perez@test.com", sentMessage.getTo()[0]);
+        assertEquals("Confirmación de Reserva - Sala de Reuniones A", sentMessage.getSubject());
+        assertNotNull(sentMessage.getText());
+    }
+
+    @Test
+    void testEsTextoValido_TextoVacio() {
+        // Arrange
+        convocatoria.setObservaciones("");
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionesConvocatoria(Arrays.asList(convocado), reserva);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertFalse(contenido.contains("📝 Observaciones:"));
+    }
+
+    @Test
+    void testAgregarPieFirma() {
+        // Arrange
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionReservaCreada(reserva);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertTrue(contenido.contains("Saludos cordiales,"));
+        assertTrue(contenido.contains("Sistema de Reservas ReservApp"));
+    }
+
+    @Test
+    void testFormateoFechas() {
+        // Arrange
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionReservaCreada(reserva);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        assertTrue(contenido.contains("25/12/2024 10:00"));
+    }
+
+    @Test
+    void testContenidoCompleto_ConTodosLosCampos() {
+        // Arrange
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        // Act
+        emailService.enviarNotificacionReservaCreada(reserva);
+
+        // Assert
+        verify(mailSender).send(messageCaptor.capture());
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        
+        String contenido = sentMessage.getText();
+        
+        // Verificar todos los elementos del contenido
+        assertTrue(contenido.contains("Juan Pérez"));
+        assertTrue(contenido.contains("Su reserva ha sido creada exitosamente"));
+        assertTrue(contenido.contains("📅 Fecha: 25/12/2024 10:00"));
+        assertTrue(contenido.contains("📍 Lugar: Sala de Reuniones A"));
+        assertTrue(contenido.contains("🗺️ Ubicación: Calle Principal 123"));
+        assertTrue(contenido.contains("👥 Usuarios convocados:"));
+        assertTrue(contenido.contains("- María García (maria.garcia@test.com)"));
+        assertTrue(contenido.contains("Saludos cordiales,"));
+        assertTrue(contenido.contains("Sistema de Reservas ReservApp"));
+    }
 }

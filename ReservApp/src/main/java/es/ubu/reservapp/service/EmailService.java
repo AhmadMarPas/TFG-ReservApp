@@ -4,7 +4,6 @@ import java.util.List;
 
 import es.ubu.reservapp.model.entities.Convocado;
 import es.ubu.reservapp.model.entities.Reserva;
-import es.ubu.reservapp.model.entities.Usuario;
 
 /**
  * Interface que representa el servicio para el envío de correos.
@@ -22,16 +21,6 @@ public interface EmailService {
 	 * @param reserva       Reserva asociada a las convocatorias
 	 */
     void enviarNotificacionesConvocatoria(List<Convocado> convocatorias, Reserva reserva);
-    
-	/**
-	 * Envía un correo individual de convocatoria
-	 * 
-	 * @param usuario       Usuario destinatario
-	 * @param reserva       Reserva asociada
-	 * @param enlaceReunion Enlace de la reunión (opcional)
-	 * @param observaciones Observaciones de la reunión (opcional)
-	 */
-    void enviarCorreoConvocado(Usuario usuario, Reserva reserva);
 
     /**
 	 * Envía un correo de notificación al usuario que ha creado la reserva
@@ -39,5 +28,13 @@ public interface EmailService {
 	 * @param reserva       Reserva creada
 	 */
     void enviarNotificacionReservaCreada(Reserva reserva);
+    
+    /**
+     * Envía notificaciones de anulación de reserva a múltiples destinatarios
+     * 
+     * @param reserva La reserva que se está anulando
+     * @param correosDestino Lista de correos electrónicos a notificar
+     */
+    void enviarNotificacionAnulacion(Reserva reserva, List<String> correosDestino);
 
 }
