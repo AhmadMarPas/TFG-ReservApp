@@ -2,65 +2,81 @@ package es.ubu.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Coniguración de seguridad de Spring Security
+ *
+ * @autor Ahmad Mareie Pascual
+ * @version 1.0
+ * @since 1.0
+ */
 @Configuration
-//@EnableWebSecurity
-//@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+@EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
+
+    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomAuthenticationSuccessHandler successHandler;
+
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService, CustomAuthenticationSuccessHandler successHandler) {
+        this.customUserDetailsService = customUserDetailsService;
+        this.successHandler = successHandler;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customUserDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-////            .csrf(csrf -> csrf.disable()) // Desactiva CSRF si no es necesario
-//            .authorizeHttpRequests(auth -> auth
-//                .requestMatchers("/login", "/registro", "/css/**", "/js/**").permitAll() // Permite acceso a estas rutas
-//                .anyRequest().authenticated() // Requiere autenticación para otras rutas
-//            )
-//            .formLogin(form -> form
-//                .loginPage("/custom-login") // Usa tu página personalizada de login
-//                .permitAll()
-//            )
-//            .logout(logout -> logout.permitAll()); // Permite el logout
+        http
+            .authenticationProvider(authenticationProvider())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/registro", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/authenticate")
+                .usernameParameter("username")
+                .passwordParameter("password")
+                .successHandler(successHandler)
+                .failureUrl("/login?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout=true")
+                .permitAll()
+            )
+            .httpBasic(AbstractHttpConfigurer::disable); // Deshabilitar HTTP Basic Auth
 
-
-		http
-		    .authorizeHttpRequests(auth -> auth
-		        .requestMatchers("/login", "/registro", "/css/**").permitAll()
-		        .anyRequest().authenticated()
-		    )
-		    .formLogin(form -> form
-		        .loginPage("/login") // Specifies the custom login page
-		        .defaultSuccessUrl("/menuprincipal", true) // Redirects to /home on successful login
-		        .failureUrl("/login?error=true") // Redirects to /login with an error parameter on failure
-		        .permitAll()
-		    )
-		    .logout(logout -> logout
-		        .logoutUrl("/logout")
-		        .logoutSuccessUrl("/login?logout=true")
-		        .permitAll()
-		    );
-
-        return http.build();
-    }
-	
-//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(usuarioDetailsService).passwordEncoder(passwordEncoder());
-//    }
+		return http.build();
+	}
 
 }

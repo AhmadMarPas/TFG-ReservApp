@@ -58,4 +58,20 @@ public class Menu extends EntidadInfo<Integer> {
 		this.id = id;
 	}
 
+	/**
+	 * Constructor de copia.
+	 * 
+	 * @param menu Objeto Menu a copiar.
+	 */
+	public Menu(Menu menu) {
+		this.setId(menu.getId());
+		this.setIdPadre(menu.getIdPadre());
+		this.setNombre(menu.getNombre());
+	}
+
+	@Override
+	public EntidadPK<Integer> copia() {
+		return new Menu(this);
+	}
+
 }

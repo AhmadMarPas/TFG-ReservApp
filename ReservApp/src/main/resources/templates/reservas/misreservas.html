@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='Mis Establecimientos para Reservar', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
+			
+			.container {
+				background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+				padding: 40px;
+				border-radius: 20px;
+				box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+				max-width: 1000px;
+				margin: 0 auto;
+				position: relative;
+				overflow: hidden;
+			}
+			
+			.container::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				height: 4px;
+				background: linear-gradient(90deg, #007bff, #28a745, #ffc107, #dc3545);
+			}
+			
+			h1 {
+				color: #495057;
+				text-align: center;
+				margin-bottom: 30px;
+				font-weight: 600;
+				font-size: 2.2em;
+				text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+			}
+			
+			.establecimiento-list {
+				list-style: none;
+				padding: 0;
+				margin: 0;
+			}
+			
+			.establecimiento-item {
+				background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+				margin-bottom: 20px;
+				padding: 25px;
+				border-radius: 15px;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+				transition: all 0.3s ease;
+				border: 1px solid #e9ecef;
+				position: relative;
+				overflow: hidden;
+			}
+			
+			.establecimiento-item::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 4px;
+				height: 100%;
+				background: linear-gradient(to bottom, #007bff, #28a745);
+			}
+			
+			.establecimiento-item:hover {
+				transform: translateY(-5px);
+				box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+				border-color: #007bff;
+			}
+			
+			.establecimiento-info {
+				flex: 1;
+				padding-right: 20px;
+			}
+			
+			.establecimiento-info strong {
+				font-size: 1.3em;
+				color: #495057;
+				font-weight: 600;
+				display: block;
+				margin-bottom: 8px;
+			}
+			
+			.establecimiento-info span {
+				color: #6c757d;
+				font-size: 1em;
+				display: block;
+				margin-bottom: 5px;
+				line-height: 1.4;
+			}
+			
+			.establecimiento-info small {
+				color: #868e96;
+				font-size: 0.9em;
+				display: flex;
+				align-items: center;
+			}
+			
+			.establecimiento-info small::before {
+				content: '📍';
+				margin-right: 5px;
+			}
+			
+			.btn-seleccionar {
+				background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+				color: white;
+				padding: 12px 24px;
+				text-decoration: none;
+				border-radius: 10px;
+				transition: all 0.3s ease;
+				font-weight: 500;
+				box-shadow: 0 3px 10px rgba(0,123,255,0.3);
+				position: relative;
+				overflow: hidden;
+			}
+			
+			.btn-seleccionar::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: -100%;
+				width: 100%;
+				height: 100%;
+				background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+				transition: left 0.5s;
+			}
+			
+			.btn-seleccionar:hover::before {
+				left: 100%;
+			}
+			
+			.btn-seleccionar:hover {
+				background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+				transform: translateY(-2px);
+				box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+			}
+			
+			.alert {
+				padding: 20px;
+				margin-bottom: 25px;
+				border: none;
+				border-radius: 12px;
+				box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+				position: relative;
+				overflow: hidden;
+				font-weight: 500;
+			}
+			
+			.alert::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 4px;
+				height: 100%;
+			}
+			
+			.alert-info {
+				color: #0c5460;
+				background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+			}
+			
+			.alert-info::before {
+				background: linear-gradient(to bottom, #17a2b8, #138496);
+			}
+			
+			.alert-danger {
+				color: #721c24;
+				background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+			}
+			
+			.alert-danger::before {
+				background: linear-gradient(to bottom, #dc3545, #c82333);
+			}
+			
+			.alert-success {
+				color: #155724;
+				background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+			}
+			
+			.alert-success::before {
+				background: linear-gradient(to bottom, #28a745, #1e7e34);
+			}
+			
+			.back-links {
+				text-align: center;
+				margin-top: 40px;
+				padding-top: 30px;
+				border-top: 2px solid #e9ecef;
+			}
+			
+			.back-link {
+				display: inline-flex;
+				align-items: center;
+				padding: 12px 24px;
+				background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+				color: white;
+				text-decoration: none;
+				border-radius: 10px;
+				transition: all 0.3s ease;
+				font-weight: 500;
+				box-shadow: 0 3px 10px rgba(108,117,125,0.3);
+			}
+			
+			.back-link:hover {
+				background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+				transform: translateY(-2px);
+				box-shadow: 0 5px 15px rgba(108,117,125,0.4);
+				color: white;
+				text-decoration: none;
+			}
+			
+			.back-link i {
+				margin-right: 8px;
+			}
+</style>
+    </th:block>
+</head>
+<body class="gradient-body-with-header">
+    <div th:replace="~{fragments/_header :: header(pageTitle='Mis Establecimientos para Reservar')}"></div>
+
+    <div class="container">
+        <h1>Selecciona un Establecimiento para Reservar</h1>
+
+        <!-- Mensajes Flash desde RedirectAttributes -->
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${exito}" class="alert alert-success" th:text="${exito}"></div>
+        
+        <!-- Mensaje de error específico de la URL (si se usa param.error) -->
+        <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}"></div>
+
+
+        <div th:if="${establecimientos == null || establecimientos.isEmpty()}">
+            <p class="alert alert-info">No tienes establecimientos asignados o ninguno está disponible para reservar en este momento.</p>
+        </div>
+
+		<ul class="establecimiento-list" th:if="${establecimientos != null && !establecimientos.isEmpty()}">
+		    <li th:each="est : ${establecimientos}" class="establecimiento-item">
+		        <div class="establecimiento-info">
+		            <strong th:text="${est.nombre}">Nombre del Establecimiento</strong><br/>
+		            <span th:text="${est.descripcion}">Descripción</span><br/>
+		            <small th:text="${est.direccion}">Dirección</small>
+		        </div>
+		        <a th:href="@{/misreservas/establecimiento/{id}(id=${est.id})}" class="btn btn-seleccionar">Seleccionar y Ver Calendario</a>
+		    </li>
+		</ul>
+
+		<div class="back-links">
+            <a th:href="@{/menuprincipal}" class="back-link">
+                <i class="fas fa-home"></i> Menú Principal
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

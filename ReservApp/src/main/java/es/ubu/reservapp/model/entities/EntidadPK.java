@@ -12,7 +12,7 @@ import es.ubu.reservapp.model.EntidadID;
  * @version 1.0
  * @since 1.0
  */
-public abstract class EntidadPK<E extends Serializable> implements Serializable, Cloneable, EntidadID<E> {
+public abstract class EntidadPK<E extends Serializable> implements Serializable, EntidadID<E> {
 
     /**
      * serialVersionUID
@@ -25,7 +25,7 @@ public abstract class EntidadPK<E extends Serializable> implements Serializable,
      * @return int
      */
     @Override
-    public final int hashCode() {
+    public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + (getId() == null ? 0 : getId().hashCode());
@@ -72,16 +72,11 @@ public abstract class EntidadPK<E extends Serializable> implements Serializable,
     }
 
     /**
-     * clone.
-     * 
-     * @see java.lang.Object#clone()
-     * @return EntidadPK<E>
-     * @throws CloneNotSupportedException
+     * Crea y devuelve una copia de esta entidad PK.
+     * Cada subclase debe implementar este método.
+     *
+     * @return una nueva instancia copia de esta entidad PK
      */
-    @Override
-    @SuppressWarnings("unchecked")
-    public final EntidadPK<E> clone() throws CloneNotSupportedException {
-        return (EntidadPK<E>) super.clone();
-    }
+    public abstract EntidadPK<E> copia();
 
 }

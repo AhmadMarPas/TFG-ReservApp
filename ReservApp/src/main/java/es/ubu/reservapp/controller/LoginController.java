@@ -1,5 +1,8 @@
 package es.ubu.reservapp.controller;
 
+import java.util.UUID;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -31,8 +34,13 @@ public class LoginController {
 	
 	private static final String REDIRECT_REGISTRO = "redirect:/registro";
 	private static final String REDIRECT_LOGIN = "redirect:/login";
-	private static final String REDIRECT_INICIO = "redirect:/inicio";
+	private static final String REDIRECT_INICIO = "redirect:/menuprincipal";
+	private static final String ERROR = "error";
+	private static final String EXITO = "exito";
 
+	/**
+	 * Servicio para gestionar usuarios.
+	 */
 	private UsuarioService userService;
 
 	/**
@@ -40,13 +48,6 @@ public class LoginController {
 	 */
 	private SessionData sessionData;
 
-	/**
-	 * Constructor sin parametros.
-	 */
-//	public LoginController() {
-//		sessionData = new SessionData();
-//	}
-	
 	/**
 	 * Constructor de LoginController.
 	 * 
@@ -57,108 +58,76 @@ public class LoginController {
 		this.sessionData = sessionData;
 	}
 	
-	/**
-	 * Constructor de LoginController.
-	 * 
-	 * @param userService Servicio de usuario
-	 */
-//	@Autowired
-//	public LoginController(UsuarioService userService) {
-//        this.userService = userService;
-////        sessionData = new SessionData();
-//    }
-
-	@GetMapping("/loginer")
-    public String loginForm(Model model) {
-		model.addAttribute("usuario", new Usuario());
+	@GetMapping("/login")
+    public String loginPage(Model model, @RequestParam(value = "error", required = false) String error,
+                           @RequestParam(value = "logout", required = false) String logout) {
+        if (error != null) {
+            model.addAttribute(ERROR, "Usuario o contraseña incorrectos.");
+        }
+        if (logout != null) {
+            model.addAttribute("logout", "Has cerrado sesión correctamente.");
+        }
+        model.addAttribute("usuario", new Usuario());
         return "login";
     }
-	
-	@PostMapping("/loginer")
-//	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public String login(@RequestParam String username, @RequestParam String password, Model model, RedirectAttributes redirectAttributes) {
-		log.info("username: " + username);
-		log.info("password: " + password);
-        Usuario usuario = userService.validateAuthentication(username, password);
-		if (usuario != null) {
-			// Guardamos el usuario
-			model.addAttribute("Usuario", usuario);
-			log.info("Valid username and password");
-			usuario = (Usuario) model.getAttribute("Usuario");
-			log.info("Usuario: " + usuario.getNombre());
-			sessionData.setUsuario(usuario);
-			return "menuprincipal";
-		} else {
-			log.error("Invalid username and password");
-			model.addAttribute("error", "Usuario o contraseña incorrectos.");
-			redirectAttributes.addFlashAttribute("error", "Usuario o contraseña incorrectos");
-			return "login";
-		}
-	}
 	
     @GetMapping("/registro")
     public String registerForm(Model model) {
         model.addAttribute("usuario", new Usuario());
         return "registro";
     }
-    
 
     @PostMapping("/registro")
     public String registro(@Valid @ModelAttribute Usuario usuario, BindingResult bindingResult, @RequestParam String confirmPassword, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            // Si hay errores de validación, vuelve a la página de registro
-            return "registro";
+            // Si hay errores de validación de las anotaciones, vuelve a la página de registro.
+            return "registro"; 
         }
-		if (usuario == null) {
-			redirectAttributes.addFlashAttribute("error", "El Usuario no puede estar vacío");
-			return REDIRECT_REGISTRO;
-		}
-		if (usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "La contraseña no puede estar vacía");
-			return REDIRECT_REGISTRO;
-		}
-		if (usuario.getNombre() == null || usuario.getNombre().isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "El nombre no puede estar vacío");
-			return REDIRECT_REGISTRO;
-		}
-		if (usuario.getApellidos() == null || usuario.getApellidos().isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "Los apellidos no pueden estar vacíos");
-			return REDIRECT_REGISTRO;
-		}
-		if (usuario.getCorreo() == null || usuario.getCorreo().isEmpty()) {
-			redirectAttributes.addFlashAttribute("error", "El correo no puede estar vacío");
-			return REDIRECT_REGISTRO;
-		}
+
+        // Se verifica si el ID (nombre de usuario) ya existe
+        if (userService.existeId(usuario.getId())) {
+            redirectAttributes.addFlashAttribute(ERROR, "El nombre de usuario '" + usuario.getId() + "' ya está registrado. Por favor, elige otro.");
+            return REDIRECT_REGISTRO;
+        }
+
 		if (!usuario.getPassword().equals(confirmPassword)) {
-			redirectAttributes.addFlashAttribute("error", "Las contraseñas no coinciden");
+			redirectAttributes.addFlashAttribute(ERROR, "Las contraseñas no coinciden");
 			return REDIRECT_REGISTRO;
 		}
         // Verificar si el email ya existe
         if (userService.existeEmail(usuario.getCorreo())) {
-            redirectAttributes.addFlashAttribute("error", "El email ya está registrado");
+            redirectAttributes.addFlashAttribute(ERROR, "El email ya está registrado");
             return REDIRECT_REGISTRO;
         }
 
         //Encriptar la contraseña
-//        usuario.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
-        usuario.setId(usuario.getNombre().toLowerCase());
+        usuario.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
+        
+        // Se genera y establece el token de confirmación y estado de verificación de email
+        String token = UUID.randomUUID().toString();
+        usuario.setConfirmationToken(token);
+        usuario.setEmailVerified(false); // Establecer explícitamente, aunque sea el valor por defecto
+
+        // TODO: Quizás es pronto para guardarlo puesto que no está confirmado todavía 
         sessionData.setUsuario(usuario);
+        
         // Registrar el nuevo usuario
         userService.save(usuario);
-        redirectAttributes.addFlashAttribute("success", "Usuario registrado correctamente. Por favor inicia sesión.");
-        return REDIRECT_INICIO;
+        
+        // TODO: Enviar email de confirmación con el token
+        
+        redirectAttributes.addFlashAttribute(EXITO, "Usuario registrado correctamente. Por favor, revisa tu email para confirmar tu cuenta.");
+        return REDIRECT_INICIO; // O redirigir a una página que informe sobre la necesidad de confirmar el email
     }
     
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-    	System.out.println("Logout GET!!!");
         session.invalidate();
         return REDIRECT_LOGIN;
     }
     
     @PostMapping("/logout")
     public String logout(HttpServletRequest request) {
-    	System.out.println("Logout POST!!!");
     	HttpSession session = request.getSession(false);
 		if (session != null) {
 			session.invalidate();

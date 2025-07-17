@@ -1,62 +1,39 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:layout:decorator="http://www.ultraq.net.nz/thymeleaf/layout/decorator"
-      xmlns:layout:fragment="http://www.ultraq.net.nz/thymeleaf/layout/fragment">
-<head>
-    <meta charset="UTF-8">
-    <title>Registro</title>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='Bienvenido a ReservApp', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+    </th:block>
 </head>
-<body>
-    <h2>Registro de Usuario</h2>
-    <form th:action="@{/registro}" method="post" th:object="${usuario}">
-    <h2 class="text-center mb-4">Crear Cuenta</h2>
-        <div>
-            <label for="username">Usuario:</label>
-            <input type="text" th:field="*{nombre}" id="username" required /><br/>
-            <div th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+<body class="gradient-body-with-header">
+
+    <div sec:authorize="isAuthenticated()" th:replace="~{fragments/_header :: header(pageTitle='Bienvenido a ReservApp')}"></div>
+
+    <div class="hero-section">
+        <div sec:authorize="isAuthenticated()">
+             <h1 class="hero-title">¡Bienvenido de Nuevo!</h1>
+             <p class="hero-subtitle">Gestiona tus reservas y explora establecimientos.</p>
+             <div class="hero-buttons">
+                <a th:href="@{/menuprincipal}" class="btn btn-custom-primary btn-lg">
+                    <i class="fas fa-th-large me-2"></i>Ir al Menú Principal
+                </a>
+            </div>
         </div>
-        <div>
-           <label for="apellidos">Apellidos:</label>
-           <input type="text" th:field="*{apellidos}" id="apellidos" name="apellidos" required /><br/>
-           <div th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}"></div>
+
+        <div sec:authorize="!isAuthenticated()">
+            <i class="fas fa-calendar-check fa-3x mb-4 text-white-50"></i>
+            <h1 class="hero-title">Bienvenido a ReservApp</h1>
+            <p class="hero-subtitle">Tu plataforma ideal para gestionar reservas de manera fácil y rápida. Encuentra y reserva en tus lugares favoritos.</p>
+            <div class="hero-buttons">
+                <a th:href="@{/login}" class="btn btn-custom-primary btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                </a>
+                <a th:href="@{/registro}" class="btn btn-custom-secondary btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Crear Cuenta
+                </a>
+            </div>
         </div>
-        <div>
-            <label for="password">Contraseña:</label>
-            <input type="password" th:field="*{password}" id="password" name="password" required /><br/>
-            <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
-        </div>
-        <div>
-            <label for="confirmPassword">Confirmar Contraseña:</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" required /><br/>
-            <div th:if="${error}" th:text="${error}"></div>
-        </div>
-        <div>
-            <label for="correo">Email:</label>
-            <input type="text" th:field="*{correo}" id="correo" name="correo" required /><br/>
-            <div th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}"></div>
-        </div>
-        <div>
-            <label for="telefono">Teléfono:</label>
-            <input type="text" th:field="*{telefono}" id="telefono" name="telefono" required /><br/>
-            <div th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
-        </div>
-        
-        <button type="submit">Registrarse</button>
-    </form>
-    
-    <div>
-        <p>¿Ya tienes cuenta? <a th:href="@{/login}">Inicia sesión aquí</a></p>
     </div>
 
-    <div th:if="${error}" style="color:red;">
-        <p th:text="${error}"></p>
-    </div>
-
-    <div th:if="${success}" style="color:green;">
-        <p th:text="${success}"></p>
-    </div>
-
-    <p><a th:href="@{/login}">Volver al login</a></p>
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

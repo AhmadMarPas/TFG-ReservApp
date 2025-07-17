@@ -1,12 +1,10 @@
 package es.ubu.reservapp;
 
-import java.time.LocalDateTime;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
-import es.ubu.reservapp.model.entities.Usuario;
-import es.ubu.reservapp.service.UsuarioService;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Clase principal de la aplicación.
@@ -21,24 +19,11 @@ import es.ubu.reservapp.service.UsuarioService;
 //@EnableJpaRepositories(basePackages = {"es.ubu.*"})
 //@EntityScan("es.ubu.*")
 //@EnableAutoConfiguration
+@Slf4j
 @SpringBootApplication
+@ComponentScan(basePackages = {"es.ubu.reservapp", "es.ubu.config"})
 public class ReservApplication {
-	
-	private final UsuarioService usrService;
-	
-//	public ReservApplication() {
-//		// Constructor vacío
-//	}
-	
-	/**
-	 * Constructor de la clase.
-	 * 
-	 * @param usuarioService Servicio de la entidad Usuario.
-	 */
-	public ReservApplication(UsuarioService usuarioService) {
-		this.usrService = usuarioService;
-	}
-	
+
 	/**
 	 * Método principal de la aplicación.
 	 * 
@@ -46,22 +31,7 @@ public class ReservApplication {
 	 */
 	public static void main(String[] args) {
 		SpringApplication.run(ReservApplication.class, args);
-		System.out.println("Inicializando base de datos...");
-//        ReservApplication app = SpringApplication.run(ReservApplication.class, args).getBean(ReservApplication.class);
-//        app.inicializaBaseDatos();
-	}
-
-	public void inicializaBaseDatos() {
-		Usuario admin = new Usuario();
-		admin.setNombre("admin");
-		admin.setApellidos("adminst.");
-		admin.setPassword("admin");
-		admin.setAdministrador(true);
-		admin.setCorreo("admin@admin.es");
-		admin.setFechaCreaReg(LocalDateTime.now());
-		admin.setUsuarioCreaReg("admin");
-		usrService.save(admin);
-		
+		log.info("Inicializando base de datos...");
 	}
 
 }

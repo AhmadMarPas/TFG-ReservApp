@@ -3,13 +3,20 @@ package es.ubu.reservapp.model.entities;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 /**
  * Clase EntidadInfo con los atributos comunes de la entidad.
@@ -24,10 +31,10 @@ import lombok.ToString;
  */
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 @MappedSuperclass
-@EntityListeners(value = EntidadInfoInterceptor.class)
+@EntityListeners({AuditingEntityListener.class, EntidadInfoInterceptor.class})
+@SoftDelete(strategy = SoftDeleteType.ACTIVE, columnName = "valido")
 public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
 
     /**
@@ -36,39 +43,42 @@ public abstract class EntidadInfo<E extends Serializable> extends EntidadPK<E> {
     private static final long serialVersionUID = 1L;
 
     /**
-     * valido
+     * orden
      */
-    @Column(name = "VALIDO")
-    private Boolean valido = true;
-
+    @Column(name = "orden")
+    private Integer orden;
+    
     /**
-     * usuarioModReg
+     * Usuario que creó el registro
      */
-    @Column(name = "ID_USUARIO_MODIFICACION_FK")
-    private String usuarioModReg;
-
-    /**
-     * usuarioCreaReg
-     */
-    @Column(name = "ID_USUARIO_CREACION_FK")
+    @CreatedBy
+    @Column(name = "id_usuario_creacion_fk")
     private String usuarioCreaReg;
-
+    
     /**
-     * fechaModReg
+     * Fecha de creación
      */
-    @Column(name = "TST_MODIFICACION")
-    private LocalDateTime fechaModReg;
-
-    /**
-     * fechaCreaReg
-     */
-    @Column(name = "TST_CREACION")
+    @CreatedDate
+    @Column(name = "tst_creacion")
     private LocalDateTime fechaCreaReg;
 
     /**
-     * orden
+     * Usuario que modificó el registro
      */
-    @Column(name = "ORDEN")
-    private Integer orden;
+    @LastModifiedBy
+    @Column(name = "id_usuario_modificacion_fk")
+    private String usuarioModReg;
+
+    /**
+     * Fecha de última modificación
+     */
+    @LastModifiedDate
+    @Column(name = "tst_modificacion")
+    private LocalDateTime fechaModReg;
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[id=" + getId() + "]";
+    }
 
 }

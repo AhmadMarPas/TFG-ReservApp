@@ -1,15 +1,19 @@
 package es.ubu.reservapp.model.entities;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -25,7 +29,11 @@ import lombok.Setter;
  * @since 1.0
  */
 @Entity
-@Table(name = "reserva")
+@Table(name = "reserva", indexes = {
+		@Index(name = "idx_reserva_fecha", columnList = "fecha_reserva"),
+		@Index(name = "idx_reserva_usuario", columnList = "id_usuario_fk"),
+		@Index(name = "idx_reserva_establecimiento", columnList = "id_establecimiento_fk")
+	})
 @Getter
 @Setter
 @AllArgsConstructor
@@ -43,19 +51,26 @@ public class Reserva extends EntidadInfo<Integer> {
 	private Integer id;
 
 	@NotNull
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "id_usuario_fk")
 	private Usuario usuario;
 	
 	@NotNull
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "id_establecimiento_fk")
 	private Establecimiento establecimiento;
 	
 	@NotNull
 	@Column(name = "fecha_reserva")
 	private LocalDateTime fechaReserva;
+	
+	@Column(name = "hora_fin")
+	private LocalTime horaFin;
 
+    // Relación bidireccional con Convocatoria
+    @OneToOne(mappedBy = "reserva", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Convocatoria convocatoria;
+    
 	@Override
 	public Integer getId() {
 		return id;
@@ -64,6 +79,25 @@ public class Reserva extends EntidadInfo<Integer> {
 	@Override
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	@Override
+	public EntidadPK<Integer> copia() {
+		return new Reserva(this);
+	}
+
+	/**
+	 * Constructor de copia.
+	 * 
+	 * @param reserva Objeto Reserva a copiar.
+	 */
+	public Reserva(Reserva reserva) {
+		this.setId(reserva.getId());
+		this.setUsuario(reserva.getUsuario());
+		this.setEstablecimiento(reserva.getEstablecimiento());
+		this.setFechaReserva(reserva.getFechaReserva());
+		this.setHoraFin(reserva.getHoraFin());
+		this.setConvocatoria(reserva.getConvocatoria());
 	}
 
 }

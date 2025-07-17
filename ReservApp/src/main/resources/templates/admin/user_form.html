@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle=(${isEdit} ? 'ReservApp - Editar Usuario' : 'ReservApp - Crear Usuario'), customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
+
+
+        .main-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        /* Estilos para el encabezado del formulario con icono y descripción */
+        .form-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .form-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+            color: white;
+            display: block;
+        }
+        
+        .form-header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0;
+        }
+        
+        .form-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-control-user-form {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+            background: white;
+            width: 100%;
+        }
+        
+        .form-control-user-form:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            background: white;
+        }
+        
+        .input-group-text-user-form {
+            background: #667eea;
+            color: white;
+            border: 2px solid #667eea;
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .input-group .form-control-user-form {
+            border-left: none;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .form-actions {
+            background: #f8f9fa;
+            padding: 25px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        
+
+        
+        .btn-info-custom {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-info-custom:hover {
+            transform: scale(1.05);
+            color: white;
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);
+        }
+        
+        .form-body {
+            padding: 30px;
+        }
+        
+        .alert-danger-user-form {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            border-radius: 10px;
+        }
+        
+        .alert-success-user-form {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.2);
+            border-radius: 10px;
+        }
+        
+        .text-danger-user-form {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        
+        .password-help-user-form {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        
+        .form-check-user-form {
+            margin-bottom: 10px;
+        }
+        
+        .form-check-input-user-form {
+            margin-right: 8px;
+        }
+        
+        .form-check-label-user-form {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        </style>
+    </th:block>
+</head>
+<body class="gradient-body-with-header">
+
+    <!-- Header -->
+    <div class="container">
+        <header class="main-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-0 text-primary">
+                        <i class="fas fa-user me-2"></i>
+                        <span th:if="${isEdit}">Editar Usuario</span>
+                        <span th:unless="${isEdit}">Crear Nuevo Usuario</span>
+                    </h2>
+                    <nav aria-label="breadcrumb" class="mt-2">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="/menuprincipal">Menú Principal</a></li>
+                            <li class="breadcrumb-item"><a href="/admin/usuarios">Gestión de Usuarios</a></li>
+                            <li class="breadcrumb-item active" th:if="${isEdit}">Editar Usuario</li>
+                            <li class="breadcrumb-item active" th:unless="${isEdit}">Nuevo Usuario</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a th:href="@{/admin/usuarios}" class="btn btn-secondary-custom">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Volver a la Lista
+                    </a>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="form-container">
+            <!-- Form Header with Icon and Description -->
+            <div class="form-header">
+                <i class="fas fa-user-plus form-icon" th:unless="${isEdit}"></i>
+                <i class="fas fa-user-edit form-icon" th:if="${isEdit}"></i>
+                <h1 class="mb-0" th:if="${isEdit}">Editar Usuario</h1>
+                <h1 class="mb-0" th:unless="${isEdit}">Crear Nuevo Usuario</h1>
+                <p class="mb-0 mt-2 opacity-75" th:if="${isEdit}">Modifica la información del usuario seleccionado</p>
+                <p class="mb-0 mt-2 opacity-75" th:unless="${isEdit}">Completa el formulario para añadir un nuevo usuario al sistema</p>
+            </div>
+            
+            <!-- Form Body -->
+            <div class="form-body">
+                                <!-- Flash messages -->
+                                <div th:if="${error}" class="alert alert-danger-user-form alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <span th:text="${error}"></span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                                <div th:if="${exito}" class="alert alert-success-user-form alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <span th:text="${exito}"></span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+
+                                <form th:action="@{/admin/usuarios/guardar}" th:object="${usuario}" method="post" novalidate id="userForm">
+                               	    <input type="hidden" name="editMode" th:value="${isEdit}"/>
+                                    <!-- Basic Information Section -->
+                                    <div class="form-section">
+                                        <h4 class="section-title">
+                                            <i class="fas fa-id-card"></i>
+                                            Información Básica
+                                        </h4>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="id" class="form-label required-field">Username (ID)</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text input-group-text-user-form">
+                                                        <i class="fas fa-user"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control form-control-user-form" id="id" th:field="*{id}" 
+                                                           th:readonly="${isEdit}" th:required="${!isEdit}" 
+                                                           placeholder="Ingrese el username único" />
+                                                </div>
+                                                <div th:if="${#fields.hasErrors('id')}" th:errors="*{id}" class="text-danger-user-form"></div>
+                                                <div th:if="${isEdit}" class="password-help-user-form">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    El ID no puede modificarse una vez creado el usuario
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="correo" class="form-label required-field">Correo Electrónico</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text input-group-text-user-form">
+                                                        <i class="fas fa-envelope"></i>
+                                                    </span>
+                                                    <input type="email" class="form-control form-control-user-form" id="correo" th:field="*{correo}" 
+                                                           required="required" placeholder="usuario@ejemplo.com" />
+                                                </div>
+                                                <div th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}" class="text-danger-user-form"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="nombre" class="form-label required-field">Nombre</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text input-group-text-user-form">
+                                                        <i class="fas fa-user-tag"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control form-control-user-form" id="nombre" th:field="*{nombre}" 
+                                                           required="required" placeholder="Nombre del usuario" />
+                                                </div>
+                                                <div th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" class="text-danger-user-form"></div>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="apellidos" class="form-label required-field">Apellidos</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text input-group-text-user-form">
+                                                        <i class="fas fa-user-tag"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control form-control-user-form" id="apellidos" th:field="*{apellidos}" 
+                                                           required="required" placeholder="Apellidos del usuario" />
+                                                </div>
+                                                <div th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}" class="text-danger-user-form"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="telefono" class="form-label">Teléfono</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text input-group-text-user-form">
+                                                        <i class="fas fa-phone"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control form-control-user-form" id="telefono" th:field="*{telefono}" 
+                                                           placeholder="+34 123 456 789" />
+                                                </div>
+                                                <div th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}" class="text-danger-user-form"></div>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="password" class="form-label" th:classappend="${!isEdit} ? 'required-field' : ''">Contraseña</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text input-group-text-user-form">
+                                                        <i class="fas fa-lock"></i>
+                                                    </span>
+                                                    <input type="password" class="form-control form-control-user-form" id="password" th:field="*{password}" 
+                                                           th:required="${!isEdit}" placeholder="Ingrese la contraseña" />
+                                                </div>
+                                                <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger-user-form"></div>
+                                                <div th:if="${isEdit}" class="password-help-user-form">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    Dejar en blanco para mantener la contraseña actual
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Permissions Section -->
+                                    <div class="form-section">
+                                        <h4 class="section-title">
+                                            <i class="fas fa-shield-alt"></i>
+                                            Permisos y Estado
+                                        </h4>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-check-user-form">
+                                                    <input type="checkbox" class="form-check-input form-check-input-user-form" id="administrador" th:field="*{administrador}" />
+                                                    <label class="form-check-label-user-form" for="administrador">
+                                                        <i class="fas fa-crown me-1"></i>
+                                                        Administrador
+                                                    </label>
+                                                    <div class="form-text">
+                                                        <small class="text-muted">El usuario tendrá acceso completo al sistema</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-check-user-form">
+                                                    <input type="checkbox" class="form-check-input form-check-input-user-form" id="bloqueado" th:field="*{bloqueado}" />
+                                                    <label class="form-check-label-user-form" for="bloqueado">
+                                                        <i class="fas fa-ban me-1"></i>
+                                                        Usuario Bloqueado
+                                                    </label>
+                                                    <div class="form-text">
+                                                        <small class="text-muted">El usuario no podrá acceder al sistema</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="form-actions">
+                                <button type="submit" form="userForm" class="btn btn-primary-custom me-3">
+                                    <i class="fas fa-save me-1"></i>
+                                    <span th:if="${isEdit}">Actualizar Usuario</span>
+                                    <span th:unless="${isEdit}">Crear Usuario</span>
+                                </button>
+                                
+                                <!-- Botón para asignar establecimientos (solo en modo edición) -->
+                                <a th:if="${isEdit}" th:href="@{'/admin/usuarios/' + ${usuario.id} + '/establecimientos'}" 
+                                   class="btn btn-info-custom me-3">
+                                    <i class="fas fa-building me-1"></i>
+                                    Asignar Establecimientos
+                                </a>
+                                
+                                <a th:href="@{/admin/usuarios}" class="btn btn-secondary-custom">
+                                    <i class="fas fa-times me-1"></i>
+                                    Cancelar
+                                </a>
+                            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script>
+        // Add form id to the form element if it's not already set by Thymeleaf
+        const userForm = document.querySelector('form'); // More robust selector
+        if (userForm && !userForm.id) {
+            userForm.id = 'userForm';
+        }
+        
+        // Form validation (basic example, can be enhanced with Bootstrap's validation)
+        const formToValidate = document.getElementById('userForm');
+        if (formToValidate) {
+            formToValidate.addEventListener('submit', function(e) {
+                const form = this;
+                const inputs = form.querySelectorAll('input[required]');
+                let isValid = true;
+
+                inputs.forEach(input => {
+                    if (!input.value.trim()) {
+                        input.classList.add('is-invalid'); // Bootstrap class for invalid input
+                        isValid = false;
+                    } else {
+                        input.classList.remove('is-invalid');
+                        input.classList.add('is-valid'); // Bootstrap class for valid input
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    // Optionally, display a more integrated error message
+                    // For example, find an alert placeholder and populate it.
+                    // alert('Por favor, complete todos los campos obligatorios.'); 
+                }
+            });
+        }
+
+        // Animation on load (optional, for visual appeal)
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.form-section-user-form');
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    section.style.transition = 'all 0.5s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 100); // Stagger animation slightly
+            });
+             // Animate the main form container as well
+            const mainFormContainer = document.querySelector('.menu-container');
+            if(mainFormContainer){
+                mainFormContainer.style.opacity = '0';
+                mainFormContainer.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    mainFormContainer.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+                    mainFormContainer.style.opacity = '1';
+                    mainFormContainer.style.transform = 'translateY(0)';
+                }, 50); // Start after a brief delay
+            }
+        });
+
+        // Real-time validation feedback (optional)
+        document.querySelectorAll('input[required].form-control-user-form').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                }
+            });
+            // Clear validation on input
+             input.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid') && this.value.trim()) {
+                     this.classList.remove('is-invalid');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

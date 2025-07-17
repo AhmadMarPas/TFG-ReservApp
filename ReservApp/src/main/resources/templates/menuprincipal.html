@@ -1,20 +1,119 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:layout:decorator="http://www.ultraq.net.nz/thymeleaf/layout/decorator"
-      xmlns:layout:fragment="http://www.ultraq.net.nz/thymeleaf/layout/fragment">
-<head>
-    <meta charset="UTF-8">
-    <title>Menú Principal</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Menú Principal', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+    </th:block>
 </head>
-<body>
-    <div class="container mt-5">
-        <div class="alert alert-danger">
-            <h2>Opciones de Menú</h2>
-            <p>Aquí aparecerán las opciones de menú.</p>
-            <a href="/logout" class="btn btn-primary">Cerrar sesión</a>
+<body class="gradient-body-with-header">
+    <!-- Header -->
+    <div th:replace="~{fragments/_header :: header(pageTitle='ReservApp - Menú Principal')}"></div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="menu-container">
+            <!-- Menu Header -->
+            <div class="menu-header">
+                <i class="fas fa-tachometer-alt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.9;"></i>
+                <h1 class="mb-0">Panel de Control</h1>
+                <p class="mb-0 mt-2 opacity-75">Selecciona una opción para continuar</p>
+            </div>
+
+            <!-- Menu Body -->
+            <div class="menu-body">
+                <!-- Sección de Usuario -->
+                <div class="menu-section user-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Área de Usuario
+                    </h3>
+                    <div class="menu-grid">
+                        <a href="/perfiles" class="menu-card">
+                            <i class="fas fa-user-tag menu-icon"></i>
+                            <span class="menu-title">Mis Perfiles</span>
+                            <span class="menu-description">Gestiona tus perfiles personales</span>
+                        </a>
+                        <a href="/establecimientos/asignar" class="menu-card">
+                            <i class="fas fa-cogs menu-icon"></i>
+                            <span class="menu-title">Asignar Establecimientos</span>
+                            <span class="menu-description">Explora establecimientos disponibles</span>
+                        </a>
+                        <a href="/misreservas" class="menu-card">
+                            <i class="fas fa-calendar-check menu-icon"></i>
+                            <span class="menu-title">Mis Reservas</span>
+                            <span class="menu-description">Consulta y gestiona tus reservas</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Sección de Administración (solo para administradores) -->
+                <div class="menu-section admin-section" sec:authorize="hasAuthority('ADMIN')">
+                    <h3 class="section-title">
+                        <i class="fas fa-cogs"></i>
+                        Panel de Administración
+                    </h3>
+                    <div class="menu-grid">
+                        <a href="/admin/usuarios" class="menu-card">
+                            <i class="fas fa-users-cog menu-icon"></i>
+                            <span class="menu-title">Gestión de Usuarios</span>
+                            <span class="menu-description">Administrar cuentas de usuario del sistema</span>
+                        </a>
+                        <a href="/admin/establecimientos" class="menu-card">
+                            <i class="fas fa-store menu-icon"></i>
+                            <span class="menu-title">Gestión de Establecimientos</span>
+                            <span class="menu-description">Administrar establecimientos del sistema</span>
+                        </a>
+                        <a href="/admin/perfiles" class="menu-card">
+                            <i class="fas fa-user-tag menu-icon"></i>
+                            <span class="menu-title">Gestión de Perfiles</span>
+                            <span class="menu-description">Administrar perfiles del sistema</span>
+                        </a>
+                        <a href="/admin/reservas" class="menu-card">
+                            <i class="fas fa-calendar-alt menu-icon"></i>
+                            <span class="menu-title">Gestión de Reservas</span>
+                            <span class="menu-description">Administrar todas las reservas del sistema</span>
+                        </a>
+                        <a href="/admin/reportes" class="menu-card">
+                            <i class="fas fa-chart-bar menu-icon"></i>
+                            <span class="menu-title">Reportes y Estadísticas</span>
+                            <span class="menu-description">Ver estadísticas y generar reportes</span>
+                        </a>
+                        <a href="/admin/configuracion" class="menu-card">
+                            <i class="fas fa-cog menu-icon"></i>
+                            <span class="menu-title">Configuración del Sistema</span>
+                            <span class="menu-description">Configurar parámetros del sistema</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Sección de Perfil Personal -->
+                <div class="menu-section profile-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-user-circle"></i>
+                        Mi Cuenta
+                    </h3>
+                    <div class="menu-grid">
+                        <a href="/perfil" class="menu-card">
+                            <i class="fas fa-user-edit menu-icon"></i>
+                            <span class="menu-title">Editar Perfil</span>
+                            <span class="menu-description">Actualiza tu información personal</span>
+                        </a>
+                        <a href="/configuracion" class="menu-card">
+                            <i class="fas fa-sliders-h menu-icon"></i>
+                            <span class="menu-title">Configuración</span>
+                            <span class="menu-description">Ajusta tus preferencias</span>
+                        </a>
+                        <a href="/ayuda" class="menu-card">
+                            <i class="fas fa-question-circle menu-icon"></i>
+                            <span class="menu-title">Ayuda y Soporte</span>
+                            <span class="menu-description">Obtén ayuda y soporte técnico</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Scripts -->
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

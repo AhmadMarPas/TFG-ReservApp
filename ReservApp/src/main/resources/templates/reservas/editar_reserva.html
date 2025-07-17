@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='Editar Reserva', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <!-- FullCalendar CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+        <style>
+            .editar-reserva-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            
+            .editar-reserva-title {
+                color: #2c3e50;
+                margin-bottom: 30px;
+                text-align: center;
+                font-weight: 600;
+            }
+            
+            .reserva-actual {
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+            
+            .reserva-actual h3 {
+                color: #495057;
+                margin-bottom: 15px;
+            }
+            
+            .info-actual {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                margin-bottom: 15px;
+            }
+            
+            .info-item {
+                display: flex;
+                align-items: center;
+                color: #6c757d;
+            }
+            
+            .info-item i {
+                margin-right: 8px;
+                color: #007bff;
+                width: 16px;
+            }
+            
+            .form-section {
+                background: white;
+                border-radius: 8px;
+                padding: 25px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .form-section h4 {
+                color: #495057;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #007bff;
+                padding-bottom: 10px;
+            }
+            
+            .form-group {
+                margin-bottom: 20px;
+            }
+            
+            .form-control {
+                border-radius: 6px;
+                border: 1px solid #ced4da;
+                padding: 10px 15px;
+            }
+            
+            .form-control:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            }
+            
+            .btn-group-custom {
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+                margin-top: 30px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                border-radius: 6px;
+                font-weight: 500;
+            }
+            
+            .alert {
+                border-radius: 6px;
+                margin-bottom: 20px;
+            }
+            
+            /* Estilos para búsqueda de usuarios */
+            .usuario-search-container {
+                position: relative;
+                margin-bottom: 15px;
+            }
+            
+            .usuarios-seleccionados {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 10px;
+            }
+            
+            .usuario-tag {
+                background: #007bff;
+                color: #ffffff;
+                border: 1px solid #0056b3;
+                border-radius: 20px;
+                padding: 5px 12px;
+                font-size: 0.9em;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-weight: 500;
+            }
+            
+            .usuario-tag .remove-btn {
+                background: none;
+                border: none;
+                color: #ffffff;
+                cursor: pointer;
+                font-weight: bold;
+                padding: 0;
+                margin-left: 5px;
+                opacity: 0.8;
+            }
+            
+            .usuario-tag .remove-btn:hover {
+                opacity: 1;
+                color: #ffcccc;
+            }
+            
+            .search-results {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                border: 1px solid #ced4da;
+                border-top: none;
+                border-radius: 0 0 6px 6px;
+                max-height: 200px;
+                overflow-y: auto;
+                z-index: 1000;
+                display: none;
+            }
+            
+            .search-result-item {
+                padding: 10px 15px;
+                cursor: pointer;
+                border-bottom: 1px solid #f8f9fa;
+                color: #495057;
+                background-color: #ffffff;
+            }
+            
+            .search-result-item:hover {
+                background-color: #e9ecef;
+                color: #212529;
+            }
+            
+            .search-result-item:last-child {
+                border-bottom: none;
+            }
+            
+            .search-result-item strong {
+                color: #212529;
+            }
+            
+            .search-result-item .text-muted {
+                color: #6c757d !important;
+            }
+            
+            /* Estilos para slots dinámicos */
+            .form-control select {
+                appearance: none;
+                background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                background-size: 12px;
+                padding-right: 40px;
+            }
+            
+            .form-text.text-muted {
+                font-size: 0.875em;
+                color: #6c757d;
+                margin-top: 5px;
+            }
+        </style>
+    </th:block>
+</head>
+
+<body class="gradient-body-with-header">
+    <div th:replace="~{fragments/_header :: header(pageTitle='Editar Reserva')}"></div>
+
+    <div class="editar-reserva-container">
+        <h1 class="editar-reserva-title">
+            <i class="fas fa-edit"></i>
+            Editar Reserva
+        </h1>
+
+        <!-- Mensajes de error y éxito -->
+        <div th:if="${param.error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${param.error}">Error</span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${error}">Error</span>
+        </div>
+        <div th:if="${exito}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${exito}">Éxito</span>
+        </div>
+
+        <!-- Información de la reserva actual -->
+        <div class="reserva-actual" th:if="${reserva}">
+            <h3><i class="fas fa-info-circle"></i> Reserva Actual</h3>
+            <div class="info-actual">
+                <div class="info-item">
+                    <i class="fas fa-store"></i>
+                    <span th:text="${establecimiento.nombre}">Establecimiento</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span th:text="${#temporals.format(reserva.fechaReserva, 'dd/MM/yyyy')}">Fecha</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <span th:text="${#temporals.format(reserva.fechaReserva, 'HH:mm') + (reserva.horaFin != null ? ' - ' + reserva.horaFin : '')}">Hora</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de edición -->
+        <form th:action="@{/misreservas/editar/{id}(id=${reserva.id})}" method="post" id="editarReservaForm">
+            
+            <!-- Selección de fecha y hora -->
+            <div class="form-section">
+                <h4><i class="fas fa-calendar-clock"></i> Nueva Fecha y Hora</h4>
+                
+                <div class="form-group">
+                    <label for="fecha" class="form-label">Fecha de la reserva:</label>
+                    <input type="date" class="form-control" id="fecha" name="fecha" 
+                           th:value="${#temporals.format(reserva.fechaReserva, 'yyyy-MM-dd')}" required>
+                </div>
+
+                <!-- Horarios manuales (solo si no requiere slots predefinidos) -->
+                <div class="row" id="horarios-manuales" th:if="${!requiereSlotsPredefinidos}">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="horaInicio" class="form-label">Hora de inicio:</label>
+                            <input type="time" class="form-control" id="horaInicio" name="horaInicio" 
+                                   th:value="${#temporals.format(reserva.fechaReserva, 'HH:mm')}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="horaFin" class="form-label">Hora de fin:</label>
+                            <input type="time" class="form-control" id="horaFin" name="horaFin" 
+                                   th:value="${reserva.horaFin}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slots predefinidos dinámicos -->
+                <div th:if="${requiereSlotsPredefinidos}">
+                    <div class="form-group">
+                        <label class="form-label" for="slotSeleccionado">O selecciona un horario predefinido:</label>
+                        <select class="form-control" id="slotSeleccionado" name="slotSeleccionado">
+                            <option value="">Seleccione un horario</option>
+                        </select>
+                        <small class="form-text text-muted">Los horarios disponibles se actualizarán según la fecha seleccionada</small>
+                    </div>
+                </div>
+                
+                <!-- Slots predefinidos estáticos (franjas horarias fijas) -->
+                <div th:if="${!requiereSlotsPredefinidos and franjasHorarias != null and !franjasHorarias.isEmpty()}">
+                    <div class="form-group">
+                        <label class="form-label" for="slotSeleccionadoEstatico">O selecciona un horario predefinido:</label>
+                        <div class="slots-container">
+                            <div class="slot-option" th:each="franja : ${franjasHorarias}" 
+                                 th:data-slot="${franja.horaInicio + '-' + franja.horaFin}"
+                                 th:onclick="'seleccionarSlot(this)'">
+                                <div class="slot-time">
+                                    <i class="fas fa-clock"></i>
+                                    <span th:text="${franja.horaInicio + ' - ' + franja.horaFin}">Horario</span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="slotSeleccionado" name="slotSeleccionado">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de la reunión -->
+            <div class="form-section">
+                <h4><i class="fas fa-users"></i> Información de la Reunión (Opcional)</h4>
+                
+                <div class="form-group">
+                    <label for="enlaceReunion" class="form-label">Enlace de reunión:</label>
+                    <input type="url" class="form-control" id="enlaceReunion" name="enlaceReunion" 
+                           th:value="${convocatoria != null ? convocatoria.enlace : ''}"
+                           placeholder="https://meet.google.com/abc-defg-hij" maxlength="120">
+                </div>
+
+                <div class="form-group">
+                    <label for="observaciones" class="form-label">Observaciones:</label>
+                    <textarea class="form-control" id="observaciones" name="observaciones" 
+                              rows="3" maxlength="500" placeholder="Observaciones adicionales sobre la reunión..."
+                              th:text="${convocatoria != null ? convocatoria.observaciones : ''}"></textarea>
+                </div>
+
+                <!-- Búsqueda y selección de usuarios -->
+                <div class="form-group">
+                    <label for="buscarUsuario" class="form-label">Convocar usuarios:</label>
+                    <div class="usuario-search-container">
+                        <input type="text" class="form-control" id="buscarUsuario" 
+                               placeholder="Buscar usuarios por nombre, apellidos o email...">
+                        <div id="resultadosBusqueda" class="search-results"></div>
+                    </div>
+                    <div id="usuariosSeleccionados" class="usuarios-seleccionados"></div>
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="btn-group-custom">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+                <a th:href="@{/misreservas/establecimiento/{id}(id=${establecimiento.id})}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+		crossorigin="anonymous">
+	</script>
+
+	<script th:inline="javascript">
+        // Variables globales
+        let usuariosSeleccionados = [];
+        let timeoutBusqueda;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables del servidor
+            const requiereSlotsPredefinidos = /*[[${requiereSlotsPredefinidos}]]*/ false;
+            const slotsDisponibles = /*[[${slotsDisponibles}]]*/ {};
+            const slotActual = /*[[${slotActual}]]*/ null;
+            
+            // Configurar fecha mínima (hoy)
+            const fechaInput = document.getElementById('fecha');
+            const hoy = new Date().toISOString().split('T')[0];
+            fechaInput.min = hoy;
+            
+            // Si requiere slots predefinidos, manejar cambio de fecha
+            if (requiereSlotsPredefinidos) {
+                fechaInput.addEventListener('change', function() {
+                    actualizarSlotsDisponibles();
+                });
+                // Actualizar slots al cargar la página
+                actualizarSlotsDisponibles();
+            }
+            
+            // Cargar usuarios convocados existentes
+            cargarUsuariosConvocados();
+            
+            // Inicializar búsqueda de usuarios
+            initUsuarioSearch();
+            
+            // Función para actualizar slots disponibles según la fecha
+            function actualizarSlotsDisponibles() {
+                const fechaSeleccionada = fechaInput.value;
+                const slotSelect = document.getElementById('slotSeleccionado');
+                
+                if (!fechaSeleccionada || !slotSelect) return;
+                
+                // Limpiar opciones existentes
+                slotSelect.innerHTML = '<option value="">Seleccione un horario</option>';
+                
+                // Obtener día de la semana (0=Domingo, 1=Lunes, etc.)
+                const fecha = new Date(fechaSeleccionada + 'T00:00:00');
+                const diaSemana = fecha.getDay();
+                
+                // Mapear día de la semana a enum Java (MONDAY=1, TUESDAY=2, etc.)
+                const diasSemanaJava = {
+                    0: 'SUNDAY',    // Domingo
+                    1: 'MONDAY',    // Lunes
+                    2: 'TUESDAY',   // Martes
+                    3: 'WEDNESDAY', // Miércoles
+                    4: 'THURSDAY',  // Jueves
+                    5: 'FRIDAY',    // Viernes
+                    6: 'SATURDAY'   // Sábado
+                };
+                
+                const diaJava = diasSemanaJava[diaSemana];
+                
+                // Buscar slots para este día
+                if (slotsDisponibles && slotsDisponibles[diaJava]) {
+                    const slots = slotsDisponibles[diaJava];
+                    slots.forEach(function(slot) {
+                        const option = document.createElement('option');
+                        option.value = slot.etiqueta;
+                        option.textContent = slot.etiqueta;
+                        
+                        // Preseleccionar el slot actual si coincide
+                        if (slotActual && slot.etiqueta === slotActual) {
+                            option.selected = true;
+                        }
+                        
+                        slotSelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No hay horarios disponibles para este día';
+                    option.disabled = true;
+                    slotSelect.appendChild(option);
+                }
+            }
+        });
+        
+        function seleccionarSlot(elemento) {
+            // Remover selección anterior
+            document.querySelectorAll('.slot-option').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            
+            // Seleccionar nuevo slot
+            elemento.classList.add('selected');
+            
+            // Guardar valor del slot
+            const slotValue = elemento.getAttribute('data-slot');
+            document.getElementById('slotSeleccionado').value = slotValue;
+            
+            // Limpiar horarios manuales (solo si existen)
+            const horaInicioElement = document.getElementById('horaInicio');
+            const horaFinElement = document.getElementById('horaFin');
+            if (horaInicioElement) horaInicioElement.value = '';
+            if (horaFinElement) horaFinElement.value = '';
+        }
+        
+        function initUsuarioSearch() {
+            const buscarInput = document.getElementById('buscarUsuario');
+            const resultadosDiv = document.getElementById('resultadosBusqueda');
+            
+            buscarInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                
+                if (timeoutBusqueda) {
+                    clearTimeout(timeoutBusqueda);
+                }
+                
+                if (query.length < 2) {
+                    resultadosDiv.style.display = 'none';
+                    return;
+                }
+                
+                timeoutBusqueda = setTimeout(() => {
+                    buscarUsuarios(query);
+                }, 300);
+            });
+            
+            // Ocultar resultados al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (!buscarInput.contains(e.target) && !resultadosDiv.contains(e.target)) {
+                    resultadosDiv.style.display = 'none';
+                }
+            });
+        }
+        
+        function buscarUsuarios(query) {
+            fetch(`/misreservas/buscar-usuarios?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(usuarios => {
+                    mostrarResultadosBusqueda(usuarios);
+                })
+                .catch(error => {
+                    console.error('Error al buscar usuarios:', error);
+                });
+        }
+        
+        function mostrarResultadosBusqueda(usuarios) {
+            const resultadosDiv = document.getElementById('resultadosBusqueda');
+            
+            if (usuarios.length === 0) {
+                resultadosDiv.innerHTML = '<div class="search-result-item">No se encontraron usuarios</div>';
+            } else {
+                resultadosDiv.innerHTML = usuarios
+                    .filter(usuario => !usuariosSeleccionados.some(sel => sel.id === usuario.id))
+                    .map(usuario => {
+                        const nombre = usuario.nombre || '';
+                        const apellidos = usuario.apellidos || '';
+                        const nombreCompleto = `${nombre} ${apellidos}`.trim();
+                        return `
+                            <div class="search-result-item" data-user-id="${usuario.id}" data-user-nombre="${nombre}" data-user-apellidos="${apellidos}" data-user-correo="${usuario.correo}">
+                                <strong>${nombreCompleto}</strong><br>
+                                <small class="text-muted">${usuario.correo}</small>
+                            </div>
+                        `;
+                    }).join('');
+                
+                // Agregar event listeners a los elementos
+                resultadosDiv.querySelectorAll('.search-result-item').forEach(item => {
+                    const userId = item.getAttribute('data-user-id');
+                    const userNombre = item.getAttribute('data-user-nombre') || '';
+                    const userApellidos = item.getAttribute('data-user-apellidos') || '';
+                    const userCorreo = item.getAttribute('data-user-correo');
+                    
+                    if (userId && userCorreo) {
+                        item.addEventListener('click', function() {
+                            seleccionarUsuario(userId, userNombre, userApellidos, userCorreo);
+                        });
+                    }
+                });
+            }
+            
+            resultadosDiv.style.display = 'block';
+        }
+        
+        function seleccionarUsuario(id, nombre, apellidos, correo) {
+            // Verificar si ya está seleccionado
+            if (usuariosSeleccionados.some(usuario => usuario.id === id)) {
+                return;
+            }
+            
+            // Agregar usuario a la lista
+            usuariosSeleccionados.push({ id, nombre, apellidos, correo });
+            
+            // Actualizar vista
+            actualizarUsuariosSeleccionados();
+            
+            // Limpiar búsqueda
+            document.getElementById('buscarUsuario').value = '';
+            document.getElementById('resultadosBusqueda').style.display = 'none';
+        }
+        
+        function removerUsuario(id) {
+            usuariosSeleccionados = usuariosSeleccionados.filter(usuario => usuario.id !== id);
+            actualizarUsuariosSeleccionados();
+        }
+        
+        function actualizarUsuariosSeleccionados() {
+            const container = document.getElementById('usuariosSeleccionados');
+            
+            container.innerHTML = usuariosSeleccionados.map(usuario => {
+                const nombre = usuario.nombre || '';
+                const apellidos = usuario.apellidos || '';
+                const nombreCompleto = `${nombre} ${apellidos}`.trim();
+                return `
+                    <div class="usuario-tag">
+                        <span>${nombreCompleto}</span>
+                        <button type="button" class="remove-btn" onclick="removerUsuario('${usuario.id}')">
+                            ×
+                        </button>
+                        <input type="hidden" name="usuariosConvocados" value="${usuario.id}">
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function cargarUsuariosConvocados() {
+            // Cargar usuarios convocados desde el servidor si existen
+            /*<![CDATA[*/
+            const convocadosData = /*[[${convocados}]]*/ [];
+            /*]]>*/
+            if (convocadosData && convocadosData.length > 0) {
+                usuariosSeleccionados = convocadosData.map(usuario => ({
+                    id: usuario.id,
+                    nombre: usuario.nombre,
+                    apellidos: usuario.apellidos,
+                    correo: usuario.correo
+                }));
+                actualizarUsuariosSeleccionados();
+            }
+        }
+        
+        // Validación del formulario
+        document.getElementById('editarReservaForm').addEventListener('submit', function(e) {
+            const fecha = document.getElementById('fecha').value;
+            const horaInicioElement = document.getElementById('horaInicio');
+            const horaFinElement = document.getElementById('horaFin');
+            const horaInicio = horaInicioElement ? horaInicioElement.value : '';
+            const horaFin = horaFinElement ? horaFinElement.value : '';
+            const slotSeleccionado = document.getElementById('slotSeleccionado') ? document.getElementById('slotSeleccionado').value : '';
+            
+            if (!fecha) {
+                e.preventDefault();
+                alert('Por favor, selecciona una fecha.');
+                return;
+            }
+            
+            if (requiereSlotsPredefinidos) {
+                // Validación para slots predefinidos dinámicos
+                if (!slotSeleccionado) {
+                    e.preventDefault();
+                    alert('Por favor, selecciona un horario.');
+                    return;
+                }
+            } else {
+                // Validación para horarios manuales o slots estáticos
+                if (!slotSeleccionado && (!horaInicio || !horaFin)) {
+                    e.preventDefault();
+                    alert('Por favor, selecciona un horario predefinido o ingresa hora de inicio y fin.');
+                    return;
+                }
+                
+                if (horaInicio && horaFin && horaInicio >= horaFin) {
+                    e.preventDefault();
+                    alert('La hora de inicio debe ser anterior a la hora de fin.');
+                    return;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

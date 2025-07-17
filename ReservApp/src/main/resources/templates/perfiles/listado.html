@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Listado de Perfiles', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
+        /* For the button on the right, if not using d-flex */
+        .menu-header .btn-success { 
+            position: absolute;
+            top: 50%;
+            right: 1.5rem;
+            transform: translateY(-50%);
+        }
+
+        /* Styles from original listado.html, adapted */
+        .stats-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 1.5rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card i { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.8; }
+        .stat-number { font-size: 2.25rem; font-weight: bold; margin: 0.5rem 0; }
+        .stat-card-total { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);} /* Example different color */
+        .stat-card-inactive { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);} /* Example different color */
+
+
+        .search-container { background: #fff; padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        
+        .table-container { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.07); }
+        .table thead th { background-color: #f8f9fa; font-weight: 600; color: #333; }
+        .table .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; } /* Ensure consistent button sizing */
+        .table .btn-sm i { margin-right: 0.3rem; }
+
+
+        @media (max-width: 991px) { /* Adjust breakpoint for menu header button */
+            .menu-header .btn-success { /* Stack button below title on smaller screens */
+                position: static; 
+                transform: none;
+                display: block;
+                margin-top: 1rem;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .menu-header { text-align: center; } /* Ensure title is centered if button stacks */
+        }
+        @media (max-width: 768px) {
+            .menu-container { margin: 1rem; }
+            .menu-header, .menu-body { padding: 1.5rem; }
+            .stats-cards { grid-template-columns: 1fr; } /* Stack stat cards */
+        }
+    </style>
+    </th:block>
+</head>
+<body class="gradient-body-with-header">
+
+    <div th:replace="~{fragments/_header :: header(pageTitle='ReservApp - Gestión de Perfiles')}"></div>
+
+    <div class="container-fluid mt-4">
+        <div class="menu-container">
+            <div class="menu-header">
+                <!-- Using d-flex for alignment, but also have fallback for smaller screens via @media query -->
+                <div class="d-flex flex-wrap justify-content-center justify-content-md-between align-items-center">
+                    <h1 class="mb-0 text-white">Listado de Perfiles</h1>
+                    <a th:href="@{/admin/perfiles/nuevo}" class="btn btn-light btn-sm mt-2 mt-md-0"> <!-- Changed to btn-light for contrast -->
+                        <i class="fas fa-plus me-2"></i>Crear Nuevo Perfil
+                    </a>
+                </div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dark mb-0">
+                        <li class="breadcrumb-item"><a th:href="@{/menuprincipal}">Menú Principal</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Perfiles</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="menu-body">
+                <!-- Flash Messages -->
+                <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${exito}">Éxito</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${error}">Error</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="stats-cards">
+                    <div class="stat-card stat-card-total">
+                        <i class="fas fa-user-tag"></i>
+                        <div class="stat-number" th:text="${#lists.size(perfiles)}">0</div>
+                        <div>Total Perfiles</div>
+                    </div>
+                     <div class="stat-card stat-card-inactive"> <!-- Example, assuming you might have such a count -->
+                        <i class="fas fa-user-slash"></i> <!-- Example Icon -->
+                        <div class="stat-number" th:text="${inactiveProfileCount ?: 0}">0</div> <!-- Placeholder for actual count -->
+                        <div>Perfiles Inactivos</div>
+                    </div>
+                </div>
+
+                <!-- Search (simplified, can be expanded) -->
+                <div class="search-container">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Buscar perfiles por nombre...">
+                    </div>
+                </div>
+
+                <!-- Perfiles Table -->
+                <div class="table-container">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="perfilesTable">
+                            <thead class="table-dark"> <!-- Using table-dark for header -->
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(perfiles)}">
+                                    <td colspan="5" class="text-center py-4">
+                                        <i class="fas fa-user-tag fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No hay perfiles registrados.</p>
+                                        <a th:href="@{/perfiles/nuevo}" class="btn btn-primary mt-2">
+                                            <i class="fas fa-plus me-1"></i>Crear Primer Perfil
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:each="perfil : ${perfiles}" class="profile-row">
+                                    <td th:text="${perfil.id}"></td>
+                                    <td th:text="${perfil.nombre}"></td>
+                                    <td class="text-center">
+                                        <a th:href="@{/admin/perfiles/editar/{id}(id=${perfil.id})}" class="btn btn-sm btn-primary me-1" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-danger" title="Eliminar"
+                                                th:attr="data-bs-toggle='modal', data-bs-target='#deleteModal', data-id=${perfil.id}, data-nombre=${perfil.nombre}"
+                                                onclick="prepareDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-nombre'))">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+										<button type="button" class="btn btn-sm btn-danger" title="Eliminar" 
+											th:data-id="${perfil.id}" th:data-nombre="${perfil.nombre}"
+											onclick="handleDelete(this)">
+											<i class="fas fa-trash"></i>
+										</button>
+									</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar el perfil <strong id="perfilNameToDelete"></strong>?</p>
+                    <p class="text-danger small"><i class="fas fa-info-circle me-1"></i>Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="deletePerfilForm" th:action="@{/admin/perfiles/eliminar}" method="post" class="form-inline">
+                        <input type="hidden" name="id" id="perfilIdToDelete" />
+                        <button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i>Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script>
+        function prepareDeleteModal(id, nombre) {
+            document.getElementById('perfilIdToDelete').value = id;
+            document.getElementById('perfilNameToDelete').textContent = nombre;
+            // The form action needs to be dynamically set if it's not a generic one
+            const deleteForm = document.getElementById('deletePerfilForm');
+            deleteForm.action = '/admin/perfiles/eliminar/' + id; // Or use a hidden input and a generic action
+        }
+        
+        function confirmDelete(perfilId, perfilName) {
+            document.getElementById('perfilNameToDelete').textContent = perfilName;
+            document.getElementById('deletePerfilForm').action = '/admin/perfiles/eliminar/' + perfilId;
+            
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+        
+
+        function handleDelete(button) {
+            const perfilId = button.getAttribute('data-id');
+            const perfilName = button.getAttribute('data-nombre');
+            confirmDelete(perfilId, perfilName);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    const searchTerm = this.value.toLowerCase().trim();
+                    const rows = document.querySelectorAll('#perfilesTable tbody .profile-row');
+                    rows.forEach(row => {
+                        const nombre = row.cells[1].textContent.toLowerCase();
+                        const descripcion = row.cells[2].textContent.toLowerCase();
+                        const usuario = row.cells[3].textContent.toLowerCase();
+                        row.style.display = (nombre.includes(searchTerm) || descripcion.includes(searchTerm) || usuario.includes(searchTerm)) ? '' : 'none';
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

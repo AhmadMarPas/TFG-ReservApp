@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='Establecimientos Disponibles', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container { 
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .page-title {
+            color: #fff;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 2rem;
+        }
+        .establishment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .establishment-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .establishment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .establishment-header {
+            padding: 15px;
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            position: relative;
+        }
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+        .status-active {
+            background-color: rgba(40, 167, 69, 0.9);
+            color: white;
+        }
+        .status-inactive {
+            background-color: rgba(220, 53, 69, 0.9);
+            color: white;
+        }
+        .establishment-body {
+            padding: 15px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .info-item i {
+            margin-right: 10px;
+            color: #4e73df;
+            width: 20px;
+            text-align: center;
+        }
+        .schedule-info {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+        .btn-reservar {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 500;
+            margin-top: 15px;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+        .btn-reservar:hover {
+            background: linear-gradient(135deg, #224abe 0%, #1a3a94 100%);
+            color: white;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            padding-left: 40px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+            outline: none;
+        }
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 16px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .back-link:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            color: #fff;
+        }
+        </style>
+    </th:block>
+</head>
+<body class="gradient-body-with-header">
+    <div th:replace="~{fragments/_header :: header(pageTitle='Establecimientos Disponibles')}">
+    </div>
+
+    <div class="container">
+        <h1 class="page-title">Establecimientos Disponibles para Reservar</h1>
+
+        <!-- Mensajes Flash desde RedirectAttributes -->
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${exito}" class="alert alert-success" th:text="${exito}"></div>
+        
+        <!-- Mensaje de error específico de la URL (si se usa param.error) -->
+        <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}"></div>
+
+        <!-- Buscador -->
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" class="search-input" placeholder="Buscar establecimientos por nombre, dirección o tipo..." id="searchInput">
+        </div>
+
+        <!-- Mensaje si no hay establecimientos -->
+        <div th:if="${establecimientos == null || establecimientos.isEmpty()}">
+            <p class="alert alert-info">No tienes establecimientos asignados o ninguno está disponible para reservar en este momento.</p>
+        </div>
+
+        <!-- Grid de establecimientos -->
+        <div class="establishment-grid" th:if="${establecimientos != null && !establecimientos.isEmpty()}">
+            <div th:each="est : ${establecimientos}" class="establishment-card" th:data-name="${est.nombre}" th:data-address="${est.direccion}" th:data-type="${est.tipo}" th:data-status="${est.activo ? 'active' : 'inactive'}">
+                <div class="establishment-header">
+                    <div class="status-indicator" th:class="${est.activo ? 'status-active' : 'status-inactive'}">
+                        <i th:class="${est.activo ? 'fas fa-check-circle me-1' : 'fas fa-times-circle me-1'}"></i>                            
+                        <span th:text="${est.activo ? 'Activo' : 'Inactivo'}"></span>
+                    </div>
+                    <h5 class="mb-1" th:text="${est.nombre}">Nombre del Establecimiento</h5>
+                    <p class="mb-0 opacity-75" th:text="${est.tipo}">Tipo de establecimiento</p>
+                </div>
+
+                <div class="establishment-body">
+                    <div class="establishment-info">
+                        <div class="info-item" th:if="${est.direccion}">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span th:text="${est.direccion}">Dirección</span>
+                        </div>
+                        <div class="info-item" th:if="${est.telefono}">
+                            <i class="fas fa-phone"></i>
+                            <span th:text="${est.telefono}">Teléfono</span>
+                        </div>
+                        <div class="info-item" th:if="${est.email}">
+                            <i class="fas fa-envelope"></i>
+                            <span th:text="${est.email}">Email</span>
+                        </div>
+                        <div class="info-item" th:if="${est.capacidad}">
+                            <i class="fas fa-users"></i>
+                            <span>Capacidad: <strong th:text="${est.capacidad}">0</strong> personas</span>
+                        </div>
+                        <div class="info-item" th:if="${est.aforo}">
+                            <i class="fas fa-user"></i>
+                            <span>Aforo: <strong th:text="${est.aforo}">0</strong> reserva</span>
+                        </div>
+                    </div>
+
+                    <a th:if="${est.activo}" th:href="@{/misreservas/establecimiento/{id}(id=${est.id})}" class="btn-reservar">
+                        <i class="fas fa-calendar-check me-1"></i> Reservar
+                    </a>
+                    <button th:unless="${est.activo}" class="btn-reservar" disabled style="background: #6c757d;">
+                        <i class="fas fa-ban me-1"></i> No disponible
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <a th:href="@{/menuprincipal}" class="back-link">
+            <i class="fas fa-arrow-left me-1"></i> Volver al Menú Principal
+        </a>
+    </div>
+
+    <!-- Script para la búsqueda -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const cards = document.querySelectorAll('.establishment-card');
+        
+        searchInput.addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name').toLowerCase();
+                const address = card.getAttribute('data-address').toLowerCase();
+                const type = card.getAttribute('data-type').toLowerCase();
+                
+                if (name.includes(searchTerm) || address.includes(searchTerm) || type.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

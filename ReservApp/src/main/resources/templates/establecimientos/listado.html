@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Gestión de Establecimientos', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+
+    </th:block>
+</head>
+<body class="gradient-body-with-header">
+    <!-- Header -->
+    <header class="main-header py-3 mb-4">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-0 text-primary">
+                        <i class="fas fa-building me-2"></i>
+                        Gestión de Establecimientos
+                    </h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-transparent mb-0">
+                            <li class="breadcrumb-item"><a href="/menuprincipal">Menú Principal</a></li>
+                            <li class="breadcrumb-item"><a href="/admin">Administración</a></li>
+                            <li class="breadcrumb-item active">Gestión de Establecimientos</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/menuprincipal" class="btn btn-secondary-custom">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Volver al Menú
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="content-card p-4">
+            <!-- Page Header -->
+            <div class="text-center mb-4">
+                <h1 class="page-title-admin">
+                    <i class="fas fa-store me-2"></i>
+                    Gestión de Establecimientos
+                </h1>
+                <p class="page-subtitle">Administra todos los establecimientos y sus configuraciones</p>
+            </div>
+
+                <!-- Flash Messages -->
+                <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${exito}">Éxito</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${error}">Error</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card stats-card">
+                        <div class="stats-header stats-total">
+                            <i class="fas fa-building fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${#lists.size(establecimientos)}">0</h4>
+                            <small>Total Establecimientos</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card stats-card">
+                        <div class="stats-header stats-active">
+                            <i class="fas fa-store fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${estActivoCount}">0</h4>
+                            <small>Activos</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card stats-card">
+                        <div class="stats-header stats-inactive">
+                            <i class="fas fa-store-slash fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${#lists.size(establecimientos) - estActivoCount}">0</h4>
+                            <small>Inactivos</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="card stats-card">
+                        <div class="stats-header stats-capacity">
+                            <i class="fas fa-users fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${estCapacidad}">0</h4>
+                            <small>Capacidad Total</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="search-box">
+                <div class="row align-items-center">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control search-input border-start-0" 
+                                   placeholder="Buscar establecimientos por nombre, dirección o teléfono..." id="searchInput">
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="all">Todos</button>
+                            <button class="filter-btn" data-filter="active">Activos</button>
+                            <button class="filter-btn" data-filter="inactive">Inactivos</button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <a th:href="@{/admin/establecimientos/nuevo}" class="btn btn-primary-custom">
+                            <i class="fas fa-plus me-1"></i>
+                            Nuevo Establecimiento
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Establishments Grid -->
+            <div class="establishment-grid" id="establishmentsGrid">
+                <div th:each="establecimiento : ${establecimientos}" 
+                     class="establishment-card" 
+                     th:data-status="${establecimiento.activo ? 'active' : 'inactive'}">
+                    
+                    <div class="establishment-header">
+                        <div class="establishment-status" 
+                             th:class="${establecimiento.activo ? 'status-active' : 'status-inactive'}">
+                            <i th:class="${establecimiento.activo ? 'fas fa-check-circle me-1' : 'fas fa-times-circle me-1'}"></i>                            
+                            <span th:text="${establecimiento.activo ? 'Activo' : 'Inactivo'}"></span>
+                        </div>
+                        <h5 class="mb-1" th:text="${establecimiento.nombre}">Nombre del Establecimiento</h5>
+                        <p class="mb-0 opacity-75" th:text="${establecimiento.tipo}">Tipo de establecimiento</p>
+                    </div>
+
+                    <div class="establishment-body">
+                        <div class="establishment-info">
+                            <div class="info-item" th:if="${establecimiento.direccion}">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span th:text="${establecimiento.direccion}">Dirección</span>
+                            </div>
+                            <div class="info-item" th:if="${establecimiento.telefono}">
+                                <i class="fas fa-phone"></i>
+                                <span th:text="${establecimiento.telefono}">Teléfono</span>
+                            </div>
+                            <div class="info-item" th:if="${establecimiento.email}">
+                                <i class="fas fa-envelope"></i>
+                                <span th:text="${establecimiento.email}">Email</span>
+                            </div>
+                            <div class="info-item" th:if="${establecimiento.capacidad}">
+                                <i class="fas fa-users"></i>
+                                <span>Capacidad: <strong th:text="${establecimiento.capacidad}">0</strong> personas</span>
+                            </div>
+                            <div class="info-item" th:if="${establecimiento.aforo}">
+                                <i class="fas fa-user"></i>
+                                <span>Aforo: <strong th:text="${establecimiento.aforo}">0</strong> reserva</span>
+                            </div>
+                            <div class="info-item" th:if="${establecimiento.duracionReserva}">
+                                <i class="fas fa-business-time"></i>
+                                <span>Duracion Reserva: <strong th:text="${establecimiento.duracionReserva}">0</strong> minutos</span>
+                            </div>
+                            <div class="info-item" th:if="${establecimiento.descansoServicios}">
+                                <i class="fas fa-circle-pause"></i>
+                                <span>Descanso Servicios: <strong th:text="${establecimiento.descansoServicios}">0</strong> minutos</span>
+                            </div>
+                        </div>
+
+                        <!-- Schedule Information -->
+                        <div class="schedule-info" th:if="${establecimiento.franjasHorarias != null and !#lists.isEmpty(establecimiento.franjasHorarias)}">
+                        
+                            <h6 class="mb-2">
+                                <i class="fas fa-clock me-1"></i>
+                                Horarios de Atención
+                            </h6>
+                            <div th:each="franja : ${establecimiento.franjasHorarias}" class="schedule-item">
+                                <span th:text="${T(es.ubu.reservapp.util.FechaUtil).formatearDiaSemana(franja.diaSemana)}">Día</span>
+                                <span>
+                                    <span th:text="${franja.horaInicio}">00:00</span> - 
+                                    <span th:text="${franja.horaFin}">00:00</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div th:if="${establecimiento.descripcion}" class="mb-3">
+                            <p class="text-muted mb-0" th:text="${#strings.abbreviate(establecimiento.descripcion, 100)}">
+                                Descripción del establecimiento...
+                            </p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <a th:href="@{/admin/establecimientos/editar/{id}(id=${establecimiento.id})}" 
+                               class="action-btn btn-edit" title="Editar establecimiento">
+                                <i class="fas fa-edit me-1"></i>
+                                Editar
+                            </a>
+                            <form th:action="@{/admin/establecimientos/activar/{id}(id=${establecimiento.id})}" 
+                                  method="post" class="form-inline" style="flex: 1;">
+                                <button type="submit" 
+                                        class="action-btn btn-toggle w-100" 
+                                        th:title="${establecimiento.activo ? 'Desactivar establecimiento' : 'Activar establecimiento'}"
+                                        th:onclick="'return confirm(\'¿Estás seguro de que quieres ' + (${establecimiento.activo} ? 'desactivar' : 'activar') + ' este establecimiento?\')'">
+                                    <i th:class="${establecimiento.activo ? 'fas fa-eye-slash' : 'fas fa-eye'} + ' me-1'"></i>
+                                    <span th:text="${establecimiento.activo ? 'Desactivar' : 'Activar'}"></span>
+                                </button>
+                            </form>
+                            <form th:action="@{/admin/establecimientos/eliminar/{id}(id=${establecimiento.id})}" 
+                                  method="post" class="form-inline" style="flex: 1;">
+                                <button type="submit" 
+                                        class="action-btn btn-delete w-100" 
+                                        title="Eliminar establecimiento"
+                                        onclick="return confirm('¿Estás seguro de que quieres eliminar este establecimiento? Esta acción no se puede deshacer.')">
+                                    <i class="fas fa-trash me-1"></i>
+                                    Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(establecimientos)}" class="empty-state">
+                <i class="fas fa-building"></i>
+                <h4>No hay establecimientos registrados</h4>
+                <p>Comienza añadiendo el primer establecimiento al sistema</p>
+                <a th:href="@{/admin/establecimientos/nuevo}" class="btn btn-primary-custom">
+                    <i class="fas fa-plus me-1"></i>
+                    Crear Primer Establecimiento
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const cards = document.querySelectorAll('.establishment-card');
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active filter button
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                const cards = document.querySelectorAll('.establishment-card');
+                
+                cards.forEach(card => {
+                    const status = card.dataset.status;
+                    if (filter === 'all' || 
+                        (filter === 'active' && status === 'active') || 
+                        (filter === 'inactive' && status === 'inactive')) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Animation on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.stats-card, .establishment-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

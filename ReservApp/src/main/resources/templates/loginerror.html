@@ -1,20 +1,30 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:layout:decorator="http://www.ultraq.net.nz/thymeleaf/layout/decorator"
-      xmlns:layout:fragment="http://www.ultraq.net.nz/thymeleaf/layout/fragment">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Error</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-	<div>
-        <p>Error de credenciales <a th:href="@{/login}">Volver al login</a></p>
-    </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error de Inicio de Sesión - ReservApp</title>
+    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/css/bootstrap.min.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
 
-	<div>
-		<p>¿No tienes una cuenta? <a th:href="@{/registro}">Regístrate aquí</a></p>
-	</div>
+</head>
+<body class="gradient-body">
+    <div class="error-card">
+        <i class="fas fa-exclamation-triangle error-icon"></i>
+        <h2>Error de Autenticación</h2>
+        <p class="lead">No hemos podido verificar tus credenciales.</p>
+        <p>Por favor, asegúrate de que tu nombre de usuario y contraseña son correctos e inténtalo de nuevo.</p>
+        <hr class="my-4">
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a th:href="@{/login}" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt me-2"></i>Volver al Login
+            </a>
+            <a th:href="@{/inicio}" class="btn btn-secondary">
+                <i class="fas fa-home me-2"></i>Ir a Inicio
+            </a>
+        </div>
+    </div>
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

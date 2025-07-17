@@ -1,5 +1,6 @@
 package es.ubu.reservapp.model.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -9,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
@@ -27,7 +29,11 @@ import lombok.Setter;
  * @since 1.0
  */
 @Entity
-@Table(name = "establecimiento")
+@Table(name = "establecimiento", indexes = {
+		@Index(name = "idx_establecimiento_nombre", columnList = "nombre"),
+		@Index(name = "idx_establecimiento_tipo", columnList = "tipo"),
+		@Index(name = "idx_establecimiento_activo", columnList = "activo")
+	})
 @Getter
 @Setter
 @AllArgsConstructor
@@ -46,7 +52,7 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	
 	@NotNull
 	@NotEmpty
-	@Size(max = 40)
+	@Size(max = 80)
 	@Column(name = "nombre")
 	private String nombre;
 
@@ -55,22 +61,89 @@ public class Establecimiento extends EntidadInfo<Integer> {
 	@Size(max = 250)
 	@Column(name = "descripcion")
 	private String descripcion;
-	
+
+	@NotNull
+	@Column(name = "aforo")
+	private Integer aforo;
+
+	@Column(name = "duracion_reserva")
+	private Integer duracionReserva;
+
+	@Column(name = "descanso_servicios")
+	private Integer descansoServicios;
+
+	@NotNull
+	@Column(name = "capacidad")
+	private Integer capacidad;
+
+	@Size(max = 80)
+	@Column(name = "tipo")
+	private String tipo;
+
+	@Size(max = 250)
+	@Column(name = "direccion")
+	private String direccion;
+
+	@Size(max = 20)
+	@Column(name = "telefono")
+	private String telefono;
+
+	@Size(max = 100)
+	@Column(name = "email")
+	private String email;
+
+	@NotNull(message = "El campo 'activo' no puede ser nulo")
+	@Column(name = "activo")
+	private boolean activo = true;
+
 	/**
 	 * Lista de reservas que tiene el establecimiento.
 	 */
-	@OneToMany(mappedBy = "establecimiento", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private List<Reserva> lstReservas;
+	@OneToMany(mappedBy = "establecimiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Reserva> lstReservas = new ArrayList<>();
 
+    /**
+     * Lista de franjas horarias de apertura del establecimiento.
+     */
+    @OneToMany(mappedBy = "establecimiento", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<FranjaHoraria> franjasHorarias = new ArrayList<>();
+    
+    @Override
+    public Integer getId() {
+    	return id;
+    }
+    
+    @Override
+    public void setId(Integer id) {
+    	this.id = id;
+    }
+    
+    @Override
+    public EntidadPK<Integer> copia() {
+    	return new Establecimiento(this);
+    }
 
-	@Override
-	public Integer getId() {
-		return id;
-	}
-
-	@Override
-	public void setId(Integer id) {
-		this.id = id;
+	/**
+	 * Constructor de copia para crear una nueva instancia de Establecimiento a
+	 * partir de otro.
+	 * 
+	 * @param establecimiento	Establecimiento a copiar.
+	 */
+	public Establecimiento(Establecimiento establecimiento) {
+		this.setId(establecimiento.getId());
+		this.setNombre(establecimiento.getNombre());
+		this.setDescripcion(establecimiento.getDescripcion());
+		this.setAforo(establecimiento.getAforo());
+		this.setDuracionReserva(establecimiento.getDuracionReserva());
+		this.setDescansoServicios(establecimiento.getDescansoServicios());
+		this.setCapacidad(establecimiento.getCapacidad());
+		this.setTipo(establecimiento.getTipo());
+		this.setDireccion(establecimiento.getDireccion());
+		this.setTelefono(establecimiento.getTelefono());
+		this.setEmail(establecimiento.getEmail());
+		this.setActivo(establecimiento.isActivo());
+		this.setLstReservas(establecimiento.getLstReservas() == null ? new ArrayList<>() : new ArrayList<>(establecimiento.getLstReservas()));
+		this.setFranjasHorarias(establecimiento.getFranjasHorarias() == null ? new ArrayList<>() : new ArrayList<>(establecimiento.getFranjasHorarias()));
 	}
 
 }

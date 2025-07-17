@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='Detalle de Reservas por Día', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
+            
+            .reservas-list {
+                margin-top: 20px;
+            }
+            
+            .alert {
+                padding: 15px;
+                margin-bottom: 20px;
+                border-radius: 4px;
+                opacity: 1;
+                transition: opacity 0.3s ease;
+            }
+            
+            .alert-danger {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+            
+            .alert-success {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+            
+            .alert i {
+                margin-right: 10px;
+            }
+            
+            .convocatoria-info {
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 1px solid #e9ecef;
+            }
+            
+            .usuarios-convocados {
+                margin-top: 10px;
+            }
+            
+            .lista-usuarios {
+                list-style: none;
+                padding-left: 20px;
+                margin: 5px 0;
+            }
+            
+            .lista-usuarios li {
+                padding: 2px 0;
+                font-size: 0.9em;
+                color: #6c757d;
+            }
+            
+            .lista-usuarios li:before {
+                content: "• ";
+                color: #007bff;
+                margin-right: 5px;
+            }
+        </style>
+    </th:block>
+</head>
+
+<body class="gradient-body-with-header">
+    <div th:replace="~{fragments/_header :: header(pageTitle='Detalle de Reservas por Día')}"></div>
+
+    <div class="detalle-dia-container">
+        <h1 class="detalle-dia-title">
+            <i class="fas fa-calendar-day"></i>
+            Detalle de Reservas por Día
+        </h1>
+
+        <!-- Mensajes de error y éxito -->
+        <div th:if="${param.error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${param.error}">Error</span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${error}">Error</span>
+        </div>
+        <div th:if="${exito}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${exito}">Éxito</span>
+        </div>
+
+        <!-- Información de la fecha -->
+        <div class="fecha-info" th:if="${fechaSeleccionada}">
+            <i class="fas fa-calendar-alt"></i>
+            <span th:text="${nombreDia + ', ' + fechaSeleccionada.getDayOfMonth() + ' de ' + nombreMes + ' de ' + fechaSeleccionada.getYear()}">Lunes, 1 de Enero de 2023</span>
+        </div>
+
+        <!-- Información del establecimiento -->
+        <div class="establecimiento-info" th:if="${establecimiento}">
+            <h2><i class="fas fa-store"></i> <span th:text="${establecimiento.nombre}">Nombre del Establecimiento</span></h2>
+            <p><i class="fas fa-map-marker-alt"></i> <span th:text="${establecimiento.direccion ?: 'No disponible'}">Dirección</span></p>
+            <p><i class="fas fa-phone"></i> <span th:text="${establecimiento.telefono ?: 'No disponible'}">Teléfono</span></p>
+            <p><i class="fas fa-info-circle"></i> Estado: 
+               <span th:text="${establecimiento.activo ? 'Activo' : 'Inactivo'}" 
+                     th:class="${establecimiento.activo ? 'text-success' : 'text-danger'}">Estado</span></p>
+        </div>
+
+        <!-- Lista de reservas -->
+        <div class="no-reservas" th:if="${reservas == null or reservas.isEmpty()}">
+            <i class="fas fa-calendar-times fa-3x"></i>
+            <h3>No hay reservas para este día</h3>
+            <p>No se encontraron reservas para la fecha seleccionada en este establecimiento.</p>
+        </div>
+
+        <div class="reservas-list" th:if="${reservas != null and !reservas.isEmpty()}">
+            <h2><i class="fas fa-list"></i> Reservas del día (<span th:text="${reservas.size()}">0</span>)</h2>
+            
+            <div class="reserva-card" th:each="reserva : ${reservas}" th:attr="data-reserva-id=${reserva.id}">
+                <div class="reserva-header">
+                    <div class="reserva-id">
+                        <i class="fas fa-bookmark"></i> Reserva #<span th:text="${reserva.id}">ID</span>
+                    </div>
+                    <div class="reserva-hora">
+                        <i class="fas fa-clock"></i> <span th:text="${#temporals.format(reserva.fechaReserva, 'HH:mm') + (reserva.horaFin != null ? ' - ' + reserva.horaFin : '')}">Hora</span>
+                    </div>
+                    <div class="reserva-actions">
+                        <button type="button" class="btn btn-sm btn-outline-info" th:onclick="'toggleConvocatoria(' + ${reserva.id} + ')'">
+                            <i class="fas fa-info-circle"></i> Detalles
+                        </button>
+                    </div>
+                </div>
+                <div class="reserva-info">
+                    <div class="reserva-info-item">
+                        <i class="fas fa-user"></i> 
+                        <span>Usuario: <strong th:text="${reserva.usuario != null ? reserva.usuario.nombre + ' ' + reserva.usuario.apellidos : 'Usuario no disponible'}">Nombre Usuario</strong></span>
+                    </div>
+                    <div class="reserva-info-item">
+                        <i class="fas fa-envelope"></i> 
+                        <span>Email: <strong th:text="${reserva.usuario != null ? reserva.usuario.correo : 'Email no disponible'}">email@ejemplo.com</strong></span>
+                    </div>
+                    <div class="reserva-info-item">
+                        <i class="fas fa-calendar-plus"></i> 
+                        <span>Creada: <strong th:text="${#temporals.format(reserva.fechaReserva, 'dd/MM/yyyy HH:mm')}">01/01/2023 12:00</strong></span>
+                    </div>
+                    
+                    <!-- Información adicional de convocatoria -->
+                    <div th:if="${reserva.convocatoria != null}" class="convocatoria-info" style="display: none;">
+                        <div th:with="primeraConvocatoria=${reserva.convocatoria}">
+                            <div th:if="${primeraConvocatoria.enlace != null and !primeraConvocatoria.enlace.isEmpty()}" class="reserva-info-item">
+                                <i class="fas fa-link"></i> 
+                                <span>Enlace: <strong><a th:href="${primeraConvocatoria.enlace}" target="_blank" th:text="${primeraConvocatoria.enlace}">Enlace de reunión</a></strong></span>
+                            </div>
+                            <div th:if="${primeraConvocatoria.observaciones != null and !primeraConvocatoria.observaciones.isEmpty()}" class="reserva-info-item">
+                                <i class="fas fa-sticky-note"></i> 
+                                <span>Observaciones: <strong th:text="${primeraConvocatoria.observaciones}">Observaciones de la reunión</strong></span>
+                            </div>
+                            <div class="usuarios-convocados" th:if="${primeraConvocatoria.convocados != null and !primeraConvocatoria.convocados.isEmpty()}">
+                                <div class="reserva-info-item">
+                                    <i class="fas fa-users"></i> 
+                                    <span>Usuarios convocados:</span>
+                                </div>
+                                <ul class="lista-usuarios">
+                                    <li th:each="convocado : ${primeraConvocatoria.convocados}">
+                                        <span th:text="${convocado.usuario.nombre + ' ' + convocado.usuario.apellidos + ' (' + convocado.usuario.correo + ')'}">Usuario Convocado</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enlaces de navegación -->
+        <div class="back-links">
+            <a th:href="@{/admin/reservas/establecimiento/{id}(id=${establecimiento.id}, mes=${fechaSeleccionada.getMonthValue()}, anio=${fechaSeleccionada.getYear()})}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Volver al Calendario
+            </a>
+            <a th:href="@{/admin/reservas}" class="back-link">
+                <i class="fas fa-building"></i> Volver a Establecimientos
+            </a>
+            <a th:href="@{/menuprincipal}" class="back-link">
+                <i class="fas fa-home"></i> Menú Principal
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-ocultar alertas después de 5 segundos
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.opacity = '0';
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                    }, 300);
+                }, 5000);
+            });
+        });
+
+        function toggleConvocatoria(reservaId) {
+            const convocatoriaInfo = document.querySelector(`[data-reserva-id="${reservaId}"] .convocatoria-info`);
+            
+            if (convocatoriaInfo) {
+                const currentDisplay = convocatoriaInfo.style.display;
+                
+                if (currentDisplay === 'none' || currentDisplay === '') {
+                    convocatoriaInfo.style.display = 'block';
+                } else {
+                    convocatoriaInfo.style.display = 'none';
+                }
+            } else {
+                // Buscar todos los elementos con data-reserva-id para depuración
+                const allReservas = document.querySelectorAll('[data-reserva-id]');
+                allReservas.forEach(reserva => {
+                    console.log('Reserva ID:', reserva.getAttribute('data-reserva-id'));
+                });
+            }
+        }
+    </script>
+</body>
+</html>

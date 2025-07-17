@@ -1,62 +1,114 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:layout:decorator="http://www.ultraq.net.nz/thymeleaf/layout/decorator"
-      xmlns:layout:fragment="http://www.ultraq.net.nz/thymeleaf/layout/fragment">
-<head>
-    <meta charset="UTF-8">
-    <title>Registro</title>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Registro de Usuario', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+    </th:block>
 </head>
-<body>
-    <h2>Registro de Usuario</h2>
-    <form th:action="@{/registro}" method="post" th:object="${usuario}">
-    <h2 class="text-center mb-4">Crear Cuenta</h2>
-        <div>
-            <label for="username">Usuario:</label>
-            <input type="text" th:field="*{nombre}" id="username" required /><br/>
-            <div th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+<body class="gradient-body-register">
+    <div class="register-card">
+        <div class="text-center mb-4">
+            <i class="fas fa-user-plus fa-3x icon-theme-color"></i>
+            <h2 class="mt-3 mb-1">Crear Cuenta</h2>
+            <p class="text-muted">Únete a ReservApp y gestiona tus reservas fácilmente.</p>
         </div>
-        <div>
-           <label for="apellidos">Apellidos:</label>
-           <input type="text" th:field="*{apellidos}" id="apellidos" name="apellidos" required /><br/>
-           <div th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}"></div>
+
+        <form th:action="@{/registro}" th:object="${usuario}" method="post" novalidate>
+
+        <!-- Global Error Messages from RedirectAttributes or BindingResult -->
+        <div th:if="${error}" class="alert alert-danger p-2 text-center" role="alert" th:text="${error}"></div>
+        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger p-2 text-center" role="alert">
+            <ul class="list-unstyled">
+                <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+            </ul>
         </div>
-        <div>
-            <label for="password">Contraseña:</label>
-            <input type="password" th:field="*{password}" id="password" name="password" required /><br/>
-            <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
-        </div>
-        <div>
-            <label for="confirmPassword">Confirmar Contraseña:</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" required /><br/>
-            <div th:if="${error}" th:text="${error}"></div>
-        </div>
-        <div>
-            <label for="correo">Email:</label>
-            <input type="text" th:field="*{correo}" id="correo" name="correo" required /><br/>
-            <div th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}"></div>
-        </div>
-        <div>
-            <label for="telefono">Teléfono:</label>
-            <input type="text" th:field="*{telefono}" id="telefono" name="telefono" required /><br/>
-            <div th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
-        </div>
+        <!-- Mensaje de exito de RedirectAttributes -->
+        <div th:if="${exito}" class="alert alert-success p-2 text-center" role="alert" th:text="${exito}"></div>
         
-        <button type="submit">Registrarse</button>
-    </form>
-    
-    <div>
-        <p>¿Ya tienes cuenta? <a th:href="@{/login}">Inicia sesión aquí</a></p>
-    </div>
+            <!-- Username (ID field from existing form) -->
+            <div class="mb-3">
+                <label for="id" class="form-label">Nombre de Usuario</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-at"></i></span>
+                    <input type="text" class="form-control" id="id" th:field="*{id}" placeholder="Elige un nombre de usuario" required 
+                           th:classappend="${#fields.hasErrors('id')} ? 'is-invalid' : ''">
+                </div>
+                <small th:if="${#fields.hasErrors('id')}" th:errors="*{id}" class="form-text text-danger"></small>
+            </div>
 
-    <div th:if="${error}" style="color:red;">
-        <p th:text="${error}"></p>
-    </div>
+            <!-- Nombre -->
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                    <input type="text" class="form-control" id="nombre" th:field="*{nombre}" placeholder="Tu nombre" required 
+                           th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''">
+                </div>
+                <small th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" class="form-text text-danger"></small>
+            </div>
+            
+            <!-- Apellidos -->
+            <div class="mb-3">
+                <label for="apellidos" class="form-label">Apellidos</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-user-friends"></i></span> <!-- Different icon -->
+                    <input type="text" class="form-control" id="apellidos" th:field="*{apellidos}" placeholder="Tus apellidos" required
+                           th:classappend="${#fields.hasErrors('apellidos')} ? 'is-invalid' : ''">
+                </div>
+                <small th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}" class="form-text text-danger"></small>
+            </div>
 
-    <div th:if="${success}" style="color:green;">
-        <p th:text="${success}"></p>
-    </div>
+            <!-- Correo -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                    <input type="email" class="form-control" id="correo" th:field="*{correo}" placeholder="tu@email.com" required
+                           th:classappend="${#fields.hasErrors('correo')} ? 'is-invalid' : ''">
+                </div>
+                <small th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}" class="form-text text-danger"></small>
+            </div>
+            
+            <!-- Teléfono -->
+            <div class="mb-3">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                    <input type="tel" class="form-control" id="telefono" th:field="*{telefono}" placeholder="Tu número de teléfono" required
+                           th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid' : ''">
+                </div>
+                <small th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}" class="form-text text-danger"></small>
+            </div>
 
-    <p><a th:href="@{/login}">Volver al login</a></p>
+            <!-- Contraseña -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    <input type="password" class="form-control" id="password" th:field="*{password}" placeholder="Mínimo 6 caracteres" required
+                           th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''">
+                </div>
+                <small th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="form-text text-danger"></small>
+            </div>
+            
+            <!-- Confirmar Contraseña -->
+            <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Repite tu contraseña" required
+                           th:classappend="${confirmPasswordError != null} ? 'is-invalid' : ''">
+                </div>
+                <small th:if="${confirmPasswordError}" class="form-text text-danger" th:text="${confirmPasswordError}"></small>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3 mb-3"><i class="fas fa-user-plus me-2"></i>Registrarme</button>
+        </form>
+
+        <div class="mt-3 text-center register-links">
+            <p class="text-muted mb-1">¿Ya tienes una cuenta? <a th:href="@{/login}">Inicia sesión aquí</a></p>
+            <p class="text-muted mb-0"><a th:href="@{/inicio}">Volver al inicio</a></p>
+        </div>
+    </div>
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
