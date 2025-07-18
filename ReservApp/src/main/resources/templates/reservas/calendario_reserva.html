@@ -1191,7 +1191,7 @@
                 form.method = 'POST';
                 form.action = '/misreservas/anular/' + reservaId;
                 
-                // Agregar token CSRF si existe
+                // Se agrega token para CSRF
                 const csrfToken = document.querySelector('meta[name="_csrf"]');
                 const csrfHeader = document.querySelector('meta[name="_csrf_header"]');
                 if (csrfToken && csrfHeader) {

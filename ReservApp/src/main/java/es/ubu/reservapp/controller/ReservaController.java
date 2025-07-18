@@ -70,6 +70,7 @@ public class ReservaController {
     private static final String REDIRECT_RESERVAS_ESTABLECIMIENTO = REDIRECT + "misreservas/establecimiento/";
     private static final String ERROR = "error";
     private static final String EXITO = "exito";
+    private static final String RESERVA_NO_ENCONTRADA = "Reserva no encontrada.";
     private static final String MIS_RESERVAS_VIEW = "reservas/misreservas";
     private static final String REDIRECT_MIS_RESERVAS_EDITAR = REDIRECT_MIS_RESERVAS + "/editar/";
     
@@ -567,7 +568,17 @@ public class ReservaController {
             convocatoriaService.save(convocatoria);
         }
         
-        // Enviar notificaciones por correo electrónico
+        enviarConvocatoria(reserva, convocatoriasCreadas);
+    }
+
+    /**
+     * Envía los correos de notificación de convocatoria.
+     * 
+     * @param reserva Reserva asociada a la convocatoria.
+     * @param convocatoriasCreadas Lista de convocatorias creadas.
+	 */
+	private void enviarConvocatoria(Reserva reserva, List<Convocado> convocatoriasCreadas) {
+		// Enviar notificaciones por correo electrónico
         if (!convocatoriasCreadas.isEmpty()) {
             try {
                 emailService.enviarNotificacionesConvocatoria(convocatoriasCreadas, reserva);
@@ -577,7 +588,7 @@ public class ReservaController {
                 // No interrumpir el flujo, solo registrar el error
             }
         }
-    }
+	}
 
     /**
      * Construye el mensaje de éxito para la reserva creada.
@@ -633,7 +644,7 @@ public class ReservaController {
             
             Reserva reserva = reservaService.findById(reservaId);
             if (reserva == null) {
-                redirectAttributes.addFlashAttribute(ERROR, "Reserva no encontrada.");
+                redirectAttributes.addFlashAttribute(ERROR, RESERVA_NO_ENCONTRADA);
                 return REDIRECT_MIS_RESERVAS;
             }
             
@@ -747,7 +758,7 @@ public class ReservaController {
             
             Reserva reservaExistente = reservaService.findById(reservaId);
             if (reservaExistente == null) {
-                redirectAttributes.addFlashAttribute(ERROR, "Reserva no encontrada.");
+                redirectAttributes.addFlashAttribute(ERROR, RESERVA_NO_ENCONTRADA);
                 return REDIRECT_MIS_RESERVAS;
             }
             
@@ -962,7 +973,7 @@ public class ReservaController {
             // Buscar la reserva
             Reserva reserva = reservaService.findById(reservaId);
             if (reserva == null) {
-                redirectAttributes.addFlashAttribute(ERROR, "Reserva no encontrada.");
+                redirectAttributes.addFlashAttribute(ERROR, RESERVA_NO_ENCONTRADA);
                 return REDIRECT_MIS_RESERVAS;
             }
             
@@ -994,19 +1005,13 @@ public class ReservaController {
                 });
             }
             
-            // Enviar notificaciones por correo
-            try {
-                emailService.enviarNotificacionAnulacion(reserva, correosNotificacion);
-            } catch (Exception e) {
-                log.warn("Error al enviar notificaciones de anulación para reserva {}: {}", reservaId, e.getMessage());
-                // Continuar con la anulación aunque falle el envío de correos
-            }
+            notificarAnulacion(reservaId, reserva, correosNotificacion);
             
             // Eliminar la reserva
             reservaService.delete(reserva);
             
             log.info("Reserva {} anulada exitosamente por usuario {}", reservaId, usuario.getId());
-            redirectAttributes.addFlashAttribute("exito", "Reserva anulada exitosamente. Se han enviado notificaciones por correo.");
+            redirectAttributes.addFlashAttribute(EXITO, "Reserva anulada exitosamente. Se han enviado notificaciones por correo.");
             
             return String.format("redirect:/misreservas/establecimiento/%d", establecimiento.getId());
             
@@ -1016,6 +1021,23 @@ public class ReservaController {
             return REDIRECT_MIS_RESERVAS;
         }
     }
+
+    /**
+	 * Envía notificaciones por correo electrónico al usuario y convocados sobre la anulación de la reserva.
+	 * 
+	 * @param reservaId ID de la reserva anulada
+	 * @param reserva Reserva que se ha anulado
+	 * @param correosNotificacion Lista de correos electrónicos a los que enviar la notificación
+	 */
+	private void notificarAnulacion(Integer reservaId, Reserva reserva, List<String> correosNotificacion) {
+		// Enviar notificaciones por correo
+		try {
+		    emailService.enviarNotificacionAnulacion(reserva, correosNotificacion);
+		} catch (Exception e) {
+		    log.warn("Error al enviar notificaciones de anulación para reserva {}: {}", reservaId, e.getMessage());
+		    // Continuar con la anulación aunque falle el envío de correos
+		}
+	}
 
     // ================================
     // CLASES AUXILIARES
