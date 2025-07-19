@@ -37,13 +37,10 @@ jobs:
         with:
           java-version: 21
           distribution: 'zulu'
+          cache: 'maven'
+          cache-dependency-path: './ReservApp/pom.xml'
       - name: Compilar con Maven
         run: cd ReservApp && mvn clean install
-      - name: Guardar artefactos de compilación
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifact
-          path: ReservApp/target
 
   test:
     name: Ejecutar Tests
@@ -74,11 +71,8 @@ jobs:
         with:
           java-version: 21
           distribution: 'zulu'
-      - name: Restaurar artefactos de compilación
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: ReservApp/target
+          cache: 'maven'
+          cache-dependency-path: './ReservApp/pom.xml'
       - name: Ejecutar Tests Maven
         run: cd ReservApp && mvn test
 
@@ -97,7 +91,7 @@ jobs:
           java-version: 21
           distribution: 'zulu'
           cache: 'maven'
-          cache-dependency-path: './ReservApp/pom.xml' # optional
+          cache-dependency-path: './ReservApp/pom.xml'
       - name: Clean and build
         run: cd ReservApp && mvn clean install
       - name: Cache SonarQube packages
@@ -112,11 +106,6 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Restaurar artefactos de compilación
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: ReservApp/target
       - name: Build and analyze with SonarQube
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
