@@ -57,21 +57,6 @@ jobs:
     name: Build Project
     runs-on: ubuntu-latest
     needs: [setup, java-setup]
-    services:
-      mysql:
-        image: mysql:8.4.5
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ vars.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
-          MYSQL_USER: ${{ vars.MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ vars.MYSQL_PASSWORD }}
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -93,8 +78,8 @@ jobs:
           key: ${{ needs.setup.outputs.cache-key-maven }}
           restore-keys: ${{ runner.os }}-m2
       
-      - name: Clean and build
-        run: cd ReservApp && mvn clean install
+      - name: Clean and build (skip tests requiring DB)
+        run: cd ReservApp && mvn clean install -DskipTests
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -172,7 +157,7 @@ jobs:
           name: build-artifacts
           path: ReservApp/target/
       
-      - name: Build and analyze with SonarQube
+      - name: Build and analyze with SonarQube (includes tests)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
