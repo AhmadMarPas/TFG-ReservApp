@@ -63,10 +63,10 @@ jobs:
         ports:
           - 3306:3306
         env:
-          MYSQL_ROOT_PASSWORD: ${{ MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ MYSQL_DATABASE }}
-          MYSQL_USER: ${{ MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ MYSQL_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ vars.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ vars.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ vars.MYSQL_PASSWORD }}
         options: >-
           --health-cmd="mysqladmin ping --silent"
           --health-interval=10s
@@ -129,10 +129,10 @@ jobs:
         ports:
           - 3306:3306
         env:
-          MYSQL_ROOT_PASSWORD: ${{ MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ MYSQL_DATABASE }}
-          MYSQL_USER: ${{ MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ MYSQL_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ vars.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ vars.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ vars.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ vars.MYSQL_PASSWORD }}
         options: >-
           --health-cmd="mysqladmin ping --silent"
           --health-interval=10s
