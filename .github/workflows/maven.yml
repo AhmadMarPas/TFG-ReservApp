@@ -1,71 +1,42 @@
 name: CI ReservApp
-
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  compile:
-    name: Compilar Proyecto
+  # Job 1: Configuración de la infraestructura y preparación del código
+  setup:
+    name: Setup Infrastructure and Source Code
     runs-on: ubuntu-latest
-    
-    services:
-      mysql:
-        image: mysql:8.4.5
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: admin
-          MYSQL_DATABASE: reservapp
-          MYSQL_USER: reservapp
-          MYSQL_PASSWORD: reservapp
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-    
+    outputs:
+      cache-key-maven: ${{ steps.cache-keys.outputs.maven }}
+      cache-key-sonar: ${{ steps.cache-keys.outputs.sonar }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: 'zulu'
-          cache: 'maven'
-          cache-dependency-path: './ReservApp/pom.xml'
-      - name: Compilar con Maven
-        run: cd ReservApp && mvn clean install
+      
+      - name: Generate cache keys
+        id: cache-keys
+        run: |
+          echo "maven=${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}" >> $GITHUB_OUTPUT
+          echo "sonar=${{ runner.os }}-sonar" >> $GITHUB_OUTPUT
 
-  test:
-    name: Ejecutar Tests
+  # Job 2: Configuración del entorno Java y Maven
+  java-setup:
+    name: Setup Java Environment
     runs-on: ubuntu-latest
-    needs: compile
-    services:
-      mysql:
-        image: mysql:8.4.5
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: admin
-          MYSQL_DATABASE: reservapp
-          MYSQL_USER: reservapp
-          MYSQL_PASSWORD: reservapp
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+    needs: setup
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -73,41 +44,157 @@ jobs:
           distribution: 'zulu'
           cache: 'maven'
           cache-dependency-path: './ReservApp/pom.xml'
-      - name: Ejecutar Tests Maven
-        run: cd ReservApp && mvn test
-
-  sonarqube:
-    name: Análisis SonarQube
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: 'zulu'
-          cache: 'maven'
-          cache-dependency-path: './ReservApp/pom.xml'
-      - name: Clean and build
-        run: cd ReservApp && mvn clean install
-      - name: Cache SonarQube packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+      
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          key: ${{ needs.setup.outputs.cache-key-maven }}
           restore-keys: ${{ runner.os }}-m2
+
+  # Job 3: Compilación del proyecto
+  build:
+    name: Build Project
+    runs-on: ubuntu-latest
+    needs: [setup, java-setup]
+    services:
+      mysql:
+        image: mysql:8.4.5
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ MYSQL_DATABASE }}
+          MYSQL_USER: ${{ MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ MYSQL_PASSWORD }}
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'zulu'
+          cache: 'maven'
+          cache-dependency-path: './ReservApp/pom.xml'
+      
+      - name: Restore Maven cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ needs.setup.outputs.cache-key-maven }}
+          restore-keys: ${{ runner.os }}-m2
+      
+      - name: Clean and build
+        run: cd ReservApp && mvn clean install
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            ReservApp/target/
+            !ReservApp/target/dependency-check/
+          retention-days: 1
+
+  # Job 4: Configuración de caché SonarQube
+  sonar-cache-setup:
+    name: Setup SonarQube Cache
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ needs.setup.outputs.cache-key-sonar }}
+          restore-keys: ${{ runner.os }}-sonar
+
+  # Job 5: Análisis de código con SonarQube
+  sonar-analysis:
+    name: SonarQube Code Analysis
+    runs-on: ubuntu-latest
+    needs: [setup, build, sonar-cache-setup]
+    services:
+      mysql:
+        image: mysql:8.4.5
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ MYSQL_DATABASE }}
+          MYSQL_USER: ${{ MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ MYSQL_PASSWORD }}
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'zulu'
+          cache: 'maven'
+          cache-dependency-path: './ReservApp/pom.xml'
+      
+      - name: Restore Maven cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ needs.setup.outputs.cache-key-maven }}
+          restore-keys: ${{ runner.os }}-m2
+      
+      - name: Restore SonarQube cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ needs.setup.outputs.cache-key-sonar }}
+          restore-keys: ${{ runner.os }}-sonar
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ReservApp/target/
+      
       - name: Build and analyze with SonarQube
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=ReservApp -Dsonar.branch.name=main
+        run: |
+          mvn -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=ReservApp \
+            -Dsonar.branch.name=main
         working-directory: ./ReservApp
+
+  # Job 6: Reporte final (opcional)
+  report:
+    name: Generate Final Report
+    runs-on: ubuntu-latest
+    needs: [build, sonar-analysis]
+    if: always()
+    steps:
+      - name: Report Status
+        run: |
+          echo "Build Status: ${{ needs.build.result }}"
+          echo "SonarQube Analysis Status: ${{ needs.sonar-analysis.result }}"
+          if [[ "${{ needs.build.result }}" == "success" && "${{ needs.sonar-analysis.result }}" == "success" ]]; then
+            echo "✅ Pipeline completed successfully!"
+          else
+            echo "❌ Pipeline failed in one or more steps"
+            exit 1
+          fi
