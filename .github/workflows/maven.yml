@@ -1,23 +1,16 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+name: CI ReservApp
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: SonarQube
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
     types: [opened, synchronize, reopened]
-jobs:
-  build:
-    name: Build and analyze
-    runs-on: ubuntu-latest
 
+jobs:
+  compile:
+    name: Compilar Proyecto
+    runs-on: ubuntu-latest
+    
     services:
       mysql:
         image: mysql:8.4.5
@@ -33,21 +26,72 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: 21
-          distribution: 'zulu' # Alternative distribution options are available.
+          distribution: 'zulu'
           cache: 'maven'
-          cache-dependency-path: './ReservApp/pom.xml' # optional
-      - name: Clean and build
+          cache-dependency-path: './ReservApp/pom.xml'
+      - name: Compilar con Maven
         run: cd ReservApp && mvn clean install
+
+  test:
+    name: Ejecutar Tests
+    runs-on: ubuntu-latest
+    needs: compile
+    services:
+      mysql:
+        image: mysql:8.4.5
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: admin
+          MYSQL_DATABASE: reservapp
+          MYSQL_USER: reservapp
+          MYSQL_PASSWORD: reservapp
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'zulu'
+          cache: 'maven'
+          cache-dependency-path: './ReservApp/pom.xml'
+      - name: Ejecutar Tests Maven
+        run: cd ReservApp && mvn test
+
+  sonarqube:
+    name: Análisis SonarQube
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'zulu'
+          cache: 'maven'
+          cache-dependency-path: './ReservApp/pom.xml'
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
@@ -60,7 +104,7 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Build and analyze
+      - name: Build and analyze with SonarQube
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=ReservApp -Dsonar.branch.name=main
