@@ -1,10 +1,8 @@
 \capitulo{3}{Conceptos teóricos}
 
-En este capítulo se describen cómo se establece la base del proyecto demostrando que la propuesta no solo resuelve un problema práctico, sino que también está fundamentada en principios bien establecidos.\\
+En este capítulo se describe cómo se establece la base del proyecto demostrando que la propuesta no solo resuelve un problema práctico, sino que también está fundamentada en principios bien establecidos.\\
 
 En aquellos proyectos que necesiten para su comprensión y desarrollo de unos conceptos teóricos de una determinada materia o de un determinado dominio de conocimiento, debe existir un apartado que sintetice dichos conceptos.
-
-Algunos conceptos teóricos de \LaTeX{} \footnote{Créditos a los proyectos de Álvaro López Cantero: Configurador de Presupuestos y Roberto Izquierdo Amo: PLQuiz}.
 
 \section{Sistemas de Gestión de Reservas}
 
@@ -14,77 +12,61 @@ Los sistemas de reservas buscan optimizar la utilización de los recursos dispon
 
 En el contexto de este TFG, el sistema de reservas está diseñado para la gestión eficiente de salas de reuniones en una empresa, proporcionando una solución centralizada para que los empleados puedan reservar espacios de manera organizada y sin conflictos.
 
-
-\subsection{Subsecciones}
-
-Además de secciones tenemos subsecciones.
-
-\subsubsection{Subsubsecciones}
-
-Y subsecciones. 
-
-
-\section{Referencias}
-
-Las referencias se incluyen en el texto usando cite~\cite{wiki:latex}. Para citar webs, artículos o libros~\cite{koza92}, si se desean citar más de uno en el mismo lugar~\cite{bortolot2005, koza92}.
-
-
-\section{Imágenes}
-
-Se pueden incluir imágenes con los comandos standard de \LaTeX, pero esta plantilla dispone de comandos propios como por ejemplo el siguiente:
-
-\imagen{escudoInfor}{Autómata para una expresión vacía}{.5}
-
-
-
-\section{Listas de items}
-
-Existen tres posibilidades:
-
+\section{Tecnologías Utilizadas}
+\subsubsection{Java y Spring Boot}
+Java es un lenguaje de programación orientado a objetos ampliamente utilizado en el desarrollo de aplicaciones empresariales. Spring Boot~\cite{spring-boot} es un \emph{framework}~\cite{framework} basado en Spring~\cite{spring} que simplifica la configuración y el desarrollo de aplicaciones web.\\
+Spring Boot proporciona funcionalidades como:
 \begin{itemize}
-	\item primer item.
-	\item segundo item.
+\tightlist
+\item
+Inyección de dependencias (DI)
+\item
+Gestión de transacciones
+\item
+Conectividad con bases de datos
+\item
+Seguridad integrada
 \end{itemize}
 
-\begin{enumerate}
-	\item primer item.
-	\item segundo item.
-\end{enumerate}
+\subsubsection{Spring Data JPA~\cite{spring-data-jpa}}
+Simplifica la capa de acceso a datos, facilitando la interacción con bases de datos relacionales a través de mapeo objeto-relacional (ORM).
 
-\begin{description}
-	\item[Primer item] más información sobre el primer item.
-	\item[Segundo item] más información sobre el segundo item.
-\end{description}
-	
+\subsubsection{Hibernate~\cite{hibernate}}
+Es el responsable del mapeo de las clases Java a tablas en una base de datos relacional, permitiendo a los desarrolladores trabajar con objetos en lugar de tener que escribir consultas SQL manualmente.
+
+\subsubsection{Spring Security~\cite{spring-security}}
+Proporciona autenticación y autorización para proteger la aplicación.
+
+\subsubsection{Lombok~\cite{lombok}}
+Es una librería que ayuda a reducir el código repetitivo en Java (como getters, setters, constructores) mediante anotaciones.
+
+\subsubsection{Thymeleaf~\cite{thymeleaf}}
+Se trata de un motor de plantillas para Java que permite crear vistas HTML dinámicas en el servidor. Se integra con Spring.
+
+\subsubsection{MySQL~\cite{mysql}}
+Es un sistema de gestión de bases de datos relacional de código abierto que ofrece alta fiabilidad, integridad de datos y compatibilidad con transacciones ACID.
+
+\section{Arquitectura de Aplicaciones Web}
+
+\subsubsection{Modelo Cliente-Servidor}
+La arquitectura de una aplicación web sigue un modelo cliente-servidor~\cite{client-server-model}, donde:
 \begin{itemize}
-\item 
+\tightlist
+\item
+Cliente o \emph{frontend}: Representado por el navegador web del usuario, que interactúa con la aplicación a través de una interfaz construida con Thymeleaf.
+\item
+Servidor o \emph{backend}: Implementado con Java y Spring Boot, que procesa las solicitudes del cliente, accede a la base de datos MySQL y devuelve las respuestas correspondientes.
 \end{itemize}
 
-\section{Tablas}
-
-Igualmente se pueden usar los comandos específicos de \LaTeX o bien usar alguno de los comandos de la plantilla.
-
-\tablaSmall{Herramientas y tecnologías utilizadas en cada parte del proyecto}{l c c c c}{herramientasportipodeuso}
-{ \multicolumn{1}{l}{Herramientas} & App AngularJS & API REST & BD & Memoria \\}{ 
-HTML5 & X & & &\\
-CSS3 & X & & &\\
-BOOTSTRAP & X & & &\\
-JavaScript & X & & &\\
-AngularJS & X & & &\\
-Bower & X & & &\\
-PHP & & X & &\\
-Karma + Jasmine & X & & &\\
-Slim framework & & X & &\\
-Idiorm & & X & &\\
-Composer & & X & &\\
-JSON & X & X & &\\
-PhpStorm & X & X & &\\
-MySQL & & & X &\\
-PhpMyAdmin & & & X &\\
-Git + BitBucket & X & X & X & X\\
-Mik\TeX{} & & & & X\\
-\TeX{}Maker & & & & X\\
-Astah & & & & X\\
-Balsamiq Mockups & X & & &\\
-VersionOne & X & X & X & X\\
-} 
+\subsubsection{Patrones de Arquitectura}
+La aplicación sigue el patrón Modelo-Vista-Controlador (MVC)~\cite{modelo-vista-controrlador}, que separa la lógica de negocio, la presentación y el control de la aplicación:
+\begin{itemize}
+\tightlist
+\item
+Modelo: Gestiona los datos y la lógica de negocio. Implementado en Spring Boot con acceso a la base de datos MySQL.
+\item
+Vista: Representa la interfaz de usuario, creada con Thymeleaf.
+\item
+Controlador: Maneja las interacciones del usuario y actualiza el modelo o la vista según corresponda.
+\end{itemize}
+Esta arquitectura modular facilita la escalabilidad, el mantenimiento y la reutilización de código.
