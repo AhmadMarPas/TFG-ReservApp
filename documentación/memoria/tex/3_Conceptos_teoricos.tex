@@ -2,8 +2,6 @@
 
 En este capítulo se describe cómo se establece la base del proyecto demostrando que la propuesta no solo resuelve un problema práctico, sino que también está fundamentada en principios bien establecidos.\\
 
-En aquellos proyectos que necesiten para su comprensión y desarrollo de unos conceptos teóricos de una determinada materia o de un determinado dominio de conocimiento, debe existir un apartado que sintetice dichos conceptos.
-
 \section{Sistemas de Gestión de Reservas}
 
 Un sistema de gestión de reservas es una herramienta tecnológica que permite organizar y administrar la asignación de recursos, en este caso, salas de reuniones. Y aunque esta circunstancia es un punto de partida, la aplicación permitirá su uso para sistemas que puedan ser utilizados en diferentes ámbitos como hoteles, gestión de citas, restaurantes y en definitiva diferentes espacios de trabajo.\\
@@ -35,10 +33,10 @@ Simplifica la capa de acceso a datos, facilitando la interacción con bases de d
 Es el responsable del mapeo de las clases Java a tablas en una base de datos relacional, permitiendo a los desarrolladores trabajar con objetos en lugar de tener que escribir consultas SQL manualmente.
 
 \subsubsection{Spring Security~\cite{spring-security}}
-Proporciona autenticación y autorización para proteger la aplicación.
+Proporciona medidas para la autenticación y autorización de modo que añade una capa de protección a la aplicación.
 
 \subsubsection{Lombok~\cite{lombok}}
-Es una librería que ayuda a reducir el código repetitivo en Java (como getters, setters, constructores) mediante anotaciones.
+Es una librería que, mediante anotaciones, ayuda a reducir el código repetitivo en Java como getters, setters o constructores.
 
 \subsubsection{Thymeleaf~\cite{thymeleaf}}
 Se trata de un motor de plantillas para Java que permite crear vistas HTML dinámicas en el servidor. Se integra con Spring.
@@ -59,7 +57,7 @@ Servidor o \emph{backend}: Implementado con Java y Spring Boot, que procesa las 
 \end{itemize}
 
 \subsubsection{Patrones de Arquitectura}
-La aplicación sigue el patrón Modelo-Vista-Controlador (MVC)~\cite{modelo-vista-controrlador}, que separa la lógica de negocio, la presentación y el control de la aplicación:
+La aplicación sigue el patrón Modelo-Vista-Controlador (MVC)~\cite{modelo-vista-controrlador}, de forma estructurada y desacoplada, aprovechando al máximo las características del ecosistema de Spring para crear una aplicación web sólida y fácil de mantener, separando mediante capas la lógica de negocio, la de presentación y la de control de la aplicación:
 \begin{itemize}
 \tightlist
 \item
