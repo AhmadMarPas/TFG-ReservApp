@@ -46,16 +46,6 @@ Es un sistema de gestión de bases de datos relacional de código abierto que of
 
 \section{Arquitectura de Aplicaciones Web}
 
-\subsubsection{Modelo Cliente-Servidor}
-La arquitectura de una aplicación web sigue un modelo cliente-servidor~\cite{client-server-model}, donde:
-\begin{itemize}
-\tightlist
-\item
-Cliente o \emph{frontend}: Representado por el navegador web del usuario, que interactúa con la aplicación a través de una interfaz construida con Thymeleaf.
-\item
-Servidor o \emph{backend}: Implementado con Java y Spring Boot, que procesa las solicitudes del cliente, accede a la base de datos MySQL y devuelve las respuestas correspondientes.
-\end{itemize}
-
 \subsubsection{Patrones de Arquitectura}
 La aplicación sigue el patrón Modelo-Vista-Controlador (MVC)~\cite{modelo-vista-controrlador}, de forma estructurada y desacoplada, aprovechando al máximo las características del ecosistema de Spring para crear una aplicación web sólida y fácil de mantener, separando mediante capas la lógica de negocio, la de presentación y la de control de la aplicación:
 \begin{itemize}
@@ -68,3 +58,14 @@ Vista: Representa la interfaz de usuario, creada con Thymeleaf.
 Controlador: Maneja las interacciones del usuario y actualiza el modelo o la vista según corresponda.
 \end{itemize}
 Esta arquitectura modular facilita la escalabilidad, el mantenimiento y la reutilización de código.
+\imagen{modelo-mvc}{Patrón modelo MVC}{1}
+
+\subsubsection{Modelo Cliente-Servidor}
+La arquitectura de una aplicación web sigue un modelo cliente-servidor~\cite{client-server-model}, donde:
+\begin{itemize}
+\tightlist
+\item
+Cliente o \emph{frontend}: Representado por el navegador web del usuario, que interactúa con la aplicación a través de una interfaz construida con Thymeleaf.
+\item
+Servidor o \emph{backend}: Implementado con Java y Spring Boot, que procesa las solicitudes del cliente, accede a la base de datos MySQL y devuelve las respuestas correspondientes.
+\end{itemize}
