@@ -1,9 +1,9 @@
 \capitulo{6}{Trabajos relacionados}
 
 El desarrollo de sistemas de gestión de reservas ha sido un área de investigación y desarrollo activo durante las últimas décadas, especialmente con el auge de las tecnologías web y la digitalización de procesos empresariales. En este apartado se presenta un análisis de los trabajos más relevantes en el campo de la gestión de reservas de recursos, sistemas de planificación colaborativa y aplicaciones web empresariales que han servido como referencia y contexto para el desarrollo del presente proyecto.
-La revisión de trabajos relacionados se ha estructurado en tres categorías principales: sistemas comerciales de gestión de reservas, proyectos académicos en el ámbito de la planificación de recursos, y \emph{frameworks} y metodologías de desarrollo de aplicaciones web empresariales. Esta categorización permite comprender tanto el estado actual del mercado como las contribuciones académicas que fundamentan las decisiones técnicas adoptadas en el proyecto.\\
+La revisión de trabajos relacionados se ha estructurado en tres categorías principales: soluciones comerciales de gestión de reservas, proyectos académicos en el ámbito de la planificación de recursos, y \emph{frameworks} y metodologías de desarrollo de aplicaciones web empresariales. Esta categorización permite comprender tanto el estado actual del mercado como las contribuciones académicas que fundamentan las decisiones técnicas adoptadas en el proyecto.\\
 
-\section{Sistemas comerciales de gestión de reservas}\label{sistemas-comerciales-gestion-reservas}
+\section{Soluciones comerciales de gestión de reservas}\label{soluciones-comerciales-gestion-reservas}
 \subsection{Microsoft Bookings y Microsoft 365}\label{microsoft-booking-microsoft-365}
 Microsoft Bookings~\cite{microsoft-booking} representa uno de los sistemas de reservas más extendidos en el ámbito empresarial, integrado nativamente en el ecosistema Microsoft 365~\cite{microsoft-365}. Este sistema destaca por su capacidad de sincronización automática con Outlook y su integración con Microsoft Teams para reuniones virtuales. Sin embargo, presenta limitaciones significativas en términos de personalización y flexibilidad, especialmente en organizaciones con necesidades específicas de gestión de espacios físicos.
 La arquitectura de Microsoft Bookings sigue un modelo SaaS (Software as a Service)~\cite{saas} que, aunque reduce la complejidad de mantenimiento, limita las posibilidades de personalización y control sobre los datos. En contraste, el enfoque adoptado en el presente TFG permite una mayor flexibilidad arquitectónica y la posibilidad de adaptarse a requisitos específicos de la organización.\\
@@ -13,7 +13,7 @@ El sistema de reservas de Google Workspace~\cite{google-workspace}, centrado en 
 Una característica notable de Google Calendar es su API robusta que permite integraciones personalizadas, aspecto que ha influido en la decisión de diseñar la aplicación del presente TFG con una arquitectura modular que facilite futuras integraciones con sistemas externos.\\
 
 \subsection{Robin y sistemas especializados}\label{robin-sistemas-especializados}
-Robin representa una nueva generación de sistemas especializados en la gestión de espacios de trabajo, especialmente populares tras la pandemia de COVID-19. Estos sistemas incorporan funcionalidades avanzadas como análisis de ocupación, integración con sistemas IoT y gestión de protocolos sanitarios.
+Entre las soluciones actualmente consideradas de nueva generación de sistemas especializados en la gestión de estpacios de trabajo se encuentra Robin~\cite{robin}, especialmente populares tras la pandemia de COVID-19. Estos sistemas incorporan funcionalidades avanzadas como análisis de ocupación, integración con sistemas IoT y gestión de protocolos sanitarios.
 Aunque Robin ofrece funcionalidades avanzadas, su modelo de licenciamiento por usuario y su enfoque hacia grandes organizaciones lo hace menos accesible para pequeñas y medianas empresas. Esta limitación no se da en la aplicación desarrollada ofreciendo una solución propia que pudiera adaptarse a diferentes tamaños de organización sin restricciones de licenciamiento.\\
 
 \section{Enfoques académicos y de investigación}\label{enfoques-academicos-investigacion}
@@ -29,7 +29,7 @@ Si bien las arquitecturas distribuidas pueden ser más complejas de lo que un si
 En los sistemas de gestión empresarial, la experiencia del usuario es clave para que las personas realmente adopten la herramienta y se sientan cómodas usándola. Factores como que el proceso de reserva sea sencillo, que la disponibilidad se muestre de forma clara y que sea fácil hacer cambios sin perderse, pueden marcar la diferencia.
 Teniendo esto en cuenta, en este proyecto se han incorporado mejoras como calendarios visuales para ver la disponibilidad de un vistazo, formularios que dan respuesta inmediata a las acciones del usuario y flujos de trabajo más simples para las tareas que se realizan con mayor frecuencia.\\
 
-\section{Tecnologías y metodologías de desarrollo}\label{tecnologias-metodologias-desarrollo}
+\section{Frameworks y metodologías de desarrollo}\label{frameworks-metodologias-desarrollo}
 \subsection{Spring Boot en aplicaciones empresariales}\label{spring-boot-aplicaciones-empresariales}
 La adopción de Spring Boot en el desarrollo de aplicaciones web empresariales ha demostrado ventajas significativas en términos de productividad y mantenibilidad. Habiendo analizado diferentes modelos arquitectónicos, se muestra que la combinación de Spring Boot con arquitecturas por capas resulta en sistemas más robustos y fáciles de mantener.
 Estas conclusiones han servido de apoyo para las decisiones arquitectónicas adoptadas en el presente TFG, especialmente en cuanto al uso de patrones como \emph{Repository}, \emph{Service Layer} y la integración con Spring Security para la gestión de autenticación y autorización.\\
