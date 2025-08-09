@@ -15,6 +15,7 @@ Esta evolución de requisitos, aunque incrementó significativamente la compleji
 \section{Decisiones arquitectónicas}\label{decisiones-arquitectonicas}
 Una de las decisiones más significativas durante las primeras fases del proyecto fue la elección de la tecnología para la capa de presentación. Inicialmente se contempló utilizar JSF (JavaServer Faces)~\cite{jsf} con PrimeFaces~\cite{primefaces} como \emph{framework} de interfaz de usuario, motivado principalmente por la experiencia en ello y por su rico conjunto de componentes predefinidos y su capacidad para crear interfaces web complejas con mínimo código JavaScript. PrimeFaces ofrece componentes avanzados como calendarios interactivos, tablas con filtrado automático y diálogos modales que parecían ideales para las funcionalidades de gestión de reservas.
 Sin embargo, tras una evaluación técnica e investigación sobre diferentes opciones para la capa de presentación, se decidió migrar hacia Thymeleaf por los siguientes factores:
+
 \begin{itemize}
 \tightlist
 \item
@@ -22,6 +23,7 @@ La integración nativa con Spring Boot eliminaba configuraciones complejas de JS
 \item
 Aunque no se tenía experiencia previa con ninguna de las dos tecnologías, Thymeleaf presentó una curva de aprendizaje más suave al trabajar directamente con HTML válido, permitiendo que las plantillas fueran visualizables en navegadores sin procesamiento del servidor, lo cual facilitaba el desarrollo y debug.
 \end{itemize}
+
 La decisión final se basó en que Thymeleaf se alineaba mejor con los objetivos académicos del TFG al demostrar un uso profesional del ecosistema Spring, mientras que JSF habría requerido configuraciones adicionales y conocimiento específico de ciclos de vida de componentes que podrían haber desviado el foco del aprendizaje hacia aspectos menos relevantes para el dominio del problema. Esta elección resultó acertada, permitiendo concentrar los esfuerzos en la lógica de negocio y la arquitectura del sistema de reservas.\\
 
 \section{Aspectos técnicos específicos del stack}\label{aspectos-terncicos-del-stack}
