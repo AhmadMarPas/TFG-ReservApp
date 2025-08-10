@@ -1,0 +1,72 @@
+\capitulo{3}{Conceptos teóricos}
+
+En este capítulo se describe cómo se establece la base del proyecto demostrando que la propuesta no solo resuelve un problema práctico, sino que también está fundamentada en principios bien establecidos.
+
+\section{Sistemas de Gestión de Reservas}
+
+Un sistema de gestión de reservas es una herramienta tecnológica que permite organizar y administrar la asignación de recursos, en este caso, salas de reuniones. Y aunque esta circunstancia es un punto de partida, la aplicación permitirá su uso para sistemas que puedan ser utilizados en diferentes ámbitos como hoteles, gestión de citas, restaurantes y en definitiva diferentes espacios de trabajo.
+
+Los sistemas de reservas buscan optimizar la utilización de los recursos disponibles y reducir los conflictos derivados de dobles reservas y mejorar la eficiencia operativa. Un buen sistema debe incluir funcionalidades como la gestión de disponibilidad en tiempo real, la modificación de reservas, la integración con calendarios empresariales y la autenticación de usuarios.
+
+En el contexto de este TFG, el sistema de reservas está diseñado para la gestión eficiente de salas de reuniones en una empresa, proporcionando una solución centralizada para que los empleados puedan reservar espacios de manera organizada y sin conflictos.
+
+\section{Tecnologías Utilizadas}
+\subsubsection{Java y Spring Boot}
+Java es un lenguaje de programación orientado a objetos ampliamente utilizado en el desarrollo de aplicaciones empresariales. Spring Boot~\cite{spring-boot} es un \emph{framework}~\cite{framework} basado en Spring~\cite{spring} que simplifica la configuración y el desarrollo de aplicaciones web.
+Spring Boot proporciona funcionalidades como:
+\begin{itemize}
+\tightlist
+\item
+Inyección de dependencias (DI)
+\item
+Gestión de transacciones
+\item
+Conectividad con bases de datos
+\item
+Seguridad integrada
+\end{itemize}
+
+\subsubsection{Spring Data JPA~\cite{spring-data-jpa}}
+Simplifica la capa de acceso a datos, facilitando la interacción con bases de datos relacionales a través de mapeo objeto-relacional (ORM).
+
+\subsubsection{Hibernate~\cite{hibernate}}
+Es el responsable del mapeo de las clases Java a tablas en una base de datos relacional, permitiendo a los desarrolladores trabajar con objetos en lugar de tener que escribir consultas SQL manualmente.
+
+\subsubsection{Spring Security~\cite{spring-security}}
+Proporciona medidas para la autenticación y autorización de modo que añade una capa de protección a la aplicación.
+
+\subsubsection{Lombok~\cite{lombok}}
+Es una librería que, mediante anotaciones, ayuda a reducir el código repetitivo en Java como \emph{getters}, \emph{setters} o constructores.
+
+\subsubsection{Thymeleaf~\cite{thymeleaf}}
+Se trata de un motor de plantillas para Java que permite crear vistas HTML dinámicas en el servidor. Se integra con Spring.
+
+\subsubsection{MySQL~\cite{mysql}}
+Es un sistema de gestión de bases de datos relacional de código abierto que ofrece alta fiabilidad, integridad de datos y compatibilidad con transacciones ACID~\cite{acid}.
+
+\section{Arquitectura de Aplicaciones Web}
+
+\subsubsection{Patrones de Arquitectura}
+La aplicación sigue el patrón Modelo-Vista-Controlador (MVC)~\cite{modelo-vista-controrlador}, de forma estructurada y desacoplada, aprovechando al máximo las características del ecosistema de Spring para crear una aplicación web sólida y fácil de mantener, separando mediante capas la lógica de negocio, la de presentación y la de control de la aplicación:
+\begin{itemize}
+\tightlist
+\item
+Modelo: Gestiona los datos y la lógica de negocio. Implementado en Spring Boot con acceso a la base de datos MySQL.
+\item
+Vista: Representa la interfaz de usuario, creada con Thymeleaf.
+\item
+Controlador: Maneja las interacciones del usuario y actualiza el modelo o la vista según corresponda.
+\end{itemize}
+Esta arquitectura modular facilita la escalabilidad, el mantenimiento y la reutilización de código.
+\imagen{modelo-mvc}{Patrón modelo MVC.}{1}
+
+\subsubsection{Arquitectura Cliente-Servidor}
+La arquitectura de una aplicación web sigue un modelo cliente-servidor~\cite{client-server-model}, donde:
+\begin{itemize}
+\tightlist
+\item
+Cliente o \emph{frontend}: Representado por el navegador web del usuario, que interactúa con la aplicación a través de una interfaz construida con Thymeleaf.
+\item
+Servidor o \emph{backend}: Implementado con Java y Spring Boot, que procesa las solicitudes del cliente, accede a la base de datos MySQL y devuelve las respuestas correspondientes.
+\end{itemize}
+\imagen{cliente-servidor}{Arquitectura cliente Servidor.}{1}
