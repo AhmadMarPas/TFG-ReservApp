@@ -20,6 +20,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -559,10 +562,13 @@ class EmailServiceImplTest {
         assertFalse(contenido.contains("🔗 Enlace de reunión:"));
     }
 
-    @Test
-    void testConstruirContenidoCorreoConvocado_SinObservaciones() {
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"   ", "\t", "\n"})
+    void testConstruirContenidoCorreoConvocado_SinObservacionesInvalidas(String observaciones) {
         // Arrange
-        convocatoria.setObservaciones(null);
+        // En cada ejecución del test, la observación de la convocatoria se establecerá con el valor del parámetro
+        convocatoria.setObservaciones(observaciones);
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
 
         // Act
@@ -573,23 +579,7 @@ class EmailServiceImplTest {
         SimpleMailMessage sentMessage = messageCaptor.getValue();
         
         String contenido = sentMessage.getText();
-        assertFalse(contenido.contains("📝 Observaciones:"));
-    }
-
-    @Test
-    void testConstruirContenidoCorreoConvocado_ObservacionesVacias() {
-        // Arrange
-        convocatoria.setObservaciones("   ");
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-
-        // Act
-        emailService.enviarNotificacionesConvocatoria(Arrays.asList(convocado), reserva);
-
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        String contenido = sentMessage.getText();
+        // Verifica que la cadena "📝 Observaciones:" no está presente en el contenido del correo
         assertFalse(contenido.contains("📝 Observaciones:"));
     }
 
@@ -638,23 +628,6 @@ class EmailServiceImplTest {
         assertEquals("juan.perez@test.com", sentMessage.getTo()[0]);
         assertEquals("Confirmación de Reserva - Sala de Reuniones A", sentMessage.getSubject());
         assertNotNull(sentMessage.getText());
-    }
-
-    @Test
-    void testEsTextoValido_TextoVacio() {
-        // Arrange
-        convocatoria.setObservaciones("");
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-
-        // Act
-        emailService.enviarNotificacionesConvocatoria(Arrays.asList(convocado), reserva);
-
-        // Assert
-        verify(mailSender).send(messageCaptor.capture());
-        SimpleMailMessage sentMessage = messageCaptor.getValue();
-        
-        String contenido = sentMessage.getText();
-        assertFalse(contenido.contains("📝 Observaciones:"));
     }
 
     @Test

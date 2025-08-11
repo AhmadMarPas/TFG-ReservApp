@@ -25,10 +25,13 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.MailException;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -972,7 +975,7 @@ class ReservaControllerTest {
         
         // Then
         assertEquals("redirect:/misreservas/establecimiento/1", result);
-        verify(emailService).enviarNotificacionAnulacion(eq(reserva), any(List.class));
+        verify(emailService).enviarNotificacionAnulacion(eq(reserva), ArgumentMatchers.<String>anyList());
         verify(reservaService).delete(reserva);
         verify(redirectAttributes).addFlashAttribute("exito", "Reserva anulada exitosamente. Se han enviado notificaciones por correo.");
     }
@@ -1008,7 +1011,7 @@ class ReservaControllerTest {
         when(sessionData.getUsuario()).thenReturn(usuario);
         when(reservaService.findById(1)).thenReturn(reserva);
         doThrow(new RuntimeException("Error de email")).when(emailService)
-            .enviarNotificacionAnulacion(any(Reserva.class), any(List.class));
+            .enviarNotificacionAnulacion(any(Reserva.class), ArgumentMatchers.<String>anyList());
         
         // When
         String result = reservaController.anularReserva(1, redirectAttributes);
@@ -1077,58 +1080,19 @@ class ReservaControllerTest {
         verify(reservaService).delete(reserva);
     }
     
-    @Test
-    void testBuscarUsuarios_QueryVacio() {
-        // Arrange
-        String query = "";
-        
-        // Act
-        List<ReservaController.UsuarioDTO> resultado = reservaController.buscarUsuarios(query);
-        
-        // Assert
-        assertThat(resultado).isEmpty();
-        verify(usuarioService, never()).buscarUsuarioSegunQuery(anyString());
-    }
-    
-    @Test
-    void testBuscarUsuarios_QueryNull() {
-        // Arrange
-        String query = null;
-        
-        // Act
-        List<ReservaController.UsuarioDTO> resultado = reservaController.buscarUsuarios(query);
-        
-        // Assert
-        assertThat(resultado).isEmpty();
-        verify(usuarioService, never()).buscarUsuarioSegunQuery(anyString());
-    }
-    
-    @Test
-    void testBuscarUsuarios_QueryMuyCorto() {
-        // Arrange
-        String query = "a";
-        
-        // Act
-        List<ReservaController.UsuarioDTO> resultado = reservaController.buscarUsuarios(query);
-        
-        // Assert
-        assertThat(resultado).isEmpty();
-        verify(usuarioService, never()).buscarUsuarioSegunQuery(anyString());
-    }
-    
-    @Test
-    void testBuscarUsuarios_QueryConEspacios() {
-        // Arrange
-        String query = "  a  ";
-        
-        // Act
-        List<ReservaController.UsuarioDTO> resultado = reservaController.buscarUsuarios(query);
-        
-        // Assert
-        assertThat(resultado).isEmpty();
-        verify(usuarioService, never()).buscarUsuarioSegunQuery(anyString());
-    }
-    
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"a", "  a  ", "   "})
+	void testBuscarUsuarios_QueryInvalido(String query) {
+		// Act
+		List<ReservaController.UsuarioDTO> resultado = reservaController.buscarUsuarios(query);
+
+		// Assert
+		assertThat(resultado).isEmpty();
+		// Verifica que el método buscarUsuarioSegunQuery del servicio nunca fue llamado
+		verify(usuarioService, never()).buscarUsuarioSegunQuery(anyString());
+	}
+
     @Test
     void testBuscarUsuarios_BusquedaExitosa() {
         // Arrange
