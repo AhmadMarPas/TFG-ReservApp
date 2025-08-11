@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>es.ubu</groupId>
 	<artifactId>reservApp</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0-RELEASE</version>
 	<packaging>war</packaging>
 	<name>ReservApp</name>
 	<description>Aplicación para la gestión de Reservas</description>
