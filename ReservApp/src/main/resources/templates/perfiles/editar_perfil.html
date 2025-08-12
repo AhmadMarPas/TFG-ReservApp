@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Editar Mi Perfil', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .readonly-field {
+            background-color: #f8f9fa !important;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .readonly-info {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            font-style: italic;
+        }
+        
+        .password-help {
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        </style>
+    </th:block>
+</head>
+<body class="gradient-body-with-header">
+
+    <!-- Header -->
+    <div th:replace="~{fragments/_header :: header(pageTitle='ReservApp - Editar Mi Perfil')}"></div>
+
+    <!-- Breadcrumb and Navigation -->
+    <div class="container">
+        <div class="main-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-0 text-primary">
+                        <i class="fas fa-user-edit me-2"></i>
+                        Editar Mi Perfil
+                    </h2>
+                    <nav aria-label="breadcrumb" class="mt-2">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="/menuprincipal">Menú Principal</a></li>
+                            <li class="breadcrumb-item active">Editar Mi Perfil</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a th:href="@{/menuprincipal}" class="btn btn-secondary-custom">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Volver al Menú
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="menu-container">
+                    <!-- Form Header with Icon and Description -->
+                    <div class="menu-header">
+                        <i class="fas fa-user-edit" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.9;"></i>
+                        <h1 class="mb-0">Editar Mi Perfil</h1>
+                        <p class="mb-0 mt-2 opacity-75">Actualiza tu información personal</p>
+                    </div>
+                    
+                    <!-- Form Body -->
+                    <div class="menu-body">
+                        <!-- Flash messages -->
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${exito}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+                        <form th:action="@{/perfil/guardar}" th:object="${usuario}" method="post" novalidate id="perfilForm">
+                            <!-- Basic Information Section -->
+                            <div class="form-section-user-form">
+                                <h4 class="section-title">
+                                    <i class="fas fa-id-card"></i>
+                                    Información Básica
+                                </h4>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="id" class="form-label">Username (ID)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-user"></i>
+                                            </span>
+                                            <input type="text" class="form-control readonly-field" 
+                                                   id="id" th:field="*{id}" readonly />
+                                        </div>
+                                        <div class="readonly-info">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            El ID no puede modificarse
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="correo" class="form-label required-field">Correo Electrónico</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-envelope"></i>
+                                            </span>
+                                            <input type="email" class="form-control" 
+                                                   id="correo" th:field="*{correo}" 
+                                                   required="required" placeholder="usuario@ejemplo.com" />
+                                        </div>
+                                        <div th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}" class="text-danger"></div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="nombre" class="form-label required-field">Nombre</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-user-tag"></i>
+                                            </span>
+                                            <input type="text" class="form-control" 
+                                                   id="nombre" th:field="*{nombre}" 
+                                                   required="required" placeholder="Nombre" />
+                                        </div>
+                                        <div th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" class="text-danger"></div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="apellidos" class="form-label required-field">Apellidos</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-user-tag"></i>
+                                            </span>
+                                            <input type="text" class="form-control" 
+                                                   id="apellidos" th:field="*{apellidos}" 
+                                                   required="required" placeholder="Apellidos" />
+                                        </div>
+                                        <div th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}" class="text-danger"></div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="telefono" class="form-label">Teléfono</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text input-group-text-user-form">
+                                                <i class="fas fa-phone"></i>
+                                            </span>
+                                            <input type="tel" class="form-control form-control-user-form" 
+                                                   id="telefono" th:field="*{telefono}" 
+                                                   placeholder="Número de teléfono" />
+                                        </div>
+                                        <div th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}" class="text-danger-user-form"></div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="password" class="form-label">Nueva Contraseña</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-lock"></i>
+                                            </span>
+                                            <input type="password" class="form-control" 
+                                                   id="password" th:field="*{password}" 
+                                                   placeholder="Dejar en blanco para mantener actual" />
+                                        </div>
+                                        <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger"></div>
+                                        <div class="password-help">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Dejar en blanco para mantener la contraseña actual
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Status Information Section (Read-only for non-admin users) -->
+                            <div class="form-section-user-form">
+                                <h4 class="section-title">
+                                    <i class="fas fa-info-circle"></i>
+                                    Estado de la Cuenta
+                                </h4>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="tipoUsuario" class="form-label">Tipo de Usuario</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-shield-alt"></i>
+                                            </span>
+                                            <input type="text" class="form-control readonly-field" id="tipoUsuario"
+                                                   th:value="${usuario.administrador ? 'Administrador' : 'Usuario Regular'}" 
+                                                   readonly />
+                                        </div>
+                                        <div class="readonly-info">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Solo los administradores pueden cambiar este campo
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="estadoCuenta" class="form-label">Estado de la Cuenta</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-user-check"></i>
+                                            </span>
+                                            <input type="text" class="form-control readonly-field" id="estadoCuenta" 
+                                                   th:value="${usuario.bloqueado ? 'Bloqueada' : 'Activa'}" 
+                                                   readonly />
+                                        </div>
+                                        <div class="readonly-info">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Solo los administradores pueden cambiar este campo
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="form-actions-user-form">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    Guardar Cambios
+                                </button>
+                                <a href="/menuprincipal" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i>
+                                    Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
