@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Funcionalidad en Desarrollo', customLinks=~{:: #page-specific-links})}">
+
+    <th:block id="page-specific-links">
+    </th:block>
+</head>
+
+<body class="gradient-body-with-header">
+    <!-- Header -->
+    <div th:replace="~{fragments/_header :: header(pageTitle='ReservApp - Funcionalidad en Desarrollo')}"></div>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="main-content text-center">
+            <!-- Icono dinámico -->
+            <i th:class="${icono}" style="font-size: 5rem; margin-bottom: 2rem; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: block;"></i>
+            
+            <!-- Título dinámico -->
+            <h1 class="page-title" th:text="${titulo}">Funcionalidad</h1>
+            
+            <!-- Descripción dinámica -->
+            <p class="page-subtitle" th:text="${descripcion}">Descripción de la funcionalidad</p>
+            
+            <!-- Mensaje principal -->
+            <div class="alert alert-info" style="background: var(--primary-gradient); color: white; border-radius: 15px; margin: 2rem 0;">
+                <h3 style="color: white; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-tools" style="margin-right: 0.5rem; font-size: 1.8rem;"></i>
+                    En Desarrollo
+                </h3>
+                <p style="font-size: 1.1rem; margin-bottom: 0; opacity: 0.9;">La funcionalidad se desarrollará en futuras versiones</p>
+            </div>
+            
+            <!-- Información adicional -->
+            <div class="form-section-user-form">
+                <h4 style="display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-info-circle icon-theme-color" style="margin-right: 0.5rem;"></i>
+                    Información
+                </h4>
+                <p style="color: #6c757d; margin-bottom: 0; line-height: 1.6;">
+                    Estamos trabajando constantemente para mejorar ReservApp y añadir nuevas funcionalidades. 
+                    Esta característica está planificada para futuras actualizaciones del sistema.
+                </p>
+            </div>
+            
+            <!-- Botones de acción -->
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
+                <a href="/menuprincipal" class="btn btn-primary" style="display: inline-flex; align-items: center;">
+                    <i class="fas fa-home" style="margin-right: 0.5rem;"></i>
+                    Volver al Menú Principal
+                </a>
+                <a href="javascript:history.back()" class="btn btn-secondary" style="display: inline-flex; align-items: center;">
+                    <i class="fas fa-arrow-left" style="margin-right: 0.5rem;"></i>
+                    Volver Atrás
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
