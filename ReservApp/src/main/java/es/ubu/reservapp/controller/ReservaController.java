@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -53,8 +54,13 @@ import lombok.extern.slf4j.Slf4j;
  * - mostrarMisReservas(): Solo carga establecimientos activos asignados al usuario
  * - obtenerReservasUsuario(): Limita reservas pasadas para mejorar rendimiento
  * 
+ * FUNCIONALIDAD DE AFORO IMPLEMENTADA:
+ * - Validación de disponibilidad considerando aforo del establecimiento
+ * - Slots deshabilitados cuando se alcanza el aforo máximo
+ * - Información de franjas horarias disponibles para reservas de libre selección
+ * 
  * @autor Ahmad Mareie Pascual
- * @version 1.1 - Optimizado
+ * @version 1.2 - Con funcionalidad de aforo
  * @since 1.0
  */
 @Controller
@@ -186,6 +192,12 @@ public class ReservaController {
 			return errorFranja;
 		}
 
+		// NUEVA VALIDACIÓN: Verificar disponibilidad considerando aforo
+		String errorAforo = validarDisponibilidadAforo(establecimiento, horario, null, redirectAttributes);
+		if (errorAforo != null) {
+			return errorAforo;
+		}
+
 		Convocatoria convocatoria = new Convocatoria();
 		convocatoria.setReserva(reserva);
 		convocatoria.setEnlace(enlaceReunion);
@@ -223,6 +235,139 @@ public class ReservaController {
             model.addAttribute(ERROR, "Error interno del servidor");
             return ERROR;
         }
+    }
+
+    /**
+     * Endpoint AJAX para obtener slots disponibles para una fecha específica.
+     * 
+     * @param establecimientoId ID del establecimiento
+     * @param fecha Fecha para la cual obtener los slots
+     * @return ResponseEntity con los slots disponibles
+     */
+    @GetMapping("/slots-disponibles")
+    @ResponseBody
+    public ResponseEntity<SlotsDisponiblesResponse> obtenerSlotsDisponibles(
+            @RequestParam Integer establecimientoId,
+            @RequestParam String fecha) {
+        
+        try {
+            // Validar usuario autenticado
+            if (sessionData.getUsuario() == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Obtener establecimiento
+            Optional<Establecimiento> establecimientoOpt = establecimientoService.findById(establecimientoId);
+            if (establecimientoOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Establecimiento establecimiento = establecimientoOpt.get();
+            LocalDate fechaReserva = LocalDate.parse(fecha);
+            DayOfWeek diaSemana = fechaReserva.getDayOfWeek();
+
+            // Obtener reservas del día
+            LocalDateTime inicioDelDia = fechaReserva.atStartOfDay();
+            LocalDateTime finDelDia = fechaReserva.atTime(23, 59, 59);
+            List<Reserva> reservasDelDia = reservaService.findByEstablecimientoAndFechaReservaBetween(
+                establecimiento, inicioDelDia, finDelDia);
+
+            // Generar slots para el día específico
+            List<SlotReservaUtil.SlotTiempo> slotsDisponibles = new ArrayList<>();
+            
+            for (FranjaHoraria franja : establecimiento.getFranjasHorarias()) {
+                if (franja.getDiaSemana().equals(diaSemana)) {
+                    List<SlotReservaUtil.SlotTiempo> slotsFramja = SlotReservaUtil.generarSlotsConDisponibilidad(
+                        establecimiento, franja, fechaReserva, reservasDelDia);
+                    slotsDisponibles.addAll(slotsFramja);
+                }
+            }
+
+            // Ordenar slots por hora
+            slotsDisponibles.sort(Comparator.comparing(SlotReservaUtil.SlotTiempo::getHoraInicio));
+
+            SlotsDisponiblesResponse response = new SlotsDisponiblesResponse();
+            response.setSlots(slotsDisponibles);
+            response.setAforo(establecimiento.getAforo());
+            response.setTieneAforo(establecimiento.getAforo() != null && establecimiento.getAforo() > 0);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Error al obtener slots disponibles: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * Endpoint AJAX para obtener franjas horarias disponibles para reservas de libre selección.
+     * 
+     * @param establecimientoId ID del establecimiento
+     * @param fecha Fecha para la cual obtener las franjas
+     * @return ResponseEntity con las franjas disponibles
+     */
+    @GetMapping("/franjas-disponibles")
+    @ResponseBody
+    public ResponseEntity<FranjasDisponiblesResponse> obtenerFranjasDisponibles(
+            @RequestParam Integer establecimientoId,
+            @RequestParam String fecha) {
+        
+        try {
+            // Validar usuario autenticado
+            if (sessionData.getUsuario() == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Obtener establecimiento
+            Optional<Establecimiento> establecimientoOpt = establecimientoService.findById(establecimientoId);
+            if (establecimientoOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Establecimiento establecimiento = establecimientoOpt.get();
+            LocalDate fechaReserva = LocalDate.parse(fecha);
+
+            // Obtener franjas disponibles
+            List<ReservaService.FranjaDisponibilidad> franjasDisponibles = 
+                reservaService.obtenerFranjasDisponibles(establecimiento, fechaReserva);
+
+            FranjasDisponiblesResponse response = new FranjasDisponiblesResponse();
+            response.setFranjas(franjasDisponibles);
+            response.setAforo(establecimiento.getAforo());
+            response.setTieneAforo(establecimiento.getAforo() != null && establecimiento.getAforo() > 0);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Error al obtener franjas disponibles: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * Endpoint para buscar usuarios por nombre o ID (AJAX).
+     * OPTIMIZADO: Usa consulta de base de datos en lugar de cargar todos los usuarios en memoria.
+     * 
+     * @param query término de búsqueda
+     * @return lista de usuarios que coinciden con la búsqueda
+     */
+    @GetMapping("/buscar-usuarios")
+    @ResponseBody
+    public List<UsuarioDTO> buscarUsuarios(@RequestParam String query) {
+        if (query == null || query.trim().length() < 2) {
+            return new ArrayList<>();
+        }
+        
+        String queryLower = query.toLowerCase().trim();
+        
+        // OPTIMIZACIÓN: Usar búsqueda optimizada en base de datos en lugar de cargar todos los usuarios
+        List<Usuario> usuarios = usuarioService.buscarUsuarioSegunQuery(queryLower);
+        
+        return usuarios.stream()
+                .map(usuario -> new UsuarioDTO(usuario.getId(), 
+                    usuario.getNombre() + " " + usuario.getApellidos(), 
+                    usuario.getCorreo()))
+                .toList();
     }
 
     // ================================
@@ -358,6 +503,41 @@ public class ReservaController {
 
         if (!dentroDeFranja) {
             redirectAttributes.addFlashAttribute(ERROR, "La hora seleccionada está fuera del horario de apertura del establecimiento para ese día o no es válida.");
+            return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimiento.getId();
+        }
+        
+        return null;
+    }
+
+    /**
+     * Verifica la disponibilidad considerando el aforo del establecimiento.
+     * 
+     * @param establecimiento
+     * @param horario
+     * @param reservaExcluir Reserva a excluir (para ediciones), puede ser null
+     * @param redirectAttributes
+     */
+    private String validarDisponibilidadAforo(Establecimiento establecimiento, HorarioReserva horario, 
+                                             Reserva reservaExcluir, RedirectAttributes redirectAttributes) {
+        boolean disponible = reservaService.verificarDisponibilidad(
+            establecimiento, horario.getFecha(), horario.getHoraInicio(), horario.getHoraFin(), reservaExcluir);
+        
+        if (!disponible) {
+            // Obtener información detallada para el mensaje de error
+            List<Reserva> reservasSolapadas = reservaService.obtenerReservasSolapadas(
+                establecimiento, horario.getFecha(), horario.getHoraInicio(), horario.getHoraFin());
+            
+            if (reservaExcluir != null) {
+                reservasSolapadas = reservasSolapadas.stream()
+                    .filter(r -> !r.getId().equals(reservaExcluir.getId()))
+                    .toList();
+            }
+            
+            String mensaje = String.format(
+                "No hay disponibilidad para el horario seleccionado. El establecimiento tiene un aforo de %d y ya hay %d reserva(s) en ese horario.",
+                establecimiento.getAforo(), reservasSolapadas.size());
+            
+            redirectAttributes.addFlashAttribute(ERROR, mensaje);
             return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimiento.getId();
         }
         
@@ -600,32 +780,6 @@ public class ReservaController {
     }
 
     /**
-     * Endpoint para buscar usuarios por nombre o ID (AJAX).
-     * OPTIMIZADO: Usa consulta de base de datos en lugar de cargar todos los usuarios en memoria.
-     * 
-     * @param query término de búsqueda
-     * @return lista de usuarios que coinciden con la búsqueda
-     */
-    @GetMapping("/buscar-usuarios")
-    @ResponseBody
-    public List<UsuarioDTO> buscarUsuarios(@RequestParam String query) {
-        if (query == null || query.trim().length() < 2) {
-            return new ArrayList<>();
-        }
-        
-        String queryLower = query.toLowerCase().trim();
-        
-        // OPTIMIZACIÓN: Usar búsqueda optimizada en base de datos en lugar de cargar todos los usuarios
-        List<Usuario> usuarios = usuarioService.buscarUsuarioSegunQuery(queryLower);
-        
-        return usuarios.stream()
-                .map(usuario -> new UsuarioDTO(usuario.getId(), 
-                    usuario.getNombre() + " " + usuario.getApellidos(), 
-                    usuario.getCorreo()))
-                .toList();
-    }
-
-    /**
      * Muestra el formulario de edición de una reserva.
      *
      * @param reservaId ID de la reserva a editar.
@@ -788,6 +942,12 @@ public class ReservaController {
                 return REDIRECT_MIS_RESERVAS_EDITAR + reservaId;
             }
             
+            // Verificar disponibilidad considerando aforo
+            String errorAforo = validarDisponibilidadAforo(establecimiento, horario, reservaExistente, redirectAttributes);
+            if (errorAforo != null) {
+                return errorAforo;
+            }
+            
             // Actualizar la reserva
             reservaExistente.setFechaReserva(LocalDateTime.of(horario.getFecha(), horario.getHoraInicio()));
             reservaExistente.setHoraFin(horario.getHoraFin());
@@ -827,130 +987,6 @@ public class ReservaController {
             redirectAttributes.addFlashAttribute(ERROR, "Error al actualizar la reserva: " + e.getMessage());
             return REDIRECT_MIS_RESERVAS_EDITAR + reservaId;
         }
-    }
-
-
-    // ================================
-    // MÉTODOS PRIVADOS DE PREPARACIÓN DE DATOS
-    // ================================
-
-    /**
-     * Prepara todos los datos necesarios para mostrar el calendario de reservas.
-     * 
-     * @param establecimiento
-     * @param model
-     */
-    private void prepararDatosCalendario(Establecimiento establecimiento, Model model) {
-        Usuario usuario = sessionData.getUsuario();
-        
-        // Obtener franjas horarias activas
-        List<FranjaHoraria> franjasActivas = obtenerFranjasActivas(establecimiento);
-        
-        // Obtener reservas del usuario
-        ReservasUsuario reservasUsuario = obtenerReservasUsuario(usuario, establecimiento);
-        
-        // Generar slots si es necesario
-        SlotsData slotsData = generarSlotsData(establecimiento, franjasActivas);
-        
-        // Configurar modelo
-        configurarModeloCalendario(model, establecimiento, franjasActivas, reservasUsuario, slotsData);
-    }
-
-    /**
-     * Obtiene las franjas horarias activas del establecimiento.
-     */
-    private List<FranjaHoraria> obtenerFranjasActivas(Establecimiento establecimiento) {
-        return establecimiento.getFranjasHorarias().stream()
-                .filter(fh -> establecimiento.isActivo())
-                .sorted(Comparator.comparing(FranjaHoraria::getDiaSemana)
-                        .thenComparing(FranjaHoraria::getHoraInicio))
-                .toList();
-    }
-
-    /**
-     * Obtiene las reservas pasadas y futuras del usuario para el establecimiento.
-     * OPTIMIZADO: Limita el número de reservas pasadas para mejorar rendimiento.
-     * 
-     * @param establecimiento
-     */
-    private ReservasUsuario obtenerReservasUsuario(Usuario usuario, Establecimiento establecimiento) {
-        LocalDateTime fechaActual = LocalDateTime.now();
-        
-        // OPTIMIZACIÓN: Limitar reservas pasadas a las últimas 50 para evitar cargar demasiados datos
-        List<Reserva> reservasPasadas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual);
-        List<Reserva> reservasFuturas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
-        
-        // Las consultas optimizadas ya vienen ordenadas desde la base de datos
-        // reservasPasadas ya vienen ordenadas por fecha descendente
-        // reservasFuturas se ordenan aquí si es necesario
-        reservasFuturas.sort(Comparator.comparing(Reserva::getFechaReserva));
-        
-        return new ReservasUsuario(reservasPasadas, reservasFuturas);
-    }
-
-    /**
-     * Genera los datos de slots si es necesario.
-     * 
-     * @param establecimiento
-     * @param franjasActivas
-     */
-    private SlotsData generarSlotsData(Establecimiento establecimiento, List<FranjaHoraria> franjasActivas) {
-        boolean requiereSlots = SlotReservaUtil.requiereSlotsPredefinidos(establecimiento);
-        Map<DayOfWeek, List<SlotReservaUtil.SlotTiempo>> slotsDisponibles = new EnumMap<>(DayOfWeek.class);
-        
-        if (requiereSlots) {
-            for (FranjaHoraria franja : franjasActivas) {
-                List<SlotReservaUtil.SlotTiempo> slots = SlotReservaUtil.generarSlotsDisponibles(establecimiento, franja);
-                slotsDisponibles.put(franja.getDiaSemana(), slots);
-            }
-        }
-        
-        return new SlotsData(requiereSlots, slotsDisponibles);
-    }
-    
-    /**
-     * Calcula el slot actual de una reserva basado en su hora de inicio y fin.
-     * 
-     * @param reserva La reserva de la cual calcular el slot
-     * @return El slot en formato "HH:mm - HH:mm" o null si no se puede determinar
-     */
-    private String calcularSlotActual(Reserva reserva) {
-        if (reserva == null || reserva.getFechaReserva() == null) {
-            return null;
-        }
-        
-        LocalTime horaInicio = reserva.getFechaReserva().toLocalTime();
-        LocalTime horaFin = reserva.getHoraFin();
-        
-        if (horaFin == null) {
-            return null;
-        }
-        
-        // Formatear como "HH:mm - HH:mm"
-         return String.format("%s - %s", 
-             horaInicio.format(DateTimeFormatter.ofPattern("HH:mm")),
-             horaFin.format(DateTimeFormatter.ofPattern("HH:mm")));
-     }
-
-    /**
-     * Configura el modelo con todos los datos necesarios para el calendario.
-     * 
-     * @param model
-     * @param establecimiento
-     * @param franjasActivas
-     * @param reservasUsuario
-     * @param slotsData
-     */
-    private void configurarModeloCalendario(Model model, Establecimiento establecimiento, 
-                                           List<FranjaHoraria> franjasActivas, ReservasUsuario reservasUsuario, 
-                                           SlotsData slotsData) {
-        model.addAttribute("establecimiento", establecimiento);
-        model.addAttribute("franjasHorarias", franjasActivas);
-        model.addAttribute("reserva", new Reserva());
-        model.addAttribute("reservasPasadas", reservasUsuario.getPasadas());
-        model.addAttribute("reservasFuturas", reservasUsuario.getFuturas());
-        model.addAttribute("requiereSlotsPredefinidos", slotsData.isRequiereSlots());
-        model.addAttribute("slotsDisponibles", slotsData.getSlotsDisponibles());
     }
 
     /**
@@ -1038,6 +1074,129 @@ public class ReservaController {
 		    // Continuar con la anulación aunque falle el envío de correos
 		}
 	}
+
+    // ================================
+    // MÉTODOS PRIVADOS DE PREPARACIÓN DE DATOS
+    // ================================
+
+    /**
+     * Prepara todos los datos necesarios para mostrar el calendario de reservas.
+     * 
+     * @param establecimiento
+     * @param model
+     */
+    private void prepararDatosCalendario(Establecimiento establecimiento, Model model) {
+        Usuario usuario = sessionData.getUsuario();
+        
+        // Obtener franjas horarias activas
+        List<FranjaHoraria> franjasActivas = obtenerFranjasActivas(establecimiento);
+        
+        // Obtener reservas del usuario
+        ReservasUsuario reservasUsuario = obtenerReservasUsuario(usuario, establecimiento);
+        
+        // Generar slots si es necesario
+        SlotsData slotsData = generarSlotsData(establecimiento, franjasActivas);
+        
+        // Configurar modelo
+        configurarModeloCalendario(model, establecimiento, franjasActivas, reservasUsuario, slotsData);
+    }
+
+    /**
+     * Obtiene las franjas horarias activas del establecimiento.
+     */
+    private List<FranjaHoraria> obtenerFranjasActivas(Establecimiento establecimiento) {
+        return establecimiento.getFranjasHorarias().stream()
+                .filter(fh -> establecimiento.isActivo())
+                .sorted(Comparator.comparing(FranjaHoraria::getDiaSemana)
+                        .thenComparing(FranjaHoraria::getHoraInicio))
+                .toList();
+    }
+
+    /**
+     * Obtiene las reservas pasadas y futuras del usuario para el establecimiento.
+     * OPTIMIZADO: Limita el número de reservas pasadas para evitar cargar demasiados datos
+     * 
+     * @param establecimiento
+     */
+    private ReservasUsuario obtenerReservasUsuario(Usuario usuario, Establecimiento establecimiento) {
+        LocalDateTime fechaActual = LocalDateTime.now();
+        
+        // OPTIMIZACIÓN: Limitar reservas pasadas a las últimas 50 para evitar cargar demasiados datos
+        List<Reserva> reservasPasadas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual);
+        List<Reserva> reservasFuturas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
+        
+        // Las consultas optimizadas ya vienen ordenadas desde la base de datos
+        // reservasPasadas ya vienen ordenadas por fecha descendente
+        // reservasFuturas se ordenan aquí si es necesario
+        reservasFuturas.sort(Comparator.comparing(Reserva::getFechaReserva));
+        
+        return new ReservasUsuario(reservasPasadas, reservasFuturas);
+    }
+
+    /**
+     * Genera los datos de slots si es necesario.
+     * 
+     * @param establecimiento
+     * @param franjasActivas
+     */
+    private SlotsData generarSlotsData(Establecimiento establecimiento, List<FranjaHoraria> franjasActivas) {
+        boolean requiereSlots = SlotReservaUtil.requiereSlotsPredefinidos(establecimiento);
+        Map<DayOfWeek, List<SlotReservaUtil.SlotTiempo>> slotsDisponibles = new EnumMap<>(DayOfWeek.class);
+        
+        if (requiereSlots) {
+            for (FranjaHoraria franja : franjasActivas) {
+                List<SlotReservaUtil.SlotTiempo> slots = SlotReservaUtil.generarSlotsDisponibles(establecimiento, franja);
+                slotsDisponibles.put(franja.getDiaSemana(), slots);
+            }
+        }
+        
+        return new SlotsData(requiereSlots, slotsDisponibles);
+    }
+    
+    /**
+     * Calcula el slot actual de una reserva basado en su hora de inicio y fin.
+     * 
+     * @param reserva La reserva de la cual calcular el slot
+     * @return El slot en formato "HH:mm - HH:mm" o null si no se puede determinar
+     */
+    private String calcularSlotActual(Reserva reserva) {
+        if (reserva == null || reserva.getFechaReserva() == null) {
+            return null;
+        }
+        
+        LocalTime horaInicio = reserva.getFechaReserva().toLocalTime();
+        LocalTime horaFin = reserva.getHoraFin();
+        
+        if (horaFin == null) {
+            return null;
+        }
+        
+        // Formatear como "HH:mm - HH:mm"
+         return String.format("%s - %s", 
+             horaInicio.format(DateTimeFormatter.ofPattern("HH:mm")),
+             horaFin.format(DateTimeFormatter.ofPattern("HH:mm")));
+     }
+
+    /**
+     * Configura el modelo con todos los datos necesarios para el calendario.
+     * 
+     * @param model
+     * @param establecimiento
+     * @param franjasActivas
+     * @param reservasUsuario
+     * @param slotsData
+     */
+    private void configurarModeloCalendario(Model model, Establecimiento establecimiento, 
+                                           List<FranjaHoraria> franjasActivas, ReservasUsuario reservasUsuario, 
+                                           SlotsData slotsData) {
+        model.addAttribute("establecimiento", establecimiento);
+        model.addAttribute("franjasHorarias", franjasActivas);
+        model.addAttribute("reserva", new Reserva());
+        model.addAttribute("reservasPasadas", reservasUsuario.getPasadas());
+        model.addAttribute("reservasFuturas", reservasUsuario.getFuturas());
+        model.addAttribute("requiereSlotsPredefinidos", slotsData.isRequiereSlots());
+        model.addAttribute("slotsDisponibles", slotsData.getSlotsDisponibles());
+    }
 
     // ================================
     // CLASES AUXILIARES
@@ -1139,5 +1298,71 @@ public class ReservaController {
         public String getNombre() { return nombre; }
         public String getApellidos() { return apellidos; }
         public String getCorreo() { return correo; }
+    }
+
+    /**
+     * DTO para respuesta de slots disponibles.
+     */
+    public static class SlotsDisponiblesResponse {
+        private List<SlotReservaUtil.SlotTiempo> slots;
+        private Integer aforo;
+        private Boolean tieneAforo;
+
+        public List<SlotReservaUtil.SlotTiempo> getSlots() {
+            return slots;
+        }
+
+        public void setSlots(List<SlotReservaUtil.SlotTiempo> slots) {
+            this.slots = slots;
+        }
+
+        public Integer getAforo() {
+            return aforo;
+        }
+
+        public void setAforo(Integer aforo) {
+            this.aforo = aforo;
+        }
+
+        public Boolean getTieneAforo() {
+            return tieneAforo;
+        }
+
+        public void setTieneAforo(Boolean tieneAforo) {
+            this.tieneAforo = tieneAforo;
+        }
+    }
+
+    /**
+     * DTO para respuesta de franjas disponibles.
+     */
+    public static class FranjasDisponiblesResponse {
+        private List<ReservaService.FranjaDisponibilidad> franjas;
+        private Integer aforo;
+        private Boolean tieneAforo;
+
+        public List<ReservaService.FranjaDisponibilidad> getFranjas() {
+            return franjas;
+        }
+
+        public void setFranjas(List<ReservaService.FranjaDisponibilidad> franjas) {
+            this.franjas = franjas;
+        }
+
+        public Integer getAforo() {
+            return aforo;
+        }
+
+        public void setAforo(Integer aforo) {
+            this.aforo = aforo;
+        }
+
+        public Boolean getTieneAforo() {
+            return tieneAforo;
+        }
+
+        public void setTieneAforo(Boolean tieneAforo) {
+            this.tieneAforo = tieneAforo;
+        }
     }
 }

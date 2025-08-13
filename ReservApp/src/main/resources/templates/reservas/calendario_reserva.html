@@ -587,6 +587,305 @@
                 font-style: italic;
                 margin: 0;
             }
+
+            /* NUEVOS ESTILOS PARA FUNCIONALIDAD DE AFORO */
+            
+            /* Información de aforo del establecimiento */
+            .aforo-info {
+                background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+                border: 1px solid #28a745;
+                border-radius: 12px;
+                padding: 15px;
+                margin-bottom: 20px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .aforo-info .aforo-icon {
+                font-size: 1.5em;
+                color: #28a745;
+            }
+            
+            .aforo-info .aforo-text {
+                flex: 1;
+            }
+            
+            .aforo-info .aforo-numero {
+                font-weight: 700;
+                color: #28a745;
+                font-size: 1.1em;
+            }
+            
+            /* Información de disponibilidad para reservas libres */
+            .disponibilidad-info {
+                background: linear-gradient(135deg, #fff3cd 0%, #fef9e7 100%);
+                border: 1px solid #ffc107;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .disponibilidad-info h4 {
+                color: #856404;
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .disponibilidad-info h4::before {
+                content: '⏰';
+                font-size: 1.2em;
+            }
+            
+            .franjas-disponibles {
+                display: grid;
+                gap: 15px;
+            }
+            
+            .franja-disponible {
+                background: white;
+                border-radius: 8px;
+                padding: 15px;
+                border-left: 4px solid #28a745;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .franja-disponible.sin-disponibilidad {
+                border-left-color: #dc3545;
+                opacity: 0.7;
+            }
+            
+            .franja-titulo {
+                font-weight: 600;
+                color: #495057;
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .franja-titulo .dia-semana {
+                color: #007bff;
+            }
+            
+            .periodos-disponibles {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .periodo-disponible {
+                background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+                color: #155724;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 0.85em;
+                font-weight: 500;
+                border: 1px solid #c3e6cb;
+            }
+            
+            .sin-periodos {
+                color: #6c757d;
+                font-style: italic;
+                font-size: 0.9em;
+            }
+            
+            /* Estilos mejorados para slots con aforo */
+            .slots-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+                margin-top: 15px;
+            }
+            
+            .slot-option {
+                padding: 15px;
+                border: 2px solid #e9ecef;
+                border-radius: 12px;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-weight: 500;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                position: relative;
+                overflow: hidden;
+                color: #495057;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .slot-option::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                transition: left 0.5s;
+            }
+            
+            .slot-option:hover::before {
+                left: 100%;
+            }
+            
+            .slot-option:hover:not(.disabled) {
+                border-color: #007bff;
+                background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(0,123,255,0.2);
+            }
+            
+            .slot-option.selected {
+                border-color: #007bff;
+                background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+            }
+            
+            .slot-option.selected::before {
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            }
+            
+            .slot-option.disabled {
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                color: #6c757d;
+                cursor: not-allowed;
+                opacity: 0.6;
+                border-color: #dee2e6;
+                position: relative;
+            }
+            
+            .slot-option.disabled::after {
+                content: '🚫';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 1.5em;
+                opacity: 0.7;
+            }
+            
+            .slot-option.disabled:hover {
+                transform: none;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            }
+            
+            .slot-option.disabled::before {
+                display: none;
+            }
+            
+            .slot-tiempo {
+                font-size: 1em;
+                font-weight: 600;
+            }
+            
+            .slot-disponibilidad {
+                font-size: 0.8em;
+                opacity: 0.8;
+            }
+            
+            .slot-option.selected .slot-disponibilidad {
+                opacity: 0.9;
+            }
+            
+            .slot-option.disabled .slot-disponibilidad {
+                opacity: 0.6;
+            }
+            
+            /* Indicador de aforo completo */
+            .aforo-completo {
+                background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+                border: 1px solid #dc3545;
+                border-radius: 8px;
+                padding: 12px;
+                margin-top: 10px;
+                color: #721c24;
+                font-size: 0.9em;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .aforo-completo::before {
+                content: '⚠️';
+                font-size: 1.1em;
+            }
+            
+            /* Leyenda de disponibilidad */
+            .disponibilidad-leyenda {
+                background: white;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .disponibilidad-leyenda h5 {
+                margin-bottom: 12px;
+                color: #495057;
+                font-size: 1em;
+            }
+            
+            .leyenda-items {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            
+            .leyenda-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 0.9em;
+            }
+            
+            .leyenda-color {
+                width: 16px;
+                height: 16px;
+                border-radius: 4px;
+                border: 1px solid #dee2e6;
+            }
+            
+            .leyenda-disponible {
+                background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            }
+            
+            .leyenda-ocupado {
+                background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            }
+            
+            .leyenda-seleccionado {
+                background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            }
+            
+            /* Mensaje de carga para slots dinámicos */
+            .slots-loading {
+                text-align: center;
+                padding: 30px;
+                color: #6c757d;
+            }
+            
+            .slots-loading .spinner {
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid #007bff;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 15px;
+            }
+            
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
         </style>
     </th:block>
 </head>
@@ -624,6 +923,28 @@
             <p><strong><i class="fas fa-info-circle"></i> Estado:</strong> 
                <span th:text="${establecimiento.activo ? 'Activo' : 'Inactivo'}" 
                      th:class="${establecimiento.activo ? 'text-success' : 'text-danger'}">Estado</span></p>
+            
+            <!-- NUEVA SECCIÓN: Información de aforo -->
+            <div class="aforo-info" th:if="${establecimiento.aforo != null and establecimiento.aforo > 0}">
+                <div class="aforo-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="aforo-text">
+                    <strong>Aforo máximo:</strong> 
+                    <span class="aforo-numero" th:text="${establecimiento.aforo}">1</span> 
+                    <span th:text="${establecimiento.aforo == 1 ? 'persona' : 'personas'}">persona</span> por horario
+                </div>
+            </div>
+            
+            <div class="aforo-info" th:if="${establecimiento.aforo == null or establecimiento.aforo <= 0}" 
+                 style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border-color: #007bff;">
+                <div class="aforo-icon" style="color: #007bff;">
+                    <i class="fas fa-infinity"></i>
+                </div>
+                <div class="aforo-text">
+                    <strong>Sin límite de aforo</strong> - Múltiples personas pueden reservar el mismo horario
+                </div>
+            </div>
         </div>
 
         <!-- Franjas horarias -->
@@ -792,6 +1113,25 @@
                        name="fecha" 
                        required="required"
                        th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+            </div>
+
+            <!-- NUEVA SECCIÓN: Leyenda de disponibilidad para slots predefinidos -->
+            <div th:if="${requiereSlotsPredefinidos}" class="disponibilidad-leyenda">
+                <h5><i class="fas fa-info-circle"></i> Leyenda de Disponibilidad</h5>
+                <div class="leyenda-items">
+                    <div class="leyenda-item">
+                        <div class="leyenda-color leyenda-disponible"></div>
+                        <span>Disponible</span>
+                    </div>
+                    <div class="leyenda-item">
+                        <div class="leyenda-color leyenda-ocupado"></div>
+                        <span>Sin disponibilidad</span>
+                    </div>
+                    <div class="leyenda-item">
+                        <div class="leyenda-color leyenda-seleccionado"></div>
+                        <span>Seleccionado</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Campos de hora para establecimientos sin duración fija -->

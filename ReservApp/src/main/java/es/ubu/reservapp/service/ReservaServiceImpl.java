@@ -1,10 +1,13 @@
 package es.ubu.reservapp.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -129,6 +132,150 @@ public class ReservaServiceImpl implements ReservaService {
 		return obtenerConvocatoria(reserva);
 	}
 
+	@Override
+	public boolean verificarDisponibilidad(Establecimiento establecimiento, LocalDate fecha, 
+	                                      LocalTime horaInicio, LocalTime horaFin, Reserva reservaExcluir) {
+	    // Si el aforo es 0 o negativo, no hay límite de capacidad
+	    if (establecimiento.getAforo() == null || establecimiento.getAforo() <= 0) {
+	        return true;
+	    }
+
+	    LocalDateTime fechaInicio = LocalDateTime.of(fecha, horaInicio);
+	    LocalDateTime fechaFin = LocalDateTime.of(fecha, horaFin);
+	    
+	    // Obtener reservas que se solapan con el horario solicitado
+	    List<Reserva> reservasSolapadas = reservaRepo.findReservasSolapadas(
+	        establecimiento, 
+	        fechaInicio, 
+	        fechaFin
+	    );
+	    
+	    // Excluir la reserva especificada si existe (para casos de edición)
+	    if (reservaExcluir != null) {
+	        reservasSolapadas = reservasSolapadas.stream()
+	            .filter(r -> !r.getId().equals(reservaExcluir.getId()))
+	            .toList();
+	    }
+
+	    // Verificar si el número de reservas solapadas es menor que el aforo
+	    int reservasExistentes = reservasSolapadas.size();
+	    boolean disponible = reservasExistentes < establecimiento.getAforo();
+	    
+	    log.debug("Verificando disponibilidad para establecimiento {} en fecha {} de {} a {}: " +
+	             "Reservas existentes: {}, Aforo: {}, Disponible: {}", 
+	             establecimiento.getNombre(), fecha, horaInicio, horaFin, 
+	             reservasExistentes, establecimiento.getAforo(), disponible);
+	    
+	    return disponible;
+	}
+
+	@Override
+	public List<FranjaDisponibilidad> obtenerFranjasDisponibles(Establecimiento establecimiento, LocalDate fecha) {
+	    List<FranjaDisponibilidad> franjasDisponibles = new ArrayList<>();
+	    
+	    // Obtener todas las reservas del día
+	    LocalDateTime inicioDelDia = fecha.atStartOfDay();
+	    LocalDateTime finDelDia = fecha.atTime(23, 59, 59);
+	    List<Reserva> reservasDelDia = reservaRepo.findReservasByEstablecimientoAndFecha(
+	        establecimiento, inicioDelDia, finDelDia);
+	    
+	    // Procesar cada franja horaria del establecimiento
+	    for (FranjaHoraria franja : establecimiento.getFranjasHorarias()) {
+	        if (franja.getDiaSemana().equals(fecha.getDayOfWeek())) {
+	            List<PeriodoDisponible> periodosDisponibles = calcularPeriodosDisponibles(
+	                franja, reservasDelDia, establecimiento.getAforo());
+	            franjasDisponibles.add(new FranjaDisponibilidad(franja, periodosDisponibles));
+	        }
+	    }
+	    
+	    return franjasDisponibles;
+	}
+
+	@Override
+	public List<Reserva> obtenerReservasSolapadas(Establecimiento establecimiento, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin) {
+	    LocalDateTime fechaInicio = LocalDateTime.of(fecha, horaInicio);
+	    LocalDateTime fechaFin = LocalDateTime.of(fecha, horaFin);
+	    
+	    return reservaRepo.findReservasSolapadas(establecimiento, fechaInicio, fechaFin );
+	}
+
+	/**
+	 * Calcula los períodos disponibles dentro de una franja horaria considerando las reservas existentes y el aforo.
+	 */
+	private List<PeriodoDisponible> calcularPeriodosDisponibles(FranjaHoraria franja, List<Reserva> reservasDelDia, Integer aforo) {
+	    List<PeriodoDisponible> periodosDisponibles = new ArrayList<>();
+	    
+	    // Si no hay límite de aforo, toda la franja está disponible
+	    if (aforo == null || aforo <= 0) {
+	        periodosDisponibles.add(new PeriodoDisponible(franja.getHoraInicio(), franja.getHoraFin()));
+	        return periodosDisponibles;
+	    }
+	    
+	    // Filtrar reservas que afectan a esta franja horaria
+	    List<Reserva> reservasEnFranja = reservasDelDia.stream()
+	        .filter(r -> {
+	            LocalTime horaInicioReserva = r.getFechaReserva().toLocalTime();
+	            LocalTime horaFinReserva = r.getHoraFin() != null ? r.getHoraFin() : horaInicioReserva.plusHours(1);
+	            
+	            // Verificar si la reserva se solapa con la franja
+	            return !(horaFinReserva.isBefore(franja.getHoraInicio()) || 
+	                    horaInicioReserva.isAfter(franja.getHoraFin()));
+	        }).toList();
+	    
+	    // Si no hay reservas en la franja, toda está disponible
+	    if (reservasEnFranja.isEmpty()) {
+	        periodosDisponibles.add(new PeriodoDisponible(franja.getHoraInicio(), franja.getHoraFin()));
+	        return periodosDisponibles;
+	    }
+	    
+	    // Crear una lista de todos los puntos de tiempo relevantes
+	    List<LocalTime> puntosDeTime = new ArrayList<>();
+	    puntosDeTime.add(franja.getHoraInicio());
+	    puntosDeTime.add(franja.getHoraFin());
+	    
+	    for (Reserva reserva : reservasEnFranja) {
+	        LocalTime horaInicioReserva = reserva.getFechaReserva().toLocalTime();
+	        LocalTime horaFinReserva = reserva.getHoraFin() != null ? reserva.getHoraFin() : horaInicioReserva.plusHours(1);
+	        
+	        if (!horaInicioReserva.isBefore(franja.getHoraInicio()) && !horaInicioReserva.isAfter(franja.getHoraFin())) {
+	            puntosDeTime.add(horaInicioReserva);
+	        }
+	        if (!horaFinReserva.isBefore(franja.getHoraInicio()) && !horaFinReserva.isAfter(franja.getHoraFin())) {
+	            puntosDeTime.add(horaFinReserva);
+	        }
+	    }
+	    
+	    // Ordenar y eliminar duplicados
+	    puntosDeTime = puntosDeTime.stream()
+	        .distinct()
+	        .sorted()
+	        .collect(Collectors.toList());
+	    
+	    // Verificar cada intervalo entre puntos consecutivos
+	    for (int i = 0; i < puntosDeTime.size() - 1; i++) {
+	        LocalTime inicioIntervalo = puntosDeTime.get(i);
+	        LocalTime finIntervalo = puntosDeTime.get(i + 1);
+	        
+	        // Contar cuántas reservas ocupan este intervalo
+	        long reservasEnIntervalo = reservasEnFranja.stream()
+	            .filter(r -> {
+	                LocalTime horaInicioReserva = r.getFechaReserva().toLocalTime();
+	                LocalTime horaFinReserva = r.getHoraFin() != null ? r.getHoraFin() : horaInicioReserva.plusHours(1);
+	                
+	                // La reserva ocupa el intervalo si se solapa con él
+	                return !(horaFinReserva.isBefore(inicioIntervalo) || horaInicioReserva.isAfter(finIntervalo));
+	            })
+	            .count();
+	        
+	        // Si hay capacidad disponible, agregar el período
+	        if (reservasEnIntervalo < aforo) {
+	            periodosDisponibles.add(new PeriodoDisponible(inicioIntervalo, finIntervalo));
+	        }
+	    }
+	    
+	    return periodosDisponibles;
+	}
+
 	/**
 	 * Recupera las convocatorias de las reserva
 	 * 
@@ -167,5 +314,4 @@ public class ReservaServiceImpl implements ReservaService {
 	public void delete(Reserva reserva) {
 		reservaRepo.delete(reserva);
 	}
-
 }
