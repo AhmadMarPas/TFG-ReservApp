@@ -208,7 +208,7 @@ public class ReservaController {
 
     /**
      * Muestra las reservas del usuario actual.
-     * OPTIMIZADO: Solo carga establecimientos activos asignados al usuario.
+     * OPTIMIZADO: Solo carga establecimientos asignados al usuario.
      *
      * @param model Modelo para pasar datos a la vista.
      * @param redirectAttributes Atributos para redirección con mensajes flash.
@@ -517,15 +517,12 @@ public class ReservaController {
      * @param reservaExcluir Reserva a excluir (para ediciones), puede ser null
      * @param redirectAttributes
      */
-    private String validarDisponibilidadAforo(Establecimiento establecimiento, HorarioReserva horario, 
-                                             Reserva reservaExcluir, RedirectAttributes redirectAttributes) {
-        boolean disponible = reservaService.verificarDisponibilidad(
-            establecimiento, horario.getFecha(), horario.getHoraInicio(), horario.getHoraFin(), reservaExcluir);
+    private String validarDisponibilidadAforo(Establecimiento establecimiento, HorarioReserva horario, Reserva reservaExcluir, RedirectAttributes redirectAttributes) {
+        boolean disponible = reservaService.verificarDisponibilidad(establecimiento, horario.getFecha(), horario.getHoraInicio(), horario.getHoraFin(), reservaExcluir);
         
         if (!disponible) {
             // Obtener información detallada para el mensaje de error
-            List<Reserva> reservasSolapadas = reservaService.obtenerReservasSolapadas(
-                establecimiento, horario.getFecha(), horario.getHoraInicio(), horario.getHoraFin());
+            List<Reserva> reservasSolapadas = reservaService.obtenerReservasSolapadas(establecimiento, horario.getFecha(), horario.getHoraInicio(), horario.getHoraFin());
             
             if (reservaExcluir != null) {
                 reservasSolapadas = reservasSolapadas.stream()

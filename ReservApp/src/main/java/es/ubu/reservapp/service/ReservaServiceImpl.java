@@ -133,8 +133,7 @@ public class ReservaServiceImpl implements ReservaService {
 	}
 
 	@Override
-	public boolean verificarDisponibilidad(Establecimiento establecimiento, LocalDate fecha, 
-	                                      LocalTime horaInicio, LocalTime horaFin, Reserva reservaExcluir) {
+	public boolean verificarDisponibilidad(Establecimiento establecimiento, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin, Reserva reservaExcluir) {
 	    // Si el aforo es 0 o negativo, no hay límite de capacidad
 	    if (establecimiento.getAforo() == null || establecimiento.getAforo() <= 0) {
 	        return true;
