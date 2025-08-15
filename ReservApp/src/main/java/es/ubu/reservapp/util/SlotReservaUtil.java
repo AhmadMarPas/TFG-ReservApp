@@ -1,7 +1,6 @@
 package es.ubu.reservapp.util;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -145,18 +144,16 @@ public class SlotReservaUtil {
         while (horaActual.isBefore(horaFinFranja)) {
             LocalTime horaFinSlot = horaActual.plusMinutes(duracionMinutos);
 
-            // Verificar que el slot completo esté dentro de la franja horaria
             if (horaFinSlot.isAfter(horaFinFranja)) {
-                horaActual = horaFinFranja; // Fuerza la salida del bucle
+                horaActual = horaFinFranja;
             } else {
                 slots.add(new SlotTiempo(horaActual, horaFinSlot));
 
-                // Avanzar al siguiente slot considerando el tiempo de descanso
                 LocalTime siguienteHora = horaFinSlot.plusMinutes(descansoMinutos);
 
                 // Verificar que no haya desbordamiento de horas (evitar que pase de 23:59 a 00:00)
                 if (siguienteHora.isBefore(horaFinSlot)) {
-                    horaActual = horaFinFranja; // Fuerza la salida del bucle
+                    horaActual = horaFinFranja;
                 } else {
                     horaActual = siguienteHora;
                 }
@@ -177,7 +174,6 @@ public class SlotReservaUtil {
      */
     public static List<SlotTiempo> generarSlotsConDisponibilidad(Establecimiento establecimiento, 
                                                                FranjaHoraria franjaHoraria, 
-                                                               LocalDate fecha,
                                                                List<Reserva> reservasDelDia) {
         List<SlotTiempo> slotsBase = generarSlotsDisponibles(establecimiento, franjaHoraria);
         

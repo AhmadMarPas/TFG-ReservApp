@@ -269,17 +269,15 @@ public class ReservaController {
             // Obtener reservas del día
             LocalDateTime inicioDelDia = fechaReserva.atStartOfDay();
             LocalDateTime finDelDia = fechaReserva.atTime(23, 59, 59);
-            List<Reserva> reservasDelDia = reservaService.findByEstablecimientoAndFechaReservaBetween(
-                establecimiento, inicioDelDia, finDelDia);
+            List<Reserva> reservasDelDia = reservaService.findByEstablecimientoAndFechaReservaBetween(establecimiento, inicioDelDia, finDelDia);
 
             // Generar slots para el día específico
             List<SlotReservaUtil.SlotTiempo> slotsDisponibles = new ArrayList<>();
             
             for (FranjaHoraria franja : establecimiento.getFranjasHorarias()) {
                 if (franja.getDiaSemana().equals(diaSemana)) {
-                    List<SlotReservaUtil.SlotTiempo> slotsFramja = SlotReservaUtil.generarSlotsConDisponibilidad(
-                        establecimiento, franja, fechaReserva, reservasDelDia);
-                    slotsDisponibles.addAll(slotsFramja);
+                    List<SlotReservaUtil.SlotTiempo> slotsFranja = SlotReservaUtil.generarSlotsConDisponibilidad(establecimiento, franja, reservasDelDia);
+                    slotsDisponibles.addAll(slotsFranja);
                 }
             }
 
