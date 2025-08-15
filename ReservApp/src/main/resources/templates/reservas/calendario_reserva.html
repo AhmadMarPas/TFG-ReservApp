@@ -799,6 +799,20 @@
                 opacity: 0.6;
             }
             
+            /* Estilos para slots ocupados/deshabilitados en select */
+            .slot-ocupado,
+            select option.slot-ocupado {
+                color: #6c757d !important;
+                background-color: #f8f9fa !important;
+                font-style: italic;
+            }
+            
+            select option:disabled {
+                color: #6c757d !important;
+                background-color: #e9ecef !important;
+                font-style: italic;
+            }
+            
             /* Indicador de aforo completo */
             .aforo-completo {
                 background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
@@ -1281,42 +1295,86 @@
                 
                 if (!fechaSeleccionada || !slotSelect) return;
                 
-                // Limpiar opciones existentes
-                slotSelect.innerHTML = '<option value="">Seleccione un horario</option>';
+                // Mostrar indicador de carga
+                slotSelect.innerHTML = '<option value="">Cargando horarios...</option>';
+                slotSelect.disabled = true;
                 
-                // Obtener día de la semana (0=Domingo, 1=Lunes, etc.)
-                const fecha = new Date(fechaSeleccionada + 'T00:00:00');
-                const diaSemana = fecha.getDay();
+                // Obtener el ID del establecimiento
+                const establecimientoId = document.querySelector('input[name="establecimientoId"]').value;
                 
-                // Mapear día de la semana a enum Java (MONDAY=1, TUESDAY=2, etc.)
-                const diasSemanaJava = {
-                    0: 'SUNDAY',    // Domingo
-                    1: 'MONDAY',    // Lunes
-                    2: 'TUESDAY',   // Martes
-                    3: 'WEDNESDAY', // Miércoles
-                    4: 'THURSDAY',  // Jueves
-                    5: 'FRIDAY',    // Viernes
-                    6: 'SATURDAY'   // Sábado
-                };
-                
-                const diaJava = diasSemanaJava[diaSemana];
-                
-                // Buscar slots para este día
-                if (slotsDisponibles && slotsDisponibles[diaJava]) {
-                    const slots = slotsDisponibles[diaJava];
-                    slots.forEach(function(slot) {
-                        const option = document.createElement('option');
-                        option.value = slot.etiqueta;
-                        option.textContent = slot.etiqueta;
-                        slotSelect.appendChild(option);
+                // Realizar petición AJAX al endpoint
+                fetch(`/misreservas/slots-disponibles?establecimientoId=${establecimientoId}&fecha=${fechaSeleccionada}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al obtener slots disponibles');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Limpiar opciones existentes
+                        slotSelect.innerHTML = '<option value="">Seleccione un horario</option>';
+                        
+                        if (data.slots && data.slots.length > 0) {
+                            // Obtener fecha y hora actual para validar horarios pasados
+                            const ahora = new Date();
+                            const fechaSeleccionadaDate = new Date(fechaSeleccionada);
+                            const esHoy = fechaSeleccionadaDate.toDateString() === ahora.toDateString();
+                            
+                            data.slots.forEach(function(slot) {
+                                const option = document.createElement('option');
+                                option.value = slot.etiqueta;
+                                
+                                let disponible = slot.disponible;
+                                let razonNoDisponible = '';
+                                
+                                // Verificar si es hoy y el horario ya pasó
+                                if (esHoy && disponible) {
+                                    // Extraer hora de inicio del slot (formato "HH:MM - HH:MM")
+                                    const horaInicioMatch = slot.etiqueta.match(/^(\d{2}:\d{2})/);
+                                    if (horaInicioMatch) {
+                                        const horaInicio = horaInicioMatch[1];
+                                        const [horas, minutos] = horaInicio.split(':').map(Number);
+                                        const horaSlot = new Date();
+                                        horaSlot.setHours(horas, minutos, 0, 0);
+                                        
+                                        if (horaSlot <= ahora) {
+                                            disponible = false;
+                                            razonNoDisponible = 'Horario pasado';
+                                        }
+                                    }
+                                }
+                                
+                                // Configurar texto y disponibilidad
+                                if (disponible) {
+                                    option.textContent = slot.etiqueta;
+                                    if (data.tieneAforo) {
+                                        option.textContent += ` (${slot.infoDisponibilidad})`;
+                                    }
+                                } else {
+                                    const motivo = razonNoDisponible || 'Sin disponibilidad';
+                                    option.textContent = `${slot.etiqueta} - ${motivo}`;
+                                    option.disabled = true;
+                                    option.classList.add('slot-ocupado');
+                                }
+                                
+                                slotSelect.appendChild(option);
+                            });
+                        } else {
+                            const option = document.createElement('option');
+                            option.value = '';
+                            option.textContent = 'No hay horarios disponibles para este día';
+                            option.disabled = true;
+                            slotSelect.appendChild(option);
+                        }
+                        
+                        // Habilitar el select
+                        slotSelect.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error al cargar slots:', error);
+                        slotSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
+                        slotSelect.disabled = false;
                     });
-                } else {
-                    const option = document.createElement('option');
-                    option.value = '';
-                    option.textContent = 'No hay horarios disponibles para este día';
-                    option.disabled = true;
-                    slotSelect.appendChild(option);
-                }
             }
 
             // Manejar envío del formulario

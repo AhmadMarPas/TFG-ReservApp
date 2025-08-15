@@ -242,13 +242,15 @@ public class ReservaController {
      * 
      * @param establecimientoId ID del establecimiento
      * @param fecha Fecha para la cual obtener los slots
+     * @param reservaId ID de la reserva a excluir del cálculo (opcional, para ediciones)
      * @return ResponseEntity con los slots disponibles
      */
     @GetMapping("/slots-disponibles")
     @ResponseBody
     public ResponseEntity<SlotsDisponiblesResponse> obtenerSlotsDisponibles(
             @RequestParam Integer establecimientoId,
-            @RequestParam String fecha) {
+            @RequestParam String fecha,
+            @RequestParam(required = false) Integer reservaId) {
         
         try {
             // Validar usuario autenticado
@@ -270,6 +272,13 @@ public class ReservaController {
             LocalDateTime inicioDelDia = fechaReserva.atStartOfDay();
             LocalDateTime finDelDia = fechaReserva.atTime(23, 59, 59);
             List<Reserva> reservasDelDia = reservaService.findByEstablecimientoAndFechaReservaBetween(establecimiento, inicioDelDia, finDelDia);
+            
+            // Excluir la reserva actual si se está editando
+            if (reservaId != null) {
+                reservasDelDia = reservasDelDia.stream()
+                    .filter(reserva -> !reserva.getId().equals(reservaId))
+                    .collect(Collectors.toList());
+            }
 
             // Generar slots para el día específico
             List<SlotReservaUtil.SlotTiempo> slotsDisponibles = new ArrayList<>();
