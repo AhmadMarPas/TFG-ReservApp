@@ -99,6 +99,67 @@
                 box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             }
             
+            /* Estilos para contenedores con scroll */
+            .reservas-scroll-container {
+                max-height: 400px;
+                overflow-y: auto;
+                border: 1px solid #e9ecef;
+                border-radius: 8px;
+                background: #ffffff;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .reservas-scroll-container::-webkit-scrollbar {
+                width: 8px;
+            }
+            
+            .reservas-scroll-container::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 4px;
+            }
+            
+            .reservas-scroll-container::-webkit-scrollbar-thumb {
+                background: #c1c1c1;
+                border-radius: 4px;
+            }
+            
+            .reservas-scroll-container::-webkit-scrollbar-thumb:hover {
+                background: #a8a8a8;
+            }
+            
+            .loading-indicator {
+                text-align: center;
+                padding: 20px;
+                color: #6c757d;
+                font-style: italic;
+            }
+            
+            .loading-spinner {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border: 3px solid #f3f3f3;
+                border-top: 3px solid #007bff;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-right: 10px;
+            }
+            
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            .no-more-data {
+                text-align: center;
+                padding: 15px;
+                color: #6c757d;
+                font-size: 14px;
+                border-top: 1px solid #e9ecef;
+                margin-top: 10px;
+            }
+            
             .form-section h4 {
                 color: #495057;
                 margin-bottom: 20px;
@@ -245,17 +306,50 @@
                 color: #6c757d;
             }
             
+            /* Contenedores de reservas con grid responsivo */
+            #reservas-futuras-container,
+            #reservas-pasadas-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 20px;
+                padding: 10px 0;
+            }
+            
+            /* Responsive breakpoints para el grid */
+            @media (max-width: 768px) {
+                #reservas-futuras-container,
+                #reservas-pasadas-container {
+                    grid-template-columns: 1fr;
+                    gap: 15px;
+                }
+            }
+            
+            @media (min-width: 1200px) {
+                #reservas-futuras-container,
+                #reservas-pasadas-container {
+                    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                }
+            }
+            
+            @media (min-width: 1600px) {
+                #reservas-futuras-container,
+                #reservas-pasadas-container {
+                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                }
+            }
+            
             /* Estilos para las reservas del usuario */
             .reserva-item {
                 background: white;
                 border-radius: 12px;
                 padding: 20px;
-                margin-bottom: 20px;
+                margin-bottom: 0;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.1);
                 border-left: 5px solid #007bff;
                 transition: all 0.3s ease;
                 position: relative;
                 overflow: hidden;
+                height: fit-content;
             }
             
             .reserva-item:hover {
@@ -991,63 +1085,19 @@
             <!-- Reservas Futuras -->
             <div class="reservas-futuras">
                 <h3><i class="fas fa-calendar-day"></i> Próximas Reservas</h3>
-                <div th:if="${reservasFuturas == null or reservasFuturas.isEmpty()}" class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> No tienes reservas futuras en este establecimiento.
-                </div>
-                <div class="reservas-list" th:if="${reservasFuturas != null and !reservasFuturas.isEmpty()}">
-                    <div class="reserva-item reserva-futura" th:each="reserva : ${reservasFuturas}">
-                        <div class="reserva-header">
-                            <div class="reserva-info-basica">
-                                <div class="reserva-fecha">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    <span th:text="${#temporals.format(reserva.fechaReserva, 'dd/MM/yyyy')}">Fecha</span>
-                                </div>
-                                <div class="reserva-hora">
-                                    <i class="fas fa-clock"></i>
-                                    <span th:text="${#temporals.format(reserva.fechaReserva, 'HH:mm') + (reserva.horaFin != null ? ' - ' + reserva.horaFin : '')}">Hora</span>
-                                </div>
-                            </div>
-                            <div class="reserva-acciones">
-                                <button type="button" class="btn btn-sm btn-outline-primary" th:onclick="'toggleDetalles(' + ${reserva.id} + ')'">
-                                    <i class="fas fa-eye"></i> Ver detalles
-                                </button>
-                                <form th:action="@{/misreservas/editar/{id}(id=${reserva.id})}" method="get" style="display: inline;">
-                                    <button type="submit" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-edit"></i> Modificar
-                                    </button>
-                                </form>
-                                <button type="button" class="btn btn-sm btn-danger" th:onclick="'confirmarAnulacion(' + ${reserva.id} + ')'">
-                                    <i class="fas fa-times-circle"></i> Anular
-                                </button>
-                            </div>
-                        </div>
-                        <div class="reserva-detalles" th:id="'detalles-' + ${reserva.id}" style="display: none;">
-                            <div th:if="${reserva.convocatoria != null}" class="convocatoria-info">
-                                <div th:with="primeraConvocatoria=${reserva.convocatoria}">
-                                    <p th:if="${primeraConvocatoria.enlace != null and !primeraConvocatoria.enlace.isEmpty()}">
-                                        <strong><i class="fas fa-link"></i> Enlace:</strong> 
-                                        <a th:href="${primeraConvocatoria.enlace}" target="_blank" th:text="${primeraConvocatoria.enlace}">Enlace de reunión</a>
-                                    </p>
-                                    <p th:if="${primeraConvocatoria.observaciones != null and !primeraConvocatoria.observaciones.isEmpty()}">
-                                        <strong><i class="fas fa-sticky-note"></i> Observaciones:</strong> 
-                                        <span th:text="${primeraConvocatoria.observaciones}">Observaciones de la reunión</span>
-                                    </p>
-                                </div>
-                                <div class="usuarios-convocados">
-                                    <p><strong><i class="fas fa-users"></i> Usuarios convocados:</strong></p>
-                                   	<div th:if="${reserva.convocatoria != null and reserva.convocatoria.convocados != null}">
-                                    <ul class="lista-usuarios">
-                                        <li th:each="convocado : ${reserva.convocatoria.convocados}">
-                                            <span th:text="${convocado.usuario.nombre + ' ' + convocado.usuario.apellidos + ' (' + convocado.usuario.correo + ')'}">Usuario Convocado</span>
-                                        </li>
-                                    </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div th:if="${reserva.convocatoria == null}" class="sin-convocatorias">
-                                <p class="text-muted"><i class="fas fa-info-circle"></i> Esta reserva no tiene convocatoria asociada.</p>
-                            </div>
-                        </div>
+                <div class="reservas-scroll-container">
+                    <div id="reservas-futuras-container">
+                        <!-- Las reservas se cargarán dinámicamente aquí -->
+                    </div>
+                    <div id="loading-futuras" class="loading-indicator" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        Cargando más reservas...
+                    </div>
+                    <div id="empty-futuras" class="alert alert-info" style="display: none;">
+                        <i class="fas fa-info-circle"></i> No tienes reservas futuras en este establecimiento.
+                    </div>
+                    <div id="no-more-futuras" class="no-more-data" style="display: none;">
+                        <i class="fas fa-check-circle"></i> No hay más reservas futuras
                     </div>
                 </div>
             </div>
@@ -1055,58 +1105,22 @@
             <!-- Reservas Pasadas -->
             <div class="reservas-pasadas">
                 <h3><i class="fas fa-history"></i> Reservas Anteriores</h3>
-                <div th:if="${reservasPasadas == null or reservasPasadas.isEmpty()}" class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> No tienes reservas anteriores en este establecimiento.
-                </div>
-                <div class="reservas-list" th:if="${reservasPasadas != null and !reservasPasadas.isEmpty()}">
-                    <div class="reserva-item reserva-pasada" th:each="reserva : ${reservasPasadas}">
-                        <div class="reserva-header">
-                            <div class="reserva-info-basica">
-                                <div class="reserva-fecha">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    <span th:text="${#temporals.format(reserva.fechaReserva, 'dd/MM/yyyy')}">Fecha</span>
-                                </div>
-                                <div class="reserva-hora">
-                                    <i class="fas fa-clock"></i>
-                                    <span th:text="${#temporals.format(reserva.fechaReserva, 'HH:mm') + (reserva.horaFin != null ? ' - ' + reserva.horaFin : '')}">Hora</span>
-                                </div>
-                            </div>
-                            <div class="reserva-acciones">
-                                <button type="button" class="btn btn-sm btn-outline-secondary" th:onclick="'toggleDetalles(' + ${reserva.id} + ')'">
-                                    <i class="fas fa-eye"></i> Ver detalles
-                                </button>
-                            </div>
-                        </div>
-                        <div class="reserva-detalles" th:id="'detalles-' + ${reserva.id}" style="display: none;">
-                            <div th:if="${reserva.convocatoria != null}" class="convocatoria-info">
-                                <div th:with="primeraConvocatoria=${reserva.convocatoria}">
-                                    <p th:if="${primeraConvocatoria.enlace != null and !primeraConvocatoria.enlace.isEmpty()}">
-                                        <strong><i class="fas fa-link"></i> Enlace:</strong> 
-                                        <a th:href="${primeraConvocatoria.enlace}" target="_blank" th:text="${primeraConvocatoria.enlace}">Enlace de reunión</a>
-                                    </p>
-                                    <p th:if="${primeraConvocatoria.observaciones != null and !primeraConvocatoria.observaciones.isEmpty()}">
-                                        <strong><i class="fas fa-sticky-note"></i> Observaciones:</strong> 
-                                        <span th:text="${primeraConvocatoria.observaciones}">Observaciones de la reunión</span>
-                                    </p>
-                                </div>
-                                <div class="usuarios-convocados">
-                                    <p><strong><i class="fas fa-users"></i> Usuarios convocados:</strong></p>
-                                   	<div th:if="${reserva.convocatoria != null and reserva.convocatoria.convocados != null}">
-                                    <ul class="lista-usuarios">
-                                        <li th:each="convocado : ${reserva.convocatoria.convocados}">
-                                            <span th:text="${convocado.usuario.nombre + ' ' + convocado.usuario.apellidos + ' (' + convocado.usuario.correo + ')'}">Usuario Convocado</span>
-                                        </li>
-                                    </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div th:if="${reserva.convocatoria == null}" class="sin-convocatorias">
-                                <p class="text-muted"><i class="fas fa-info-circle"></i> Esta reserva no tiene convocatoria asociada.</p>
-                            </div>
-                        </div>
+                <div class="reservas-scroll-container">
+                    <div id="reservas-pasadas-container">
+                        <!-- Las reservas se cargarán dinámicamente aquí -->
+                    </div>
+                    <div id="loading-pasadas" class="loading-indicator" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        Cargando más reservas...
+                    </div>
+                    <div id="empty-pasadas" class="alert alert-info" style="display: none;">
+                        <i class="fas fa-info-circle"></i> No tienes reservas anteriores en este establecimiento.
+                    </div>
+                    <div id="no-more-pasadas" class="no-more-data" style="display: none;">
+                        <i class="fas fa-check-circle"></i> No hay más reservas anteriores
                     </div>
                 </div>
-            </div>
+	        </div>
         </div>
 
         <!-- Formulario de reserva -->
@@ -1271,7 +1285,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Variables del servidor
             const requiereSlotsPredefinidos = /*[[${requiereSlotsPredefinidos}]]*/ false;
-            const slotsDisponibles = /*[[${slotsDisponibles}]]*/ {};
             
             // Configurar fecha mínima
             const fechaInput = document.getElementById('fecha');
@@ -1581,6 +1594,231 @@
             }
         }
         
+        // Variables para scroll infinito
+        let paginaFuturas = 1;
+        let paginaPasadas = 1;
+        const tamañoPagina = 5;
+        let cargandoFuturas = false;
+        let cargandoPasadas = false;
+        let hayMasFuturas = true;
+        let hayMasPasadas = true;
+        
+        // Función para cargar reservas con scroll infinito
+        function cargarReservasScroll(tipo, pagina, esInicial = false) {
+            const establecimientoInput = document.querySelector('input[name="establecimientoId"]');
+            if (!establecimientoInput) return;
+            const establecimientoId = establecimientoInput.value;
+            if (!establecimientoId) return;
+            
+            const esFuturas = tipo === 'futuras';
+            const loading = document.getElementById(esFuturas ? 'loading-futuras' : 'loading-pasadas');
+            const container = document.getElementById(esFuturas ? 'reservas-futuras-container' : 'reservas-pasadas-container');
+            const empty = document.getElementById(esFuturas ? 'empty-futuras' : 'empty-pasadas');
+            const noMore = document.getElementById(esFuturas ? 'no-more-futuras' : 'no-more-pasadas');
+            
+            if (esFuturas) {
+                if (cargandoFuturas) return;
+                cargandoFuturas = true;
+            } else {
+                if (cargandoPasadas) return;
+                cargandoPasadas = true;
+            }
+            
+            loading.style.display = 'block';
+            
+            const params = new URLSearchParams({
+                establecimientoId: establecimientoId,
+                paginaFuturas: esFuturas ? pagina : 1,
+                paginaPasadas: esFuturas ? 1 : pagina,
+                tamañoPagina: tamañoPagina
+            });
+            
+            fetch(`/misreservas/reservas-paginadas?${params}`)
+                .then(response => response.json())
+                .then(data => {
+                    const reservas = esFuturas ? data.reservasFuturas : data.reservasPasadas;
+                    const hayMas = esFuturas ? data.hayMasReservasFuturas : data.hayMasReservasPasadas;
+                    
+                    if (esFuturas) {
+                        hayMasFuturas = hayMas;
+                    } else {
+                        hayMasPasadas = hayMas;
+                    }
+                    
+                    if (esInicial) {
+                        container.innerHTML = '';
+                        if (reservas.length === 0) {
+                            empty.style.display = 'block';
+                        } else {
+                            empty.style.display = 'none';
+                        }
+                    }
+                    
+                    if (reservas.length > 0) {
+                        reservas.forEach(reserva => {
+                            const reservaHtml = crearReservaHTML(reserva, esFuturas);
+                            container.insertAdjacentHTML('beforeend', reservaHtml);
+                        });
+                    }
+                    
+                    if (!hayMas) {
+                        noMore.style.display = 'block';
+                    }
+                    
+                    loading.style.display = 'none';
+                    
+                    if (esFuturas) {
+                        cargandoFuturas = false;
+                    } else {
+                        cargandoPasadas = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cargando reservas:', error);
+                    loading.style.display = 'none';
+                    if (esFuturas) {
+                        cargandoFuturas = false;
+                    } else {
+                        cargandoPasadas = false;
+                    }
+                });
+        }
+        
+        // Función para crear HTML de una reserva
+        function crearReservaHTML(reserva, esFutura) {
+            const fechaFormateada = new Date(reserva.fechaReserva).toLocaleDateString('es-ES');
+            const horaFormateada = new Date(reserva.fechaReserva).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
+            const horaCompleta = reserva.horaFin ? `${horaFormateada} - ${reserva.horaFin}` : horaFormateada;
+            
+            const acciones = esFutura ? `
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="toggleDetalles(${reserva.id})">
+                    <i class="fas fa-eye"></i> Ver detalles
+                </button>
+                <form action="/misreservas/editar/${reserva.id}" method="get" style="display: inline;">
+                    <button type="submit" class="btn btn-sm btn-warning">
+                        <i class="fas fa-edit"></i> Modificar
+                    </button>
+                </form>
+                <button type="button" class="btn btn-sm btn-danger" onclick="confirmarAnulacion(${reserva.id})">
+                    <i class="fas fa-times-circle"></i> Anular
+                </button>
+            ` : `
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleDetalles(${reserva.id})">
+                    <i class="fas fa-eye"></i> Ver detalles
+                </button>
+            `;
+            
+            let convocatoriaHTML = '';
+            if (reserva.convocatoria) {
+                const enlaceHTML = reserva.convocatoria.enlace ? 
+                    `<p><strong><i class="fas fa-link"></i> Enlace:</strong> <a href="${reserva.convocatoria.enlace}" target="_blank">${reserva.convocatoria.enlace}</a></p>` : '';
+                const observacionesHTML = reserva.convocatoria.observaciones ? 
+                    `<p><strong><i class="fas fa-sticky-note"></i> Observaciones:</strong> ${reserva.convocatoria.observaciones}</p>` : '';
+                
+                let usuariosHTML = '';
+                if (reserva.convocatoria.convocados && reserva.convocatoria.convocados.length > 0) {
+                    const usuariosList = reserva.convocatoria.convocados.map(convocado => 
+                        `<li>${convocado.usuario.nombre} ${convocado.usuario.apellidos} (${convocado.usuario.correo})</li>`
+                    ).join('');
+                    usuariosHTML = `
+                        <div class="usuarios-convocados">
+                            <p><strong><i class="fas fa-users"></i> Usuarios convocados:</strong></p>
+                            <ul class="lista-usuarios">${usuariosList}</ul>
+                        </div>
+                    `;
+                }
+                
+                convocatoriaHTML = `
+                    <div class="convocatoria-info">
+                        ${enlaceHTML}
+                        ${observacionesHTML}
+                        ${usuariosHTML}
+                    </div>
+                `;
+            } else {
+                convocatoriaHTML = '<div class="sin-convocatorias"><p class="text-muted"><i class="fas fa-info-circle"></i> Esta reserva no tiene convocatoria asociada.</p></div>';
+            }
+            
+            return `
+                <div class="reserva-item ${esFutura ? 'reserva-futura' : 'reserva-pasada'}">
+                    <div class="reserva-header">
+                        <div class="reserva-info-basica">
+                            <div class="reserva-fecha">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>${fechaFormateada}</span>
+                            </div>
+                            <div class="reserva-hora">
+                                <i class="fas fa-clock"></i>
+                                <span>${horaCompleta}</span>
+                            </div>
+                        </div>
+                        <div class="reserva-acciones">
+                            ${acciones}
+                        </div>
+                    </div>
+                    <div class="reserva-detalles" id="detalles-${reserva.id}" style="display: none;">
+                        ${convocatoriaHTML}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Event listeners para scroll infinito
+        function setupScrollListeners() {
+            const futurasContainer = document.querySelector('#reservas-futuras-container').closest('.reservas-scroll-container');
+            const pasadasContainer = document.querySelector('#reservas-pasadas-container').closest('.reservas-scroll-container');
+            
+            futurasContainer.addEventListener('scroll', function() {
+                if (this.scrollTop + this.clientHeight >= this.scrollHeight - 10) {
+                    if (hayMasFuturas && !cargandoFuturas) {
+                        paginaFuturas++;
+                        cargarReservasScroll('futuras', paginaFuturas);
+                    }
+                }
+            });
+            
+            pasadasContainer.addEventListener('scroll', function() {
+                if (this.scrollTop + this.clientHeight >= this.scrollHeight - 10) {
+                    if (hayMasPasadas && !cargandoPasadas) {
+                        paginaPasadas++;
+                        cargarReservasScroll('pasadas', paginaPasadas);
+                    }
+                }
+            });
+        }
+        
+        // Inicializar cuando cambie el establecimiento
+        document.addEventListener('DOMContentLoaded', function() {
+            setupScrollListeners();
+            
+            const establecimientoSelect = document.getElementById('establecimientoSelect');
+            if (establecimientoSelect) {
+                establecimientoSelect.addEventListener('change', function() {
+                    if (this.value) {
+                        // Resetear variables
+                        paginaFuturas = 1;
+                        paginaPasadas = 1;
+                        hayMasFuturas = true;
+                        hayMasPasadas = true;
+                        
+                        // Ocultar mensajes
+                        document.getElementById('no-more-futuras').style.display = 'none';
+                        document.getElementById('no-more-pasadas').style.display = 'none';
+                        
+                        // Cargar primera página
+                        cargarReservasScroll('futuras', 1, true);
+                        cargarReservasScroll('pasadas', 1, true);
+                    }
+                });
+                
+                // Cargar reservas si ya hay un establecimiento seleccionado
+                if (establecimientoSelect.value) {
+                    cargarReservasScroll('futuras', 1, true);
+                    cargarReservasScroll('pasadas', 1, true);
+                }
+            }
+        });
+        
         // Función para confirmar y anular reserva
         function confirmarAnulacion(reservaId) {
             if (confirm('¿Está seguro de que desea anular esta reserva? Esta acción no se puede deshacer y se enviará una notificación por correo a todos los involucrados.')) {
@@ -1604,6 +1842,14 @@
                 form.submit();
             }
         }
+        
+        // Inicializar scroll infinito cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            setupScrollListeners();
+            // Cargar las primeras reservas
+            cargarReservasScroll('futuras', 1, true);
+            cargarReservasScroll('pasadas', 1, true);
+        });
     </script>
 </body>
 </html>

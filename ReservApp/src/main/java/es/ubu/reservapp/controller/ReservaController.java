@@ -276,8 +276,7 @@ public class ReservaController {
             // Excluir la reserva actual si se está editando
             if (reservaId != null) {
                 reservasDelDia = reservasDelDia.stream()
-                    .filter(reserva -> !reserva.getId().equals(reservaId))
-                    .collect(Collectors.toList());
+                    .filter(reserva -> !reserva.getId().equals(reservaId)).toList();
             }
 
             // Generar slots para el día específico
@@ -1261,6 +1260,116 @@ public class ReservaController {
     }
 
     /**
+     * Endpoint AJAX para obtener reservas paginadas para scroll infinito.
+     * 
+     * @param establecimientoId ID del establecimiento
+     * @param paginaFuturas Página actual de reservas futuras
+     * @param paginaPasadas Página actual de reservas pasadas
+     * @param tamanyoPagina Tamaño de página
+     * @return ResponseEntity con las reservas paginadas
+     */
+    @GetMapping("/reservas-paginadas")
+    @ResponseBody
+    public ResponseEntity<ReservasPaginadasResponse> obtenerReservasPaginadas(
+            @RequestParam Integer establecimientoId,
+            @RequestParam(defaultValue = "1") int paginaFuturas,
+            @RequestParam(defaultValue = "1") int paginaPasadas,
+            @RequestParam(defaultValue = "5") int tamanyoPagina) {
+        
+        try {
+            Usuario usuario = sessionData.getUsuario();
+            if (usuario == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            Optional<Establecimiento> establecimientoOpt = establecimientoService.findById(establecimientoId);
+            if (establecimientoOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Establecimiento establecimiento = establecimientoOpt.get();
+            
+            if (!usuarioService.establecimientoAsignado(usuario, establecimiento)) {
+                return ResponseEntity.status(403).build();
+            }
+
+            LocalDateTime fechaActual = LocalDateTime.now();
+            
+            // Obtener reservas futuras paginadas
+            List<Reserva> todasReservasFuturas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
+            todasReservasFuturas.sort(Comparator.comparing(Reserva::getFechaReserva));
+            
+            int inicioFuturas = (paginaFuturas - 1) * tamanyoPagina;
+            int finFuturas = Math.min(inicioFuturas + tamanyoPagina, todasReservasFuturas.size());
+            List<Reserva> reservasFuturas = inicioFuturas < todasReservasFuturas.size() ? todasReservasFuturas.subList(inicioFuturas, finFuturas) : new ArrayList<>();
+            boolean hayMasReservasFuturas = finFuturas < todasReservasFuturas.size();
+            
+            // Obtener reservas pasadas paginadas
+            List<Reserva> todasReservasPasadas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual);
+            todasReservasPasadas.sort(Comparator.comparing(Reserva::getFechaReserva).reversed());
+            
+            int inicioPasadas = (paginaPasadas - 1) * tamanyoPagina;
+            int finPasadas = Math.min(inicioPasadas + tamanyoPagina, todasReservasPasadas.size());
+            List<Reserva> reservasPasadas = inicioPasadas < todasReservasPasadas.size() ? todasReservasPasadas.subList(inicioPasadas, finPasadas) : new ArrayList<>();
+            boolean hayMasReservasPasadas = finPasadas < todasReservasPasadas.size();
+            
+            // Convertir a DTOs
+            List<ReservaDTO> reservasFuturasDTO = reservasFuturas.stream().map(this::convertirAReservaDTO).toList();
+            List<ReservaDTO> reservasPasadasDTO = reservasPasadas.stream().map(this::convertirAReservaDTO).toList();
+
+            ReservasPaginadasResponse response = new ReservasPaginadasResponse();
+            response.setReservasFuturas(reservasFuturasDTO);
+            response.setReservasPasadas(reservasPasadasDTO);
+            response.setHayMasReservasFuturas(hayMasReservasFuturas);
+            response.setHayMasReservasPasadas(hayMasReservasPasadas);
+            response.setPaginaFuturas(paginaFuturas);
+            response.setPaginaPasadas(paginaPasadas);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Error al obtener reservas paginadas: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    /**
+     * Convierte una Reserva a ReservaDTO.
+     */
+    private ReservaDTO convertirAReservaDTO(Reserva reserva) {
+        ReservaDTO dto = new ReservaDTO();
+        dto.setId(reserva.getId());
+        dto.setFechaReserva(reserva.getFechaReserva());
+        dto.setHoraFin(reserva.getHoraFin() != null ? reserva.getHoraFin().toString() : null);
+        
+        if (reserva.getConvocatoria() != null) {
+            ConvocatoriaDTO convocatoriaDTO = new ConvocatoriaDTO();
+            convocatoriaDTO.setEnlace(reserva.getConvocatoria().getEnlace());
+            convocatoriaDTO.setObservaciones(reserva.getConvocatoria().getObservaciones());
+            
+            if (reserva.getConvocatoria().getConvocados() != null) {
+                List<ConvocadoDTO> convocadosDTO = reserva.getConvocatoria().getConvocados().stream()
+                    .map(convocado -> {
+                        ConvocadoDTO convocadoDTO = new ConvocadoDTO();
+                        UsuarioSimpleDTO usuarioDTO = new UsuarioSimpleDTO(
+                            convocado.getUsuario().getId(),
+                            convocado.getUsuario().getNombre(),
+                            convocado.getUsuario().getApellidos(),
+                            convocado.getUsuario().getCorreo()
+                        );
+                        convocadoDTO.setUsuario(usuarioDTO);
+                        return convocadoDTO;
+                    }).toList();
+                convocatoriaDTO.setConvocados(convocadosDTO);
+            }
+            
+            dto.setConvocatoria(convocatoriaDTO);
+        }
+        
+        return dto;
+    }
+
+    /**
      * DTO para transferir datos de usuario en búsquedas AJAX.
      */
     public static class UsuarioDTO {
@@ -1368,5 +1477,85 @@ public class ReservaController {
         public void setTieneAforo(Boolean tieneAforo) {
             this.tieneAforo = tieneAforo;
         }
+    }
+    
+    /**
+     * DTO para respuesta de reservas paginadas.
+     */
+    public static class ReservasPaginadasResponse {
+        private List<ReservaDTO> reservasFuturas;
+        private List<ReservaDTO> reservasPasadas;
+        private boolean hayMasReservasFuturas;
+        private boolean hayMasReservasPasadas;
+        private int paginaFuturas;
+        private int paginaPasadas;
+        
+        public List<ReservaDTO> getReservasFuturas() { return reservasFuturas; }
+        public void setReservasFuturas(List<ReservaDTO> reservasFuturas) { this.reservasFuturas = reservasFuturas; }
+        
+        public List<ReservaDTO> getReservasPasadas() { return reservasPasadas; }
+        public void setReservasPasadas(List<ReservaDTO> reservasPasadas) { this.reservasPasadas = reservasPasadas; }
+        
+        public boolean isHayMasReservasFuturas() { return hayMasReservasFuturas; }
+        public void setHayMasReservasFuturas(boolean hayMasReservasFuturas) { this.hayMasReservasFuturas = hayMasReservasFuturas; }
+        
+        public boolean isHayMasReservasPasadas() { return hayMasReservasPasadas; }
+        public void setHayMasReservasPasadas(boolean hayMasReservasPasadas) { this.hayMasReservasPasadas = hayMasReservasPasadas; }
+        
+        public int getPaginaFuturas() { return paginaFuturas; }
+        public void setPaginaFuturas(int paginaFuturas) { this.paginaFuturas = paginaFuturas; }
+        
+        public int getPaginaPasadas() { return paginaPasadas; }
+        public void setPaginaPasadas(int paginaPasadas) { this.paginaPasadas = paginaPasadas; }
+    }
+    
+    /**
+     * DTO para representar una reserva.
+     */
+    public static class ReservaDTO {
+        private Integer id;
+        private LocalDateTime fechaReserva;
+        private String horaFin;
+        private ConvocatoriaDTO convocatoria;
+        
+        public Integer getId() { return id; }
+        public void setId(Integer id) { this.id = id; }
+        
+        public LocalDateTime getFechaReserva() { return fechaReserva; }
+        public void setFechaReserva(LocalDateTime fechaReserva) { this.fechaReserva = fechaReserva; }
+        
+        public String getHoraFin() { return horaFin; }
+        public void setHoraFin(String horaFin) { this.horaFin = horaFin; }
+        
+        public ConvocatoriaDTO getConvocatoria() { return convocatoria; }
+        public void setConvocatoria(ConvocatoriaDTO convocatoria) { this.convocatoria = convocatoria; }
+    }
+    
+    /**
+     * DTO para representar una convocatoria.
+     */
+    public static class ConvocatoriaDTO {
+        private String enlace;
+        private String observaciones;
+        private List<ConvocadoDTO> convocados;
+        
+        public String getEnlace() { return enlace; }
+        public void setEnlace(String enlace) { this.enlace = enlace; }
+        
+        public String getObservaciones() { return observaciones; }
+        public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
+        
+        public List<ConvocadoDTO> getConvocados() { return convocados; }
+        public void setConvocados(List<ConvocadoDTO> convocados) { this.convocados = convocados; }
+    }
+    
+    /**
+     * DTO para representar un convocado.
+     */
+    public static class ConvocadoDTO {
+        private UsuarioSimpleDTO usuario;
+        
+        public UsuarioSimpleDTO getUsuario() { return usuario; }
+        public void setUsuario(UsuarioSimpleDTO usuario) { this.usuario = usuario; }
     }
 }

@@ -2,6 +2,8 @@ package es.ubu.reservapp.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -33,6 +35,8 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -1189,5 +1193,66 @@ class ReservaControllerTest {
         assertThat(resultado).hasSize(1);
         assertThat(resultado.get(0).getNombre()).isEqualTo("Juan Pérez");
         verify(usuarioService).buscarUsuarioSegunQuery("juan");
+    }
+    
+    @Test
+    void testObtenerSlotsDisponibles_Exitoso() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        
+        when(reservaService.findByEstablecimientoAndFechaReservaBetween(any(), any(), any()))
+            .thenReturn(new ArrayList<>());
+        
+        // When
+        ResponseEntity<ReservaController.SlotsDisponiblesResponse> result = reservaController.obtenerSlotsDisponibles(1, "2024-12-23", 1);
+        
+        // Then
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        // Los slots se generan basándose en las franjas horarias del establecimiento
+        assertTrue(result.getBody().getSlots().size() >= 0);
+    }
+    
+    @Test
+    void testObtenerSlotsDisponibles_EstablecimientoNoEncontrado() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.empty());
+        
+        // When
+        ResponseEntity<ReservaController.SlotsDisponiblesResponse> result = reservaController.obtenerSlotsDisponibles(1, "2024-12-23", 1);
+        
+        // Then
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+    }
+    
+    @Test
+    void testObtenerSlotsDisponibles_FechaInvalida() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        
+        // When
+        ResponseEntity<ReservaController.SlotsDisponiblesResponse> result = reservaController.obtenerSlotsDisponibles(1, "fecha-invalida", 1);
+        
+        // Then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+    }
+    
+    @Test
+    void testObtenerSlotsDisponibles_ErrorServicio() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        when(reservaService.findByEstablecimientoAndFechaReservaBetween(any(), any(), any()))
+            .thenThrow(new RuntimeException("Error del servicio"));
+        
+        // When
+        ResponseEntity<ReservaController.SlotsDisponiblesResponse> result = reservaController.obtenerSlotsDisponibles(1, "2024-12-23", 1);
+        
+        // Then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+        assertNull(result.getBody());
     }
 }
