@@ -13,7 +13,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +35,7 @@ import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.FranjaHoraria;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
+import es.ubu.reservapp.service.ReservaService.FranjaDisponibilidad;
 import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
 
@@ -823,5 +826,220 @@ class ReservaServiceImplTest {
         verify(reservaRepo).findById(id);
         // No debe llamar al servicio de convocatoria porque ya existe
         verify(convocatoriaService, never()).findByIdIgnoringValido(anyInt());
+    }
+
+    @Test
+    void testDelete() {
+        // Arrange
+        Reserva reservaTest = new Reserva();
+        reservaTest.setId(1);
+        reservaTest.setFechaReserva(fechaReserva);
+        reservaTest.setEstablecimiento(establecimiento);
+
+        // Act
+        reservaService.delete(reservaTest);
+
+        // Assert
+        verify(reservaRepo).delete(reservaTest);
+    }
+
+    @Test
+    void testVerificarDisponibilidad_AforoIlimitado() {
+        // Arrange
+        establecimiento.setAforo(null); // Aforo ilimitado
+        LocalDate fecha = LocalDate.now().plusDays(1);
+        LocalTime horaInicio = LocalTime.of(10, 0);
+        LocalTime horaFin = LocalTime.of(11, 0);
+
+        // Act
+        boolean resultado = reservaService.verificarDisponibilidad(establecimiento, fecha, horaInicio, horaFin, null);
+
+        // Assert
+        assertTrue(resultado);
+    }
+
+    @Test
+    void testVerificarDisponibilidad_AforoCero() {
+        // Arrange
+        establecimiento.setAforo(0); // Aforo cero = ilimitado
+        LocalDate fecha = LocalDate.now().plusDays(1);
+        LocalTime horaInicio = LocalTime.of(10, 0);
+        LocalTime horaFin = LocalTime.of(11, 0);
+
+        // Act
+        boolean resultado = reservaService.verificarDisponibilidad(establecimiento, fecha, horaInicio, horaFin, null);
+
+        // Assert
+        assertTrue(resultado);
+    }
+
+    @Test
+    void testVerificarDisponibilidad_ConAforo_Disponible() {
+        // Arrange
+        establecimiento.setAforo(5);
+        LocalDate fecha = LocalDate.now().plusDays(1);
+        LocalTime horaInicio = LocalTime.of(10, 0);
+        LocalTime horaFin = LocalTime.of(11, 0);
+        LocalDateTime fechaInicio = LocalDateTime.of(fecha, horaInicio);
+        LocalDateTime fechaFin = LocalDateTime.of(fecha, horaFin);
+        
+        List<Reserva> reservasSolapadas = Arrays.asList(new Reserva(), new Reserva()); // 2 reservas
+        when(reservaRepo.findReservasSolapadas(establecimiento, fechaInicio, fechaFin)).thenReturn(reservasSolapadas);
+
+        // Act
+        boolean resultado = reservaService.verificarDisponibilidad(establecimiento, fecha, horaInicio, horaFin, null);
+
+        // Assert
+        assertTrue(resultado); // 2 < 5, hay disponibilidad
+        verify(reservaRepo).findReservasSolapadas(establecimiento, fechaInicio, fechaFin);
+    }
+
+    @Test
+    void testObtenerReservasSolapadas() {
+        // Arrange
+        LocalDate fecha = LocalDate.now().plusDays(1);
+        LocalTime horaInicio = LocalTime.of(10, 0);
+        LocalTime horaFin = LocalTime.of(11, 0);
+        LocalDateTime fechaInicio = LocalDateTime.of(fecha, horaInicio);
+        LocalDateTime fechaFin = LocalDateTime.of(fecha, horaFin);
+        
+        List<Reserva> reservasEsperadas = Arrays.asList(reserva);
+        when(reservaRepo.findReservasSolapadas(establecimiento, fechaInicio, fechaFin)).thenReturn(reservasEsperadas);
+
+        // Act
+        List<Reserva> resultado = reservaService.obtenerReservasSolapadas(establecimiento, fecha, horaInicio, horaFin);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertEquals(reservasEsperadas, resultado);
+        verify(reservaRepo).findReservasSolapadas(establecimiento, fechaInicio, fechaFin);
+    }
+
+    @Test
+    void testVerificarDisponibilidad_ConAforo_NoDisponible() {
+        // Arrange
+        establecimiento.setAforo(2);
+        LocalDate fecha = LocalDate.now().plusDays(1);
+        LocalTime horaInicio = LocalTime.of(10, 0);
+        LocalTime horaFin = LocalTime.of(11, 0);
+        LocalDateTime fechaInicio = LocalDateTime.of(fecha, horaInicio);
+        LocalDateTime fechaFin = LocalDateTime.of(fecha, horaFin);
+        
+        List<Reserva> reservasSolapadas = Arrays.asList(new Reserva(), new Reserva()); // 2 reservas
+        when(reservaRepo.findReservasSolapadas(establecimiento, fechaInicio, fechaFin)).thenReturn(reservasSolapadas);
+
+        // Act
+        boolean resultado = reservaService.verificarDisponibilidad(establecimiento, fecha, horaInicio, horaFin, null);
+
+        // Assert
+        assertTrue(!resultado); // 2 >= 2, no hay disponibilidad
+        verify(reservaRepo).findReservasSolapadas(establecimiento, fechaInicio, fechaFin);
+    }
+
+    @Test
+    void testVerificarDisponibilidad_ConReservaExcluir() {
+        // Arrange
+        establecimiento.setAforo(2);
+        LocalDate fecha = LocalDate.now().plusDays(1);
+        LocalTime horaInicio = LocalTime.of(10, 0);
+        LocalTime horaFin = LocalTime.of(11, 0);
+        LocalDateTime fechaInicio = LocalDateTime.of(fecha, horaInicio);
+        LocalDateTime fechaFin = LocalDateTime.of(fecha, horaFin);
+        
+        Reserva reservaExcluir = new Reserva();
+        reservaExcluir.setId(1);
+        
+        Reserva otraReserva = new Reserva();
+        otraReserva.setId(2);
+        
+        List<Reserva> reservasSolapadas = Arrays.asList(reservaExcluir, otraReserva); // 2 reservas
+        when(reservaRepo.findReservasSolapadas(establecimiento, fechaInicio, fechaFin)).thenReturn(reservasSolapadas);
+
+        // Act
+        boolean resultado = reservaService.verificarDisponibilidad(establecimiento, fecha, horaInicio, horaFin, reservaExcluir);
+
+        // Assert
+        assertTrue(resultado); // 1 < 2 (excluyendo la reserva), hay disponibilidad
+        verify(reservaRepo).findReservasSolapadas(establecimiento, fechaInicio, fechaFin);
+    }
+
+    @Test
+    void testObtenerFranjasDisponibles_EstablecimientoSinFranjas() {
+        // Arrange
+        LocalDate fecha = LocalDate.now().plusDays(1);
+        establecimiento.setFranjasHorarias(new ArrayList<>());
+        
+        LocalDateTime inicioDelDia = fecha.atStartOfDay();
+        LocalDateTime finDelDia = fecha.atTime(23, 59, 59);
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioDelDia, finDelDia))
+            .thenReturn(new ArrayList<>());
+
+        // Act
+        List<FranjaDisponibilidad> resultado = reservaService.obtenerFranjasDisponibles(establecimiento, fecha);
+
+        // Assert
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioDelDia, finDelDia);
+    }
+
+    @Test
+    void testObtenerFranjasDisponibles_ConFranjas() {
+        // Arrange
+        LocalDate fecha = LocalDate.now().plusDays(1); // Asumiendo que es un día de la semana
+        DayOfWeek diaSemana = fecha.getDayOfWeek();
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(diaSemana);
+        franja.setHoraInicio(LocalTime.of(9, 0));
+        franja.setHoraFin(LocalTime.of(17, 0));
+        
+        establecimiento.setFranjasHorarias(Arrays.asList(franja));
+        establecimiento.setAforo(5);
+        
+        LocalDateTime inicioDelDia = fecha.atStartOfDay();
+        LocalDateTime finDelDia = fecha.atTime(23, 59, 59);
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioDelDia, finDelDia))
+            .thenReturn(new ArrayList<>());
+
+        // Act
+        List<FranjaDisponibilidad> resultado = reservaService.obtenerFranjasDisponibles(establecimiento, fecha);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertEquals(franja, resultado.get(0).getFranjaHoraria());
+        assertTrue(resultado.get(0).isTieneDisponibilidad());
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioDelDia, finDelDia);
+    }
+
+    @Test
+    void testObtenerFranjasDisponibles_AforoIlimitado() {
+        // Arrange
+        LocalDate fecha = LocalDate.now().plusDays(1);
+        DayOfWeek diaSemana = fecha.getDayOfWeek();
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(diaSemana);
+        franja.setHoraInicio(LocalTime.of(9, 0));
+        franja.setHoraFin(LocalTime.of(17, 0));
+        
+        establecimiento.setFranjasHorarias(Arrays.asList(franja));
+        establecimiento.setAforo(null); // Aforo ilimitado
+        
+        LocalDateTime inicioDelDia = fecha.atStartOfDay();
+        LocalDateTime finDelDia = fecha.atTime(23, 59, 59);
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioDelDia, finDelDia))
+            .thenReturn(Arrays.asList(reserva)); // Con reservas existentes
+
+        // Act
+        List<FranjaDisponibilidad> resultado = reservaService.obtenerFranjasDisponibles(establecimiento, fecha);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertTrue(resultado.get(0).isTieneDisponibilidad()); // Siempre disponible con aforo ilimitado
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioDelDia, finDelDia);
     }
 }
