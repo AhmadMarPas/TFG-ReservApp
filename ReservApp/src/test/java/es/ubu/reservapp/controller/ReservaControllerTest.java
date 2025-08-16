@@ -1174,6 +1174,60 @@ class ReservaControllerTest {
     }
     
     @Test
+    void testActualizarReserva_EnviaEmailModificacion() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        
+        Reserva reservaExistente = new Reserva();
+        reservaExistente.setId(1);
+        reservaExistente.setUsuario(usuario);
+        reservaExistente.setEstablecimiento(establecimiento);
+        reservaExistente.setFechaReserva(LocalDateTime.of(2924, 12, 25, 10, 0));
+        
+        when(reservaService.findById(1)).thenReturn(reservaExistente);
+        when(reservaService.save(any(Reserva.class))).thenReturn(reservaExistente);
+        when(reservaService.verificarDisponibilidad(any(), any(), any(), any(), any())).thenReturn(true);
+        
+        // When
+        String result = reservaController.actualizarReserva(1, "2924-12-25", "11:00", "12:00", 
+            null, "https://meet.google.com/test", "Reunión modificada", null, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas/establecimiento/1", result);
+        verify(emailService).enviarNotificacionReservaModificada(any(Reserva.class));
+        verify(redirectAttributes).addFlashAttribute(eq("exito"), anyString());
+    }
+    
+    @Test
+    void testActualizarReserva_ErrorEnvioEmailModificacion() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        
+        Reserva reservaExistente = new Reserva();
+        reservaExistente.setId(1);
+        reservaExistente.setUsuario(usuario);
+        reservaExistente.setEstablecimiento(establecimiento);
+        reservaExistente.setFechaReserva(LocalDateTime.of(2924, 12, 25, 10, 0));
+        
+        when(reservaService.findById(1)).thenReturn(reservaExistente);
+        when(reservaService.save(any(Reserva.class))).thenReturn(reservaExistente);
+        when(reservaService.verificarDisponibilidad(any(), any(), any(), any(), any())).thenReturn(true);
+        
+        doThrow(new RuntimeException("Error de email modificación")).when(emailService)
+            .enviarNotificacionReservaModificada(any(Reserva.class));
+        
+        // When
+        String result = reservaController.actualizarReserva(1, "2924-12-25", "11:00", "12:00", 
+            null, null, null, null, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas/editar/1", result);
+        verify(emailService).enviarNotificacionReservaModificada(any(Reserva.class));
+        // El error de email no debe interrumpir el flujo
+        verify(redirectAttributes).addFlashAttribute("error", "Error al actualizar la reserva: Error de email modificación");
+    }
+    
+    @Test
     void testBuscarUsuarios_QueryConMayusculas() {
         // Arrange
         String query = "JUAN";

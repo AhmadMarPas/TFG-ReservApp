@@ -258,7 +258,6 @@ public class ReservaController {
                 return ResponseEntity.badRequest().build();
             }
 
-            // Obtener establecimiento
             Optional<Establecimiento> establecimientoOpt = establecimientoService.findById(establecimientoId);
             if (establecimientoOpt.isEmpty()) {
                 return ResponseEntity.notFound().build();
@@ -979,9 +978,11 @@ public class ReservaController {
                 
                 // Gestionar convocatorias con soft delete
                 gestionarConvocatorias(reservaActualizada, usuariosConvocados);
-				convocatoriaService.save(convocatoria);
+                reservaActualizada.setConvocatoria(convocatoriaService.save(convocatoria));
             }
-            
+
+            emailService.enviarNotificacionReservaModificada(reservaActualizada);
+
             redirectAttributes.addFlashAttribute(EXITO, "Reserva actualizada correctamente.");
             return REDIRECT_RESERVAS_ESTABLECIMIENTO + establecimiento.getId();
             
