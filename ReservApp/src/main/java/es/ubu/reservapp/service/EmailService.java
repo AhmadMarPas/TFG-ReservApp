@@ -37,4 +37,11 @@ public interface EmailService {
      */
     void enviarNotificacionAnulacion(Reserva reserva, List<String> correosDestino);
 
+    /**
+     * Envía notificaciones de modificación de reserva al usuario y convocados
+     * 
+     * @param reserva La reserva que se ha modificado
+     */
+    void enviarNotificacionReservaModificada(Reserva reserva);
+
 }

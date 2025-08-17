@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import es.ubu.reservapp.model.entities.Establecimiento;
@@ -64,4 +66,54 @@ public interface ReservaRepo extends JpaRepository<Reserva, Integer> {
      */
     List<Reserva> findByUsuario(Usuario usuario);
 
+    /**
+     * Busca reservas que se solapen con un horario específico en un establecimiento y fecha determinada.
+     * Una reserva se solapa si:
+     * - Su hora de inicio es anterior a la hora de fin del nuevo horario Y
+     * - Su hora de fin es posterior a la hora de inicio del nuevo horario
+     * 
+     * @param establecimiento Establecimiento donde buscar las reservas
+     * @param fechaHoraInicio Fecha y hora de inicio del horario a verificar
+     * @param horaFin Hora de fin del horario a verificar
+     * @return Lista de reservas que se solapan con el horario especificado
+     */
+    @Query("SELECT r FROM Reserva r WHERE r.establecimiento = :establecimiento " +
+    	       "AND DATE(r.fechaReserva) = DATE(:fechaHoraInicio) " +
+    	       "AND r.fechaReserva < :fechaHoraFin " +
+    	       "AND (r.horaFin IS NULL OR " +
+    	       "     TIMESTAMP(DATE(r.fechaReserva), r.horaFin) > :fechaHoraInicio)")
+   	List<Reserva> findReservasSolapadas(@Param("establecimiento") Establecimiento establecimiento,
+   	                                   @Param("fechaHoraInicio") LocalDateTime fechaHoraInicio,
+   	                                   @Param("fechaHoraFin") LocalDateTime fechaHoraFin);
+    /**
+     * Cuenta el número de reservas que se solapan con un horario específico en un establecimiento y fecha determinada.
+     * 
+     * @param establecimiento Establecimiento donde contar las reservas
+     * @param fechaHoraInicio Inicio y hora de inicio del horario a verificar
+     * @param fechaHoraFin y hora de Fin del horario a verificar
+     * @return Número de reservas que se solapan con el horario especificado
+     */
+    @Query("SELECT COUNT(r) FROM Reserva r WHERE r.establecimiento = :establecimiento " +
+    	       "AND DATE(r.fechaReserva) = DATE(:fechaHoraInicio) " +
+    	       "AND r.fechaReserva < :fechaHoraFin " +
+    	       "AND (r.horaFin IS NULL OR " +
+    	       "     TIMESTAMP(DATE(r.fechaReserva), r.horaFin) > :fechaHoraInicio)")
+   	Long countReservasSolapadas(@Param("establecimiento") Establecimiento establecimiento,
+   	                           @Param("fechaHoraInicio") LocalDateTime fechaHoraInicio,
+   	                           @Param("fechaHoraFin") LocalDateTime fechaHoraFin);
+
+    /**
+     * Busca todas las reservas de un establecimiento en una fecha específica.
+     * 
+     * @param establecimiento Establecimiento donde buscar las reservas
+     * @param fechaInicio Inicio del día (00:00:00)
+     * @param fechaFin Fin del día (23:59:59)
+     * @return Lista de reservas del establecimiento en la fecha especificada
+     */
+    @Query("SELECT r FROM Reserva r WHERE r.establecimiento = :establecimiento " +
+           "AND r.fechaReserva >= :fechaInicio AND r.fechaReserva <= :fechaFin " +
+           "ORDER BY r.fechaReserva ASC")
+    List<Reserva> findReservasByEstablecimientoAndFecha(@Param("establecimiento") Establecimiento establecimiento,
+                                                       @Param("fechaInicio") LocalDateTime fechaInicio,
+                                                       @Param("fechaFin") LocalDateTime fechaFin);
 }
