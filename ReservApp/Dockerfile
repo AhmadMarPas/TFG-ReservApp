@@ -5,11 +5,11 @@ FROM openjdk:21-jdk-slim
 WORKDIR /app
 
 # Copia el archivo JAR de tu aplicación
-# El JAR se genera cuando ejecutas: ./mvnw clean package -DskipTests
-COPY target/*.jar reservApp.jar
+# El JAR se genera cuando se ejecuta: ./mvnw clean package -DskipTests
+COPY target/reservApp.jar app.jar
 
-# Expone el puerto donde corre tu aplicación Spring Boot (por defecto 8080)
-EXPOSE 8080
+# Expone el puerto donde corre tu aplicación Spring Boot (por defecto 8080, pero en nuestra configuración es 8090)
+EXPOSE 8090
 
 # Comando para ejecutar la aplicación
-ENTRYPOINT ["java", "-jar", "/app/reservApp.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
