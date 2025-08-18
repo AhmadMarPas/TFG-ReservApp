@@ -11,7 +11,7 @@
 	<groupId>es.ubu</groupId>
 	<artifactId>reservApp</artifactId>
 	<version>1.0.0-RELEASE</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>ReservApp</name>
 	<description>Aplicación para la gestión de Reservas</description>
 	<url/>
