@@ -1,6 +1,6 @@
 # Utilizamos una imagen base de OpenJDK 21
 FROM openjdk:21-jdk-slim
-FROM eclipse-temurin:21-jdk AS builde
+FROM eclipse-temurin:21-jdk AS builder
 
 # Establecemos el directorio de trabajo en el contenedor
 WORKDIR /app
