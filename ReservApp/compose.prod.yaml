@@ -5,7 +5,7 @@ server:
 spring:
   datasource:
     # URL para conectar al servicio MySQL privado en AIVEN
-    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}?useSSL=true&requireSSL=true&verifyServerCertificate=true
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
