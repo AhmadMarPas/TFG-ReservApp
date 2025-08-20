@@ -15,9 +15,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  h2:
-    console:
+  docker:
+    compose:
       enabled: true
+      file: ./compose.dev.yaml
 
 logging:
   level:
@@ -34,7 +35,11 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: false
-  
+  docker:
+    compose:
+      enabled: true
+      file: ./compose.prod.yaml
+
 logging:
   level:
     root: WARN
