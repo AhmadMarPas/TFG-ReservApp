@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:mysql-reservapp-amareie-ba4f.c.aivencloud.com}:${MYSQL_PORT:28634}/${MYSQL_DATABASE:defaultdb}
-    username: ${MYSQL_USER:avnadmin}
-    password: ${MYSQL_PASSWORD:AVNS_AIFGoTJwf_qeme21F8h}
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:reservapp}?useSSL=true&requireSSL=true&verifyServerCertificate=false&trustCertificateKeyStoreUrl=classpath:ca.pem&trustCertificateKeyStorePassword=
+    username: ${MYSQL_USER:reservapp}
+    password: ${MYSQL_PASSWORD:reservapp}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
