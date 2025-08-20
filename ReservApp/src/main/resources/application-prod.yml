@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:mysql://mysql-reservapp-amareie-ba4f.c.aivencloud.com:28634/defaultdb?useSSL=true&requireSSL=true&verifyServerCertificate=false&trustCertificateKeyStoreUrl=classpath:ca.pem&trustCertificateKeyStorePassword=
+    username: avnadmin
+    password: AVNS_AIFGoTJwf_qeme21F8h
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  application:
+    name: ReservApp
+
+server:
+  port: 8090
+
+# Mail configuration
+spring.mail.host: smtp.gmail.com
+spring.mail.port: 587
+spring.mail.username: tfg.reservapp@gmail.com
+spring.mail.password: hyop pdei iiss ceab
+spring.mail.properties.mail.smtp.auth: true
+spring.mail.properties.mail.smtp.starttls.enable: true
+
+# Server configuration
+server.servlet.context-path: /
+server.compression.enabled: true
+
+spring.main.banner-mode: off
+spring.thymeleaf.cache: false
