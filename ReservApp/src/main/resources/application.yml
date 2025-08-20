@@ -1,46 +1,10 @@
 spring:
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:prod}
-
----
-# Configuración de desarrollo
-spring:
-  config:
-    activate:
-      on-profile: dev
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:reservapp}
+    username: ${MYSQL_USER:reservapp}
+    password: ${MYSQL_PASSWORD:reservapp}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-  docker:
-    compose:
-      enabled: true
-      file: ./compose.dev.yaml
-
-logging:
-  level:
-    es.ubu.reservapp: DEBUG
-    org.springframework.web: DEBUG
-
----
-# Configuración de producción
-spring:
-  config:
-    activate:
-      on-profile: prod
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-  docker:
-    compose:
-      enabled: true
-      file: ./compose.prod.yaml
-
-logging:
-  level:
-    root: WARN
-    es.ubu.reservapp: INFO
