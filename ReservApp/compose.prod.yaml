@@ -1,19 +1,16 @@
 # Se Configuran para el entrno de producción en Render
-server:
-  port: ${PORT:8090}
-
-spring:
-  datasource:
-    # URL para conectar al servicio MySQL privado en AIVEN
-    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}?useSSL=true&requireSSL=true&verifyServerCertificate=true
-    username: ${MYSQL_USER}
-    password: ${MYSQL_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+# Utiliza una base de datos MySQL externa (como AIVEN) en lugar de un contenedor local
+services:
+  app:
+    build: .
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}?useSSL=true&requireSSL=true&verifyServerCertificate=true
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
+      - SERVER_PORT=${PORT:8090}
+    ports:
+      - '${PORT:8090}:${PORT:8090}'
+    expose:
+      - '${PORT:8090}'
