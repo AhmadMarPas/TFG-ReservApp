@@ -1048,15 +1048,15 @@ class ReservaServiceImplTest {
     @Test
     void testObtenerFranjasDisponibles_ConAforoLimitadoYReservasSolapadas() {
         // Arrange
-        Establecimiento establecimiento = new Establecimiento();
-        establecimiento.setId(1);
-        establecimiento.setAforo(2); // Aforo limitado
+        Establecimiento establnto = new Establecimiento();
+        establnto.setId(1);
+        establnto.setAforo(2); // Aforo limitado
         
         FranjaHoraria franja = new FranjaHoraria();
         franja.setHoraInicio(LocalTime.of(10, 0));
         franja.setHoraFin(LocalTime.of(12, 0));
         franja.setDiaSemana(DayOfWeek.MONDAY);
-        establecimiento.setFranjasHorarias(List.of(franja));
+        establnto.setFranjasHorarias(List.of(franja));
         
         LocalDate fecha = LocalDate.of(2024, 1, 15);
         
@@ -1076,13 +1076,13 @@ class ReservaServiceImplTest {
         List<Reserva> reservasDelDia = List.of(reserva1, reserva2, reserva3);
         
         when(reservaRepo.findReservasByEstablecimientoAndFecha(
-            eq(establecimiento), 
+            eq(establnto), 
             any(LocalDateTime.class), 
             any(LocalDateTime.class)
         )).thenReturn(reservasDelDia);
         
         // Act
-        List<FranjaDisponibilidad> resultado = reservaService.obtenerFranjasDisponibles(establecimiento, fecha);
+        List<FranjaDisponibilidad> resultado = reservaService.obtenerFranjasDisponibles(establnto, fecha);
         
         // Assert
         assertNotNull(resultado);
@@ -1099,15 +1099,15 @@ class ReservaServiceImplTest {
     @Test
     void testObtenerFranjasDisponibles_ConReservasSinHoraFin() {
         // Arrange - Test para ejercitar obtenerHoraFinReserva con hora por defecto
-        Establecimiento establecimiento = new Establecimiento();
-        establecimiento.setId(1);
-        establecimiento.setAforo(1);
+        Establecimiento estab = new Establecimiento();
+        estab.setId(1);
+        estab.setAforo(1);
         
         FranjaHoraria franja = new FranjaHoraria();
         franja.setHoraInicio(LocalTime.of(9, 0));
         franja.setHoraFin(LocalTime.of(11, 0));
         franja.setDiaSemana(DayOfWeek.MONDAY);
-        establecimiento.setFranjasHorarias(List.of(franja));
+        estab.setFranjasHorarias(List.of(franja));
         
         LocalDate fecha = LocalDate.of(2024, 1, 15);
         
@@ -1119,13 +1119,13 @@ class ReservaServiceImplTest {
         List<Reserva> reservasDelDia = List.of(reservaSinHoraFin);
         
         when(reservaRepo.findReservasByEstablecimientoAndFecha(
-            eq(establecimiento), 
+            eq(estab), 
             any(LocalDateTime.class), 
             any(LocalDateTime.class)
         )).thenReturn(reservasDelDia);
         
         // Act
-        List<FranjaDisponibilidad> resultado = reservaService.obtenerFranjasDisponibles(establecimiento, fecha);
+        List<FranjaDisponibilidad> resultado = reservaService.obtenerFranjasDisponibles(estab, fecha);
         
         // Assert
         assertNotNull(resultado);
@@ -1139,9 +1139,9 @@ class ReservaServiceImplTest {
     @Test
     void testVerificarDisponibilidad_ConReservasEnBordesDeIntervalo() {
         // Arrange - Test para ejercitar reservaOcupaIntervalo y estaEntreFranja
-        Establecimiento establecimiento = new Establecimiento();
-        establecimiento.setId(1);
-        establecimiento.setAforo(2);
+        Establecimiento estab = new Establecimiento();
+        estab.setId(1);
+        estab.setAforo(2);
         
         LocalDate fecha = LocalDate.of(2024, 1, 15);
         LocalTime horaInicio = LocalTime.of(10, 0);
@@ -1160,14 +1160,14 @@ class ReservaServiceImplTest {
         List<Reserva> reservasDelDia = List.of(reservaAnterior, reservaPosterior);
         
         when(reservaRepo.findReservasSolapadas(
-            eq(establecimiento), 
+            eq(estab), 
             eq(LocalDateTime.of(fecha, horaInicio)), 
             eq(LocalDateTime.of(fecha, horaFin))
         )).thenReturn(reservasDelDia);
         
         // Act
         boolean disponible = reservaService.verificarDisponibilidad(
-            establecimiento, fecha, horaInicio, horaFin, null
+            estab, fecha, horaInicio, horaFin, null
         );
         
         // Assert
@@ -1177,9 +1177,9 @@ class ReservaServiceImplTest {
     @Test
     void testVerificarDisponibilidad_ConMultiplesReservasSolapadas() {
         // Arrange - Test para ejercitar contarReservasEnIntervalo
-        Establecimiento establecimiento = new Establecimiento();
-        establecimiento.setId(1);
-        establecimiento.setAforo(3);
+        Establecimiento estab = new Establecimiento();
+        estab.setId(1);
+        estab.setAforo(3);
         
         LocalDate fecha = LocalDate.of(2024, 1, 15);
         LocalTime horaInicio = LocalTime.of(10, 0);
@@ -1201,14 +1201,14 @@ class ReservaServiceImplTest {
         List<Reserva> reservasDelDia = List.of(reserva1, reserva2, reserva3);
         
         when(reservaRepo.findReservasSolapadas(
-            eq(establecimiento), 
-            eq(LocalDateTime.of(fecha, horaInicio)), 
-            eq(LocalDateTime.of(fecha, horaFin))
+            estab, 
+            LocalDateTime.of(fecha, horaInicio), 
+            LocalDateTime.of(fecha, horaFin)
         )).thenReturn(reservasDelDia);
         
         // Act
         boolean disponible = reservaService.verificarDisponibilidad(
-            establecimiento, fecha, horaInicio, horaFin, null
+            estab, fecha, horaInicio, horaFin, null
         );
         
         // Assert
@@ -1218,15 +1218,15 @@ class ReservaServiceImplTest {
     @Test
     void testObtenerFranjasDisponibles_ConPuntosDeTimeComplejos() {
         // Arrange - Test para ejercitar obtenerPuntosDeTiempoOrdenados y agregarPuntoSiEstaEnFranja
-        Establecimiento establecimiento = new Establecimiento();
-        establecimiento.setId(1);
-        establecimiento.setAforo(1);
+        Establecimiento estab = new Establecimiento();
+        estab.setId(1);
+        estab.setAforo(1);
         
         FranjaHoraria franja = new FranjaHoraria();
         franja.setHoraInicio(LocalTime.of(10, 0));
         franja.setHoraFin(LocalTime.of(14, 0));
         franja.setDiaSemana(DayOfWeek.MONDAY);
-        establecimiento.setFranjasHorarias(List.of(franja));
+        estab.setFranjasHorarias(List.of(franja));
         
         LocalDate fecha = LocalDate.of(2024, 1, 15);
         
@@ -1246,13 +1246,13 @@ class ReservaServiceImplTest {
         List<Reserva> reservasDelDia = List.of(reservaAntes, reservaDespues, reservaDentro);
         
         when(reservaRepo.findReservasByEstablecimientoAndFecha(
-            eq(establecimiento), 
+            eq(estab), 
             any(LocalDateTime.class), 
             any(LocalDateTime.class)
         )).thenReturn(reservasDelDia);
         
         // Act
-        List<FranjaDisponibilidad> resultado = reservaService.obtenerFranjasDisponibles(establecimiento, fecha);
+        List<FranjaDisponibilidad> resultado = reservaService.obtenerFranjasDisponibles(estab, fecha);
         
         // Assert
         assertNotNull(resultado);

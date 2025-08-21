@@ -11,7 +11,7 @@
 	<groupId>es.ubu</groupId>
 	<artifactId>reservApp</artifactId>
 	<version>1.0.0-RELEASE</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>ReservApp</name>
 	<description>Aplicación para la gestión de Reservas</description>
 	<url/>
@@ -72,12 +72,14 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-docker-compose</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
+		-->
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
