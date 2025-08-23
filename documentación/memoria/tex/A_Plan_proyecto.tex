@@ -310,103 +310,102 @@ Desarrollo de funcionalidades de gestión de convocatorias.
 \end{itemize}
 
 
-\subsubsection{Sprint 7 - Interfaz de Usuario y Experiencia (04/08/2025 – 17/08/2025)} 
-En este sprint se desarrolló una interfaz de usuario moderna y responsiva utilizando Bootstrap y componentes personalizados. Se creó el sistema de templates con Thymeleaf, implementando fragmentos reutilizables como '_header.html' y '_common_head.html' para mantener consistencia visual. Se desarrolló el menú principal dinámico que adapta las opciones disponibles según el rol del usuario (USER/ADMIN), y se implementaron interfaces específicas para cada funcionalidad del sistema. Se creó un sistema de mensajes flash para feedback del usuario y se implementaron validaciones del lado cliente con JavaScript. También se optimizó la experiencia móvil con diseño responsivo.
+\subsubsection{Sprint 7 - Funcionalidades Avanzadas y Optimizaciones (04/08/2025 – 17/08/2025)} 
+Este sprint se enfocó en implementar funcionalidades avanzadas y optimizaciones de rendimiento identificadas durante el desarrollo. Se desarrolló el sistema de paginación para listas grandes de datos, implementando scroll infinito en las reservas del usuario. Se creó funcionalidad AJAX para obtener slots disponibles dinámicamente y se implementaron optimizaciones de consultas para evitar problemas N+1. Se desarrolló el sistema de edición y anulación de reservas con validaciones complejas que consideran fechas pasadas y permisos de usuario. También se implementaron mejoras en la gestión de convocatorias con soft delete y reutilización de entidades existentes.
 
 Objetivos principales:
 \begin{itemize}
 \tightlist
 \item
-Desarrollar interfaz moderna con Bootstrap.
+Implementar funcionalidades avanzadas de reservas.
 \item
-Crear sistema de templates reutilizables.
+Desarrollar optimizaciones de rendimiento.
 \item
-Implementar diseño responsivo para móviles.
+Crear sistema de paginación y scroll infinito.
 \item
-Desarrollar componentes JavaScript interactivos.
+Implementar funcionalidades AJAX dinámicas.
 \item
-Crear sistema de feedback visual para usuarios.
+Desarrollar validaciones complejas de negocio.
 \end{itemize}
 
 Actividades realizadas:
 \begin{itemize}
 \tightlist
 \item
-Implementación de templates Thymeleaf con fragmentos.
+Implementación de edición y anulación de reservas.
 \item
-Desarrollo de `menuprincipal.html` con navegación dinámica.
+Desarrollo de \emph{endpoints} AJAX para slots disponibles.
 \item
-Creación de estilos CSS personalizados.
+Creación de sistema de paginación de reservas.
 \item
-Implementación de componentes JavaScript para interactividad.
+Implementación de optimizaciones de consultas.
 \item
-Desarrollo de interfaces específicas para cada módulo.
+Desarrollo de validaciones avanzadas de permisos.
 \end{itemize}
 
-\subsubsection{Sprint 8 - Funcionalidades Avanzadas y Optimizaciones (18/08/2025 – 31/08/2025)} 
+\subsubsection{Sprint 8 - Despliegue en Render con Base de Datos Aiven (18/08/2025 – 31/08/2025)} 
+En el sprint final se investigó diferentes opciones para el hosting de la aplicación y entre las diferentes opciones consultadas, finalmente se decantó por la ofrecida por Render ya que ha resultado ser la única gratuita.
 
 Objetivos principales:
 \begin{itemize}
 \tightlist
 \item
-Desarrollar .
+Configuración de hosting en Render para la aplicación web.
 \item
-Implementar.
+Configuración de base de datos MySQL en Aiven.
 \item
-Crear.
+Establecimiento de conexión segura entre servicios.
 \item
-Desarrollar.
-\item
-Implementar.
+Configuración de variables de entorno y secretos de producción.
 \end{itemize}
 
 Actividades realizadas:
 \begin{itemize}
 \tightlist
 \item
-Implementación.
+Configuración de cuenta y proyecto en Render para hosting de la aplicación.
 \item
-Desarrollo.
+Setup de base de datos MySQL administrada en Aiven con configuraciones de producción.
 \item
-Creación.
+Configuración de variables de entorno para conexión a base de datos externa.
 \item
-Implementación.
+Implementación de SSL/TLS para conexiones seguras.
 \item
-Desarrollo
+Testing de conectividad y rendimiento en entorno de producción.
 \end{itemize}
 
 \subsubsection{Sprint 9 - Testing, Documentación y Despliegue (01/09/2025 – 14/09/2025)} 
+En el sprint final se desarrolló una suite completa de tests unitarios y de integración que cubre todas las funcionalidades del sistema. Se implementaron tests para controladores, servicios, repositorios y entidades, alcanzando una cobertura de código significativa medida con JaCoCo. Se configuró el pipeline de CI/CD con integración a SonarCloud para análisis continuo de calidad de código. También se preparó la configuración de despliegue con perfiles específicos para desarrollo, testing y producción.
 
 Objetivos principales:
 \begin{itemize}
 \tightlist
 \item
-Desarrollar .
+Desarrollar suite completa de tests automatizados.
 \item
-Implementar.
+Crear documentación técnica exhaustiva.
 \item
-Crear.
+Configurar pipeline de CI/CD con SonarCloud.
 \item
-Desarrollar.
+Preparar configuración de despliegue multi-entorno.
 \item
-Implementar.
+Realizar análisis final de calidad y rendimiento.
 \end{itemize}
 
 Actividades realizadas:
 \begin{itemize}
 \tightlist
 \item
-Implementación.
+Implementación de tests unitarios para todos los componentes.
 \item
-Desarrollo.
+Desarrollo de tests de integración con base de datos H2.
 \item
-Creación.
+Creación de documentación técnica y análisis de optimizaciones.
 \item
-Implementación.
+Configuración de perfiles de aplicación para diferentes entornos.
 \item
-Desarrollo
+Preparación de configuración de despliegue y monitoreo.
 \end{itemize}
-
 
 
 
