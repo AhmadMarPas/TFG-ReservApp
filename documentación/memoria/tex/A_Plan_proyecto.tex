@@ -6,7 +6,7 @@ En el presente plan de proyecto se define la estrategia de desarrollo mediante l
 \section{Planificación temporal}
 Para el desarrollo de la aplicación de gestión de reservas de salas de reuniones se ha adoptado la metodología ágil Scrum como marco de trabajo principal. Esto ha sido debido a que Scrum, por la naturaleza iterativa e incremental, permite que el proyecto se adapte en cualquier momento a los requisitos cambiantes y una entrega de valor constante a lo largo del proceso de desarrollo.
 
-Scrum proporciona un marco estructurado que facilita la organización del trabajo en iteraciones cortas llamadas sprints, que normalmente suelen ser de 2 semanas de duración, pero por las condiciones del actual proyecto se han establecido en una sola semana. Scrum permite una mayor flexibilidad en la gestión de cambios, una mejor comunicación con los tutores y una entrega más predecible de funcionalidades. Además, la transparencia inherente a Scrum facilita la identificación temprana de impedimentos y riesgos, permitiendo su resolución antes de que impacten significativamente en el proyecto.
+Scrum proporciona un marco estructurado que facilita la organización del trabajo en iteraciones cortas llamadas sprints, que se realizan normalmente en un periodo de de 2 semanas de duración. Scrum permite una mayor flexibilidad en la gestión de cambios, una mejor comunicación con los tutores y una entrega más predecible de funcionalidades. Además, la transparencia inherente a Scrum facilita la identificación temprana de impedimentos y riesgos, permitiendo su resolución antes de que impacten significativamente en el proyecto.
 
 La gestión y seguimiento de los sprints se ha realizado utilizando Zube~\cite{zube}, que es una plataforma especializada en la gestión de proyectos ágiles y que se integra perfectamente con el repositorio de GitHub. Además, Zube ofrece funcionalidades específicas para la implementación de Scrum, que incluyen:
 
@@ -28,7 +28,6 @@ La gestión y seguimiento de los sprints se ha realizado utilizando Zube~\cite{z
 \textbf{Integración nativa con GitHub}: Permite la sincronización automática con \emph{issues}, \emph{pull requests} y \emph{commits}.
 \end{itemize}
 
-
 La elección de Zube se justifica por su capacidad de proporcionar una visión global del progreso del proyecto, facilitando con ello tanto la planificación a corto plazo como el seguimiento de objetivos a largo plazo. Su interfaz es intuitiva y permite una gestión eficiente del \emph{product backlog} y la asignación de tareas a cada sprint.
 
 Complementariamente al uso de Zube, se ha utilizado el sistema de issues de GitHub para el registro detallado de todas las tareas, errores, mejoras y funcionalidades del proyecto. Esta integración dual proporciona varios beneficios:
@@ -48,26 +47,371 @@ Complementariamente al uso de Zube, se ha utilizado el sistema de issues de GitH
 \imagen{GitHub-Issue3}{Ejemplo del histórico de una \emph{issue}.}{1.0}
 
 \subsection{Estructura y Duración del Proyecto}
-El proyecto se ha estructurado en 10 sprints de 1 semana cada uno, resultando en una duración total de 10 semanas (aproximadamente 3 meses). Esta planificación se ha diseñado considerando la complejidad del sistema a desarrollar y los recursos disponibles, permitiendo un desarrollo incremental y sostenible.
+El proyecto se ha estructurado en 10 sprints de 2 semanas cada uno, resultando en una duración total de 20 semanas (aproximadamente 5 meses). Esta planificación se ha diseñado considerando la complejidad del sistema a desarrollar y los recursos disponibles, permitiendo un desarrollo incremental y sostenible.
+
+Cabe señalar que la distribución temporal del proyecto no ha seguido un patrón estrictamente lineal debido a interrupciones planificadas relacionadas con el calendario académico que ha requerido pausas en el desarrollo del proyecto, adaptando la planificación a las exigencias del curso académico. Esta variabilidad temporal ha sido gestionada mediante la flexibilidad que ofrece la metodología Scrum, permitiendo ajustar la duración de algunos sprints y redistribuir las cargas de trabajo según la disponibilidad. A pesar de estas interrupciones, se ha mantenido la estructura de 10 sprints planificada, asegurando que los objetivos de cada iteración se cumplieran independientemente de las fluctuaciones en el ritmo de trabajo, quédando resumida la planificación en los siguientes puntos:
 
 \begin{itemize}
 \tightlist
 \item
-\textbf{Duración total del proyecto}: 10 semanas.
+\textbf{Duración total del proyecto}: 20 semanas.
 \item
 \textbf{Número de sprints}: 10.
 \item
-\textbf{Duración de cada sprint}: 1 semana.
+\textbf{Duración de cada sprint}: 2 semanas.
 \item
 \textbf{Eventos Scrum}: Planificación de sprint, \emph{daily standups}, revisión y retrospectiva.
 \item
-\textbf{Período de desarrollo activo}: 8 semanas.
+\textbf{Período de desarrollo activo}: 17 semanas.
 \item
-\textbf{Período de cierre y documentación}: 2 semanas.
+\textbf{Período de cierre y documentación}: 3 semanas.
+\end{itemize}
+
+\subsection{Detalle de los Sprints}
+
+\subsubsection{Sprint 0 - Configuración Inicial y Arquitectura Base (17/03/2025 – 30/03/2025)} 
+En este sprint inicial se establecieron los cimientos del proyecto ReservApp como aplicación web para gestión de reservas. Se configuró el entorno de desarrollo con Spring Boot 3.4.4 como framework principal, estableciendo una arquitectura basada en capas (presentación, servicio, persistencia). Se configuró la estructura Maven con gestión de dependencias optimizada, incluyendo Spring Data JPA para persistencia, Spring Security para autenticación, Thymeleaf como motor de templates y MySQL como base de datos principal. En esta configuración inicial se priorizó la escalabilidad y mantenibilidad, preparando el proyecto para futuras ampliaciones mediante Docker Compose y herramientas de calidad continua como SonarCloud y JaCoCo para análisis de cobertura de código.
+
+Objetivos principales:
+\begin{itemize}
+\tightlist
+\item
+Configurar proyecto Spring Boot con Maven.
+\item
+Establecer arquitectura en capas (controller, service, repository, model).
+\item
+Configurar base de datos MySQL con pool de conexiones.
+\item
+Implementar configuración de desarrollo con Docker Compose.
+\item
+Establecer herramientas de calidad de código (SonarCloud, JaCoCo).
+\end{itemize}
+
+Actividades realizadas:
+\begin{itemize}
+\tightlist
+\item
+Creación del 'pom.xml' con todas las dependencias necesarias.
+\item
+Configuración de `application.properties` con parámetros de BD y logging.
+\item
+Estructura de paquetes modular: 'controller', 'service', 'model', 'config'.
+\item
+Configuración de 'compose.yaml' para contenedores de desarrollo.
+\item
+Integración con SonarCloud mediante 'sonar-project.properties' para análisis continuo.
+\item
+Implementación de 'ReservApplication' como clase principal con configuración de componentes
 \end{itemize}
 
 
-\subsection{Distribución Temporal General}
+\subsubsection{Sprint 1 - Modelo de Datos y Entidades Base (31/03/2025 – 13/04/2025)} 
+En este sprint se diseñó e implementó el modelo de datos completo del sistema, creando las entidades principales que sustentan la funcionalidad de reservas. Se desarrolló una jerarquía de entidades con 'EntidadInfo' como clase base que proporciona auditoría automática, y se implementaron las entidades principales: 'Usuario', 'Establecimiento', 'Reserva', 'Perfil' y 'Menu'. Se establecieron las relaciones entre entidades usando JPA annotations, implementando validaciones con Bean Validation y configurando índices de base de datos para optimizar las consultas más frecuentes. También se creó el sistema de claves primarias personalizadas con 'EntidadPK' y 'EntidadID'.
+
+Objetivos principales:
+\begin{itemize}
+\tightlist
+\item
+Diseñar modelo de datos completo del sistema.
+\item
+Implementar entidades JPA con validaciones.
+\item
+Establecer relaciones entre entidades.
+\item
+Configurar sistema de auditoría automática con interceptores de entidad personalizados.
+\item
+Optimizar consultas con índices de base de datos.
+\end{itemize}
+
+Actividades realizadas:
+\begin{itemize}
+\tightlist
+\item
+Creación de 'EntidadInfo' como clase base con auditoría.
+\item
+Implementación de entidades: 'Usuario', 'Establecimiento', 'Reserva'.
+\item
+Desarrollo de 'Perfil' y 'Menu' para gestión de perfiles.
+\item
+Configuración de relaciones '@OneToMany', '@ManyToMany', '@ManyToOne'.
+\item
+Implementación de validaciones con '@NotNull', '@Email', '@Pattern'.
+\end{itemize}
+
+\subsubsection{Sprint 2 - Seguridad y Autenticación (14/04/2025 – 27/04/2025)} 
+Este sprint se centró en implementar un sistema de seguridad robusto utilizando Spring Security y, para ello, se desarrolló un sistema de autenticación personalizado con 'CustomUserDetailsService' y 'CustomAuthenticationSuccessHandler', implementando encriptación de contraseñas con BCrypt y control de acceso basado en roles (USER/ADMIN). Se configuró la seguridad web con páginas de login personalizadas, protección contra ataques comunes (CSRF, session fixation, clickjacking) y manejo de sesiones. También se implementó el sistema de registro de usuarios con validación de email y tokens de confirmación, y se estableció un sistema de gestión de sesiones con timeout configurable y logout seguro.
+
+Objetivos principales:
+\begin{itemize}
+\tightlist
+\item
+Implementar autenticación con Spring Security.
+\item
+Crear sistema de roles y permisos.
+\item
+Desarrollar páginas de login y registro personalizadas.
+\item
+Configurar encriptación de contraseñas.
+\item
+Implementar control de sesiones y logout
+\end{itemize}
+
+Actividades realizadas:
+\begin{itemize}
+\tightlist
+\item
+Desarrollo de 'SecurityConfig' con configuración completa.
+\item
+Creación de 'CustomUserDetailsService' para carga de usuarios.
+\item
+Implementación de 'CustomAuthenticationSuccessHandler'.
+\item
+Desarrollo de 'LoginController' con registro y autenticación.
+\item
+Creación de templates 'login.html' y 'registro.html'
+\end{itemize}
+
+\subsubsection{Sprint 3 - Gestión de Usuarios y Perfiles (28/04/2025 – 11/05/2025)} 
+En este sprint se desarrolló la funcionalidad completa de gestión de usuarios y perfiles del sistema. Se implementaron los servicios 'UsuarioService' y 'PerfilService' con operaciones CRUD completas, incluyendo funcionalidades avanzadas como búsqueda de usuarios, asignación de establecimientos y gestión de perfiles personalizados. Se creó el panel de administración para gestión de usuarios con capacidades de bloqueo/desbloqueo, edición de perfiles y asignación de roles. También se implementó la funcionalidad de edición de perfil personal y la gestión de menús asociados a perfiles, estableciendo la base para un sistema de permisos granular.
+
+Objetivos principales:
+\begin{itemize}
+\tightlist
+\item
+Desarrollar CRUD completo para usuarios.
+\item
+Implementar gestión de perfiles personalizados.
+\item
+Crear panel de administración de usuarios.
+\item
+Desarrollar funcionalidad de búsqueda y filtrado.
+\item
+Implementar asignación de establecimientos a usuarios
+\end{itemize}
+
+Actividades realizadas:
+\begin{itemize}
+\tightlist
+\item
+Implementación de 'UsuarioServiceImpl' con operaciones completas.
+\item
+Desarrollo de 'PerfilServiceImpl' y gestión de menús.
+\item
+Creación de 'UserManagementController' para administración.
+\item
+Desarrollo de 'EditarPerfilController' para usuarios.
+\item
+Implementación de templates de gestión de usuarios y perfiles
+\end{itemize}
+
+\subsubsection{Sprint 4 - Gestión de Establecimientos (09/06/2025 – 22/07/2025)} 
+Este sprint se enfocó en desarrollar el módulo completo de gestión de establecimientos, implementando funcionalidades para crear, editar y administrar los espacios disponibles para reservas. Se desarrolló el sistema de franjas horarias con 'FranjaHoraria' que permite definir horarios de apertura por día de la semana, y se implementó la lógica de aforo para controlar la capacidad máxima de reservas simultáneas. Se creó la funcionalidad de asignación de establecimientos a usuarios, permitiendo que cada usuario tenga acceso solo a los establecimientos autorizados. También se implementaron validaciones de negocio para asegurar la consistencia de los datos de establecimientos.
+
+Objetivos principales:
+\begin{itemize}
+\tightlist
+\item
+Desarrollar CRUD completo para establecimientos.
+\item
+Implementar sistema de franjas horarias.
+\item
+Crear funcionalidad de aforo y capacidad.
+\item
+Desarrollar asignación de usuarios a establecimientos.
+\item
+Implementar validaciones de negocio específicas
+\end{itemize}
+
+Actividades realizadas:
+\begin{itemize}
+\tightlist
+\item
+Implementación de 'EstablecimientoServiceImpl' con lógica completa.
+\item
+Desarrollo de 'EstablecimientoController' y 'EstablecimientoAsignacionController'.
+\item
+Creación de entidad 'FranjaHoraria' con relaciones.
+\item
+Implementación de templates para gestión de establecimientos.
+\item
+Desarrollo de funcionalidad de asignación usuario-establecimiento.
+\end{itemize}
+
+
+
+
+
+
+
+\subsubsection{Sprint 5 - Sistema de Reservas Core (23/06/2025 – 06/07/2025)} 
+En este sprint se desarrolló el núcleo del sistema de reservas, implementando la lógica completa para crear, modificar y gestionar reservas. Se creó 'ReservaService' con algoritmos sofisticados para verificar disponibilidad considerando aforo, franjas horarias y conflictos de tiempo. Se implementó el sistema de slots de tiempo con 'SlotReservaUtil' que genera automáticamente los horarios disponibles basados en la configuración del establecimiento. Se desarrolló la funcionalidad de calendario interactivo que permite a los usuarios visualizar y seleccionar fechas y horarios disponibles. También se implementó la lógica de validación de reservas que considera múltiples factores como horarios de apertura, aforo máximo y reservas existentes.
+
+Objetivos principales:
+\begin{itemize}
+\tightlist
+\item
+Desarrollar lógica core de reservas.
+\item
+Implementar algoritmos de verificación de disponibilidad.
+\item
+Crear sistema de slots de tiempo automático.
+\item
+Desarrollar calendario interactivo de reservas.
+\item
+Implementar validaciones complejas de negocio.
+\end{itemize}
+
+Actividades realizadas:
+\begin{itemize}
+\tightlist
+\item
+Implementación de 'ReservaServiceImpl' con lógica avanzada.
+\item
+Desarrollo de 'SlotReservaUtil' para generación de slots.
+\item
+Creación de algoritmos de verificación de aforo.
+\item
+Implementación de 'ReservaController' con validaciones.
+\item
+Desarrollo de templates de calendario y gestión de reservas.
+\end{itemize}
+
+\subsubsection{Sprint 6 - Sistema de Convocatorias (07/07/2025 – 20/07/2025)} 
+Este sprint se centró en desarrollar el sistema de convocatorias que permite invitar a otros usuarios a las reservas creadas. Se implementaron las entidades 'Convocatoria' y 'Convocado' con una relación compleja que maneja claves primarias compuestas mediante 'ConvocadoPK'. Se desarrolló la funcionalidad de búsqueda de usuarios para invitaciones, implementando un sistema AJAX que permite buscar y seleccionar usuarios dinámicamente. Se creó el sistema de notificaciones por email que informa a los usuarios convocados sobre las reservas, incluyendo detalles como fecha, hora, establecimiento y enlaces de reunión. También se implementó la gestión de convocatorias con capacidades de edición y eliminación.
+
+Objetivos principales:
+\begin{itemize}
+\tightlist
+\item
+Desarrollar sistema completo de convocatorias.
+\item
+Implementar búsqueda dinámica de usuarios.
+\item
+Crear sistema de notificaciones por email.
+\item
+Desarrollar gestión de usuarios convocados.
+\item
+Implementar funcionalidad de enlaces de reunión.
+\end{itemize}
+
+Actividades realizadas:
+\begin{itemize}
+\tightlist
+\item
+Implementación de entidades 'Convocatoria' y 'Convocado'.
+\item
+Desarrollo de 'ConvocatoriaService' con lógica compleja.
+\item
+Creación de sistema de búsqueda AJAX de usuarios.
+\item
+Implementación de 'EmailService' para notificaciones.
+\item
+Desarrollo de funcionalidades de gestión de convocatorias.
+\end{itemize}
+
+
+\subsubsection{Sprint 7 - Interfaz de Usuario y Experiencia (04/08/2025 – 17/08/2025)} 
+En este sprint se desarrolló una interfaz de usuario moderna y responsiva utilizando Bootstrap y componentes personalizados. Se creó el sistema de templates con Thymeleaf, implementando fragmentos reutilizables como '_header.html' y '_common_head.html' para mantener consistencia visual. Se desarrolló el menú principal dinámico que adapta las opciones disponibles según el rol del usuario (USER/ADMIN), y se implementaron interfaces específicas para cada funcionalidad del sistema. Se creó un sistema de mensajes flash para feedback del usuario y se implementaron validaciones del lado cliente con JavaScript. También se optimizó la experiencia móvil con diseño responsivo.
+
+Objetivos principales:
+\begin{itemize}
+\tightlist
+\item
+Desarrollar interfaz moderna con Bootstrap.
+\item
+Crear sistema de templates reutilizables.
+\item
+Implementar diseño responsivo para móviles.
+\item
+Desarrollar componentes JavaScript interactivos.
+\item
+Crear sistema de feedback visual para usuarios.
+\end{itemize}
+
+Actividades realizadas:
+\begin{itemize}
+\tightlist
+\item
+Implementación de templates Thymeleaf con fragmentos.
+\item
+Desarrollo de `menuprincipal.html` con navegación dinámica.
+\item
+Creación de estilos CSS personalizados.
+\item
+Implementación de componentes JavaScript para interactividad.
+\item
+Desarrollo de interfaces específicas para cada módulo.
+\end{itemize}
+
+\subsubsection{Sprint 8 - Funcionalidades Avanzadas y Optimizaciones (18/08/2025 – 31/08/2025)} 
+
+Objetivos principales:
+\begin{itemize}
+\tightlist
+\item
+Desarrollar .
+\item
+Implementar.
+\item
+Crear.
+\item
+Desarrollar.
+\item
+Implementar.
+\end{itemize}
+
+Actividades realizadas:
+\begin{itemize}
+\tightlist
+\item
+Implementación.
+\item
+Desarrollo.
+\item
+Creación.
+\item
+Implementación.
+\item
+Desarrollo
+\end{itemize}
+
+\subsubsection{Sprint 9 - Testing, Documentación y Despliegue (01/09/2025 – 14/09/2025)} 
+
+Objetivos principales:
+\begin{itemize}
+\tightlist
+\item
+Desarrollar .
+\item
+Implementar.
+\item
+Crear.
+\item
+Desarrollar.
+\item
+Implementar.
+\end{itemize}
+
+Actividades realizadas:
+\begin{itemize}
+\tightlist
+\item
+Implementación.
+\item
+Desarrollo.
+\item
+Creación.
+\item
+Implementación.
+\item
+Desarrollo
+\end{itemize}
+
+
+
+
+
+
 
 
 \section{Estudio de viabilidad}
