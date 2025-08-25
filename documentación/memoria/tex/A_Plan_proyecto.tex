@@ -47,7 +47,7 @@ Complementariamente al uso de Zube, se ha utilizado el sistema de \emph{issues} 
 \imagen{GitHub-Issue3}{Ejemplo del histórico de una \emph{issue}.}
 
 \subsection{Estructura y Duración del Proyecto}
-El proyecto se ha estructurado en 11 sprints de 2 semanas cada uno, resultando en una duración total de 22 semanas (aproximadamente 5 meses). Esta planificación se ha diseñado considerando la complejidad del sistema a desarrollar y los recursos disponibles, permitiendo un desarrollo incremental y sostenible.
+El proyecto se ha estructurado en 11 sprints de 2 semanas cada uno, resultando en una duración total de 22 semanas (aproximadamente 6 meses). Esta planificación se ha diseñado considerando la complejidad del sistema a desarrollar y los recursos disponibles, permitiendo un desarrollo incremental y sostenible.
 
 Cabe señalar que la distribución temporal del proyecto no ha seguido un patrón estrictamente lineal debido a interrupciones planificadas relacionadas con el calendario académico que ha requerido pausas en el desarrollo del proyecto, adaptando la planificación a las exigencias del curso académico. Esta variabilidad temporal ha sido gestionada mediante la flexibilidad que ofrece la metodología Scrum, permitiendo ajustar la duración de algunos sprints y redistribuir las cargas de trabajo según la disponibilidad. A pesar de estas interrupciones, se ha mantenido la estructura de 11 sprints planificada, asegurando que los objetivos de cada iteración se cumplieran independientemente de las fluctuaciones en el ritmo de trabajo, quédando resumida la planificación en los siguientes puntos:
 
@@ -430,17 +430,129 @@ Validación final del sistema en producción.
 \end{itemize}
 
 
-
-
-
-
-
 \section{Estudio de viabilidad}
+El presente estudio de viabilidad analiza la factibilidad económica y legal del desarrollo del proyecto ReservApp, un sistema web de gestión de reservas desarrollado con tecnologíaas Java/Spring Boot. Este análisis considera los costes asociados al desarrollo, implementación y mantenimiento del sistema, así como las implicaciones legales derivadas del uso de las tecnologías y herramientas seleccionadas.
 
+El proyecto se ha desarrollado siguiendo una metodología ágil distribuida en 11 sprints, con una duración total aproximada de 6 meses de desarrollo, considerando un equipo de desarrollo compuesto por un desarrollador full-stack senior y soporte técnico especializado.
 
 \subsection{Viabilidad económica}
+\subsubsection{Coste de personal}
+El desarrollo del proyecto ReservApp requiere de personal especializado en tecnologías Java/Spring Boot, desarrollo web y gestión de bases de datos. A continuación se detallan los costes de personal considerando las tarifas del mercado español para el año 2025~\cite{talent}:
+\tablaSmallSinColores
+{Coste por hora según perfil} % Título de la tabla
+{llr} % Formato de las columnas (l: izquierda, c: centrado, r:derecha)
+{costes-hora-perfil} % Etiqueta para referencias cruzadas
+{%
+	\textbf{Rol} & \textbf{Perfil} & \textbf{Coste Hora}\\ % Cabecera
+}
+{%
+	Programador Java Senior & Java/Spring Boot, Frontend, BD & 16,92€\\
+	Arquitecto Software & Diseño arquitectura, análisis requisitos & 17,95€\\
+	Especialista DevOps & CI/CD, Docker, despliegue & 20,51€\\
+	Tester/QA & Testing y validación & 19,23€\\
+}
 
+Suponiendo una dedicación semanal de 20 horas con un total de 80 horas al mes y en base al coste de hora indicado anteriormente y en función de la dedicación en las diferentes tareas del proyecto, se puede obtener la siguiente tabla con el coste total por perfil:
+\tablaSmallSinColores
+{Coste total por perfil} % Título de la tabla
+{lrlr} % Formato de las columnas (l: izquierda, c: centrado, r:derecha)
+{costes-total-perfil} % Etiqueta para referencias cruzadas
+{%
+	\textbf{Rol} & \textbf{Dedicación} & \textbf{Duración} & \textbf{Coste total}\\ % Cabecera
+}
+{%
+	Programador Java Senior    & 100\%    & 6 meses & 8.121€\\
+	Arquitecto Software    & 25\%    & 6 meses & 2.154€\\
+	Especialista DevOps & 15\%    & 2 meses & 492€\\
+	Tester/QA    & 30\%    & 3 meses & 1.384€\\
+    \midrule
+	\textbf{Total Coste Personal} & & & \textbf{12.151€} \\ 
+}
+
+\subsubsection{Coste de Hardware}
+Para calcular los costes de los equipos, se han considerado equipos de gama media necesarios para el desarrollo eficiente. Además, se supone un período de amortización de 4 años, y para un desarrollo de 6 meses, tenemos los siguientes costes:
+
+\tablaSmallSinColores
+{Coste total por perfil} % Título de la tabla
+{llrr} % Formato de las columnas (l: izquierda, c: centrado, r:derecha)
+{costes-hardware} % Etiqueta para referencias cruzadas
+{%
+	\textbf{Equipo} & \textbf{Características} & \textbf{P. Unitario} & \textbf{Coste total}\\ % Cabecera
+}
+{%
+	Sobremesa & Ryzen 7, 32 GB RAM, 1TB & 600€ & 75€\\
+	Monitor & HP 24" & 200€ & 2,5€\\
+    \midrule
+	\textbf{Total Coste} & \textbf{Hardware} & & \textbf{77,5€} \\ 
+}
+
+\subsubsection{Coste de Software}
+El proyecto utiliza principalmente tecnologías open source, lo que reduce significativamente los costes de licenciamiento. Sin embargo, se ha utilizado la siguiente herramienta comercial para desarrollo, para la que se ha supuesto un periodo de amortización de 2 años, y siendo de 6 meses la duración del desarrollo:
+
+\tablaSmallSinColores
+{Coste Software} % Título de la tabla
+{lrr} % Formato de las columnas (l: izquierda, c: centrado, r:derecha)
+{costes-software} % Etiqueta para referencias cruzadas
+{%
+	\textbf{Software} & \textbf{P. Unitario} & \textbf{Coste total}\\ % Cabecera
+}
+{%
+	Windows 11 Pro & 200€ & 50€\\
+    \midrule
+	\textbf{Total Coste Software} & & \textbf{50€} \\ 
+}
+
+La siguiente tabla recoge el total de costes contemplados:
+
+\tablaSmallSinColores
+{Coste total} % Título de la tabla
+{lr} % Formato de las columnas (l: izquierda, c: centrado, r:derecha)
+{costes-total} % Etiqueta para referencias cruzadas
+{%
+	\textbf{Concepto} & \textbf{Coste total}\\ % Cabecera
+}
+{%
+	Coste de Personal & 12.151€\\
+	Coste de Hardware & 77,5€\\
+	Coste de Software & 50€\\
+    \midrule
+	\textbf{Coste Total} & \textbf{12.278,5€} \\ 
+}
 
 \subsection{Viabilidad legal}
 
+Para el desarrollo del proyecto ReservApp se ha intentado utilizar en lo posible software \emph{open source} y con licencia gratuita o al menos versiones libres de costes. A continuación se enumeran los distintos componentes utilizados con el tipo de licenciamiento por el que se rigen:
 
+\tablaSmallSinColores
+{Dependencias del proyecto} % Título de la tabla
+{lll} % Formato de las columnas (l: izquierda, c: centrado, r:derecha)
+{dependecias-licencia} % Etiqueta para referencias cruzadas
+{%
+	\textbf{Dependencia} & \textbf{Licencia} & \textbf{Observaciones}\\ % Cabecera
+}
+{%
+	Apache Maven 3.9.x & Apache License 2.0 & Uso comercial libre\\
+    Spring Boot 3.4.x & Apache License 2.0 & Uso comercial libre\\
+	Spring Data JPA 3.x & Apache License 2.0 & Uso comercial libre\\
+	Spring Security 6.x & Apache License 2.0 & Uso comercial libre\\
+    Hibernate 6.x & Apache License 2.0 & Uso comercial libre\\
+    Thymeleaf 3.x & Apache License 2.0 & Uso comercial libre\\
+    MySQL 8.x & GPL 2.0 & Uso condicionado\\
+    H2 Database 2.x & MPL 2.0 / EPL 1.0 & Uso comercial libre\\
+    Bootstrap 5.3.x & MIT License & Uso comercial libre\\
+    Bootstrap Icons 1.13.x & MIT License & Uso comercial libre\\
+    Font Awesome 6.x & Font Awesome Free License & Iconos gratuitos limitados\\
+    JQuery 3.x & MIT License & Uso comercial libre\\
+    JUnit 5.x & Eclipse Public License 2.0 & Uso comercial libre\\
+    Mockito 5.14.x & MIT License & Uso comercial libre\\
+    JaCoCo 0.8.x & Eclipse Public License 2.0 & Uso comercial libre\\
+    Lombok 1.18.x & MIT License & Uso comercial libre\\
+    \midrule
+    Eclipse 2025-06 & Eclipse Public License 2.0 & Uso comercial libre\\
+    GitHub & Términos de Servicio & versión limitada\\
+    SonarCloud & SaaS Comercial & versión limitada\\
+}
+
+Dado que MySQL está bajo la GPL (en su versión libre), y esta licencia exige que el software derivado también sea GPL, la única manera de cumplir con todas las condiciones es licenciar la aplicación completa bajo la \textbf{GNU General Public License (GPL)}. Esto asegura que se cumplan con los requisitos de MySQL, mientras que las licencias Apache, MIT, MPL y EPL son lo suficientemente permisivas o tienen mecanismos de compatibilidad que permiten su uso dentro de un proyecto GPL.
+
+De modo que una vez revisada la anterior comparativa y, sin tener en cuenta los tres últimos elementos que no son propios de la aplicación, siguiendo las mencionadas recomendaciones de GNU sobre las licencias~\cite{gnu}, el proyecto queda protegido bajo la licencia \textbf{GPLv3} (la versión más reciente), ya que todas las licencias utilizadas son compatibles con la misma.
