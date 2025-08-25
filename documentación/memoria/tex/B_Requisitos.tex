@@ -93,7 +93,58 @@ Experiencia de Usuario.
 
 \end{itemize}
 
+\newpage
+\section{Catálogo de requisitos}
+En este apartado se enumeran los requisitos de la aplicación, organizándose éstos por tipo y se proporciona un identificador único (RF para Requisito Funcional, RNF para Requisito No Funcional) y una descripción del mismo.
 
+\subsection{RF - Requisitos Funcionales}
+
+\begin{itemize}
+\tightlist
+\item
+\textbf{RF-001 - Gestión de Autenticación y Autorización}: El sistema debe proporcionar mecanismos seguros de autenticación y autorización basados en roles.
+\item
+\textbf{RF-002 - Registro de Usuarios}: El sistema debe permitir el registro de nuevos usuarios con validación de datos.
+\item
+\textbf{RF-003 - Gestión de Establecimientos}: El sistema debe permitir la gestión completa de establecimientos con configuración de horarios.
+\item
+\textbf{RF-004 - Sistema de Reservas}: El sistema debe permitir crear, modificar y anular reservas con validación de disponibilidad.
+\item
+\textbf{RF-005 - Sistema de Convocatorias}: El sistema debe permitir invitar a otros usuarios a reservas con información adicional.
+\item
+\textbf{RF-006 - Búsqueda de Usuarios}: El sistema debe proporcionar, para la configuración de convocatorias, una búsqueda eficiente de usuarios.
+\item
+\textbf{RF-007 - Administración de Usuarios}: El sistema debe permitir a los administradores gestionar cuentas de usuario.
+\item
+\textbf{RF-008 - Visualización de Reservas Administrativas}: El sistema debe proporcionar vista administrativa de reservas por establecimiento.
+\item
+\textbf{RF-009 - Gestión de Perfiles}: El sistema debe permitir la gestión de perfiles con menús asociados.
+\item
+\textbf{RF-010 - Notificaciones por Email}: El sistema debe enviar notificaciones por email para los diferentes eventos de reservas.
+\end{itemize}
+
+\subsection{RNF - Requisitos No Funcionales}
+\begin{itemize}
+\tightlist
+\item
+\textbf{RNF-001 - Rendimiento}: El sistema debe mantener tiempos de respuesta razonables de modo que la interacción o experiencia de usuario no se vea perjudicada. Los tiempos de carga y la respuesta de las operaciones deben ser aceptables.
+\item
+\textbf{RNF-002 - Seguridad}: El sistema debe implementar medidas de seguridad robustas, utilizando para ello un sistema de encriptación para las contraseñas, así como establecer una protección contra ataques. Del mismo modo, se debe establecer un control de acceso basado en roles y establecer un timeout de sesión automático.
+\item
+\textbf{RNF-003 - Usabilidad}: El sistema debe ser intuitiva y accesible, con un diseño adaptable a dispositivos móviles. La navegación principal estará optimizada para que el usuario acceda a las funciones principales en solo tres clics. Para una mejor interacción, se mostrarán mensajes de error claros y se ofrecerá un feedback visual instantáneo, asegurando que el diseño sea coherente en todas las páginas.
+
+\item
+\textbf{RNF-004 - Disponibilidad}: El sistema debe mantener una disponibilidad del 99\% durante el horario laboral. En caso de fallos inesperados, se establece un tiempo de recuperación inferior a 5 minutos, minimizando así el impacto en las operaciones. El mantenimiento preventivo incluye un backup automático diario para proteger la integridad de los datos. Además, el sistema manejará los errores de forma controlada y eficiente, asegurando que nunca se produzca pérdida de datos. Finalmente, se generarán logs detallados que facilitarán el diagnóstico y la resolución rápida de cualquier problema técnico.
+\item
+\textbf{RNF-005 - Escalabilidad}: El sistema debe ser capaz de poder absorver un crecimiento del número de usuarios, adaptándose sin problemas y ofreciendo un rendimiento adecuado incluso en situaciones de alta demanda.
+\item
+\textbf{RNF-006 - Mantenibilidad}: El sistema debe ser fácil de actualizar o modificar, siguiendo un diseño modular y una estructura clara que facilite su futuro mantenimiento. Se priorizará la legibilidad y la consistencia en la implementación para simplificar la corrección de errores y la incorporación de nuevas funcionalidades.
+\item
+\textbf{RNF-007 - Compatibilidad}: El sistema deberá ser compatible con los navegadores web más utilizados, incluyendo Google Chrome, Mozilla Firefox, Microsoft Edge y Safari. La interfaz de usuario será totalmente responsiva, garantizando que la aplicación se adapte y funcione correctamente en una amplia gama de dispositivos, como computadoras de escritorio, tabletas y teléfonos móviles, sin perder funcionalidad ni usabilidad.
+\end{itemize}
+
+\newpage
+\section{Especificación de requisitos}
 
 
 Una muestra de cómo podría ser una tabla de casos de uso:
@@ -124,9 +175,4 @@ Una muestra de cómo podría ser una tabla de casos de uso:
 	\end{tabularx}
 	\caption{CU-1 Nombre del caso de uso.}
 \end{table}
-
-\section{Catálogo de requisitos}
-
-\section{Especificación de requisitos}
-
 
