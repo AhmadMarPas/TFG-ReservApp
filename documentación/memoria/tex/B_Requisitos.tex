@@ -5,6 +5,95 @@ Este documento presenta la especificación completa de requisitos para ReservApp
 
 ReservApp es una aplicación web diseñada para facilitar la gestión integral de reservas en establecimientos diversos. El sistema permite a los usuarios realizar reservas en diferentes establecimientos, gestionar convocatorias con otros usuarios, y a los administradores supervisar todo el proceso de reservas y gestión de usuarios.
 
+\section{Objetivos generales}
+
+El objetivo principal del actual TFG es el desarrollo de un sistema web de gestión de reservas que permita a los usuarios realizar reservas de manera eficiente en diferentes establecimientos, con capacidades avanzadas de convocatorias y administración centralizada. Y como consecuencia de ello, se deben contemplar los siguientes objetivos específicos:
+
+\begin{itemize}
+\tightlist
+\item
+Gestión de Establecimientos.
+    \begin{itemize}
+    \tightlist
+    \item
+    Permitir la configuración flexible de establecimientos con horarios específicos.
+    \item
+    Implementar sistema de aforo para controlar la capacidad de reservas.
+    \item
+    Proporcionar asignación de usuarios a establecimientos específicos.
+    \item
+    Facilitar la gestión administrativa de establecimientos.
+    \end{itemize}
+
+\item
+Gestión de Usuarios.
+    \begin{itemize}
+    \tightlist
+    \item
+    Proporcionar un sistema de registro y autenticación seguro.
+    \item
+    Implementar control de acceso basado en roles (Usuario/Administrador).
+    \item
+    Permitir la gestión de perfiles de usuario personalizables.
+    \end{itemize}
+
+\item
+Sistema de Reservas.
+    \begin{itemize}
+    \tightlist
+    \item
+    Ofrecer múltiples modalidades de reserva (slots predefinidos y horarios libres).
+    \item
+    Implementar validación automática de disponibilidad y conflictos.
+    \item
+    Proporcionar calendario interactivo para visualización de reservas.
+    \item
+    Permitir modificación y anulación de reservas con notificaciones
+    \end{itemize}
+
+\item
+Sistema de Convocatorias
+    \begin{itemize}
+    \tightlist
+    \item
+    Facilitar la invitación de otros usuarios a reservas.
+    \item
+    Proporcionar gestión de enlaces de reunión y observaciones.
+    \item
+    Implementar búsqueda avanzada de usuarios para convocatorias.
+    \item
+    Automatizar notificaciones por correo electrónico.
+    \end{itemize}
+
+\item
+Administración del Sistema
+    \begin{itemize}
+    \tightlist
+    \item
+    Proporcionar un panel de administración completo.
+    \item
+    Implementar gestión avanzada de usuarios (bloqueo, desbloqueo, eliminación).
+    \item
+    Ofrecer visualización de reservas por establecimiento y fecha.
+    \end{itemize}
+
+\item
+Experiencia de Usuario.
+    \begin{itemize}
+    \tightlist
+    \item
+    Desarrollar interfaz intuitiva y responsiva.
+    \item
+    Implementar navegación eficiente entre funcionalidades.
+    \item
+    Optimizar rendimiento para carga rápida de páginas.
+    \item
+    Proporcionar feedback visual inmediato de acciones
+    \end{itemize}
+
+\end{itemize}
+
+
 
 
 Una muestra de cómo podría ser una tabla de casos de uso:
@@ -35,8 +124,6 @@ Una muestra de cómo podría ser una tabla de casos de uso:
 	\end{tabularx}
 	\caption{CU-1 Nombre del caso de uso.}
 \end{table}
-
-\section{Objetivos generales}
 
 \section{Catálogo de requisitos}
 
