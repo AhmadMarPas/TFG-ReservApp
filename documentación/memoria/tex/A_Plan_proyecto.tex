@@ -1,13 +1,564 @@
 \apendice{Plan de Proyecto Software}
 
 \section{Introducción}
+En el presente plan de proyecto software se define la estrategia de desarrollo que se ha llevado a cabo para la implementación de un sistema web de gestión de reservas de salas de reuniones. Este anexo establece el marco organizativo y metodológico que se llevó a cabo durante el proceso de desarrollo, desde la concepción inicial hasta la puesta en producción del sistema. La planificación que aquí se presenta contempla una estimación temporal realista de las diferentes fases del proyecto, considerando las actividades de análisis, diseño, implementación, pruebas y despliegue. Asimismo, se evalúa la viabilidad del proyecto desde una perspectiva económica y legal, analizando los costes asociados al desarrollo, los recursos necesarios y el cumplimiento de la normativa aplicable en materia de protección de datos y propiedad intelectual.
 
 \section{Planificación temporal}
+Para el desarrollo de la aplicación de gestión de reservas de salas de reuniones se ha adoptado la metodología ágil Scrum como marco de trabajo principal. Esta elección se basa en la naturaleza iterativa e incremental que requiere el proyecto, permitiendo una adaptación continua a los requisitos cambiantes y una entrega de valor constante a lo largo del proceso de desarrollo.
+
+Scrum proporciona un marco estructurado que facilita la organización del trabajo en iteraciones cortas llamadas sprints, que se realizan normalmente en un periodo de 2 semanas de duración. Scrum permite una mayor flexibilidad en la gestión de cambios, una mejor comunicación con los tutores y una entrega más predecible de funcionalidades. Además, la transparencia inherente a Scrum facilita la identificación temprana de impedimentos y riesgos, permitiendo su resolución antes de que impacten significativamente en el proyecto.
+
+La gestión y seguimiento de los sprints se ha realizado utilizando Zube~\cite{zube}, que es una plataforma especializada en la gestión de proyectos ágiles y que se integra perfectamente con el repositorio de GitHub. Además, Zube ofrece funcionalidades específicas para la implementación de Scrum, que incluyen:
+
+\begin{itemize}
+\tightlist
+\item
+\textbf{Tableros Kanban personalizables}: Permiten visualizar el flujo de trabajo desde el backlog hasta la finalización de las tareas. Como ejemplo de ello se puede observa la figura ~\ref{fig:Zube-Kanban}.
+
+\imagen{Zube-Kanban}{Ejemplo de las tarjetas de un sprint en Zube con los diferentes estados en los que se puede encontrar.}
+
+\item
+\textbf{Gestión de sprints}: Dispone de herramientas para la planificación, seguimiento y retrospectivas de cada iteración.
+\item
+\textbf{Métricas de rendimiento}: Incluyen gráficos de \emph{burndown charts}, \emph{velocity tracking} y análisis de ciclo de vida de las tareas. En la figura ~\ref{fig:Zube-Burndown} se puede observar un ejemplo de gráfica de \emph{burndown}.
+
+\imagen{Zube-Burndown}{Ejemplo de gráfico de \emph{burndown} en el que se muestra la evolución de los puntos realizados.}
+
+\item
+\textbf{Integración nativa con GitHub}: Permite la sincronización automática con \emph{issues}, \emph{pull requests} y \emph{commits}.
+\end{itemize}
+
+La elección de Zube se debe a su capacidad de proporcionar una visión global del progreso del proyecto, facilitando con ello tanto la planificación a corto plazo como el seguimiento de objetivos a largo plazo. Su interfaz es intuitiva y permite una gestión eficiente del \emph{product backlog} y la asignación de tareas a cada sprint.
+
+Complementariamente al uso de Zube, se ha utilizado el sistema de \emph{issues} de GitHub para el registro detallado de todas las tareas, errores, mejoras y funcionalidades del proyecto. Esta integración dual proporciona varios beneficios:
+
+\begin{itemize}
+\tightlist
+\item
+\textbf{Trazabilidad completa}: Cada \emph{issue} está vinculada directamente con el código fuente, \emph{commits} y \emph{pull requests} correspondientes. En la figura ~\ref{fig:GitHub-Issue3} se puede observar un ejemplo del histórico de una \emph{issue}.
+\item
+\textbf{Documentación técnica}: Las \emph{issues} permiten documentar decisiones técnicas, problemas encontrados y soluciones implementadas.
+\item
+\textbf{Colaboración eficiente}: Facilita la comunicación sobre aspectos técnicos específicos y la revisión de código.
+\item
+\textbf{Historial detallado}: Mantiene un registro completo de la evolución del proyecto y las decisiones tomadas.
+\end{itemize}
+
+\imagen{GitHub-Issue3}{Ejemplo del histórico de una \emph{issue}.}
+
+\subsection{Estructura y Duración del Proyecto}
+El proyecto se ha estructurado en 11 sprints de 2 semanas cada uno, resultando en una duración total de 22 semanas (aproximadamente 6 meses). Esta planificación se ha diseñado considerando la complejidad del sistema a desarrollar y los recursos disponibles, permitiendo un desarrollo incremental y sostenible.
+
+Cabe señalar que la distribución temporal del proyecto no ha seguido un patrón estrictamente lineal debido a interrupciones planificadas relacionadas con el calendario académico que ha requerido pausas en el desarrollo del proyecto, adaptando la planificación a las exigencias del curso académico. Esta variabilidad temporal ha sido gestionada mediante la flexibilidad que ofrece la metodología Scrum, permitiendo ajustar la duración de algunos sprints y redistribuir las cargas de trabajo según la disponibilidad. A pesar de estas interrupciones, se ha mantenido la estructura de 11 sprints planificada, asegurando que los objetivos de cada iteración se cumplieran independientemente de las fluctuaciones en el ritmo de trabajo, quédando resumida la planificación en los siguientes puntos:
+
+\begin{itemize}
+\tightlist
+\item
+\textbf{Duración total del proyecto}: 22 semanas.
+\item
+\textbf{Número de sprints}: 11.
+\item
+\textbf{Duración de cada sprint}: 2 semanas.
+\item
+\textbf{Eventos Scrum}: Planificación de sprint, \emph{daily standups}, revisión y retrospectiva.
+\item
+\textbf{Período de desarrollo activo}: 19 semanas.
+\item
+\textbf{Período de cierre y documentación}: 3 semanas.
+\end{itemize}
+
+\subsection{Detalle de los Sprints}
+
+\subsubsection{Sprint 0 - Configuración Inicial y Arquitectura Base (17/03/2025 – 30/03/2025)} 
+En este sprint inicial se establecieron los cimientos del proyecto ReservApp como aplicación web para gestión de reservas. Se configuró el entorno de desarrollo con Spring Boot como framework principal, estableciendo una arquitectura basada en capas (presentación, servicio, persistencia). Se configuró la estructura Maven con gestión de dependencias, incluyendo Spring Data JPA para persistencia, Spring Security para autenticación, Thymeleaf como motor de templates y MySQL como base de datos principal. En esta configuración inicial se priorizó la escalabilidad y mantenibilidad, preparando el proyecto para futuras ampliaciones mediante Docker Compose y herramientas de calidad continua como SonarCloud y JaCoCo para análisis de cobertura de código.
+
+\textbf{Objetivos principales}:
+\begin{itemize}
+\tightlist
+\item
+Configurar proyecto Spring Boot con Maven.
+\item
+Establecer arquitectura en capas (controller, service, repository, model).
+\item
+Configurar la base de datos MySQL con pool de conexiones.
+\item
+Implementar configuración de desarrollo con Docker Compose.
+\item
+Establecer herramientas de calidad de código (SonarCloud, JaCoCo).
+\end{itemize}
+
+\textbf{Actividades realizadas}:
+\begin{itemize}
+\tightlist
+\item
+Creación del 'pom.xml' con todas las dependencias necesarias.
+\item
+Configuración de `application.properties` con parámetros de BD y logging.
+\item
+Estructura de paquetes modular: 'controller', 'service', 'model', 'config'.
+\item
+Configuración de 'compose.yaml' para contenedores de desarrollo.
+\item
+Integración con SonarCloud mediante 'sonar-project.properties' para análisis continuo.
+\item
+Implementación de 'ReservApplication' como clase principal con configuración de componentes
+\end{itemize}
+
+
+\subsubsection{Sprint 1 - Modelo de Datos y Entidades Base (31/03/2025 – 13/04/2025)} 
+En este sprint se diseñó e implementó el modelo de datos completo del sistema, creando las entidades principales que sustentan la funcionalidad de reservas. Se desarrolló una jerarquía de entidades con 'EntidadInfo' como clase base que proporciona auditoría automática, y se implementaron las entidades principales: 'Usuario', 'Establecimiento', 'Reserva', 'Perfil' y 'Menu'. Se establecieron las relaciones entre entidades usando JPA annotations, implementando validaciones con Bean Validation y configurando índices de base de datos para optimizar las consultas más frecuentes. También se creó el sistema de claves primarias personalizadas con 'EntidadPK' y 'EntidadID'.
+
+\textbf{Objetivos principales}:
+\begin{itemize}
+\tightlist
+\item
+Diseñar modelo de datos completo del sistema.
+\item
+Implementar entidades JPA con validaciones.
+\item
+Establecer relaciones entre entidades.
+\item
+Configurar sistema de auditoría automática con interceptores de entidad personalizados.
+\item
+Optimizar consultas con índices de base de datos.
+\end{itemize}
+
+\textbf{Actividades realizadas}:
+\begin{itemize}
+\tightlist
+\item
+Creación de 'EntidadInfo' como clase base con auditoría.
+\item
+Implementación de entidades: 'Usuario', 'Establecimiento', 'Reserva'.
+\item
+Desarrollo de 'Perfil' y 'Menu' para gestión de perfiles.
+\item
+Configuración de relaciones '@OneToMany', '@ManyToMany', '@ManyToOne'.
+\item
+Implementación de validaciones con '@NotNull', '@Email', '@Pattern'.
+\end{itemize}
+
+\subsubsection{Sprint 2 - Seguridad y Autenticación (14/04/2025 – 27/04/2025)} 
+Este sprint se centró en implementar un sistema de seguridad robusto utilizando Spring Security y, para ello, se desarrolló un sistema de autenticación personalizado con 'CustomUserDetailsService' y 'CustomAuthenticationSuccessHandler', implementando encriptación de contraseñas con BCrypt y control de acceso basado en roles (USER/ADMIN). Se configuró la seguridad web con páginas de login personalizadas, protección contra ataques comunes (CSRF, \emph{session fixation}, \emph{clickjacking}) y manejo de sesiones. También se implementó el sistema de registro de usuarios con validación de email y tokens de confirmación, y se estableció un sistema de gestión de sesiones con timeout configurable y logout seguro.
+
+\textbf{Objetivos principales}:
+\begin{itemize}
+\tightlist
+\item
+Implementar autenticación con Spring Security.
+\item
+Crear sistema de roles y permisos.
+\item
+Desarrollar páginas de login y registro personalizadas.
+\item
+Configurar encriptación de contraseñas.
+\item
+Implementar control de sesiones y logout
+\end{itemize}
+
+\textbf{Actividades realizadas}:
+\begin{itemize}
+\tightlist
+\item
+Desarrollo de 'SecurityConfig' con configuración completa.
+\item
+Creación de 'CustomUserDetailsService' para carga de usuarios.
+\item
+Implementación de 'CustomAuthenticationSuccessHandler'.
+\item
+Desarrollo de 'LoginController' con registro y autenticación.
+\item
+Creación de templates 'login.html' y 'registro.html'
+\end{itemize}
+
+\subsubsection{Sprint 3 - Gestión de Usuarios y Perfiles (28/04/2025 – 11/05/2025)} 
+En este sprint se desarrolló la funcionalidad completa de gestión de usuarios y perfiles del sistema. Se implementaron los servicios 'UsuarioService' y 'PerfilService' con operaciones CRUD completas, incluyendo funcionalidades avanzadas como búsqueda de usuarios, asignación de establecimientos y gestión de perfiles personalizados. Se creó el panel de administración para gestión de usuarios con capacidades de bloqueo/desbloqueo, edición de perfiles y asignación de roles. También se implementó la funcionalidad de edición de perfil personal y la gestión de menús asociados a perfiles, estableciendo la base para un sistema de permisos granular.
+
+\textbf{Objetivos principales}:
+\begin{itemize}
+\tightlist
+\item
+Desarrollar CRUD completo para usuarios.
+\item
+Implementar gestión de perfiles personalizados.
+\item
+Crear panel de administración de usuarios.
+\item
+Desarrollar funcionalidad de búsqueda y filtrado.
+\item
+Implementar asignación de establecimientos a usuarios
+\end{itemize}
+
+\textbf{Actividades realizadas}:
+\begin{itemize}
+\tightlist
+\item
+Implementación de 'UsuarioServiceImpl' con operaciones completas.
+\item
+Desarrollo de 'PerfilServiceImpl' y gestión de menús.
+\item
+Creación de 'UserManagementController' para administración.
+\item
+Desarrollo de 'EditarPerfilController' para usuarios.
+\item
+Implementación de templates de gestión de usuarios y perfiles
+\end{itemize}
+
+\subsubsection{Sprint 4 - Gestión de Establecimientos (09/06/2025 – 22/06/2025)} 
+Este sprint se enfocó en desarrollar el módulo completo de gestión de establecimientos, implementando funcionalidades para crear, editar y administrar los espacios disponibles para reservas. Se desarrolló el sistema de franjas horarias con 'FranjaHoraria' que permite definir horarios de apertura por día de la semana, y se implementó la lógica de aforo para controlar la capacidad máxima de reservas simultáneas. Se creó la funcionalidad de asignación de establecimientos a usuarios, permitiendo que cada usuario tenga acceso solo a los establecimientos autorizados. También se implementaron validaciones de negocio para asegurar la consistencia de los datos de establecimientos.
+
+\textbf{Objetivos principales}:
+\begin{itemize}
+\tightlist
+\item
+Desarrollar CRUD completo para establecimientos.
+\item
+Implementar sistema de franjas horarias.
+\item
+Crear funcionalidad de aforo y capacidad.
+\item
+Desarrollar asignación de usuarios a establecimientos.
+\item
+Implementar validaciones de negocio específicas
+\end{itemize}
+
+\textbf{Actividades realizadas}:
+\begin{itemize}
+\tightlist
+\item
+Implementación de 'EstablecimientoServiceImpl' con lógica completa.
+\item
+Desarrollo de 'EstablecimientoController' y 'EstablecimientoAsignacionController'.
+\item
+Creación de entidad 'FranjaHoraria' con relaciones.
+\item
+Implementación de templates para gestión de establecimientos.
+\item
+Desarrollo de funcionalidad de asignación usuario-establecimiento.
+\end{itemize}
+
+\subsubsection{Sprint 5 - Sistema de Reservas Core (23/06/2025 – 06/07/2025)} 
+En este sprint se desarrolló el núcleo del sistema de reservas, implementando la lógica completa para crear, modificar y gestionar reservas. Se creó 'ReservaService' con algoritmos sofisticados para verificar disponibilidad considerando aforo, franjas horarias y conflictos de tiempo. Se implementó el sistema de slots de tiempo con 'SlotReservaUtil' que genera automáticamente los horarios disponibles basados en la configuración del establecimiento. Se desarrolló la funcionalidad de calendario interactivo que permite a los usuarios visualizar y seleccionar fechas y horarios disponibles. También se implementó la lógica de validación de reservas que considera múltiples factores como horarios de apertura, aforo máximo y reservas existentes.
+
+\textbf{Objetivos principales}:
+\begin{itemize}
+\tightlist
+\item
+Desarrollar lógica core de reservas.
+\item
+Implementar algoritmos de verificación de disponibilidad.
+\item
+Crear sistema de slots de intervalo de tiempo.
+\item
+Desarrollar calendario interactivo de reservas.
+\item
+Implementar validaciones complejas de negocio.
+\end{itemize}
+
+\textbf{Actividades realizadas}:
+\begin{itemize}
+\tightlist
+\item
+Implementación de 'ReservaServiceImpl' con lógica avanzada.
+\item
+Desarrollo de 'SlotReservaUtil' para generación de slots.
+\item
+Creación de algoritmos de verificación de aforo.
+\item
+Implementación de 'ReservaController' con validaciones.
+\item
+Desarrollo de templates de calendario y gestión de reservas.
+\end{itemize}
+
+\subsubsection{Sprint 6 - Sistema de Convocatorias (07/07/2025 – 20/07/2025)} 
+Después de una revisión realizada con el tutor, surgió una nueva necesidad que fue incorporada y contemplada en este sprint. Se decidió desarrollar un sistema de convocatorias que permite invitar a otros usuarios a las reservas creadas. Se implementaron las entidades 'Convocatoria' y 'Convocado' con una relación compleja que maneja claves primarias compuestas mediante 'ConvocadoPK'. Se desarrolló la funcionalidad de búsqueda de usuarios para invitaciones, implementando un sistema AJAX que permite buscar y seleccionar usuarios dinámicamente. Se creó el sistema de notificaciones por email que informa a los usuarios convocados sobre las reservas, incluyendo detalles como fecha, hora, establecimiento y enlaces de reunión. También se implementó la gestión de convocatorias con capacidades de edición y eliminación.
+
+\textbf{Objetivos principales}:
+\begin{itemize}
+\tightlist
+\item
+Desarrollar sistema completo de convocatorias.
+\item
+Implementar búsqueda dinámica de usuarios.
+\item
+Crear sistema de notificaciones por email.
+\item
+Desarrollar gestión de usuarios convocados.
+\item
+Implementar funcionalidad de enlaces de reunión.
+\end{itemize}
+
+\textbf{Actividades realizadas}:
+\begin{itemize}
+\tightlist
+\item
+Implementación de entidades 'Convocatoria' y 'Convocado'.
+\item
+Desarrollo de 'ConvocatoriaService' con lógica compleja.
+\item
+Creación de sistema de búsqueda AJAX de usuarios.
+\item
+Implementación de 'EmailService' para notificaciones.
+\item
+Desarrollo de funcionalidades de gestión de convocatorias.
+\end{itemize}
+
+\subsubsection{Sprint 7 - Funcionalidades Avanzadas y Optimizaciones (04/08/2025 – 10/08/2025)} 
+Este sprint se enfocó en implementar funcionalidades avanzadas y optimizaciones de rendimiento identificadas durante las pruebas. Se desarrolló el sistema de paginación para listas grandes de datos, implementando scroll infinito en las reservas del usuario. Se creó funcionalidad AJAX para obtener slots disponibles dinámicamente y se implementaron optimizaciones de consultas para evitar problemas N+1. Se desarrolló el sistema de edición y anulación de reservas con validaciones que consideran fechas pasadas y permisos de usuario. También se implementaron mejoras en la gestión de convocatorias con \emph{soft delete}.
+
+\textbf{Objetivos principales}:
+\begin{itemize}
+\tightlist
+\item
+Implementar funcionalidades avanzadas de reservas.
+\item
+Crear sistema de paginación y scroll infinito.
+\item
+Implementar funcionalidades AJAX dinámicas.
+\item
+Desarrollar validaciones de fechas de reservas.
+\end{itemize}
+
+\textbf{Actividades realizadas}:
+\begin{itemize}
+\tightlist
+\item
+Implementación de edición y anulación de reservas.
+\item
+Desarrollo de \emph{endpoints} AJAX para slots disponibles.
+\item
+Creación de sistema de paginación de reservas.
+\item
+Implementación de optimizaciones de consultas.
+\item
+Desarrollo de validaciones avanzadas de reservas.
+\end{itemize}
+
+\subsubsection{Sprint 8 - Testing, Documentación y Despliegue (11/08/2025 – 17/08/2025)} 
+En este sprint se finalizó un conjunto amplio de tests unitarios y de integración que cubre todas las funcionalidades del sistema. Se implementaron tests para controladores, servicios, repositorios y entidades, alcanzando una cobertura de código significativa medida con JaCoCo. Se configuró el pipeline de CI/CD con integración a SonarCloud para análisis continuo de calidad de código. También se preparó la configuración de despliegue con perfiles específicos para desarrollo, testing y producción.
+
+\textbf{Objetivos principales}:
+\begin{itemize}
+\tightlist
+\item
+Desarrollar suite completa de tests automatizados.
+\item
+Crear documentación técnica.
+\item
+Configurar pipeline de CI/CD con SonarCloud.
+\item
+Preparar configuración de despliegue multi-entorno.
+\item
+Realizar análisis final de calidad y rendimiento.
+\end{itemize}
+
+\textbf{Actividades realizadas}:
+\begin{itemize}
+\tightlist
+\item
+Implementación de tests unitarios para todos los componentes.
+\item
+Desarrollo de tests de integración con base de datos H2.
+\item
+Creación de la documentación técnica.
+\item
+Configuración de perfiles de aplicación para diferentes entornos.
+\item
+Preparación de configuración de despliegue y monitoreo.
+\end{itemize}
+
+\subsubsection{Sprint 9 - Despliegue en Render~\cite{render} con Base de Datos en Aiven~\cite{aiven} (18/08/2025 – 24/08/2025)} 
+En el sprint final se investigaron diferentes opciones para el hosting de la aplicación y entre las diferentes opciones consultadas, finalmente se decantó por la ofrecida por Render ya que ha resultado ser la única gratuita.
+
+\textbf{Objetivos principales}:
+\begin{itemize}
+\tightlist
+\item
+Configuración de hosting en Render para la aplicación web.
+\item
+Configuración de base de datos MySQL en Aiven.
+\item
+Establecimiento de conexión segura entre ambos servicios.
+\item
+Configuración de variables de entorno y secretos para producción.
+\end{itemize}
+
+\textbf{Actividades realizadas}:
+\begin{itemize}
+\tightlist
+\item
+Configuración de cuenta y proyecto en Render para hosting de la aplicación.
+\item
+Setup de base de datos MySQL administrada en Aiven con configuraciones de producción.
+\item
+Configuración de variables de entorno para conexión a base de datos externa.
+\item
+Implementación de SSL/TLS para conexiones seguras.
+\item
+Testing de conectividad y rendimiento en entorno de producción.
+\end{itemize}
+
+\subsubsection{Sprint 10 - Despliegue y Documentación Final (01/09/2025 – 14/09/2025)} 
+En este sprint final se deja definitivamente la aplicación desplegada en el entorno de producción y se finaliza por completar la memoria y anexos correspondientes a la documentación del TFG.
+
+\textbf{Objetivos principales}:
+\begin{itemize}
+\tightlist
+\item
+Despliegue en entorno de producción.
+\item
+Completar documentación técnica y de usuario.
+\item
+Configuración de monitoreo y logging en producción.
+\item
+Preparación de materiales de entrega.
+\end{itemize}
+
+\textbf{Actividades realizadas}:
+\begin{itemize}
+\tightlist
+\item
+Configuración y despliegue en servidor de producción.
+\item
+Configuración de monitoreo, alertas y backup.
+\item
+Creación de documentación completa de usuario y administrador.
+\item
+Preparación de manual de instalación y mantenimiento.
+\item
+Validación final del sistema en producción.
+\end{itemize}
+
 
 \section{Estudio de viabilidad}
+El presente estudio de viabilidad analiza la factibilidad económica y legal del desarrollo del proyecto ReservApp, un sistema web de gestión de reservas desarrollado con tecnologíaas Java/Spring Boot. Este análisis considera los costes asociados al desarrollo, implementación y mantenimiento del sistema, así como las implicaciones legales derivadas del uso de las tecnologías y herramientas seleccionadas.
+
+El proyecto se ha desarrollado siguiendo una metodología ágil distribuida en 11 sprints, con una duración total aproximada de 6 meses de desarrollo, considerando un equipo de desarrollo compuesto por un desarrollador full-stack senior y soporte técnico especializado.
 
 \subsection{Viabilidad económica}
+\subsubsection{Coste de personal}
+El desarrollo del proyecto ReservApp requiere de personal especializado en tecnologías Java/Spring Boot, desarrollo web y gestión de bases de datos. A continuación se detallan los costes de personal considerando las tarifas del mercado español para el año 2025~\cite{talent}:
+\tablaSmallSinColores
+{Coste por hora según perfil} % Título de la tabla
+{llr} % Formato de las columnas (l: izquierda, c: centrado, r:derecha)
+{costes-hora-perfil} % Etiqueta para referencias cruzadas
+{%
+	\textbf{Rol} & \textbf{Perfil} & \textbf{Coste Hora}\\ % Cabecera
+}
+{%
+	Programador Java Senior & Java/Spring Boot, Frontend, BD & 16,92€\\
+	Arquitecto Software & Diseño arquitectura, análisis requisitos & 17,95€\\
+	Especialista DevOps & CI/CD, Docker, despliegue & 20,51€\\
+	Tester/QA & Testing y validación & 19,23€\\
+}
+
+Suponiendo una dedicación semanal de 20 horas con un total de 80 horas al mes y en base al coste de hora indicado anteriormente y en función de la dedicación en las diferentes tareas del proyecto, se puede obtener la siguiente tabla con el coste total por perfil:
+\tablaSmallSinColores
+{Coste total por perfil} % Título de la tabla
+{lrlr} % Formato de las columnas (l: izquierda, c: centrado, r:derecha)
+{costes-total-perfil} % Etiqueta para referencias cruzadas
+{%
+	\textbf{Rol} & \textbf{Dedicación} & \textbf{Duración} & \textbf{Coste total}\\ % Cabecera
+}
+{%
+	Programador Java Senior    & 100\%    & 6 meses & 8.121€\\
+	Arquitecto Software    & 25\%    & 6 meses & 2.154€\\
+	Especialista DevOps & 15\%    & 2 meses & 492€\\
+	Tester/QA    & 30\%    & 3 meses & 1.384€\\
+    \midrule
+	\textbf{Total Coste Personal} & & & \textbf{12.151€} \\ 
+}
+
+\subsubsection{Coste de Hardware}
+Para calcular los costes de los equipos, se han considerado equipos de gama media necesarios para el desarrollo eficiente. Además, se supone un período de amortización de 4 años, y para un desarrollo de 6 meses, tenemos los siguientes costes:
+
+\tablaSmallSinColores
+{Coste total por perfil} % Título de la tabla
+{llrr} % Formato de las columnas (l: izquierda, c: centrado, r:derecha)
+{costes-hardware} % Etiqueta para referencias cruzadas
+{%
+	\textbf{Equipo} & \textbf{Características} & \textbf{P. Unitario} & \textbf{Coste total}\\ % Cabecera
+}
+{%
+	Sobremesa & Ryzen 7, 32 GB RAM, 1TB & 600€ & 75€\\
+	Monitor & HP 24" & 200€ & 2,5€\\
+    \midrule
+	\textbf{Total Coste} & \textbf{Hardware} & & \textbf{77,5€} \\ 
+}
+
+\subsubsection{Coste de Software}
+El proyecto utiliza principalmente tecnologías open source, lo que reduce significativamente los costes de licenciamiento. Sin embargo, se ha utilizado la siguiente herramienta comercial para desarrollo, para la que se ha supuesto un periodo de amortización de 2 años, y siendo de 6 meses la duración del desarrollo:
+
+\tablaSmallSinColores
+{Coste Software} % Título de la tabla
+{lrr} % Formato de las columnas (l: izquierda, c: centrado, r:derecha)
+{costes-software} % Etiqueta para referencias cruzadas
+{%
+	\textbf{Software} & \textbf{P. Unitario} & \textbf{Coste total}\\ % Cabecera
+}
+{%
+	Windows 11 Pro & 200€ & 50€\\
+    \midrule
+	\textbf{Total Coste Software} & & \textbf{50€} \\ 
+}
+
+La siguiente tabla recoge el total de costes contemplados:
+
+\tablaSmallSinColores
+{Coste total} % Título de la tabla
+{lr} % Formato de las columnas (l: izquierda, c: centrado, r:derecha)
+{costes-total} % Etiqueta para referencias cruzadas
+{%
+	\textbf{Concepto} & \textbf{Coste total}\\ % Cabecera
+}
+{%
+	Coste de Personal & 12.151€\\
+	Coste de Hardware & 77,5€\\
+	Coste de Software & 50€\\
+    \midrule
+	\textbf{Coste Total} & \textbf{12.278,5€} \\ 
+}
 
 \subsection{Viabilidad legal}
 
+Para el desarrollo del proyecto ReservApp se ha intentado utilizar en lo posible software \emph{open source} y con licencia gratuita o al menos versiones libres de costes. A continuación se enumeran los distintos componentes utilizados con el tipo de licenciamiento por el que se rigen:
 
+\tablaSmallSinColores
+{Dependencias del proyecto} % Título de la tabla
+{lll} % Formato de las columnas (l: izquierda, c: centrado, r:derecha)
+{dependecias-licencia} % Etiqueta para referencias cruzadas
+{%
+	\textbf{Dependencia} & \textbf{Licencia} & \textbf{Observaciones}\\ % Cabecera
+}
+{%
+	Apache Maven 3.9.x & Apache License 2.0 & Uso comercial libre\\
+    Spring Boot 3.4.x & Apache License 2.0 & Uso comercial libre\\
+	Spring Data JPA 3.x & Apache License 2.0 & Uso comercial libre\\
+	Spring Security 6.x & Apache License 2.0 & Uso comercial libre\\
+    Hibernate 6.x & Apache License 2.0 & Uso comercial libre\\
+    Thymeleaf 3.x & Apache License 2.0 & Uso comercial libre\\
+    MySQL 8.x & GPL 2.0 & Uso condicionado\\
+    H2 Database 2.x & MPL 2.0 / EPL 1.0 & Uso comercial libre\\
+    Bootstrap 5.3.x & MIT License & Uso comercial libre\\
+    Bootstrap Icons 1.13.x & MIT License & Uso comercial libre\\
+    Font Awesome 6.x & Font Awesome Free License & Iconos gratuitos limitados\\
+    JQuery 3.x & MIT License & Uso comercial libre\\
+    JUnit 5.x & Eclipse Public License 2.0 & Uso comercial libre\\
+    Mockito 5.14.x & MIT License & Uso comercial libre\\
+    JaCoCo 0.8.x & Eclipse Public License 2.0 & Uso comercial libre\\
+    Lombok 1.18.x & MIT License & Uso comercial libre\\
+    \midrule
+    Eclipse 2025-06 & Eclipse Public License 2.0 & Uso comercial libre\\
+    GitHub & Términos de Servicio & versión limitada\\
+    SonarCloud & SaaS Comercial & versión limitada\\
+}
+
+Dado que MySQL está bajo la GPL (en su versión libre), y esta licencia exige que el software derivado también sea GPL, la única manera de cumplir con todas las condiciones es licenciar la aplicación completa bajo la \textbf{GNU General Public License (GPL)}. Esto asegura que se cumplan con los requisitos de MySQL, mientras que las licencias Apache, MIT, MPL y EPL son lo suficientemente permisivas o tienen mecanismos de compatibilidad que permiten su uso dentro de un proyecto GPL.
+
+De modo que una vez revisada la anterior comparativa y, sin tener en cuenta los tres últimos elementos que no son propios de la aplicación, siguiendo las mencionadas recomendaciones de GNU sobre las licencias~\cite{gnu}, el proyecto queda protegido bajo la licencia \textbf{GPLv3} (la versión más reciente), ya que todas las licencias utilizadas son compatibles con la misma.
+
+\subsubsection{Cumplimiento Normativa}
+Debido a que la aplicación ReservApp maneja datos personales de usuarios, está sujeta a cumplir con el Reglamento General de Protección de Datos (RGPD). El sistema procesa datos de carácter personal (nombres, apellidos y direcciones de correo) con una base jurídica legítima, aplicando el principio de minimización de datos al recopilar únicamente la información estrictamente necesaria para la funcionalidad de reservas. Las contraseñas se almacenan mediante técnicas de hash seguro, garantizando su confidencialidad, mientras que el sistema de auditoría permite la trazabilidad completa de las operaciones realizadas sobre los datos personales, facilitando el cumplimiento del principio de responsabilidad proactiva. La implementación de roles diferenciados asegura el control de acceso basado en el principio de necesidad de conocer, limitando el acceso a los datos según las funciones de cada usuario.
+
+\subsection{Viabilidad general}
+Una vez revisados los diferentes aspectos de viabilidad anteriormente expuestos, se puede concluir que el análisis de viabilidad general de la aplicación ReservApp es positivo. Y es por ello que se determina que el proyecto es viable en sus dimensiones económica, legal y técnica, lo cual justifica su desarrollo dentro de los parámetros establecidos para un Trabajo de Fin de Grado.
