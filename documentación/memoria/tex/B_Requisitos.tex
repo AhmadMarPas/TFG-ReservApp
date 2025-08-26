@@ -197,7 +197,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 		\textbf{Relaciones con casos de uso} & CU01(\ref{cu:autenticacion-usuario}), CU03(\ref{cu:crear-reserva}), CU04(\ref{cu:modificar-reserva}), CU05(\ref{cu:anular-reserva}), CU06(\ref{cu:gestionar-usuarios}), CU07(\ref{cu:gestionar-establecimientos}), CU08(\ref{cu:ver-reservas-admin}), CU09(\ref{cu:logout}), CU14(\ref{cu:gestionar-perfiles}). \\
 		\bottomrule
 	\end{tabularx}
-	\caption{A01 - Usuario}
+	\caption{A02 - Administrador}
 	\label{actor:administrador}
 \end{table}
 
@@ -222,7 +222,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 		\textbf{Relaciones con casos de uso} & CU13(\ref{cu:enviar-notificaciones}). \\
 		\bottomrule
 	\end{tabularx}
-	\caption{A01 - Sistema de Email}
+	\caption{A03 - Sistema de Email}
 	\label{actor:sistema-email}
 \end{table}
 
@@ -231,7 +231,98 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 \imagen{casos-uso-general}{Casos de Uso general.}
 
 
+\subsection{CU01 - Autenticación de Usuario}
 
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU01}    & \textbf{Autenticación de Usuario} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A01 Usuario (\ref{actor:usuario}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-001 \\
+		\textbf{Descripción}          & Autenticar al usuario en el sistema para obtener su perfil y determinar qué establecimientos tiene asignados. \\
+		\textbf{Precondición}         & Usuario debe estar registrado en el sistema. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Usuario accede a la página de login.
+            \item Sistema muestra formulario de autenticación.
+            \item Usuario ingresa credenciales (ID de usuario y contraseña).
+            \item Sistema valida credenciales contra base de datos.
+            \item Sistema verifica que la cuenta no esté bloqueada.
+            \item Sistema crea sesión activa.
+            \item Sistema redirige según rol (menú principal para usuarios, panel admin para administradores).
+		\end{enumerate}\\
+		\textbf{Postcondición}        &
+   		\begin{itemize}
+  			\item Usuario autenticado en el sistema.
+			  \item Sesión activa creada.
+                \item Redirección según rol de usuario.
+  		\end{itemize} \\
+		\textbf{Excepciones}          &  Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\textbf{Casos de Prueba}      &
+		\begin{itemize}
+			\item \textbf{Prueba 1 - Autenticación correcta}: El usuario completa el formulario con las credenciales correctas y accede al sistema.
+			\item \textbf{Prueba 2 - Error de autenticación}: El usuario completa el formulario pero con las credenciales incorrectas. El sistema muestra el mensaje de error de credenciales.
+			\item \textbf{Prueba 3 - Usuario bloqueado}: El usuario completa el formulario con las credenciales correctas. El sistema muestra el mensaje de error.
+		\end{itemize} \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU01 Autenticación de Usuario}
+	\label{cu:autenticacion-usuario}
+\end{table}
+
+\subsection{CU02 - Registro de Usuario}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU02}    & \textbf{Registro de Usuario} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A01 Usuario (\ref{actor:usuario}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-002 \\
+		\textbf{Descripción}          & Registrar el usuario en el sistema. \\
+		\textbf{Precondición}         & Usuario debe tener email válido. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Usuario accede a página de registro.
+            \item Sistema muestra formulario de registro.
+            \item Usuario completa datos requeridos (ID, nombre, apellidos, email, teléfono, contraseña).
+            \item Usuario confirma contraseña y pulsa el botón de registrar.
+            \item Sistema valida formato de datos.
+            \item Sistema verifica unicidad de ID y email.
+            \item Sistema encripta contraseña.
+            \item Sistema guarda usuario en base de datos.
+            \item Sistema envía email de confirmación.
+            \item Sistema muestra mensaje de éxito.
+		\end{enumerate}\\
+		\textbf{Postcondición}        &
+   		\begin{itemize}
+  			\item Nueva cuenta de usuario creada.
+			  \item Email de confirmación enviado.
+  		\end{itemize} \\
+		\textbf{Excepciones}          &  Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\textbf{Casos de Prueba}      &
+		\begin{itemize}
+			\item \textbf{Prueba 1 - Registro correcto}: El usuario completa el formulario y crea la cuenta en el sistema.
+			\item \textbf{Prueba 2 - Usuario duplicado}: El usuario introduce identificadores ya existentes y el sistema le informa de ello.
+		\end{itemize} \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU02 Registro de Usuario}
+	\label{cu:registro-usuario}
+\end{table}
 
 
 
