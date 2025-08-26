@@ -146,6 +146,95 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 \newpage
 \section{Especificación de requisitos}
 
+\subsection{Actores del sistema}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{Actor}    & A01 \\
+		\toprule
+		\textbf{Nombre:} 			  & \textbf{Usuario} \\
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Descripción}          & Persona que interactúa con la aplicación ReservApp para las diferentes opciones que en ella se ofrecen. \\
+		\textbf{Tipo}                 & Usuario \\
+		\textbf{Objetivo}             & Crear, modificar o anular reservas, crear, modificar o anular convocatorias. \\
+		\textbf{Responsabilidades}    & 
+		\begin{itemize}
+			\tightlist
+			\item Crear, modificar y anular reservas.
+			\item Gestionar convocatorias.
+			\item Editar perfil personal.
+		\end{itemize}\\
+		\textbf{Relaciones con casos de uso} & CU01(\ref{cu:autenticacion-usuario}), CU02(\ref{cu:registro-usuario}), CU03(\ref{cu:crear-reserva}), CU04(\ref{cu:modificar-reserva}), CU05(\ref{cu:anular-reserva}), CU09(\ref{cu:logout}), CU10(\ref{cu:visualizar-reservas}), CU11(\ref{cu:buscar-usuarios}), CU12(\ref{cu:gestionar-convocatorias}). \\
+		\bottomrule
+	\end{tabularx}
+	\caption{A01 - Usuario}
+	\label{actor:usuario}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{Actor}    & A02 \\
+		\toprule
+		\textbf{Nombre:} 			  & \textbf{Administrador} \\
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Descripción}          & Persona que rol de Administrador que interactúa con la aplicación ReservApp para las diferentes opciones de administración que en ella se ofrecen. \\
+		\textbf{Tipo}                 & Usuario \\
+		\textbf{Objetivo}             & Crear, modificar o anular reservas, crear, modificar o anular convocatorias. \\
+		\textbf{Responsabilidades}    & 
+		\begin{itemize}
+			\tightlist
+			\item Gestionar usuarios y establecimientos.
+			\item Supervisar reservas del sistema.
+			\item Configurar parámetros del sistema.
+		\end{itemize}\\
+		\textbf{Relaciones con casos de uso} & CU01(\ref{cu:autenticacion-usuario}), CU03(\ref{cu:crear-reserva}), CU04(\ref{cu:modificar-reserva}), CU05(\ref{cu:anular-reserva}), CU06(\ref{cu:gestionar-usuarios}), CU07(\ref{cu:gestionar-establecimientos}), CU08(\ref{cu:ver-reservas-admin}), CU09(\ref{cu:logout}), CU14(\ref{cu:gestionar-perfiles}). \\
+		\bottomrule
+	\end{tabularx}
+	\caption{A01 - Usuario}
+	\label{actor:administrador}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{Actor}    & A03 \\
+		\toprule
+		\textbf{Nombre:} 			  & \textbf{Sistema de Email} \\
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Descripción}          & Servicio externo para notificaciones por correo. \\
+		\textbf{Tipo}                 & Sistema \\
+		\textbf{Objetivo}             & Enviar los correos relativos a las reservas y/o convocatorias. \\
+		\textbf{Responsabilidades}    & 
+		\begin{itemize}
+			\tightlist
+			\item Enviar notificaciones automáticas.
+		\end{itemize}\\
+		\textbf{Relaciones con casos de uso} & CU13(\ref{cu:enviar-notificaciones}). \\
+		\bottomrule
+	\end{tabularx}
+	\caption{A01 - Sistema de Email}
+	\label{actor:sistema-email}
+\end{table}
+
+
+
+
+
+
+
+
+
+
 
 Una muestra de cómo podría ser una tabla de casos de uso:
 
