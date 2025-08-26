@@ -400,12 +400,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
             \item Sistema envía notificación de modificación al usuario y, en caso de haberlos, a los convocados.
             \item Sistema muestra mensaje de confirmación de cambios.
 		\end{enumerate}\\
-		\textbf{Postcondición}        &
-   		\begin{itemize}
-  			\item Reserva actualizada en el sistema.
-			  \item Notificaciones enviadas a involucrados.
-                \item Convocatorias procesadas si existen.
-  		\end{itemize} \\
+		\textbf{Postcondición}        & Reserva actualizada en el sistema. Notificaciones enviadas a involucrados. Convocatorias procesadas si existen.\\
 		\textbf{Excepciones}          &  Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
 		\textbf{Importancia}          & Alta \\
 		\textbf{Casos de Prueba}      &
@@ -449,6 +444,50 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
             \item Sistema envía notificaciones de anulación.
             \item Sistema muestra confirmación de anulación.
 		\end{enumerate}\\
+		\textbf{Postcondición}        & Reserva eliminada del sistema. Notificaciones de anulación enviadas.\\
+		\textbf{Excepciones}          &  Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\textbf{Casos de Prueba}      &
+		\begin{itemize}
+			\item \textbf{Prueba 1 - Registro correcto}: El usuario completa el formulario y crea la cuenta en el sistema.
+			\item \textbf{Prueba 2 - Usuario duplicado}: El usuario introduce identificadores ya existentes y el sistema le informa de ello.
+		\end{itemize} \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU05 Anular Reserva}
+	\label{cu:anular-reserva}
+\end{table}
+
+\subsection{CU06 - Gestionar Usuarios}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU06}    & \textbf{Gestionar Usuarios} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-006 \\
+		\textbf{Descripción}          & Gestión Administrativa de Usuarios. \\
+		\textbf{Precondición}         & Usuario debe tener estar autenticado y tener el rol de administrador. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Usuario selecciona establecimiento desde "Mis Reservas".
+            \item Sistema muestra los establecimientos asignados.
+            \item Usuario selecciona un establecimiento.
+            \item Sistema muestra información del establecimiento (horarios, aforo), las reservas pasadas y futuras del usuario.
+            \item Usuario selecciona reserva futura y pulsa para anular.
+            \item Sistema muestra confirmación con advertencia.
+            \item Usuario confirma anulación.
+            \item Sistema recopila emails de notificación (usuario + convocados).
+            \item Sistema elimina reserva de base de datos.
+            \item Sistema envía notificaciones de anulación.
+            \item Sistema muestra confirmación de anulación.
+		\end{enumerate}\\
 		\textbf{Postcondición}        &
    		\begin{itemize}
   			\item Reserva eliminada del sistema.
@@ -463,9 +502,10 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 		\end{itemize} \\
 		\bottomrule
 	\end{tabularx}
-	\caption{CU05 Anular Reserva}
-	\label{cu:anular-reserva}
+	\caption{CU06 Gestionar Usuarios}
+	\label{cu:gestionar-usuarios}
 \end{table}
+
 
 
 
