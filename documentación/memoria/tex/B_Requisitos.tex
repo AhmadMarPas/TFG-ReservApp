@@ -258,7 +258,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
             \item Sistema redirige según rol (menú principal para usuarios, panel admin para administradores).
 		\end{enumerate}\\
 		\textbf{Postcondición}        & Usuario autenticado en el sistema. Sesión activa creada. Redirección según rol de usuario.\\
-		\textbf{Excepciones}          &  Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
 		\textbf{Importancia}          & Alta \\
 		\textbf{Casos de Prueba}      &
 		\begin{itemize}
@@ -302,7 +302,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
             \item Sistema muestra mensaje de éxito.
 		\end{enumerate}\\
 		\textbf{Postcondición}        & Nueva cuenta de usuario creada. Email de confirmación enviado.\\
-		\textbf{Excepciones}          &  Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
 		\textbf{Importancia}          & Alta \\
 		\textbf{Casos de Prueba}      &
 		\begin{itemize}
@@ -333,7 +333,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 		\begin{enumerate}
 			\def\labelenumi{\arabic{enumi}.}
 			\tightlist
-			\item Usuario selecciona establecimiento desde "Mis Reservas".
+			\item Usuario selecciona establecimiento desde ``Mis Reservas''.
             \item Sistema muestra los establecimientos asignados.
             \item Usuario selecciona un establecimiento.
             \item Sistema muestra información del establecimiento (horarios, aforo), las reservas pasadas y futuras del usuario.
@@ -387,7 +387,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 		\begin{enumerate}
 			\def\labelenumi{\arabic{enumi}.}
 			\tightlist
-			\item Usuario selecciona establecimiento desde "Mis Reservas".
+			\item Usuario selecciona establecimiento desde ``Mis Reservas''.
             \item Sistema muestra los establecimientos asignados.
             \item Usuario selecciona un establecimiento.
             \item Sistema muestra información del establecimiento (horarios, aforo), las reservas pasadas y futuras del usuario.
@@ -401,7 +401,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
             \item Sistema muestra mensaje de confirmación de cambios.
 		\end{enumerate}\\
 		\textbf{Postcondición}        & Reserva actualizada en el sistema. Notificaciones enviadas a involucrados. Convocatorias procesadas si existen.\\
-		\textbf{Excepciones}          &  Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
 		\textbf{Importancia}          & Alta \\
 		\textbf{Casos de Prueba}      &
 		\begin{itemize}
@@ -432,7 +432,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 		\begin{enumerate}
 			\def\labelenumi{\arabic{enumi}.}
 			\tightlist
-			\item Usuario selecciona establecimiento desde "Mis Reservas".
+			\item Usuario selecciona establecimiento desde ``Mis Reservas''.
             \item Sistema muestra los establecimientos asignados.
             \item Usuario selecciona un establecimiento.
             \item Sistema muestra información del establecimiento (horarios, aforo), las reservas pasadas y futuras del usuario.
@@ -445,7 +445,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
             \item Sistema muestra confirmación de anulación.
 		\end{enumerate}\\
 		\textbf{Postcondición}        & Reserva eliminada del sistema. Notificaciones de anulación enviadas.\\
-		\textbf{Excepciones}          &  Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
 		\textbf{Importancia}          & Alta \\
 		\textbf{Casos de Prueba}      &
 		\begin{itemize}
@@ -476,35 +476,238 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 		\begin{enumerate}
 			\def\labelenumi{\arabic{enumi}.}
 			\tightlist
-			\item Usuario selecciona establecimiento desde "Mis Reservas".
-            \item Sistema muestra los establecimientos asignados.
-            \item Usuario selecciona un establecimiento.
-            \item Sistema muestra información del establecimiento (horarios, aforo), las reservas pasadas y futuras del usuario.
-            \item Usuario selecciona reserva futura y pulsa para anular.
-            \item Sistema muestra confirmación con advertencia.
-            \item Usuario confirma anulación.
-            \item Sistema recopila emails de notificación (usuario + convocados).
-            \item Sistema elimina reserva de base de datos.
-            \item Sistema envía notificaciones de anulación.
-            \item Sistema muestra confirmación de anulación.
+			\item Administrador accede a ``Gestión de Usuarios''.
+            \item Sistema muestra lista de usuarios con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Nuevo Usuario''.
+ 	    \item Sistema muestra formulario de creación.
+            \item Administrador completa datos y confirma.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
 		\end{enumerate}\\
-		\textbf{Postcondición}        &
-   		\begin{itemize}
-  			\item Reserva eliminada del sistema.
-			  \item Notificaciones de anulación enviadas.
-  		\end{itemize} \\
-		\textbf{Excepciones}          &  Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Postcondición}        & Usuario creado en el sistema.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
 		\textbf{Importancia}          & Alta \\
-		\textbf{Casos de Prueba}      &
-		\begin{itemize}
-			\item \textbf{Prueba 1 - Registro correcto}: El usuario completa el formulario y crea la cuenta en el sistema.
-			\item \textbf{Prueba 2 - Usuario duplicado}: El usuario introduce identificadores ya existentes y el sistema le informa de ello.
-		\end{itemize} \\
 		\bottomrule
 	\end{tabularx}
 	\caption{CU06 Gestionar Usuarios}
 	\label{cu:gestionar-usuarios}
 \end{table}
+
+\subsubsection{CU06.1 - Gestionar Usuarios - Edición}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU06.1}    & \textbf{Gestionar Usuarios - Edición} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-006 \\
+		\textbf{Descripción}          & Modificación Administrativa de Usuarios. \\
+		\textbf{Precondición}         & Usuario debe tener estar autenticado, tener el rol de administrador y el usuario a modificar debe existir. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Usuarios''.
+            \item Sistema muestra lista de usuarios con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Editar'' en usuario específico.
+ 	    \item Sistema muestra formulario con datos actuales.
+            \item Administrador modifica campos y confirma.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Usuario modificado en el sistema.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU06.1 Gestionar Usuarios - Edición}
+	\label{cu:gestionar-usuarios-edicion}
+\end{table}
+
+\subsubsection{CU06.2 - Gestionar Usuarios - Bloqueo}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU06.2}    & \textbf{Gestionar Usuarios - Bloqueo} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-006 \\
+		\textbf{Descripción}          & Bloqueo/Desploqueo Administrativa de Usuarios. \\
+		\textbf{Precondición}         & Usuario debe tener estar autenticado, tener el rol de administrador y el usuario a bloquear/desbloquer debe existir. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Usuarios''.
+            \item Sistema muestra lista de usuarios con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Bloquear/Desbloquear'' en usuario específico.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Usuario bloqueado en el sistema.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU06.2 Gestionar Usuarios - Bloqueo}
+	\label{cu:gestionar-usuarios-bloqueo}
+\end{table}
+
+\subsubsection{CU06.3 - Gestionar Usuarios - Eliminación}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU06.3}    & \textbf{Gestionar Usuarios - Eliminación} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-006 \\
+		\textbf{Descripción}          & Eliminación Administrativa de Usuarios. \\
+		\textbf{Precondición}         & Usuario debe tener estar autenticado, tener el rol de administrador y el usuario a eliminar debe existir. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Usuarios''.
+            \item Sistema muestra lista de usuarios con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Eliminar'' en usuario específico.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Usuario eliminado en el sistema.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU06.3 Gestionar Usuarios - Eliminación}
+	\label{cu:gestionar-usuarios-eliminacion}
+\end{table}
+
+
+
+
+
+\subsection{CU07 - Gestionar Establecimientos}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU07}    & \textbf{Gestionar Establecimientos} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-006 \\
+		\textbf{Descripción}          & Gestión Administrativa de Establecimientos. \\
+		\textbf{Precondición}         & Usuario debe tener estar autenticado y tener el rol de administrador. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Establecimientos''.
+            \item Sistema muestra lista de establecimientos con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Nuevo Establecimiento''.
+ 	    \item Sistema muestra formulario de creación.
+            \item Administrador completa datos y confirma.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Establecimiento creado en el sistema.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU07 Gestionar Establecimientos}
+	\label{cu:gestionar-establecimientos}
+\end{table}
+
+\subsubsection{CU07.1 - Gestionar Establecimientos - Edición}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU07.1}    & \textbf{Gestionar Establecimientos - Edición} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-006 \\
+		\textbf{Descripción}          & Modificación Administrativa de Establecimientos. \\
+		\textbf{Precondición}         & Usuario debe tener estar autenticado, tener el rol de administrador y el establecimiento a modificar debe existir. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Establecimientos''.
+            \item Sistema muestra lista de establecimientos con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Editar'' en establecimiento específico.
+ 	    \item Sistema muestra formulario con datos actuales.
+            \item Administrador modifica campos y confirma.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Establecimiento modificado en el sistema.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU07.1 Gestionar Establecimientos - Edición}
+	\label{cu:gestionar-establecimientos-edicion}
+\end{table}
+
+\subsubsection{CU07.2 - Gestionar Establecimientos - Eliminación}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU07.2}    & \textbf{Gestionar Establecimientos - Eliminación} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-006 \\
+		\textbf{Descripción}          & Eliminación Administrativa de Establecimientos. \\
+		\textbf{Precondición}         & Usuario debe tener estar autenticado, tener el rol de administrador y el establecimiento a eliminar debe existir. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Establecimientos''.
+            \item Sistema muestra lista de establecimientos con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Eliminar'' en establecimiento específico.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Establecimiento eliminado en el sistema. \\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU07.2 Gestionar Establecimientos - Eliminación}
+	\label{cu:gestionar-establecimientos-eliminacion}
+\end{table}
+
 
 
 
