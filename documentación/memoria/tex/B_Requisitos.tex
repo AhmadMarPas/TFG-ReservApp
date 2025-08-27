@@ -1,40 +1,1000 @@
 \apendice{Especificación de Requisitos}
 
 \section{Introducción}
+Este documento presenta la especificación completa de requisitos para ReservApp, un sistema web de gestión de reservas. El objetivo es definir de manera precisa y detallada las funcionalidades, características técnicas y restricciones del sistema, proporcionando una base sólida para el desarrollo, testing y mantenimiento de la aplicación.
 
-Una muestra de cómo podría ser una tabla de casos de uso:
+ReservApp es una aplicación web diseñada para facilitar la gestión integral de reservas en establecimientos diversos. El sistema permite a los usuarios realizar reservas en diferentes establecimientos, gestionar convocatorias con otros usuarios, y a los administradores supervisar todo el proceso de reservas y gestión de usuarios.
 
-% Caso de Uso 1 -> Consultar Experimentos.
-\begin{table}[p]
+\section{Objetivos generales}
+
+El objetivo principal del actual TFG es el desarrollo de un sistema web de gestión de reservas que permita a los usuarios realizar reservas de manera eficiente en diferentes establecimientos, con capacidades avanzadas de convocatorias y administración centralizada. Y como consecuencia de ello, se deben contemplar los siguientes objetivos específicos:
+
+\begin{itemize}
+\tightlist
+\item
+Gestión de Establecimientos.
+    \begin{itemize}
+    \tightlist
+    \item
+    Permitir la configuración flexible de establecimientos con horarios específicos.
+    \item
+    Implementar sistema de aforo para controlar la capacidad de reservas.
+    \item
+    Proporcionar asignación de usuarios a establecimientos específicos.
+    \item
+    Facilitar la gestión administrativa de establecimientos.
+    \end{itemize}
+
+\item
+Gestión de Usuarios.
+    \begin{itemize}
+    \tightlist
+    \item
+    Proporcionar un sistema de registro y autenticación seguro.
+    \item
+    Implementar control de acceso basado en roles (Usuario/Administrador).
+    \item
+    Permitir la gestión de perfiles de usuario personalizables.
+    \end{itemize}
+
+\item
+Sistema de Reservas.
+    \begin{itemize}
+    \tightlist
+    \item
+    Ofrecer múltiples modalidades de reserva (slots predefinidos y horarios libres).
+    \item
+    Implementar validación automática de disponibilidad y conflictos.
+    \item
+    Proporcionar calendario interactivo para visualización de reservas.
+    \item
+    Permitir modificación y anulación de reservas con notificaciones
+    \end{itemize}
+
+\item
+Sistema de Convocatorias
+    \begin{itemize}
+    \tightlist
+    \item
+    Facilitar la invitación de otros usuarios a reservas.
+    \item
+    Proporcionar gestión de enlaces de reunión y observaciones.
+    \item
+    Implementar búsqueda avanzada de usuarios para convocatorias.
+    \item
+    Automatizar notificaciones por correo electrónico.
+    \end{itemize}
+
+\item
+Administración del Sistema
+    \begin{itemize}
+    \tightlist
+    \item
+    Proporcionar un panel de administración completo.
+    \item
+    Implementar gestión avanzada de usuarios (bloqueo, desbloqueo, eliminación).
+    \item
+    Ofrecer visualización de reservas por establecimiento y fecha.
+    \end{itemize}
+
+\item
+Experiencia de Usuario.
+    \begin{itemize}
+    \tightlist
+    \item
+    Desarrollar interfaz intuitiva y responsiva.
+    \item
+    Implementar navegación eficiente entre funcionalidades.
+    \item
+    Optimizar rendimiento para carga rápida de páginas.
+    \item
+    Proporcionar feedback visual inmediato de acciones
+    \end{itemize}
+
+\end{itemize}
+
+\newpage
+\section{Catálogo de requisitos}
+En este apartado se enumeran los requisitos de la aplicación, organizándose éstos por tipo y se proporciona un identificador único (RF para Requisito Funcional, RNF para Requisito No Funcional) y una descripción del mismo.
+
+\subsection{RF - Requisitos Funcionales}
+
+\begin{itemize}
+\tightlist
+\item
+\textbf{RF-001 - Gestión de Autenticación y Autorización}: El sistema debe proporcionar mecanismos seguros de autenticación y autorización basados en roles.
+\item
+\textbf{RF-002 - Registro de Usuarios}: El sistema debe permitir el registro de nuevos usuarios con validación de datos.
+\item
+\textbf{RF-003 - Gestión de Establecimientos}: El sistema debe permitir la gestión completa de establecimientos con configuración de horarios.
+\item
+\textbf{RF-004 - Sistema de Reservas}: El sistema debe permitir crear, modificar y anular reservas con validación de disponibilidad.
+\item
+\textbf{RF-005 - Sistema de Convocatorias}: El sistema debe permitir invitar a otros usuarios a reservas con información adicional.
+\item
+\textbf{RF-006 - Búsqueda de Usuarios}: El sistema debe proporcionar, para la configuración de convocatorias, una búsqueda eficiente de usuarios.
+\item
+\textbf{RF-007 - Administración de Usuarios}: El sistema debe permitir a los administradores gestionar cuentas de usuario.
+\item
+\textbf{RF-008 - Visualización de Reservas Administrativas}: El sistema debe proporcionar vista administrativa de reservas por establecimiento.
+\item
+\textbf{RF-009 - Gestión de Perfiles}: El sistema debe permitir la gestión de perfiles con menús asociados.
+\item
+\textbf{RF-010 - Notificaciones por Email}: El sistema debe enviar notificaciones por email para los diferentes eventos de reservas.
+\end{itemize}
+
+\subsection{RNF - Requisitos No Funcionales}
+\begin{itemize}
+\tightlist
+\item
+\textbf{RNF-001 - Rendimiento}: El sistema debe mantener tiempos de respuesta razonables de modo que la interacción o experiencia de usuario no se vea perjudicada. Los tiempos de carga y la respuesta de las operaciones deben ser aceptables.
+\item
+\textbf{RNF-002 - Seguridad}: El sistema debe implementar medidas de seguridad robustas, utilizando para ello un sistema de encriptación para las contraseñas, así como establecer una protección contra ataques. Del mismo modo, se debe establecer un control de acceso basado en roles y establecer un timeout de sesión automático.
+\item
+\textbf{RNF-003 - Usabilidad}: El sistema debe ser intuitiva y accesible, con un diseño adaptable a dispositivos móviles. La navegación principal estará optimizada para que el usuario acceda a las funciones principales en solo tres clics. Para una mejor interacción, se mostrarán mensajes de error claros y se ofrecerá un feedback visual instantáneo, asegurando que el diseño sea coherente en todas las páginas.
+
+\item
+\textbf{RNF-004 - Disponibilidad}: El sistema debe mantener una disponibilidad del 99\% durante el horario laboral. En caso de fallos inesperados, se establece un tiempo de recuperación inferior a 5 minutos, minimizando así el impacto en las operaciones. El mantenimiento preventivo incluye un backup automático diario para proteger la integridad de los datos. Además, el sistema manejará los errores de forma controlada y eficiente, asegurando que nunca se produzca pérdida de datos. Finalmente, se generarán logs detallados que facilitarán el diagnóstico y la resolución rápida de cualquier problema técnico.
+\item
+\textbf{RNF-005 - Escalabilidad}: El sistema debe ser capaz de poder absorver un crecimiento del número de usuarios, adaptándose sin problemas y ofreciendo un rendimiento adecuado incluso en situaciones de alta demanda.
+\item
+\textbf{RNF-006 - Mantenibilidad}: El sistema debe ser fácil de actualizar o modificar, siguiendo un diseño modular y una estructura clara que facilite su futuro mantenimiento. Se priorizará la legibilidad y la consistencia en la implementación para simplificar la corrección de errores y la incorporación de nuevas funcionalidades.
+\item
+\textbf{RNF-007 - Compatibilidad}: El sistema deberá ser compatible con los navegadores web más utilizados, incluyendo Google Chrome, Mozilla Firefox, Microsoft Edge y Safari. La interfaz de usuario será totalmente responsiva, garantizando que la aplicación se adapte y funcione correctamente en una amplia gama de dispositivos, como computadoras de escritorio, tabletas y teléfonos móviles, sin perder funcionalidad ni usabilidad.
+\end{itemize}
+
+\newpage
+\section{Especificación de requisitos}
+
+\subsection{Actores del sistema}
+
+\begin{table}[H]
 	\centering
 	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
 		\toprule
-		\textbf{CU-1}    & \textbf{Ejemplo de caso de uso}\\
+		\textbf{Actor}    & A01 \\
+		\toprule
+		\textbf{Nombre:} 			  & \textbf{Usuario} \\
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Descripción}          & Persona que interactúa con la aplicación ReservApp para las diferentes opciones que en ella se ofrecen. \\
+		\textbf{Tipo}                 & Usuario \\
+		\textbf{Objetivo}             & Crear, modificar o anular reservas, crear, modificar o anular convocatorias. \\
+		\textbf{Responsabilidades}    & 
+		\begin{itemize}
+			\tightlist
+			\item Crear, modificar y anular reservas.
+			\item Gestionar convocatorias.
+			\item Editar perfil personal.
+		\end{itemize}\\
+		\textbf{Relaciones con casos de uso} & CU01(\ref{cu:autenticacion-usuario}), CU02(\ref{cu:registro-usuario}), CU03(\ref{cu:crear-reserva}), CU04(\ref{cu:modificar-reserva}), CU05(\ref{cu:anular-reserva}), CU09(\ref{cu:logout}), CU10(\ref{cu:visualizar-reservas}), CU11(\ref{cu:buscar-usuarios}), CU12(\ref{cu:gestionar-convocatorias}). \\
+		\bottomrule
+	\end{tabularx}
+	\caption{A01 - Usuario}
+	\label{actor:usuario}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{Actor}    & A02 \\
+		\toprule
+		\textbf{Nombre:} 			  & \textbf{Administrador} \\
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Descripción}          & Persona que rol de Administrador que interactúa con la aplicación ReservApp para las diferentes opciones de administración que en ella se ofrecen. \\
+		\textbf{Tipo}                 & Usuario \\
+		\textbf{Objetivo}             & Crear, modificar o anular reservas, crear, modificar o anular convocatorias. \\
+		\textbf{Responsabilidades}    & 
+		\begin{itemize}
+			\tightlist
+			\item Gestionar usuarios y establecimientos.
+			\item Supervisar reservas del sistema.
+			\item Configurar parámetros del sistema.
+		\end{itemize}\\
+		\textbf{Relaciones con casos de uso} & CU01(\ref{cu:autenticacion-usuario}), CU03(\ref{cu:crear-reserva}), CU04(\ref{cu:modificar-reserva}), CU05(\ref{cu:anular-reserva}), CU06(\ref{cu:gestionar-usuarios}), CU07(\ref{cu:gestionar-establecimientos}), CU08(\ref{cu:ver-reservas-admin}), CU09(\ref{cu:logout}), CU14(\ref{cu:gestionar-perfiles}). \\
+		\bottomrule
+	\end{tabularx}
+	\caption{A02 - Administrador}
+	\label{actor:administrador}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{Actor}    & A03 \\
+		\toprule
+		\textbf{Nombre:} 			  & \textbf{Sistema de Email} \\
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Descripción}          & Servicio externo para notificaciones por correo. \\
+		\textbf{Tipo}                 & Sistema \\
+		\textbf{Objetivo}             & Enviar los correos relativos a las reservas y/o convocatorias. \\
+		\textbf{Responsabilidades}    & 
+		\begin{itemize}
+			\tightlist
+			\item Enviar notificaciones automáticas.
+		\end{itemize}\\
+		\textbf{Relaciones con casos de uso} & CU13(\ref{cu:enviar-notificaciones}). \\
+		\bottomrule
+	\end{tabularx}
+	\caption{A03 - Sistema de Email}
+	\label{actor:sistema-email}
+\end{table}
+
+\subsection{Casos de uso general}
+
+\imagen{casos-uso-general}{Casos de Uso general.}
+
+
+\subsection{CU01 - Autenticación de Usuario}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU01}    & \textbf{Autenticación de Usuario} \\
 		\toprule
 		\textbf{Versión}              & 1.0    \\
-		\textbf{Autor}                & Alumno \\
-		\textbf{Requisitos asociados} & RF-xx, RF-xx \\
-		\textbf{Descripción}          & La descripción del CU \\
-		\textbf{Precondición}         & Precondiciones (podría haber más de una) \\
+		\textbf{Actor}                & A01 Usuario (\ref{actor:usuario}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-001 \\
+		\textbf{Descripción}          & Autenticar al usuario en el sistema para obtener su perfil y determinar qué establecimientos tiene asignados. \\
+		\textbf{Precondición}         & Usuario debe estar registrado en el sistema. \\
 		\textbf{Acciones}             &
 		\begin{enumerate}
 			\def\labelenumi{\arabic{enumi}.}
 			\tightlist
-			\item Pasos del CU
-			\item Pasos del CU (añadir tantos como sean necesarios)
+			\item Usuario accede a la página de login.
+            \item Sistema muestra formulario de autenticación.
+            \item Usuario ingresa credenciales (ID de usuario y contraseña).
+            \item Sistema valida credenciales contra base de datos.
+            \item Sistema verifica que la cuenta no esté bloqueada.
+            \item Sistema crea sesión activa.
+            \item Sistema redirige según rol (menú principal para usuarios, panel admin para administradores).
 		\end{enumerate}\\
-		\textbf{Postcondición}        & Postcondiciones (podría haber más de una) \\
-		\textbf{Excepciones}          & Excepciones \\
-		\textbf{Importancia}          & Alta o Media o Baja... \\
+		\textbf{Postcondición}        & Usuario autenticado en el sistema. Sesión activa creada. Redirección según rol de usuario.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\textbf{Casos de Prueba}      &
+		\begin{itemize}
+			\item \textbf{Prueba 1 - Autenticación correcta}: El usuario completa el formulario con las credenciales correctas y accede al sistema.
+			\item \textbf{Prueba 2 - Error de autenticación}: El usuario completa el formulario pero con las credenciales incorrectas. El sistema muestra el mensaje de error de credenciales.
+			\item \textbf{Prueba 3 - Usuario bloqueado}: El usuario completa el formulario con las credenciales correctas. El sistema muestra el mensaje de error.
+		\end{itemize} \\
 		\bottomrule
 	\end{tabularx}
-	\caption{CU-1 Nombre del caso de uso.}
+	\caption{CU01 Autenticación de Usuario}
+	\label{cu:autenticacion-usuario}
 \end{table}
 
-\section{Objetivos generales}
+\subsection{CU02 - Registro de Usuario}
 
-\section{Catálogo de requisitos}
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU02}    & \textbf{Registro de Usuario} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A01 Usuario (\ref{actor:usuario}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-002 \\
+		\textbf{Descripción}          & Registrar el usuario en el sistema. \\
+		\textbf{Precondición}         & Usuario debe tener email válido. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Usuario accede a página de registro.
+            \item Sistema muestra formulario de registro.
+            \item Usuario completa datos requeridos (ID, nombre, apellidos, email, teléfono, contraseña).
+            \item Usuario confirma contraseña y pulsa en registrar.
+            \item Sistema valida formato de datos.
+            \item Sistema verifica unicidad de ID y email.
+            \item Sistema encripta contraseña.
+            \item Sistema guarda usuario en base de datos.
+            \item Sistema envía email de confirmación.
+            \item Sistema muestra mensaje de éxito.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Nueva cuenta de usuario creada. Email de confirmación enviado.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\textbf{Casos de Prueba}      &
+		\begin{itemize}
+			\item \textbf{Prueba 1 - Registro correcto}: El usuario completa el formulario y crea la cuenta en el sistema.
+			\item \textbf{Prueba 2 - Usuario duplicado}: El usuario introduce identificadores ya existentes y el sistema informa de ello.
+		\end{itemize} \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU02 Registro de Usuario}
+	\label{cu:registro-usuario}
+\end{table}
 
-\section{Especificación de requisitos}
+\subsection{CU03 - Crear Reserva}
 
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU03}    & \textbf{Crear Reserva} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A01 Usuario (\ref{actor:usuario}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-004, RF-005 \\
+		\textbf{Descripción}          & Creación de una reserva en el sistema. \\
+		\textbf{Precondición}         & Usuario debe estar autenticado y tener al menos un establecimiento asignado. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Usuario selecciona ``Mis Reservas''.
+            \item Sistema muestra los establecimientos asignados.
+            \item Usuario selecciona un establecimiento.
+            \item Sistema muestra información del establecimiento (horarios, aforo), sus reservas pasadas y futuras.
+            \item Usuario selecciona fecha de reserva.
+            \item Si el establecimiento no tiene duración establecida (libre).
+   		\begin{itemize}
+  			\item Sistema genera slots disponibles para la fecha.
+			  \item Usuario selecciona slot disponible.
+  		\end{itemize}
+            \item Si el establecimiento tiene duración establecida (slot).
+   		\begin{itemize}
+  			\item Usuario ingresa hora de inicio y fin.
+			  \item Sistema valida horario dentro de franjas.
+  		\end{itemize}
+            \item Sistema verifica disponibilidad considerando aforo.
+            \item \textbf{Opcionalmente}, usuario completa información de convocatoria pudiendo indicar un enlace, observaciones y/o usuarios convocados.
+            \item Usuario confirma reserva.
+            \item Sistema guarda reserva en base de datos.
+            \item Sistema envía notificación al usuario y, en caso de haberlos, a los convocados.
+            \item Sistema muestra mensaje de confirmación.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Reserva creada en el sistema. Notificación enviada al usuario. Convocatorias procesadas si existen.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU03 Crear Reserva}
+	\label{cu:crear-reserva}
+\end{table}
 
+\subsection{CU04 - Modificar Reserva}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU04}    & \textbf{Modificar Reserva} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A01 Usuario (\ref{actor:usuario}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-004, RF-005 \\
+		\textbf{Descripción}          & Modificación de una reserva en el sistema. \\
+		\textbf{Precondición}         & Usuario debe estar autenticado, tener una reserva a su nombre y la reserva debe ser futura. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Usuario selecciona ``Mis Reservas''.
+            \item Sistema muestra los establecimientos asignados.
+            \item Usuario selecciona un establecimiento.
+            \item Sistema muestra información del establecimiento (horarios, aforo), sus reservas pasadas y futuras.
+            \item Usuario selecciona reserva futura.
+            \item Sistema muestra los detallas de la reserva.
+            \item Usuario modifica la reserva.
+            \item Sistema valida los datos.
+            \item Sistema verifica disponibilidad considerando aforo.
+            \item Sistema actualiza reserva en base de datos.
+            \item Sistema envía notificación de modificación al usuario y, en caso de haberlos, a los convocados.
+            \item Sistema muestra mensaje de confirmación de cambios.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Reserva actualizada en el sistema. Notificaciones enviadas a involucrados. Convocatorias procesadas si existen.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU04 Modificar Reserva}
+	\label{cu:modificar-reserva}
+\end{table}
+
+\subsection{CU05 - Anular Reserva}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU05}    & \textbf{Anular Reserva} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A01 Usuario (\ref{actor:usuario}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-004, RF-005 \\
+		\textbf{Descripción}          & Anulación de una reserva en el sistema. \\
+		\textbf{Precondición}         & Usuario debe estar autenticado, tener una reserva a su nombre y la reserva debe ser futura. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Usuario selecciona ``Mis Reservas''.
+            \item Sistema muestra los establecimientos asignados.
+            \item Usuario selecciona un establecimiento.
+            \item Sistema muestra información del establecimiento (horarios, aforo), sus reservas pasadas y futuras.
+            \item Usuario selecciona reserva futura y pulsa para anular.
+            \item Sistema muestra confirmación con advertencia.
+            \item Usuario confirma anulación.
+            \item Sistema recopila emails de notificación (usuario + convocados).
+            \item Sistema elimina reserva de base de datos.
+            \item Sistema envía notificaciones de anulación.
+            \item Sistema muestra confirmación de anulación.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Reserva eliminada del sistema. Notificaciones de anulación enviadas.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU05 Anular Reserva}
+	\label{cu:anular-reserva}
+\end{table}
+
+\subsection{CU06 - Gestionar Usuarios}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU06}    & \textbf{Gestionar Usuarios} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-007 \\
+		\textbf{Descripción}          & Gestión Administrativa de Usuarios. \\
+		\textbf{Precondición}         & Usuario debe estar autenticado y tener el rol de administrador. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Usuarios''.
+            \item Sistema muestra lista de usuarios con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Nuevo Usuario''.
+ 	    \item Sistema muestra formulario de creación.
+            \item Administrador completa datos y confirma.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Usuario creado en el sistema.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU06 Gestionar Usuarios}
+	\label{cu:gestionar-usuarios}
+\end{table}
+
+\subsubsection{CU06.1 - Gestionar Usuarios - Edición}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU06.1}    & \textbf{Gestionar Usuarios - Edición} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-007 \\
+		\textbf{Descripción}          & Modificación Administrativa de Usuarios. \\
+		\textbf{Precondición}         & Usuario debe estar autenticado, tener el rol de administrador y el usuario a modificar debe existir. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Usuarios''.
+            \item Sistema muestra lista de usuarios con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Editar'' en usuario específico.
+ 	    \item Sistema muestra formulario con datos actuales.
+            \item Administrador modifica campos y confirma.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Usuario modificado en el sistema.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU06.1 Gestionar Usuarios - Edición}
+	\label{cu:gestionar-usuarios-edicion}
+\end{table}
+
+\subsubsection{CU06.2 - Gestionar Usuarios - Bloqueo}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU06.2}    & \textbf{Gestionar Usuarios - Bloqueo} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-007 \\
+		\textbf{Descripción}          & Bloqueo/Desploqueo Administrativa de Usuarios. \\
+		\textbf{Precondición}         & Usuario debe estar autenticado, tener el rol de administrador y el usuario a bloquear/desbloquer debe existir. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Usuarios''.
+            \item Sistema muestra lista de usuarios con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Bloquear/Desbloquear'' en usuario específico.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Usuario bloqueado en el sistema.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU06.2 Gestionar Usuarios - Bloqueo}
+	\label{cu:gestionar-usuarios-bloqueo}
+\end{table}
+
+\subsubsection{CU06.3 - Gestionar Usuarios - Eliminación}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU06.3}    & \textbf{Gestionar Usuarios - Eliminación} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-007 \\
+		\textbf{Descripción}          & Eliminación Administrativa de Usuarios. \\
+		\textbf{Precondición}         & Usuario debe estar autenticado, tener el rol de administrador y el usuario a eliminar debe existir. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Usuarios''.
+            \item Sistema muestra lista de usuarios con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Eliminar'' en usuario específico.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Usuario eliminado en el sistema.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU06.3 Gestionar Usuarios - Eliminación}
+	\label{cu:gestionar-usuarios-eliminacion}
+\end{table}
+
+\subsection{CU07 - Gestionar Establecimientos}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU07}    & \textbf{Gestionar Establecimientos} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-003 \\
+		\textbf{Descripción}          & Gestión Administrativa de Establecimientos. \\
+		\textbf{Precondición}         & Usuario debe estar autenticado y tener el rol de administrador. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Establecimientos''.
+            \item Sistema muestra lista de establecimientos con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Nuevo Establecimiento''.
+ 	    \item Sistema muestra formulario de creación.
+            \item Administrador completa datos y confirma.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Establecimiento creado en el sistema.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU07 Gestionar Establecimientos}
+	\label{cu:gestionar-establecimientos}
+\end{table}
+
+\subsubsection{CU07.1 - Gestionar Establecimientos - Edición}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU07.1}    & \textbf{Gestionar Establecimientos - Edición} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-003 \\
+		\textbf{Descripción}          & Modificación Administrativa de Establecimientos. \\
+		\textbf{Precondición}         & Usuario debe estar autenticado, tener el rol de administrador y el establecimiento a modificar debe existir. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Establecimientos''.
+            \item Sistema muestra lista de establecimientos con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Editar'' en establecimiento específico.
+ 	    \item Sistema muestra formulario con datos actuales.
+            \item Administrador modifica campos y confirma.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Establecimiento modificado en el sistema.\\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU07.1 Gestionar Establecimientos - Edición}
+	\label{cu:gestionar-establecimientos-edicion}
+\end{table}
+
+\subsubsection{CU07.2 - Gestionar Establecimientos - Eliminación}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+		\toprule
+		\textbf{CU07.2}    & \textbf{Gestionar Establecimientos - Eliminación} \\
+		\toprule
+		\textbf{Versión}              & 1.0    \\
+		\textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+		\textbf{Autor}                & \nombre \\
+		\textbf{Requisitos asociados} & RF-003 \\
+		\textbf{Descripción}          & Eliminación Administrativa de Establecimientos. \\
+		\textbf{Precondición}         & Usuario debe estar autenticado, tener el rol de administrador y el establecimiento a eliminar debe existir. \\
+		\textbf{Acciones}             &
+		\begin{enumerate}
+			\def\labelenumi{\arabic{enumi}.}
+			\tightlist
+			\item Administrador accede a ``Gestión de Establecimientos''.
+            \item Sistema muestra lista de establecimientos con estadísticas.
+            \item Sistema proporciona funciones de búsqueda y filtrado.
+            \item Administrador selecciona ``Eliminar'' en establecimiento específico.
+            \item Sistema valida los datos introducidos.
+            \item Sistema actualiza vista con cambios realizados.
+		\end{enumerate}\\
+		\textbf{Postcondición}        & Establecimiento eliminado en el sistema. \\
+		\textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+		\textbf{Importancia}          & Alta \\
+		\bottomrule
+	\end{tabularx}
+	\caption{CU07.2 Gestionar Establecimientos - Eliminación}
+	\label{cu:gestionar-establecimientos-eliminacion}
+\end{table}
+
+\subsection{CU08 - Visualizar Reservas Administrativas}
+
+\begin{table}[H]
+   \centering
+   \begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+      \toprule
+      \textbf{CU08}    & \textbf{Visualizar Reservas Administrativas} \\
+      \toprule
+      \textbf{Versión}              & 1.0    \\
+      \textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+      \textbf{Autor}                & \nombre \\
+      \textbf{Requisitos asociados} & RF-008 \\
+      \textbf{Descripción}          & Vista Administrativa de Reservas. \\
+      \textbf{Precondición}         & Usuario debe estar autenticado, tener el rol de administrador y tener establecimientos configurados. \\
+      \textbf{Acciones}             &
+      \begin{enumerate}
+         \def\labelenumi{\arabic{enumi}.}
+         \tightlist
+         \item Administrador accede a ``Gestión de Reservas''.
+         \item Sistema muestra lista de establecimientos.
+         \item Administrador selecciona establecimiento específico.
+         \item Sistema muestra calendario mensual con reservas.
+         \item Sistema permite navegación entre meses/años.
+         \item Administrador selecciona día específico.
+         \item Sistema muestra todas las reservas del día.
+         \item Sistema incluye información de convocatorias.
+         \item Sistema muestra datos de usuarios involucrados
+         \item Administrador puede navegar de regreso al calendario.
+      \end{enumerate}\\
+     \textbf{Postcondición}         & Información de reservas visualizada.\\
+      \textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+      \textbf{Importancia}          & Media \\
+      \bottomrule
+   \end{tabularx}
+   \caption{CU08 Visualizar Reservas Administrativas}
+   \label{cu:ver-reservas-admin}
+\end{table}
+
+\subsection{CU09 - Logout}
+
+\begin{table}[H]
+   \centering
+   \begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+      \toprule
+      \textbf{CU08}    & \textbf{Logout} \\
+      \toprule
+      \textbf{Versión}              & 1.0    \\
+      \textbf{Actor}                & A01 Usuario (\ref{actor:usuario}) A02 Administrador (\ref{actor:administrador}) \\
+      \textbf{Autor}                & \nombre \\
+      \textbf{Requisitos asociados} & RF-001 \\
+      \textbf{Descripción}          & Cerrar sesión. \\
+      \textbf{Precondición}         & Usuario debe estar autenticado. \\
+      \textbf{Acciones}             &
+      \begin{enumerate}
+         \def\labelenumi{\arabic{enumi}.}
+         \tightlist
+         \item Usuario ``Cerrar Sesión''.
+         \item Sistema invalida la sesión del usuario.
+         \item Sistema redirige al usuario a la página de inicio de sesión.
+      \end{enumerate}\\
+     \textbf{Postcondición}         & Sesión invalidada y redirigida al login.\\
+      \textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+      \textbf{Importancia}          & Alta \\
+      \bottomrule
+   \end{tabularx}
+   \caption{CU09 Logout}
+   \label{cu:logout}
+\end{table}
+
+\subsection{CU10 - Visualizar Reservas}
+
+\begin{table}[H]
+   \centering
+   \begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+      \toprule
+      \textbf{CU08}    & \textbf{Visualizar Reservas} \\
+      \toprule
+      \textbf{Versión}              & 1.0    \\
+      \textbf{Actor}                & A01 Usuario (\ref{actor:usuario}) \\
+      \textbf{Autor}                & \nombre \\
+      \textbf{Requisitos asociados} & RF-004, RF-005 \\
+      \textbf{Descripción}          & Vista de las Reservas de Usuario. \\
+      \textbf{Precondición}         & Usuario debe estar autenticado y tener establecimientos configurados. \\
+      \textbf{Acciones}             &
+      \begin{enumerate}
+         \def\labelenumi{\arabic{enumi}.}
+         \tightlist
+         \item Usuario accede a ``Mis Reservas''.
+         \item Sistema muestra lista de establecimientos.
+         \item Usuario selecciona establecimiento específico.
+         \item Sistema muestra calendario mensual con reservas.
+         \item Sistema permite navegación entre meses/años.
+         \item Usuario selecciona día específico.
+         \item Sistema muestra todas las reservas del día.
+         \item Sistema incluye información de convocatorias.
+         \item Sistema muestra datos de usuarios involucrados
+         \item Usuario puede navegar de regreso al calendario.
+      \end{enumerate}\\
+      \textbf{Postcondición}        & Información de reservas visualizada.\\
+      \textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+      \textbf{Importancia}          & Media \\
+      \bottomrule
+   \end{tabularx}
+   \caption{CU08 Visualizar Reservas}
+   \label{cu:visualizar-reservas}
+\end{table}
+
+\subsection{CU11 - Buscar Usuarios}
+
+\begin{table}[H]
+   \centering
+   \begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+      \toprule
+      \textbf{CU11}    & \textbf{Buscar Usuarios} \\
+      \toprule
+      \textbf{Versión}              & 1.0    \\
+      \textbf{Actor}                & A01 Usuario (\ref{actor:usuario}) \\
+      \textbf{Autor}                & \nombre \\
+      \textbf{Requisitos asociados} & RF-005, RF-006 \\
+      \textbf{Descripción}          & Buscar usuarios para Convocatoria. \\
+      \textbf{Precondición}         & Usuario debe estar autenticado y en proceso de creación o edición de una reserva. \\
+      \textbf{Acciones}             &
+      \begin{enumerate}
+         \def\labelenumi{\arabic{enumi}.}
+         \tightlist
+         \item Usuario ingresa término de búsqueda en el campo de usuarios dentro de la sección de convocatoria.
+         \item Sistema realiza búsqueda según el patrón introducido.
+         \item Sistema busca por ID, nombre, apellidos y email (excluyendo usuario actual).
+         \item Sistema muestra los usuarios que encajan con ese patrón.
+         \item Usuario selecciona el nombre del usuario que quiere convocar.
+      \end{enumerate}\\
+      \textbf{Postcondición}        & Lista de usuarios conformada para la convocatoria.\\
+      \textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+      \textbf{Importancia}          & Media \\
+      \bottomrule
+   \end{tabularx}
+   \caption{CU11 Buscar Usuarios}
+   \label{cu:buscar-usuarios}
+\end{table}
+
+\subsection{CU12 - Gestionar Convocatorias}
+
+\begin{table}[H]
+   \centering
+   \begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+      \toprule
+      \textbf{CU12}    & \textbf{Gestionar Convocatorias} \\
+      \toprule
+      \textbf{Versión}              & 1.0    \\
+      \textbf{Actor}                & A01 Usuario (\ref{actor:usuario}) \\
+      \textbf{Autor}                & \nombre \\
+      \textbf{Requisitos asociados} & RF-004, RF-005 \\
+      \textbf{Descripción}          & Gestionar convocatoria de reserva. \\
+      \textbf{Precondición}         & Usuario debe estar autenticado y en proceso de creación o edición de una reserva. \\
+      \textbf{Acciones}             &
+      \begin{enumerate}
+         \def\labelenumi{\arabic{enumi}.}
+         \tightlist
+         \item Usuario ingresa cualquier valor en la sección de convocatoria, pudiendo ser una dirección, observaciones o la convocatoria de un usuario.
+         \item Sistema valida los datos introducidos y crea la convocatoria.
+         \item Usuario confirma reserva
+         \item Sistema guarda la información de la reserva y de la convocatoria asociada.
+         \item Sistema envía notificación al usuario y a los convocados.
+         \item Sistema muestra mensaje de confirmación.
+      \end{enumerate}\\
+      \textbf{Postcondición}        & Convocatoria creada/actualizada con usuarios seleccionados.\\
+      \textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+      \textbf{Importancia}          & Alta \\
+      \bottomrule
+   \end{tabularx}
+   \caption{CU12 Gestionar Convocatorias}
+   \label{cu:gestionar-convocatorias}
+\end{table}
+
+\subsection{CU013 - Enviar Notificaciones}
+
+\begin{table}[H]
+   \centering
+   \begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+      \toprule
+      \textbf{CU13}    & \textbf{Enviar Notificaciones} \\
+      \toprule
+      \textbf{Versión}              & 1.0    \\
+      \textbf{Actor}                & A03 Sistema de Email (\ref{actor:sistema-email}). \\
+      \textbf{Autor}                & \nombre \\
+      \textbf{Requisitos asociados} & RF-004, RF-005, RF-010 \\
+      \textbf{Descripción}          & Envia notificaciones cuando se crean, modifican o anulanreservas y/o convocatorias. \\
+      \textbf{Precondición}         & Configuración SMTP válida. Direcciones email válidas. Al confirmar acción sobre reserva.\\
+      \textbf{Acciones}             &
+      \begin{enumerate}
+         \def\labelenumi{\arabic{enumi}.}
+         \tightlist
+         \item Usuario completa la información de una reserva nueva o existe.
+         \item Sistema valida los datos introducidos.
+         \item Sistema actualiza vista con cambios realizados.
+         \item Sistema envía notificaciones relativas de la acción sobre reserva.
+      \end{enumerate}\\
+     \textbf{Postcondición}         & Emails enviados a destinatarios correspondientes.\\
+      \textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+      \textbf{Importancia}          & Alta \\
+      \bottomrule
+   \end{tabularx}
+   \caption{CU13 Enviar Notificaciones}
+   \label{cu:enviar-notificaciones}
+\end{table}
+
+\subsection{CU14 - Gestionar Perfiles}
+
+\begin{table}[H]
+   \centering
+   \begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+      \toprule
+      \textbf{CU14}    & \textbf{Gestionar Perfiles} \\
+      \toprule
+      \textbf{Versión}              & 1.0    \\
+      \textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+      \textbf{Autor}                & \nombre \\
+      \textbf{Requisitos asociados} & RF-009 \\
+      \textbf{Descripción}          & Gestión Administrativa de Perfiles. \\
+      \textbf{Precondición}         & Usuario debe estar autenticado, tener el rol de administrador. \\
+      \textbf{Acciones}             &
+      \begin{enumerate}
+         \def\labelenumi{\arabic{enumi}.}
+         \tightlist
+         \item Administrador accede a ``Gestión de Perfiles''.
+         \item Sistema muestra lista de perfiles.
+         \item Administrador selecciona ``Añadir Perfil''.
+         \item Sistema muestra un formulario con los datos de Perfil.
+         \item Administrador completa datos y confirma.
+         \item Sistema valida los datos introducidos.
+         \item Sistema actualiza vista con cambios realizados.
+      \end{enumerate}\\
+      \textbf{Postcondición}        & Información de reservas visualizada.\\
+      \textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+      \textbf{Importancia}          & Media \\
+      \bottomrule
+   \end{tabularx}
+   \caption{CU14 Gestionar Perfiles}
+   \label{cu:gestionar-perfiles}
+\end{table}
+
+\subsubsection{CU14.1 - Gestionar Perfiles - Edicion}
+
+\begin{table}[H]
+   \centering
+   \begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+      \toprule
+      \textbf{CU14.1}    & \textbf{Gestionar Perfiles - Edicion} \\
+      \toprule
+      \textbf{Versión}              & 1.0    \\
+      \textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+      \textbf{Autor}                & \nombre \\
+      \textbf{Requisitos asociados} & RF-009 \\
+      \textbf{Descripción}          & Gestión Administrativa de Perfiles. \\
+      \textbf{Precondición}         & Usuario debe estar autenticado, tener el rol de administrador. \\
+      \textbf{Acciones}             &
+      \begin{enumerate}
+         \def\labelenumi{\arabic{enumi}.}
+         \tightlist
+         \item Administrador accede a ``Gestión de Perfiles''.
+         \item Sistema muestra lista de perfiles.
+         \item Administrador pulsa uno de los perfiles disponibles.
+         \item Sistema muestra un formulario con los datos de Perfil.
+         \item Administrador completa datos y confirma.
+         \item Sistema valida los datos introducidos.
+         \item Sistema actualiza vista con cambios realizados.
+      \end{enumerate}\\
+      \textbf{Postcondición}        & Información de reservas visualizada.\\
+      \textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+      \textbf{Importancia}          & Media \\
+      \bottomrule
+   \end{tabularx}
+   \caption{CU14.1 Gestionar Perfiles - Edicion}
+   \label{cu:gestionar-perfiles-edicion}
+\end{table}
+
+\subsubsection{CU14.2 - Gestionar Perfiles - Eliminación}
+
+\begin{table}[H]
+   \centering
+   \begin{tabularx}{\linewidth}{ p{0.21\columnwidth} p{0.71\columnwidth} }
+      \toprule
+      \textbf{CU14.2}    & \textbf{Gestionar Perfiles - Eliminación} \\
+      \toprule
+      \textbf{Versión}              & 1.0    \\
+      \textbf{Actor}                & A02 Administrador (\ref{actor:administrador}) \\
+      \textbf{Autor}                & \nombre \\
+      \textbf{Requisitos asociados} & RF-009 \\
+      \textbf{Descripción}          & Gestión Administrativa de Perfiles. \\
+      \textbf{Precondición}         & Usuario debe estar autenticado, tener el rol de administrador. \\
+      \textbf{Acciones}             &
+      \begin{enumerate}
+         \def\labelenumi{\arabic{enumi}.}
+         \tightlist
+         \item Administrador accede a ``Gestión de Perfiles''.
+         \item Sistema muestra lista de perfiles.
+         \item Administrador pulsa eliminar uno de los perfiles disponibles.
+         \item Sistema solicita confirmación de la operación.
+         \item Administrador acepta la confirmación.
+         \item Sistema actualiza vista con cambios realizados.
+      \end{enumerate}\\
+      \textbf{Postcondición}        & Información de reservas visualizada.\\
+      \textbf{Excepciones}          & Error de conexión a base de datos. El sistema muestra mensaje de error técnico de modo que el usuario puede reintentar más tarde.\\
+      \textbf{Importancia}          & Media \\
+      \bottomrule
+   \end{tabularx}
+   \caption{CU14.2 Gestionar Perfiles - Eliminación}
+   \label{cu:gestionar-perfiles-eliminacion}
+\end{table}
