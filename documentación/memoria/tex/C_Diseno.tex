@@ -23,61 +23,186 @@ El modelo de datos de la aplicación ``ReservApp'' está compuesto por un conjun
 
 \subsection{Descripción de Entidades}
 
-\subsubsection{Usuario}
-Representa a una persona que utiliza la aplicación. Puede ser un cliente que realiza reservas o un administrador del sistema.
 \begin{itemize}
-    \item \textbf{id (PK):} Identificador único del usuario (String).
-    \item \textbf{nombre:} Nombre del usuario.
-    \item \textbf{apellidos:} Apellidos del usuario.
-    \item \textbf{correo:} Dirección de correo electrónico (única).
-    \item \textbf{password:} Contraseña para la autenticación.
-    \item \textbf{telefono:} Número de teléfono de contacto.
-    \item \textbf{administrador:} Flag booleano que indica si el usuario tiene privilegios de administrador.
-    \item \textbf{bloqueado:} Flag booleano para restringir el acceso al usuario.
+	\item \textbf{Usuario}(\ref{dd:usuario}): Representa a una persona que utiliza la aplicación. Puede ser un cliente que realiza reservas o un administrador del sistema.
+	\begin{itemize}
+       \item \textbf{id (PK):} Identificador único del usuario (String).
+       \item \textbf{nombre:} Nombre del usuario.
+       \item \textbf{apellidos:} Apellidos del usuario.
+       \item \textbf{email:} Dirección de correo electrónico (única).
+       \item \textbf{password:} Contraseña para la autenticación.
+       \item \textbf{telefono:} Número de teléfono de contacto.
+       \item \textbf{administrador:} Flag booleano que indica si el usuario tiene privilegios de administrador.
+       \item \textbf{bloqueado:} Flag booleano para restringir el acceso al usuario.
+	\end{itemize}
 \end{itemize}
 
-\subsubsection{Establecimiento}
-Representa un lugar físico o recurso que puede ser reservado por los usuarios.
 \begin{itemize}
-    \item \textbf{id (PK):} Identificador numérico autoincremental.
-    \item \textbf{nombre:} Nombre del establecimiento.
-    \item \textbf{descripcion:} Descripción detallada del establecimiento.
-    \item \textbf{aforo:} Determina el número de reservas simultáneas que se pueden realizar.
-    \item \textbf{duracionReserva:} Duración estándar en minutos de una reserva.
-    \item \textbf{capacidad:} Capacidad máxima de personas por reserva.
-    \item \textbf{activo:} Flag booleano que indica si el establecimiento está disponible para nuevas reservas.
+	\item \textbf{Establecimiento}(\ref{dd:establecimiento}): Representa un lugar físico o recurso que puede ser reservado por los usuarios.
+	\begin{itemize}
+       \item \textbf{id (PK):} Identificador numérico autoincremental.
+       \item \textbf{nombre:} Nombre del establecimiento.
+       \item \textbf{descripcion:} Descripción detallada del establecimiento.
+       \item \textbf{aforo:} Determina el número de reservas simultáneas que se pueden realizar.
+       \item \textbf{duracionReserva:} Duración estándar en minutos de una reserva.
+       \item \textbf{capacidad:} Capacidad máxima de personas por reserva.
+       \item \textbf{tipo:} Tipo de establecimiento.
+       \item \textbf{direccion:} Dirección del establecimiento.
+       \item \textbf{telefono:} Teléfono del establecimiento.
+       \item \textbf{email:} Email del establecimiento.
+       \item \textbf{activo:} Flag booleano que indica si el establecimiento está disponible para nuevas reservas.
+	\end{itemize}
 \end{itemize}
 
-\subsubsection{FranjaHoraria}
-Define los períodos de tiempo en los que un establecimiento está abierto y disponible para ser reservado.
 \begin{itemize}
-    \item \textbf{id (PK):} Identificador numérico autoincremental.
-    \item \textbf{diaSemana:} Día de la semana (Lunes, Martes, etc.).
-    \item \textbf{horaInicio:} Hora de inicio de la franja.
-    \item \textbf{horaFin:} Hora de fin de la franja.
+	\item \textbf{FranjaHoraria}(\ref{dd:franja-horaria}): Define los períodos de tiempo en los que un establecimiento está abierto y disponible para ser reservado.
+	\begin{itemize}
+       \item \textbf{id (PK):} Identificador numérico autoincremental.
+       \item \textbf{idEstablecimiento (FK):} Establecimiento al que está vinculado la franja horaria.
+       \item \textbf{diaSemana:} Día de la semana (Lunes, Martes, etc.).
+       \item \textbf{horaInicio:} Hora de inicio de la franja.
+       \item \textbf{horaFin:} Hora de fin de la franja.
+	\end{itemize}
 \end{itemize}
 
-\subsubsection{Reserva}
-Representa una reserva realizada por un usuario en un establecimiento para una fecha y hora específicas.
 \begin{itemize}
-    \item \textbf{id (PK):} Identificador numérico autoincremental.
-    \item \textbf{fechaReserva:} Fecha y hora de inicio de la reserva.
-    \item \textbf{horaFin:} Hora de finalización de la reserva.
+	\item \textbf{Reserva}(\ref{dd:reserva}): Representa una reserva realizada por un usuario en un establecimiento para una fecha y hora específicas.
+	\begin{itemize}
+       \item \textbf{id (PK):} Identificador numérico autoincremental.
+       \item \textbf{idUsuario (FK):} Identificador del usuario que ha realizado la reserva.
+       \item \textbf{idEstablecimiento (FK):} Identificador del establecimiento de la reserva.
+       \item \textbf{fechaReserva:} Fecha y hora de inicio de la reserva.
+       \item \textbf{horaFin:} Hora de finalización de la reserva.
+	\end{itemize}
 \end{itemize}
 
-\subsubsection{Convocatoria}
-Representa una invitación o evento asociado a una reserva, permitiendo registrar a varios participantes.
 \begin{itemize}
-    \item \textbf{id (PK):} Identificador de la reserva asociada (clave foránea y primaria).
-    \item \textbf{enlace:} Un enlace externo asociado a la convocatoria (ej. para una videollamada).
-    \item \textbf{observaciones:} Notas o comentarios adicionales.
+	\item \textbf{Convocatoria}(\ref{dd:convocatoria}): Representa una invitación o evento asociado a una reserva, permitiendo registrar a varios participantes.
+	\begin{itemize}
+       \item \textbf{idReserva (PK, FK):} Identificador de la reserva asociada.
+       \item \textbf{enlace:} Un enlace externo asociado a la convocatoria (ej. para una videollamada).
+       \item \textbf{observaciones:} Notas o comentarios adicionales.
+	\end{itemize}
 \end{itemize}
 
-\subsubsection{Convocado}
-Entidad intermedia que asocia un `Usuario` con una `Convocatoria`.
 \begin{itemize}
-    \item \textbf{id (PK):} Clave primaria compuesta por `idReserva` y `idUsuario`.
+	\item \textbf{Convocado}(\ref{dd:convocado}): Entidad intermedia que asocia un `Usuario` con una `Convocatoria`.
+	\begin{itemize}
+       \item \textbf{idReserva (PK, FK):} Identificador de la reserva asociada.
+       \item \textbf{idUsuario (PK, FK):} Identificador del usuario convocado.
+	\end{itemize}
 \end{itemize}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.20\columnwidth} }
+		\toprule
+		\textbf{Usuario} &                  & \\
+		\toprule
+		\textbf{PK}      & \textbf{id}              & varchar \\
+		\toprule
+                         & \textbf{nombre}          & varchar \\
+                         & \textbf{apellidos}       & varchar \\
+                         & \textbf{email}           & varchar \\
+                         & \textbf{password}        & varchar \\
+                         & \textbf{telefono}        & varchar \\
+                         & \textbf{administrador}   & bit \\
+                         & \textbf{bloqueado}       & bit \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Entidad Usuario}
+	\label{dd:usuario}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.20\columnwidth} }
+		\toprule
+		\textbf{Establecimiento} &                  & \\
+		\toprule
+		\textbf{PK}      & \textbf{id}              & integer \\
+		\toprule
+                         & \textbf{nombre}          & varchar \\
+                         & \textbf{descripcion}     & varchar \\
+                         & \textbf{aforo}           & integer \\
+                         & \textbf{duracionReserva} & integer \\
+                         & \textbf{capacidad}       & integer \\
+                         & \textbf{tipo}            & varchar \\
+                         & \textbf{direccion}       & varchar \\
+                         & \textbf{telefono}        & varchar \\
+                         & \textbf{email}           & varchar \\
+                         & \textbf{activo}          & bit \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Entidad Establecimiento}
+	\label{dd:establecimiento}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.20\columnwidth} }
+		\toprule
+		\textbf{FranjaHoraria} &                      & \\
+		\toprule
+		\textbf{PK}      & \textbf{id}                & integer \\
+		\toprule
+        \textbf{FK}      & \textbf{idEstablecimiento} & \\
+                         & \textbf{diaSemana}         & varchar \\
+                         & \textbf{horaInicio}        & time \\
+                         & \textbf{horaFin}           & time \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Entidad FranjaHoraria}
+	\label{dd:franja-horaria}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.20\columnwidth} }
+		\toprule
+		\textbf{Reserva} &                            & \\
+		\toprule
+		\textbf{PK}      & \textbf{id}                & integer \\
+		\toprule
+        \textbf{FK}      & \textbf{idUsuario}         & \\
+        \textbf{FK}      & \textbf{idEstablecimiento} & \\
+                         & \textbf{fechaReserva}      & datetime \\
+                         & \textbf{horaFin}           & time \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Entidad Reserva}
+	\label{dd:reserva}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.20\columnwidth} }
+		\toprule
+		\textbf{Convocatoria} &                          & \\
+		\toprule
+		\textbf{PK, FK}       & \textbf{idReserva}       &\\
+		\toprule
+		                     & \textbf{enlace}          & String \\
+			                 & \textbf{observaciones}   & String \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Entidad Convocatoria}
+	\label{dd:convocatoria}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.20\columnwidth} }
+		\toprule
+		\textbf{Convocado}    &                     & \\
+		\toprule
+		\textbf{PK, FK1}      & \textbf{idReserva}  & \\
+		\textbf{PK, FK2}      & \textbf{idUsuario}  & \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Entidad Convocado}
+	\label{dd:convocado}
+\end{table}
 
 \subsection{Relaciones entre Entidades}
 \begin{itemize}
@@ -88,7 +213,6 @@ Entidad intermedia que asocia un `Usuario` con una `Convocatoria`.
     \item Una \textbf{Reserva} puede tener una única \textbf{Convocatoria} (1:0..1).
     \item Una \textbf{Convocatoria} puede agrupar a múltiples \textbf{Usuarios} a través de la entidad \textbf{Convocado} (1:0..N).
 \end{itemize}
-
 
 
 \section{Diseño arquitectónico}
