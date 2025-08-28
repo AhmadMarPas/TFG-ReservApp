@@ -6,13 +6,6 @@ En esta sección se detalla la especificación de diseño de la aplicación ``Re
 
 ``ReservApp'' es una aplicación web desarrollada con el framework Spring Boot, diseñada para la gestión de reservas en diversos tipos de establecimientos. Permite a los usuarios registrarse, buscar establecimientos, realizar reservas y gestionar convocatorias asociadas a dichas reservas.
 
-Este documento está estructurado en las siguientes secciones principales:
-\begin{itemize}
-    \item \textbf{Diseño de datos:} Describe el modelo de datos de la aplicación, incluyendo las entidades, sus atributos y las relaciones entre ellas. Se adjuntan los diagramas Entidad-Relación y Relacional.
-    \item \textbf{Diseño arquitectónico:} Explica la arquitectura de software sobre la que se construye la aplicación, detallando las capas, los patrones de diseño empleados y las tecnologías principales.
-    \item \textbf{Diseño procedimental:} Ilustra la secuencia de operaciones para los casos de uso más importantes de la aplicación mediante diagramas de secuencia.
-\end{itemize}
-
 El sistema está diseñado siguiendo principios de arquitectura en capas, separación de responsabilidades y buenas prácticas de desarrollo con Spring Framework.
 
 El propósito de esta memoria es servir como guía técnica para un equipo de desarrollo y mantenimiento, facilitando la comprensión del sistema y sirviendo como base para futuras evoluciones del mismo.
@@ -214,6 +207,21 @@ El modelo de datos de la aplicación ``ReservApp'' está compuesto por un conjun
     \item Una \textbf{Convocatoria} puede agrupar a múltiples \textbf{Usuarios} a través de la entidad \textbf{Convocado} (1:0..N).
 \end{itemize}
 
+\subsection{Diagrama Entidad-Relación}
+
+A continuación se muestra el diagrama Entidad-Relación (ERD) que representa visualmente las entidades y sus relaciones.
+
+\imagen{diagrama_er_chen}{Diagrama Entidad - Relación de las principales entidades.}
+
+\newpage
+
+\subsection{Diagrama Relacional}
+
+El siguiente diagrama muestra el esquema relacional de la base de datos, incluyendo las tablas, claves primarias y foráneas.
+
+\imagen{diagrama_relacional}{Diagrama Relacional de las principales entidades.}
+
+\newpage
 
 \section{Diseño arquitectónico}
 
