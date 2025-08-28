@@ -207,6 +207,8 @@ El modelo de datos de la aplicación ``ReservApp'' está compuesto por un conjun
     \item Una \textbf{Convocatoria} puede agrupar a múltiples \textbf{Usuarios} a través de la entidad \textbf{Convocado} (1:0..N).
 \end{itemize}
 
+\newpage
+
 \subsection{Diagrama Entidad-Relación}
 
 A continuación se muestra el diagrama Entidad-Relación (ERD) que representa visualmente las entidades y sus relaciones.
@@ -220,6 +222,54 @@ A continuación se muestra el diagrama Entidad-Relación (ERD) que representa vi
 El siguiente diagrama muestra el esquema relacional de la base de datos, incluyendo las tablas, claves primarias y foráneas.
 
 \imagen{diagrama_relacional}{Diagrama Relacional de las principales entidades.}
+
+\newpage
+
+\subsection{Índices y Optimizaciones}
+
+El sistema implementa varios índices para optimizar las consultas más frecuentes:
+
+\begin{itemize}
+	\item \textbf{Índices en Usuario}.
+	\begin{itemize}
+       \item \textbf{idx\_usuario\_correo} en el campo correo.
+       \item \textbf{idx\_usuario\_correo} en el campo teléfono.
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Índices en Establecimiento}.
+	\begin{itemize}
+       \item \textbf{idx\_establecimiento\_nombre} en el campo nombre.
+       \item \textbf{idx\_establecimiento\_tipo} en el campo tipo.
+       \item \textbf{idx\_establecimiento\_activo} en el campo activo.
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Índices en Reserva}.
+	\begin{itemize}
+       \item \textbf{idx\_reserva\_fecha} en el campo fechaReserva.
+       \item \textbf{idx\_reserva\_usuario} en el campo idUsuaio.
+       \item \textbf{idx\_reserva\_establecimiento} en el campo idEstablecimiento.
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Índices en FranjaHoraria}.
+	\begin{itemize}
+       \item \textbf{idx\_franja\_dia\_semana} en el campo diaSemanaidEstablecimiento
+       \item \textbf{idx\_franja\_dia\_establecimiento} en el campo idUsuaio.
+       \item \textbf{idx\_franja\_horaria} en los campos horaInicio y horaFin.
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Índices en Convocatoria}.
+	\begin{itemize}
+       \item \textbf{idx\_convocatoria\_reserva} en el campo idReserva.
+	\end{itemize}
+\end{itemize}
 
 \newpage
 
