@@ -275,6 +275,136 @@ El sistema implementa varios índices para optimizar las consultas más frecuent
 
 \section{Diseño arquitectónico}
 
+\textit{ReservApp} implementa una arquitectura en capas basada en el patrón MVC (Model-View-Controller) de Spring Boot organizada de forma modular y proporcionando con ello una separación de responsabilidades, mantenibilidad y escalabilidad.
+
+Las diferentes capas que componen la estructura de la aplicación, en este nivel de abstracción, pueden verse en la figura~\ref{fig:arquitectura_capas}, donde cada una de las diferentes capas agrupa componentes con responsabilidades concretas.
+
+\imagen{arquitectura_capas}{Diagrama arquitectónico de capas y paquetes.}
+
+\subsection{Capas del sistema}
+\begin{itemize}
+	\item \textbf{Capa de Presentación}: Es responsable de gestionar la interfaz de usuario y la interacción con el cliente.
+	\begin{itemize}
+       \item \textbf{Componentes principales}: 
+       	\begin{itemize}
+               \item \textbf{Controladores}: Gestionan las peticiones HTTP y coordinan las respuestas.
+           	\begin{itemize}
+                   \item \textbf{ReservaController}: Gestión de reservas y convocatorias.
+                   \item \textbf{UsuarioController}: Gestión de usuarios.
+                   \item \textbf{EstablecimientoController}: Gestión de establecimientos.
+                   \item \textbf{AdminReservaController}: Administración de reservas.
+                   \item \textbf{LoginController}: Autenticación y autorización.
+                   \item \textbf{HomeController}: Página principal y navegación.
+                \end{itemize}
+
+               \item \textbf{Plantillas Thymeleaf}: Generación dinámica de HTML. Algunos ejemplos son:
+               \begin{itemize}
+                  \item \textbf{calendario\_reserva.html}: Interfaz de reservas.
+                  \item \textbf{menuprincipal.html}: Panel principal de usuario.
+                  \item \textbf{login.html}: Formulario de autenticación.
+               \end{itemize}
+
+               \item \textbf{Recursos Estáticos}: Generación dinámica de HTML. Algunos ejemplos son:
+               \begin{itemize}
+                  \item CSS personalizado (style.css).
+                  \item Bootstrap para diseño responsivo.
+                  \item Bootstrap Icons para iconografía.
+                  \item JavaScript para interactividad (AJAX, validaciones).
+               \end{itemize}
+
+            \end{itemize}
+    \end{itemize}
+
+	\item \textbf{Capa de Lógica de Negocio}: Implementa las reglas de negocio y procesos del dominio.
+	\begin{itemize}
+       \item \textbf{Componentes principales}: 
+       	\begin{itemize}
+               \item \textbf{Servicios}: Implementan la lógica de negocio.
+           	\begin{itemize}
+                   \item \textbf{ReservaService}: Lógica de reservas y disponibilidad.
+                   \item \textbf{UsuarioService}: Gestión de usuarios.
+                   \item \textbf{EstablecimientoService}: Gestión de establecimientos.
+                   \item \textbf{ConvocatoriaService}: Gestión de convocatorias.
+                   \item \textbf{EmailService}: Servicio de notificaciones por correo.
+                   \item \textbf{PerfilService}: Gestión de perfiles.
+                \end{itemize}
+
+               \item \textbf{Utilidades}: Clases de utilidades con diferentes fines.
+           	\begin{itemize}
+                   \item \textbf{SlotReservaUtil}: Cálculo de slots de tiempo disponibles.
+                   \item \textbf{FechaUtil}: Utilidades para manejo de fechas.
+                \end{itemize}
+
+               \item \textbf{Gestión de Sesión}: Implementa las necesidades para la sesión del usuario.
+           	\begin{itemize}
+                   \item \textbf{SessionData}: Bean de sesión para datos del usuario actual.
+                \end{itemize}
+            \end{itemize}
+    \end{itemize}
+
+	\item \textbf{Capa de Acceso a Datos}: Responsable de gestionar el acceso y persistencia de datos.
+	\begin{itemize}
+       \item \textbf{Componentes principales}: 
+       	\begin{itemize}
+               \item \textbf{Repositorios}: Recoge las interfaces JPA para acceso a datos.
+           	\begin{itemize}
+                   \item \textbf{ReservaRepo}: Consultas específicas de reservas con optimizaciones.
+                   \item \textbf{UsuarioRepo}: Gestión de usuarios y búsquedas.
+                   \item \textbf{EstablecimientoRepo}: Gestión de establecimientos.
+                   \item \textbf{ConvocatoriaRepo}: Gestión de convocatorias.
+                   \item \textbf{PerfilRepo}: Gestión de perfiles.
+                   \item \textbf{MenuRepo}: Gestión de Menús.
+                \end{itemize}
+
+               \item \textbf{Entidades JPA}: Para el mapeo objeto-relacional.
+           	\begin{itemize}
+                   \item Todas las entidades extienden de EntidadInfo<E> para auditoría.
+                   \item Implementación de soft delete.
+                   \item Validaciones con Bean Validation.
+                \end{itemize}
+            \end{itemize}
+    \end{itemize}
+
+	\item \textbf{Capa de Configuración y Seguridad}: Responsable de la configuración del sistema y las opciones de seguridad.
+	\begin{itemize}
+       \item \textbf{Componentes principales}: 
+       	\begin{itemize}
+               \item \textbf{Configuración de Seguridad}: Recoge las interfaces JPA para acceso a datos.
+           	\begin{itemize}
+                   \item \textbf{SecurityConfig}: Configuración de las opciones de Spring Security.
+                   \item \textbf{CustomUserDetailsService}: Servicio personalizado de autenticación.
+                   \item \textbf{CustomAuthenticationSuccessHandler}: Manejo de login exitoso.
+                   \item \textbf{CustomUserDetails}: Detalles personalizados del usuario.
+                \end{itemize}
+
+               \item \textbf{Configuración JPA}: Para la configuración de opciones correspondientes a la persistencia.
+           	\begin{itemize}
+                   \item \textbf{JpaAuditingConfig}: Configuración de auditoría automática.
+                   \item \textbf{EntidadInfoInterceptor}: Interceptor para campos de auditoría.
+                \end{itemize}
+
+               \item \textbf{Configuración Web}: Para la gestión de diferentes opciones web.
+           	\begin{itemize}
+                   \item \textbf{WebConfig}: Configuración general de Spring MVC.
+                \end{itemize}
+            \end{itemize}
+    \end{itemize}
+
+	\item \textbf{Capa de Persistencia}: Responsable de la gestión de la base de datos y transacciones.
+	\begin{itemize}
+       \item \textbf{Componentes principales}: 
+       	\begin{itemize}
+               \item \textbf{Base de Datos MySQL}: Almacenamiento persistente.
+               \item \textbf{Hibernate/JPA}: ORM para mapeo objeto-relacional.
+               \item \textbf{Gestión de Transacciones}: Control automático con \emph{@Transactionl}.
+               \item \textbf{Pool de Conexiones}: Gestión de conexiones a BD.
+            \end{itemize}
+    \end{itemize}
+
+\end{itemize}
+
+\newpage
+
 \section{Diseño procedimental}
 
 
