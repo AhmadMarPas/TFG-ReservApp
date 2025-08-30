@@ -40,9 +40,11 @@ Además, como cliente de Git, se ha utilizado el TortoiseGit~\cite{tortoisegit} 
 GitHub Actions por su integración nativa con el repositorio permite automatizar el \emph{pipeline} de CI/CD directamente desde GitHub. Su facilidad de configuración mediante archivos YAML permite habilitar la ejecución de diferentes \emph{workflows} para la compilación y empaquetado del proyecto así como la comunicación con SonarCloud para el análisis estático del código para identificar bugs, vulnerabilidades y \emph{code smells} automáticamente. Su integración con GitHub Actions para análisis continuo en cada \emph{commit}, y el hecho de proporcionar métricas objetivas de calidad (cobertura de código, complejidad ciclomática, duplicación de código, etc...) enriquecen significativamente la documentación técnica del proyecto ofreciendo un enfoque profesional de cara a la calidad del software.
 
 \subsection{Documentación}\label{documentacion}
-Para la documentación del proyecto se ha elegido \LaTeX{} desde la plataforma Overleaf~\cite{overleaf} por su capacidad de generar documentos académicos de una notable calidad con formatos consistentes y alta calidad tipográfica. La colaboración en tiempo real en la nube permite trabajar desde cualquier dispositivo y compartir fácilmente con los tutores para las revisiones. Por otro lado, la gestión automática de referencias bibliográficas y numeración eliminan errores manuales y garantiza el cumplimiento de los estándares académicos.
+Para la documentación del proyecto se ha elegido \LaTeX{} desde la plataforma Overleaf~\cite{overleaf} por su capacidad de generar documentos académicos de una notable calidad con formatos consistentes y alta calidad tipográfica. La colaboración en tiempo real en la nube permite trabajar desde cualquier dispositivo y compartir fácilmente con los tutores para las revisiones. Por otro lado, la gestión automática de referencias bibliográficas y numeración elimina errores manuales y garantiza el cumplimiento de los estándares académicos.
 
 \section{Patrones de diseño}\label{patron-de-diseño}
+
+El sistema ha sido diseñado siguiendo principios de arquitectura en capas, separación de responsabilidades y buenas prácticas de desarrollo. A continuación, se describen algunos de los patrones utilizados.
 
 \subsection{Patrón Modelo-Vista-Controlador (MVC)}\label{patron-modelo-vista-controlador}
 Para la aplicación web de gestión de reservas con Spring Boot, se utilizó el patrón MVC por su separación clara de responsabilidades que facilita el mantenimiento y escalabilidad del código al dividir la lógica de negocio (Modelo), la presentación (Vista) y el control de flujo (Controlador). Su integración nativa con Spring Boot mediante las anotaciones que ofrece el \emph{framework} simplifica significativamente el desarrollo. Además, ofrece flexibilidad para cambios futuros como modificar la interfaz de usuario sin afectar la lógica de negocio, o modificar la lógica de negocio sin afectar a la capa visual o al modelo de datos.
@@ -67,6 +69,8 @@ JUnit es considerado el \emph{framework} de \emph{testing} estándar de facto en
 
 \subsection{Mockito}\label{mockito}
 Para complementar los \emph{tests} unitarios implementados con JUnit, se ha utilizado la librería Mockito por su capacidad de crear \emph{mocks} y \emph{stubs} de dependencias que permiten aislar completamente los elementos bajo prueba, resultando especialmente útil para testear servicios sin depender de \emph{repositories} reales o bases de datos. Su integración con JUnit mediante anotaciones como \emph{@Mock} y \emph{@InjectMocks} simplifica la configuración de tests, mientras que su sintaxis intuitiva con métodos como \emph{when().thenReturn()} hace que los \emph{tests} sean legibles y entendibles. Con el uso de Mockito se ha posibilitado el testing de la capa de servicios en la arquitectura por capas, permitiendo verificar interacciones entre componentes (\emph{verify()}) y simular diferentes escenarios de error o éxito sin la complejidad de configurar un entorno completo, lo que resulta práctico para demostrar buenas prácticas de testing en un proyecto.
+
+\newpage
 
 \section{Desarrollo Web}\label{desarrollo-web}
 
