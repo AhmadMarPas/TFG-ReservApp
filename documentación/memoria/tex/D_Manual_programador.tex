@@ -35,39 +35,53 @@ Todo el código del proyecto está contenido dentro del directorio ReservApp/ y 
 En esta sección se detallan los pasos necesarios para configurar el entorno de desarrollo, compilar y ejecutar el proyecto ReservApp. El contenido que se describe puede servir como referencia para cualquier programador que quiera trabajar en este proyecto.
 
 \subsection{Requisitos del Sistema}
-Para poder insalar y configurar el entonrno de desarrollo, es necesario tener instalado el siguiente software:
+Para poder instalar y configurar el entorno de desarrollo, es necesario tener instalado el siguiente software:
 \begin{itemize}
-   \item \textbf{IDE}: En este caso se ha utilizado el Eclipse, pero se puede utilizar cualquier IDE.
+   \item \textbf{IDE}: En este caso se ha utilizado el \textit{Eclipse}, pero se puede utilizar cualquier IDE.
    \item \textbf{Java Development Kit (JDK)}: Versión 21.
-   \item \textbf{Apache Maven}: Versión 3.8 o superior, para la gestión de dependencias y la compilación.
+   \item \textbf{Apache Maven}: Versión 3.9 o superior, para la gestión de dependencias y la compilación.
    \item \textbf{Git}: Para clonar el código fuente desde el repositorio.
    \item \textbf{MySQL}: Una instancia de base de datos MySQL, ya sea local o remota.
    \item \textbf{Docker y Docker Compose}: Es opcional, en el caso de querer tener un entorno containerizado.
+   \item \textbf{Lombok}: Librería que será necesaria para que \textit{Eclipse} reconozca las anotaciones que ofrece y que el IDE reconozca.
 \end{itemize}
 
-\imagen{eclipse}{Versión del IDE Eclipse utilizada.}
+\imagen{eclipse}{Versión del IDE \textit{Eclipse} utilizada.}
 
-Para el desarrollo de la aplicación se ha utilizado como IDE el Eclipse (versión 2025-06 RC1)~\ref{fig:eclipse}. Esta versión ya dispone de diversos \emph{plugins} necesarios y suficientes para el desarrollo de la mayoría de los proyectos. No obstante, se han instalado los siguientes \emph{plugins} para aprovechar las funcionalidades que ofrecen:
+Para el desarrollo de la aplicación se ha utilizado como IDE el \textit{Eclipse} (versión 2025-06 RC1)~\ref{fig:eclipse}. Esta versión ya dispone de diversos \emph{plugins} necesarios y suficientes para el desarrollo de la mayoría de los proyectos. No obstante, se han instalado los siguientes \emph{plugins} para aprovechar las funcionalidades que ofrecen:
 
 \begin{itemize}
    \item \textbf{Spring Tools}: Este plugin proporciona características como soporte avanzado para Spring Boot, agilizando el proceso de creación y configuración~\ref{fig:plugin_spring_tools}.
    
-   \imagen{plugin_spring_tools}{Plugin Spring Tools para Eclipse.}
+   \imagen{plugin_spring_tools}{Plugin Spring Tools para \textit{Eclipse}.}
    
    \item \textbf{SonarQube}: Este \emph{plugin} proporciona análisis de código estático en tiempo real permitiendo identificar y corregir problemas de calidad, seguridad y buenas prácticas directamente en el entorno de desarrollo, antes de que el código sea enviado al repositorio. Admeás permite la conexión con SonarClude para obtener las alertas que ahí se detectan~\ref{fig:plugin_sonarqube}.
 
-   \imagen{plugin_sonarqube}{Plugin SonarQube para Eclipse.}
+   \imagen{plugin_sonarqube}{Plugin SonarQube para \textit{Eclipse}.}
    
    \item \textbf{GitHub Copilot}: Al disponer Copilot de una versión gratuita para estudiantes por estar vinculada con una cuenta académica, se ha utilizado debido a que utiliza inteligencia
 artificial para sugerir código y acelerar el desarrollo~\ref{fig:plugin_github_copilot}.
 
-   \imagen{plugin_github_copilot}{Plugin GitHub Copilot para Eclipse.}
+   \imagen{plugin_github_copilot}{Plugin GitHub Copilot para \textit{Eclipse}.}
 
 \end{itemize}
 
 
+El código fuente del proyecto está disponible en un repositorio de GitHub. Para obtener el código es necesario iniciar el terminal de \textbf{Git} y situarse en la carpeta donde se quiera descargar el proyecto. Una vez hecho esto, se debe ejecutar la siguiente sentencia:
+	\begin{verbatim}
+		git clone https://github.com/AhmadMarPas/TFG-ReservApp.git
+	\end{verbatim}
+Después, desde el \textit{Eclipse}, se debe elegir la opción de menú \emph{File -> import ->} y se selecciona la opción \emph{``General -> Existing Projects into workspace''}. Una vez seleccionada dicha opción, se presentará un diálogo para seleccionar la carpeta del proyecto, y en ese caso se debe buscar la carpeta donde se descargó el proyecto y seleccionar la subcarpeta ``TFG-ReservApp/ReservApp'' que es donde se encuentra el código propio del proyecto. Tras seleccionar la carpeta, se pulsa el botón ''\emph{Finish}''. Al finalizar, el \textit{Eclipse} mostrará el proyecto dentro del \emph{workspace}.
 
+\subsection{Configuración del \textit{Eclipse}}
+Antes de  poder trabajar utilizando el \textit{Eclipse} sobre el proyecto, es necesario configurar la librería \textit{Lombok} para que reconozca las anotaciones que ésta ofrece y evitar de esta forma que el \textit{Eclipse} muestre errores de compilación. Para ello, será necesario editar el archivo \emph{''eclipse.ini''} que se encuentra en la raíz de instalación del \textit{Eclipse} y añadir la siguiente línea para que apunte a la localización de la librería (\emph{``lombok.jar''}):
+\begin{verbatim}
+   -javaagent:<RUTA_LOMBOK_JAR>
+\end{verbatim}
 
 \section{Compilación, instalación y ejecución del proyecto}
+
+
+
 
 \section{Pruebas del sistema}
