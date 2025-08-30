@@ -1,10 +1,72 @@
 \apendice{Documentación técnica de programación}
 
 \section{Introducción}
+En este apartado se proporciona la documentación técnica para los programadores que quieran trabajar en el proyecto \textit{ReservApp}. El objetivo es servir como una guía de referencia completa que abarca desde la configuración del entorno de desarrollo hasta la compilación, ejecución y prueba del sistema.
 
 \section{Estructura de directorios}
+Todo el código del proyecto está contenido dentro del directorio ReservApp/ y sigue la estructura estándar de un proyecto Maven, de modo que la ubicación del código fuente, los recursos y las pruebas sigue el estándar de un proyecto Java con Spring Boot y Maven.
+
+
+\begin{itemize}
+   \item \textbf{ReservApp/}: Carpeta principal con el contenido de todo el código y recursos que necesita el proyecto.
+   \begin{itemize}
+      \item \textbf{pom.xml}: Archivo de configuración de Maven. Define las dependencias, plugins y metas del proyecto.
+      \item \textbf{src/main/java/es/ubu/reservapp/}: Código fuente principal de la aplicación en Java.
+      \begin{itemize}
+         \item \textbf{config/}: Clases de configuración de Spring (Seguridad, JPA, etc.).
+         \item \textbf{controller/}: Controladores Spring MVC que gestionan las peticiones web y la navegación.
+         \item \textbf{exception/}: Manejadores de excepciones globales para la aplicación.
+         \item \textbf{model/}: Contiene las entidades JPA, los repositorios (Data Access Objects) y otras clases del modelo.
+         \item \textbf{service/}: Capa de servicio donde reside la lógica de negocio de la aplicación.
+         \item \textbf{util/}: Clases de utilidad transversales.
+      \end{itemize}
+      \item \textbf{src/main/resources/}: Carpeta con todos los recursos estáticos que utiliza la aplicación.
+      \begin{itemize}
+         \item \textbf{static/}: Recursos web estáticos como CSS, JavaScript e imágenes.
+         \item \textbf{templates/}: Plantillas HTML de Thymeleaf para las vistas renderizadas en el servidor.
+         \item \textbf{application.yml}: Archivo de configuración principal de Spring Boot para perfiles.
+      \end{itemize}
+      \item \textbf{src/test/}: Contiene el código fuente para las pruebas unitarias y de integración. La estructura de paquetes es reflejo de la del código principal.
+   \end{itemize}
+\end{itemize}
 
 \section{Manual del programador}
+
+En esta sección se detallan los pasos necesarios para configurar el entorno de desarrollo, compilar y ejecutar el proyecto ReservApp. El contenido que se describe puede servir como referencia para cualquier programador que quiera trabajar en este proyecto.
+
+\subsection{Requisitos del Sistema}
+Para poder insalar y configurar el entonrno de desarrollo, es necesario tener instalado el siguiente software:
+\begin{itemize}
+   \item \textbf{IDE}: En este caso se ha utilizado el Eclipse, pero se puede utilizar cualquier IDE.
+   \item \textbf{Java Development Kit (JDK)}: Versión 21.
+   \item \textbf{Apache Maven}: Versión 3.8 o superior, para la gestión de dependencias y la compilación.
+   \item \textbf{Git}: Para clonar el código fuente desde el repositorio.
+   \item \textbf{MySQL}: Una instancia de base de datos MySQL, ya sea local o remota.
+   \item \textbf{Docker y Docker Compose}: Es opcional, en el caso de querer tener un entorno containerizado.
+\end{itemize}
+
+\imagen{eclipse}{Versión del IDE Eclipse utilizada.}
+
+Para el desarrollo de la aplicación se ha utilizado como IDE el Eclipse (versión 2025-06 RC1)~\ref{fig:eclipse}. Esta versión ya dispone de diversos \emph{plugins} necesarios y suficientes para el desarrollo de la mayoría de los proyectos. No obstante, se han instalado los siguientes \emph{plugins} para aprovechar las funcionalidades que ofrecen:
+
+\begin{itemize}
+   \item \textbf{Spring Tools}: Este plugin proporciona características como soporte avanzado para Spring Boot, agilizando el proceso de creación y configuración~\ref{fig:plugin_spring_tools}.
+   
+   \imagen{plugin_spring_tools}{Plugin Spring Tools para Eclipse.}
+   
+   \item \textbf{SonarQube}: Este \emph{plugin} proporciona análisis de código estático en tiempo real permitiendo identificar y corregir problemas de calidad, seguridad y buenas prácticas directamente en el entorno de desarrollo, antes de que el código sea enviado al repositorio. Admeás permite la conexión con SonarClude para obtener las alertas que ahí se detectan~\ref{fig:plugin_sonarqube}.
+
+   \imagen{plugin_sonarqube}{Plugin SonarQube para Eclipse.}
+   
+   \item \textbf{GitHub Copilot}: Al disponer Copilot de una versión gratuita para estudiantes por estar vinculada con una cuenta académica, se ha utilizado debido a que utiliza inteligencia
+artificial para sugerir código y acelerar el desarrollo~\ref{fig:plugin_github_copilot}.
+
+   \imagen{plugin_github_copilot}{Plugin GitHub Copilot para Eclipse.}
+
+\end{itemize}
+
+
+
 
 \section{Compilación, instalación y ejecución del proyecto}
 
