@@ -287,7 +287,7 @@ Las diferentes capas que componen la estructura de la aplicación, en este nivel
 \begin{itemize}
 	\item \textbf{Capa de Presentación}: Es responsable de gestionar la interfaz de usuario y la interacción con el cliente. Depende de la capa service para ejecutar la lógica de negocio y del paquete shared para acceder a datos de sesión. Sus componentes principales son:
     	\begin{itemize}
-            \item \textbf{Controladores}: Gestionan las peticiones HTTP y coordinan las respuestas. 
+            \item \textbf{Controladores}: Gestionan las peticiones HTTP y coordinan las respuestas. Algunos ejemplos son:
         	\begin{itemize}
                 \item \textbf{ReservaController}: Gestión de reservas y convocatorias.
                 \item \textbf{UsuarioController}: Gestión de usuarios.
@@ -316,7 +316,7 @@ Las diferentes capas que componen la estructura de la aplicación, en este nivel
 
 	\item \textbf{Capa de Lógica de Negocio}: Implementa las reglas de negocio y procesos del dominio. Actúa como intermediario entre los controladores y la capa de persistencia. Utiliza los repositories para interactuar con la base de datos y las entities como modelo de datos. Sus componentes principales son:
     	\begin{itemize}
-            \item \textbf{Servicios}: Implementan la lógica de negocio.
+            \item \textbf{Servicios}: Implementan la lógica de negocio. Algunos ejemplos son:
         	\begin{itemize}
                 \item \textbf{ReservaService}: Lógica de reservas y disponibilidad.
                 \item \textbf{UsuarioService}: Gestión de usuarios.
@@ -340,7 +340,7 @@ Las diferentes capas que componen la estructura de la aplicación, en este nivel
 
 	\item \textbf{Capa de Acceso a Datos}: Responsable de gestionar el acceso y persistencia de datos. Es el corazón del dominio de la aplicación. Sus componentes principales son:
     	\begin{itemize}
-            \item \textbf{Repositorios}: Recoge las interfaces JPA para acceso a datos.
+            \item \textbf{Repositorios}: Recoge las interfaces JPA para acceso a datos. Algunos ejemplos son:
         	\begin{itemize}
                 \item \textbf{ReservaRepo}: Consultas específicas de reservas con optimizaciones.
                 \item \textbf{UsuarioRepo}: Gestión de usuarios y búsquedas.
@@ -408,8 +408,6 @@ La aplicación ``ReservApp'' se ha desarrollado siguiendo una arquitectura de so
     \item \textbf{Separación de Responsabilidades (SRP)}~\cite{principio-srp}: O también cono cido como el principio de responsabilidad única, parte del acrónimo SOLID, que establece que una clase debe tener una sola razón para cambiar. Esto significa que cada clase o módulo debe tener una única responsabilidad bien definida dentro de la aplicación. Al adherirse a este principio, se reduce la complejidad del código, se mejora su legibilidad y se facilita el mantenimiento, ya que los cambios en una responsabilidad no afectarán a otras clases.
     \item \textbf{Inversión de Dependencias (DIP)}~\cite{patron-repository}: Es un principio de diseño de software que establece que los módulos de alto nivel no deben depender de los módulos de bajo nivel; ambos deben depender de abstracciones. Esto significa que las clases deben depender de interfaces o clases abstractas, no de implementaciones concretas. El objetivo es desacoplar las partes del sistema, facilitando la prueba, el mantenimiento y la extensión.
     \item \textbf{Principio Abierto/Cerrado (OCP)}~\cite{principio-ocp}: El principio establece que las entidades de software (clases, módulos, funciones, etc.) deben estar abiertas a la extensión, pero cerradas a la modificación. Esto significa que permite agregar nuevas funcionalidades sin tener que cambiar el código existente de la entidad. Para lograr esto, el principio fomenta el uso de abstracciones, como interfaces y clases abstractas, permitiendo que las nuevas funcionalidades se implementen en clases separadas.
-
-    \item \textbf{Principio único de responsabilidad}~\cite{patron-dto}: busca la utilización de objetos simples cuya finalidad es la transferencia de datos entre capas de una aplicación, como de la capa de servicio a la capa de presentación. Su propósito es agrupar datos y reducir el número de llamadas remotas, mejorando el rendimiento. Es un objeto plano, sin lógica de negocio, que solo contiene campos, constructores y \emph{getters/setters}.
     \item \textbf{No te repitas (DRY)}~\cite{principio-dry}: Es una directriz de desarrollo de software que establece que cada pieza de conocimiento o dato en un sistema debe tener una representación única y autorizada. El objetivo es evitar la duplicación de código, lo que facilita el mantenimiento, reduce errores y hace que las actualizaciones sean más eficientes. En lugar de copiar y pegar, el DRY fomenta la reutilización de código a través de funciones, clases o bibliotecas.
 \end{itemize}
 
