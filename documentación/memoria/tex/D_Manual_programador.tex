@@ -96,7 +96,7 @@ Tanto si se realizan los pasos anteriormente indicados desde la consola de coman
 
 Para la ejecución del proyecto desde el entorno de desarrollo, se han configurado dos entornos sobre los que es posible ejecutarse según sea necesario:
 \begin{itemize}
-   \item \textbf{Entorno de desarollo (dev)}: Es un entorno local con una base de datos MySQL desplegada en el propio equipo. Para desplegar dicho entorno, se puede hacer utilizando el \emph{plugin} \textit{Spring Tools} ejecutando la tarea que puede se puede ver en la siguiente figura~\ref{fig:spring_boot_dev}.
+   \item \textbf{Entorno de desarollo (dev)}: Es un entorno local con una base de datos MySQL desplegada en el propio equipo. Para desplegar dicho entorno, se puede hacer utilizando el \emph{plugin} \textit{Spring Tools} ejecutando la tarea que se puede ver en la siguiente figura~\ref{fig:spring_boot_dev}.
 
    \imagen{spring_boot_dev}{Opciones de Spring Tools para ejecutar el entorno de desarrollo (dev).}
    
@@ -139,18 +139,24 @@ Los tests se pueden ejecutar directamente desde el entorno de desarrollo. En \te
 
 \imagen{eclipse_coverage}{Opción para obtener la cobertura desde \textit{Eclipse}.}
 
+Al ejecutar la cobertura desde Eclipse, se obtienen los valores que aparecen en la siguiente imagen~\ref{fig:eclipse_coverage_result}:
+
+\imagen{eclipse_coverage_result}{Resultado de la cobertura que muestra \textit{Eclipse}.}
+
 \subsubsection{Automatización de \emph{Testing}}
 Más allá de la automatización de \emph{tests} mediante el ciclo de vida de Maven, se ha configurado un flujo de integración continua (CI) utilizando \textit{GitHub Actions}. Esta solución de \emph{pipeline} conecta el repositorio de \textit{GitHub} con la plataforma \textit{SonarCloud} para el análisis de código estático, de modo que cada nuevo \emph{commit} o \emph{pull request} desencadene un análisis estático del código. Esta configuración permite automatizar el análisis del código con cada nueva subida, lo que proporciona métricas detalladas y en tiempo real sobre la calidad, seguridad, fiabilidad y mantenibilidad del proyecto. Este enfoque asegura que el cumplimiento de los estándares de código se valide de forma automática y se obtenga un \emph{feedback} inmediato.
 
-El pipeline de integración continua (CI) para GitHub Actions ha sido configurado a través de un archivo \textit{YAML} disponible en:~\cite{github_action_ci}. Como resultado del último análisis estático de código, se ha generado un informe que refleja el estado general del proyecto, tal como se ilustra en la imagen~\ref{fig:sonarcloud_summary}, en la que se puede apreciar los diferentes valores que la plataforma ofrece.
+El pipeline de integración continua (CI) para GitHub Actions ha sido configurado a través de un archivo \textit{YAML} disponible en:~\cite{github_action_ci}. En dicho fichero, creado en GitHub Actions, se automatizan las distintas fases del ciclo de construcción del proyecto. Como se puede ver en el flujo de tareas de la imagen~\ref{fig:github-workflow}, este proceso abarca desde la limpieza del entorno y la descarga de dependencias hasta la compilación, el empaquetado y la ejecución de análisis para obtener las diferentes métricas del sistema. Como resultado del último análisis estático de código, se ha generado un informe que refleja el estado general del proyecto, tal como se ilustra en la imagen~\ref{fig:sonarcloud_summary}, en la que se pueden apreciar los diferentes valores que la plataforma ofrece.
+
+\imagen{github-workflow}{Secuencia con las distintas tareas del Workflow.}
 
 \imagen{sonarcloud_summary}{Vista de la situación general del código en SonarCloud.}
 
-Desde SonarCloud se puede ver la evolución de la cobetura de código a lo largo de las diferentes subidas de código realizadas y muestra de ello, puede verse en la imagen~\ref{fig:sonarcloud_coverage}.
+Desde SonarCloud se puede ver la evolución de la cobertura de código a lo largo de las diferentes subidas de código realizadas y muestra de ello, puede verse en la imagen~\ref{fig:sonarcloud_coverage}.
 
 \imagen{sonarcloud_coverage}{Evolución de la cobertura de código que ofrece SonarCloud.}
 
-En SonarCloud permite vers la evolución de las \emph{issues} que se detectan en el código a lo largo de las diferentes subidas de código realizadas y muestra de ello, puede verse en la imagen~\ref{fig:sonarcloud_issues}.
+En SonarCloud permite ver la evolución de las \emph{issues} que se detectan en el código a lo largo de las diferentes subidas de código realizadas y muestra de ello, puede verse en la imagen~\ref{fig:sonarcloud_issues}.
 
 \imagen{sonarcloud_issues}{Evolución de las \emph{issues} de código que ofrece SonarCloud.}
 
