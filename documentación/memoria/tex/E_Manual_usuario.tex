@@ -164,7 +164,7 @@ Permite consultar los establecimientos disponibles para realizar reservas, tal y
 \begin{figure}[H]
 	\centering
 		\includegraphics[width=0.5\linewidth]{reservapp_mis_reservas}
-	\caption{Página de ``Mis Reservas''.}
+	\caption{Página de ``Mis Reservas'' donde se muestran los establecimientos asignados.}
 	\label{fig:reservapp_mis_reservas}
 \end{figure}
 
@@ -188,20 +188,20 @@ Permite consultar los establecimientos disponibles para realizar reservas, tal y
 \end{enumerate}
 
 \subsubsection{Crear Nueva Reserva}
-Permite crear una nueva reserva para un establecimiento en concreto, tal y como se ilustra en la figura~\ref{fig:reservapp_mis_reservas}. Estos son los pasos a seguir:
+Permite crear una nueva reserva para un establecimiento en concreto, después de haber seleccionado el establecimiento en la página como la que se ilustra en la figura~\ref{fig:reservapp_mis_reservas}. Estos son los pasos a seguir:
 
 \begin{figure}[H]
 	\centering
-		\includegraphics[width=0.5\linewidth]{reservapp_mis_reservas}
-	\caption{Página de ``Mis Reservas'' donde se muestran los establecimientos asignados.}
-	\label{fig:reservapp_mis_reservas}
+		\includegraphics[width=0.5\linewidth]{reservapp_establecimiento_reserva}
+	\caption{Página con la información del establecimiento y el regimen horario que tiene.}
+	\label{fig:reservapp_establecimiento_reserva}
 \end{figure}
 
 \begin{enumerate}
    \item \textbf{Acceder al calendario de reservas}:
    \begin{itemize}
       \item Desde ``Mis Reservas'', seleccionar un establecimiento.
-      \item Se mostrará el calendario de reservas del establecimiento.
+      \item Se mostrará la información del establecimiento con su regimen horario, tal y como se muestra en la figura~\ref{fig:reservapp_establecimiento_reserva}.
    \end{itemize}
    \item \textbf{Revisar información del establecimiento}:
    \begin{itemize}
@@ -214,10 +214,25 @@ Permite crear una nueva reserva para un establecimiento en concreto, tal y como 
       \item \textbf{Fecha}: Seleccionar una fecha futura en el calendario.
       \item \textbf{Horario}: Dependiendo del establecimiento:
       \begin{itemize}
-         \item \textbf{Slots predefinidos}: Seleccionar de una lista de horarios disponibles.
-         \item \textbf{Horario libre}: Introducir hora de inicio y fin manualmente.
+         \item \textbf{Slots predefinidos}: Seleccionar de una lista de horarios disponibles, tal y como se muestra en la figura~\ref{fig:reservapp_reserva_slot}.
+         \item \textbf{Horario libre}: Introducir hora de inicio y fin manualmente, tal y como se muestra en la figura~\ref{fig:reservapp_reserva}.
       \end{itemize}
    \end{itemize}
+
+   \begin{figure}[H]
+	\centering
+		\includegraphics[width=0.5\linewidth]{reservapp_reserva_slot}
+	\caption{Sección donde se introducen los datos de la reserva con duración fija.}
+	\label{fig:reservapp_reserva_slot}
+   \end{figure}
+
+   \begin{figure}[H]
+	\centering
+		\includegraphics[width=0.5\linewidth]{reservapp_reserva}
+	\caption{Sección donde se introducen los datos de la reserva con duración variable.}
+	\label{fig:reservapp_reserva}
+   \end{figure}
+
    \item \textbf{Configurar convocatoria (opcional)}:
    \begin{itemize}
       \item \textbf{Enlace de reunión}: Introducir URL de videoconferencia (Google Meet, Zoom, Teams, etc.).
