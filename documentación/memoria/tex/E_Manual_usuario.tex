@@ -908,9 +908,9 @@ Permite ver el detalle de una reserva en concreto, tal y como se ilustra en la f
    \item \textbf{Lista de reservas del día}:
    \begin{itemize}
       \item Hora de cada reserva.
-	  \item Usuario que realizó la reserva.
-	  \item Información de contacto.
-	  \item Detalles de la convocatoria (si existe).
+      \item Usuario que realizó la reserva.
+      \item Información de contacto.
+      \item Detalles de la convocatoria (si existe).
    \end{itemize}
    \item \textbf{Gestión de reservas}:
    \begin{itemize}
@@ -920,3 +920,76 @@ Permite ver el detalle de una reserva en concreto, tal y como se ilustra en la f
    \end{itemize}
 \end{enumerate}
 
+\subsection{Resolución de problemas comumes}
+
+\begin{itemize}
+   \item \textbf{Problemas de Acceso}:
+   \begin{itemize}
+      \item No puedo iniciar sesión:
+      \begin{itemize}
+         \item Verificar que el ID de usuario y contraseña sean correctos.
+         \item Comprobar que la cuenta no esté bloqueada.
+         \item Contactar con el administrador si persiste el problema.
+      \end{itemize}
+      \item He olvidado mi contraseña:
+      \begin{itemize}
+         \item Contactar con el administrador del sistema para restablecer la contraseña.
+         \item El administrador puede asignar una contraseña temporal.
+      \end{itemize}
+   \end{itemize}
+
+   \item \textbf{Problemas con Reservas}:
+   \begin{itemize}
+      \item No puedo crear una reserva:
+      \begin{itemize}
+         \item Verificar que el establecimiento esté activo.
+         \item Comprobar que la fecha y hora estén dentro de los horarios de apertura.
+         \item Verificar que no se haya alcanzado el aforo máximo.
+         \item Asegurarse de que la hora de fin sea posterior a la hora de inicio.
+      \end{itemize}
+      \item No veo mis reservas:
+      \begin{itemize}
+         \item Verificar que esté accediendo al establecimiento correcto.
+         \item Comprobar que tenga permisos para el establecimiento.
+         \item Las reservas muy antiguas pueden no mostrarse por defecto.
+      \end{itemize}
+      \item Error al modificar una reserva:
+      \begin{itemize}
+         \item Solo se pueden modificar reservas futuras.
+         \item Verificar que sea el propietario de la reserva.
+         \item Comprobar la disponibilidad del nuevo horario solicitado.
+      \end{itemize}
+   \end{itemize}
+
+   \item \textbf{Problemas con Convocatorias}:
+   \begin{itemize}
+      \item Los usuarios invitados no reciben emails:
+      \begin{itemize}
+         \item Verificar que las direcciones de email sean correctas.
+         \item Comprobar las carpetas de spam/correo no deseado.
+         \item Contactar con el administrador para verificar la configuración del servidor de correo.
+      \end{itemize}
+      \item No puedo encontrar usuarios para invitar:
+      \begin{itemize}
+         \item Verificar que esté escribiendo al menos 2 caracteres.
+         \item Comprobar que los usuarios existan en el sistema.
+         \item Los usuarios bloqueados pueden no aparecer en los resultados.
+      \end{itemize}
+   \end{itemize}
+
+   \item \textbf{Problemas de Rendimiento}:
+   \begin{itemize}
+      \item La aplicación carga lentamente:
+      \begin{itemize}
+         \item Verificar la conexión a internet.
+         \item Limpiar la caché del navegador.
+         \item Contactar con el administrador si el problema persiste.
+      \end{itemize}
+      \item Los horarios no se cargan:
+      \begin{itemize}
+         \item Verificar que haya seleccionado una fecha válida.
+         \item Comprobar que el establecimiento tenga horarios configurados.
+         \item Refrescar la página si el problema persiste.
+      \end{itemize}
+   \end{itemize}
+\end{itemize}
