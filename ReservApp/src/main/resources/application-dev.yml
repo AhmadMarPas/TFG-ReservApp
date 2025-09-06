@@ -1,8 +1,11 @@
 spring:
+  config:
+    import: "optional:file:./.env.dev[.properties]"
+
   datasource:
-    url: jdbc:mysql://localhost:3306/reservapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: reservapp
-    password: reservapp
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

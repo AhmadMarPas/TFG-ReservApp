@@ -1,8 +1,11 @@
 spring:
+  config:
+    import: "optional:file:./.env.prod[.properties]"
+
   datasource:
-    url: jdbc:mysql://mysql-reservapp-amareie-ba4f.c.aivencloud.com:28634/defaultdb?useSSL=true&requireSSL=true&verifyServerCertificate=false&trustCertificateKeyStoreUrl=classpath:ca.pem&trustCertificateKeyStorePassword=
-    username: avnadmin
-    password: AVNS_AIFGoTJwf_qeme21F8h
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
