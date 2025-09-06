@@ -16,7 +16,7 @@
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=ReservApp&metric=duplicated_lines_density&token=e4b031bbfe58f2fd43281031c769da93e80c6bd2)](https://sonarcloud.io/summary/overall?id=ReservApp)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=ReservApp&metric=sqale_index&token=e4b031bbfe58f2fd43281031c769da93e80c6bd2)](https://sonarcloud.io/summary/overall?id=ReservApp)
 
-[![GitHub issues](https://img.shields.io/github/issues-closed/AhmadMarPas/TFG-ReservApp)](https://github.com/AhmadMarPas/TFG-ReservApp/issues)
+![GitHub issues](https://img.shields.io/github/issues-closed/AhmadMarPas/TFG-ReservApp)](https://github.com/AhmadMarPas/TFG-ReservApp/issues)
 [![GitHub Release](https://img.shields.io/github/v/release/AhmadMarPas/TFG-ReservApp?label=Release)
 [![Workflow Status](https://github.com/AhmadMarPas/TFG-ReservApp/actions/workflows/maven.yml/badge.svg)](https://github.com/AhmadMarPas/TFG-ReservApp/actions)
 [![Zube](https://img.shields.io/badge/zube-managed-blue?logo=zube)](https://zube.io/)
