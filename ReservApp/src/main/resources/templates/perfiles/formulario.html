@@ -3,73 +3,40 @@
 <head th:replace="~{fragments/_common_head :: common_head(pageTitle=(${perfil != null && perfil.id != null ? 'ReservApp - Editar Perfil' : 'ReservApp - Crear Perfil'}), customLinks=~{:: #page-specific-links})}">
     <th:block id="page-specific-links">
         <style>
-        /* Shared styles from _header.html or main style.css would ideally handle .main-header */
         .main-header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .menu-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            margin-top: 2rem;
-            margin-bottom: 2rem; /* Added margin at bottom */
-        }
-        .menu-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 20px 20px 0 0;
-            text-align: center;
-            position: relative; 
-        }
-         .menu-header .btn-outline-light { /* Specific styling for buttons in menu-header */
-            position: absolute;
-            top: 50%;
-            right: 1.5rem;
-            transform: translateY(-50%);
-            color: white;
-            border-color: rgba(255,255,255,0.75);
-        }
-        .menu-header .btn-outline-light:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: white;
-        }
-        .menu-body {
-            padding: 2rem;
-        }
-        .form-section { /* Copied from original for consistency within this form */
+        
+        .form-section {
             background: #f8f9fa;
             border-radius: 15px;
-            padding: 1.5rem; /* Adjusted padding */
-            margin-bottom: 1.5rem; /* Adjusted margin */
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
             border-left: 4px solid #667eea;
         }
-        .section-title { /* Copied from original */
+        .section-title {
             color: #2c3e50;
             font-weight: 600;
-            margin-bottom: 1rem; /* Adjusted margin */
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            font-size: 1.1rem; /* Adjusted font size */
+            font-size: 1.1rem;
         }
         .section-title i {
-            margin-right: 0.75rem; /* Adjusted margin */
+            margin-right: 0.75rem;
             color: #667eea;
         }
-        .form-label { /* Using Bootstrap's form-label where possible, this is for customization */
+        .form-label {
             font-weight: 600;
         }
-        .required-field::after { /* Copied from original */
+        .required-field::after {
             content: " *";
             color: #dc3545;
             font-weight: bold;
         }
-        /* Ensure buttons in form-actions are well-styled */
         .form-actions { 
             text-align: center; 
             padding-top: 1.5rem; 
@@ -78,32 +45,53 @@
         }
 
         @media (max-width: 767px) {
-            .menu-header .btn-outline-light {
-                position: static;
-                transform: none;
-                display: block;
-                margin: 1rem auto 0;
+            .text-end {
+                text-align: center !important; 
+                margin-top: 1rem !important;
             }
-            .menu-header { padding: 1.5rem; }
-            .menu-body { padding: 1.5rem; }
-            .form-section { padding: 1rem; }
         }
     </style>
     </th:block>
 </head>
 <body class="gradient-body-with-header">
-
-    <div th:replace="~{fragments/_header :: header(pageTitle=${perfil != null && perfil.id != null ? 'ReservApp - Editar Perfil' : 'ReservApp - Crear Perfil'})}"></div>
-
-    <div class="container mt-4">
-        <div class="menu-container">
-            <div class="menu-header">
-                <h1 class="mb-0" th:text="${perfil != null && perfil.id != null ? 'Editar Perfil' : 'Crear Nuevo Perfil'}">Formulario Perfil</h1>
-                <a th:href="@{/admin/perfiles}" class="btn btn-sm btn-outline-light"> <!-- Adjusted path to /perfiles -->
-                    <i class="fas fa-arrow-left me-1"></i>Volver al Listado
-                </a>
+    <!-- Header -->
+    <header class="main-header py-3 mb-4">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-0 text-primary">
+                        <i class="fas fa-user-tag me-2"></i>
+                        <span th:text="${perfil != null && perfil.id != null ? 'Editar Perfil' : 'Crear Nuevo Perfil'}">Formulario Perfil</span>
+                    </h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-transparent mb-0">
+                            <li class="breadcrumb-item"><a href="/menuprincipal">Menú Principal</a></li>
+                            <li class="breadcrumb-item"><a href="/admin/perfiles">Gestión de Perfiles</a></li>
+                            <li class="breadcrumb-item active" th:text="${perfil != null && perfil.id != null ? 'Editar Perfil' : 'Crear Perfil'}">Formulario</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/admin/perfiles" class="btn btn-secondary-custom">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Volver al Listado
+                    </a>
+                </div>
             </div>
-            <div class="menu-body">
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="content-card p-4">
+            <!-- Page Header -->
+            <div class="text-center mb-4">
+                <h1 class="page-title-admin">
+                    <i class="fas fa-user-tag me-2"></i>
+                    <span th:text="${perfil != null && perfil.id != null ? 'Editar Perfil' : 'Crear Nuevo Perfil'}">Formulario Perfil</span>
+                </h1>
+                <p class="page-subtitle" th:text="${perfil != null && perfil.id != null ? 'Modifica la información del perfil seleccionado' : 'Completa los datos para crear un nuevo perfil'}">Formulario de perfil</p>
+            </div>
                 <!-- Flash messages -->
                 <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-triangle me-2"></i>
