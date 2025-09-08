@@ -1,75 +1,142 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Listado de Perfiles', customLinks=~{:: #page-specific-links})}">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='ReservApp - Gestión de Perfiles', customLinks=~{:: #page-specific-links})}">
     <th:block id="page-specific-links">
         <style>
-        /* For the button on the right, if not using d-flex */
-        .menu-header .btn-success { 
-            position: absolute;
-            top: 50%;
-            right: 1.5rem;
-            transform: translateY(-50%);
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         }
 
-        /* Styles from original listado.html, adapted */
-        .stats-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .stat-card { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 1.5rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .stat-card i { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.8; }
-        .stat-number { font-size: 2.25rem; font-weight: bold; margin: 0.5rem 0; }
-        .stat-card-total { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);} /* Example different color */
-        .stat-card-inactive { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);} /* Example different color */
-
-
-        .search-container { background: #fff; padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .main-header { 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
         
-        .table-container { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.07); }
-        .table thead th { background-color: #f8f9fa; font-weight: 600; color: #333; }
-        .table .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; } /* Ensure consistent button sizing */
-        .table .btn-sm i { margin-right: 0.3rem; }
-
-
-        @media (max-width: 991px) { /* Adjust breakpoint for menu header button */
-            .menu-header .btn-success { /* Stack button below title on smaller screens */
-                position: static; 
-                transform: none;
-                display: block;
-                margin-top: 1rem;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            .menu-header { text-align: center; } /* Ensure title is centered if button stacks */
+        .stats-card {
+            background: white;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            overflow: hidden;
         }
+        .stats-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        .stats-header {
+            padding: 1.25rem 1rem;
+            color: white;
+            text-align: center;
+        }
+        .stats-header i { opacity: 0.8; }
+        .stats-total { background: var(--primary-gradient); }
+        .stats-inactive { background: var(--danger-gradient); }
+
+        .search-box {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .search-input {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+        }
+
+        .table-header-custom {
+            background: #f8f9fa;
+            color: #2c3e50;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .table-header-custom h5 {
+             font-weight: 600;
+        }
+
+        .table thead th {
+            background: #e9ecef;
+            border: none;
+            font-weight: 600;
+            color: #2c3e50;
+            padding: 1rem;
+            vertical-align: middle;
+        }
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #e9ecef;
+        }
+        .table tbody tr:hover {
+            background-color: #f1f3f5;
+        }
+
         @media (max-width: 768px) {
-            .menu-container { margin: 1rem; }
-            .menu-header, .menu-body { padding: 1.5rem; }
-            .stats-cards { grid-template-columns: 1fr; } /* Stack stat cards */
+            .text-end {
+                text-align: center !important; 
+                margin-top: 1rem !important;
+            }
         }
     </style>
     </th:block>
 </head>
 <body class="gradient-body-with-header">
-
-    <div th:replace="~{fragments/_header :: header(pageTitle='ReservApp - Gestión de Perfiles')}"></div>
-
-    <div class="container-fluid mt-4">
-        <div class="menu-container">
-            <div class="menu-header">
-                <!-- Using d-flex for alignment, but also have fallback for smaller screens via @media query -->
-                <div class="d-flex flex-wrap justify-content-center justify-content-md-between align-items-center">
-                    <h1 class="mb-0 text-white">Listado de Perfiles</h1>
-                    <a th:href="@{/admin/perfiles/nuevo}" class="btn btn-light btn-sm mt-2 mt-md-0"> <!-- Changed to btn-light for contrast -->
-                        <i class="fas fa-plus me-2"></i>Crear Nuevo Perfil
+    <!-- Header -->
+    <header class="main-header py-3 mb-4">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-0 text-primary">
+                        <i class="fas fa-user-tag me-2"></i>
+                        Gestión de Perfiles
+                    </h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-transparent mb-0">
+                            <li class="breadcrumb-item"><a href="/menuprincipal">Menú Principal</a></li>
+                            <li class="breadcrumb-item active">Gestión de Perfiles</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/menuprincipal" class="btn btn-secondary-custom">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Volver al Menú
                     </a>
                 </div>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dark mb-0">
-                        <li class="breadcrumb-item"><a th:href="@{/menuprincipal}">Menú Principal</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Perfiles</li>
-                    </ol>
-                </nav>
             </div>
-            <div class="menu-body">
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="content-card p-4">
+            <!-- Page Header -->
+            <div class="text-center mb-4">
+                <h1 class="page-title-admin">
+                    <i class="fas fa-user-tag me-2"></i>
+                    Gestión de Perfiles
+                </h1>
+                <p class="page-subtitle">Administra todos los perfiles de usuario del sistema</p>
+            </div>
                 <!-- Flash Messages -->
                 <div th:if="${exito}" class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="fas fa-check-circle me-2"></i>
@@ -82,72 +149,105 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
 
-                <!-- Statistics Cards -->
-                <div class="stats-cards">
-                    <div class="stat-card stat-card-total">
-                        <i class="fas fa-user-tag"></i>
-                        <div class="stat-number" th:text="${#lists.size(perfiles)}">0</div>
-                        <div>Total Perfiles</div>
-                    </div>
-                     <div class="stat-card stat-card-inactive"> <!-- Example, assuming you might have such a count -->
-                        <i class="fas fa-user-slash"></i> <!-- Example Icon -->
-                        <div class="stat-number" th:text="${inactiveProfileCount ?: 0}">0</div> <!-- Placeholder for actual count -->
-                        <div>Perfiles Inactivos</div>
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-6 col-sm-6 mb-3">
+                    <div class="card stats-card">
+                        <div class="stats-header stats-total">
+                            <i class="fas fa-user-tag fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${#lists.size(perfiles)}">0</h4>
+                            <small>Total Perfiles</small>
+                        </div>
                     </div>
                 </div>
+                <div class="col-md-6 col-sm-6 mb-3">
+                    <div class="card stats-card">
+                        <div class="stats-header stats-inactive">
+                            <i class="fas fa-user-slash fa-2x mb-2"></i>
+                            <h4 class="mb-0" th:text="${inactiveProfileCount ?: 0}">0</h4>
+                            <small>Perfiles Inactivos</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <!-- Search (simplified, can be expanded) -->
-                <div class="search-container">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control" id="searchInput" placeholder="Buscar perfiles por nombre...">
+            <!-- Search and Filters -->
+            <div class="search-box">
+                <div class="row align-items-center">
+                    <div class="col-md-8 mb-3 mb-md-0">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control search-input border-start-0" 
+                                   placeholder="Buscar perfiles por nombre..." id="searchInput">
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a th:href="@{/admin/perfiles/nuevo}" class="btn btn-primary-custom">
+                            <i class="fas fa-plus me-1"></i>
+                            Nuevo Perfil
+                        </a>
                     </div>
                 </div>
+            </div>
 
-                <!-- Perfiles Table -->
-                <div class="table-container">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover" id="perfilesTable">
-                            <thead class="table-dark"> <!-- Using table-dark for header -->
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nombre</th>
-                                    <th class="text-center">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:if="${#lists.isEmpty(perfiles)}">
-                                    <td colspan="5" class="text-center py-4">
-                                        <i class="fas fa-user-tag fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted">No hay perfiles registrados.</p>
-                                        <a th:href="@{/perfiles/nuevo}" class="btn btn-primary mt-2">
-                                            <i class="fas fa-plus me-1"></i>Crear Primer Perfil
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr th:each="perfil : ${perfiles}" class="profile-row">
-                                    <td th:text="${perfil.id}"></td>
-                                    <td th:text="${perfil.nombre}"></td>
-                                    <td class="text-center">
-                                        <a th:href="@{/admin/perfiles/editar/{id}(id=${perfil.id})}" class="btn btn-sm btn-primary me-1" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-danger" title="Eliminar"
-                                                th:attr="data-bs-toggle='modal', data-bs-target='#deleteModal', data-id=${perfil.id}, data-nombre=${perfil.nombre}"
-                                                onclick="prepareDeleteModal(this.getAttribute('data-id'), this.getAttribute('data-nombre'))">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-										<button type="button" class="btn btn-sm btn-danger" title="Eliminar" 
-											th:data-id="${perfil.id}" th:data-nombre="${perfil.nombre}"
-											onclick="handleDelete(this)">
-											<i class="fas fa-trash"></i>
-										</button>
-									</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <!-- Perfiles Table -->
+            <div class="table-container mt-4">
+                <div class="table-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Lista de Perfiles Registrados
+                    </h5>
                 </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="perfilesTable">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-id-badge me-1"></i>ID</th>
+                                <th><i class="fas fa-user-tag me-1"></i>Nombre</th>
+                                <th class="text-center"><i class="fas fa-cogs me-1"></i>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(perfiles)}">
+                                <td colspan="3" class="text-center py-4">
+                                    <i class="fas fa-user-tag fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No hay perfiles registrados.</p>
+                                    <a th:href="@{/admin/perfiles/nuevo}" class="btn btn-primary mt-2">
+                                        <i class="fas fa-plus me-1"></i>Crear Primer Perfil
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:each="perfil : ${perfiles}" class="profile-row">
+                                <td class="align-middle" th:text="${perfil.id}"></td>
+                                <td class="align-middle" th:text="${perfil.nombre}"></td>
+                                <td class="text-center align-middle">
+                                    <a th:href="@{/admin/perfiles/editar/{id}(id=${perfil.id})}" 
+                                       class="btn btn-sm btn-primary me-1" title="Editar perfil">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger" title="Eliminar perfil"
+                                            th:data-id="${perfil.id}" th:data-nombre="${perfil.nombre}"
+                                            onclick="handleDelete(this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(perfiles)}" class="empty-state">
+                <i class="fas fa-user-tag"></i>
+                <h4>No hay perfiles registrados</h4>
+                <p>Comienza añadiendo el primer perfil al sistema</p>
+                <a th:href="@{/admin/perfiles/nuevo}" class="btn btn-primary-custom">
+                    <i class="fas fa-plus me-1"></i>
+                    Crear Primer Perfil
+                </a>
             </div>
         </div>
     </div>
@@ -175,14 +275,29 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script th:src="@{~/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#perfilesTable tbody .profile-row');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
         function prepareDeleteModal(id, nombre) {
             document.getElementById('perfilIdToDelete').value = id;
             document.getElementById('perfilNameToDelete').textContent = nombre;
-            // The form action needs to be dynamically set if it's not a generic one
             const deleteForm = document.getElementById('deletePerfilForm');
-            deleteForm.action = '/admin/perfiles/eliminar/' + id; // Or use a hidden input and a generic action
+            deleteForm.action = '/admin/perfiles/eliminar/' + id;
         }
         
         function confirmDelete(perfilId, perfilName) {
@@ -192,7 +307,6 @@
             const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
             deleteModal.show();
         }
-        
 
         function handleDelete(button) {
             const perfilId = button.getAttribute('data-id');
@@ -200,19 +314,28 @@
             confirmDelete(perfilId, perfilName);
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', function () {
-                    const searchTerm = this.value.toLowerCase().trim();
-                    const rows = document.querySelectorAll('#perfilesTable tbody .profile-row');
-                    rows.forEach(row => {
-                        const nombre = row.cells[1].textContent.toLowerCase();
-                        const descripcion = row.cells[2].textContent.toLowerCase();
-                        const usuario = row.cells[3].textContent.toLowerCase();
-                        row.style.display = (nombre.includes(searchTerm) || descripcion.includes(searchTerm) || usuario.includes(searchTerm)) ? '' : 'none';
-                    });
-                });
+        // Animation on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const elementsToAnimate = document.querySelectorAll('.stats-card, .table-container, .search-box');
+            elementsToAnimate.forEach((element, index) => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, index * 75);
+            });
+
+            const contentCard = document.querySelector('.content-card');
+            if(contentCard){
+                contentCard.style.opacity = '0';
+                contentCard.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    contentCard.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    contentCard.style.opacity = '1';
+                    contentCard.style.transform = 'translateY(0)';
+                }, 25);
             }
         });
     </script>
