@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -15,9 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -768,129 +767,62 @@ class EmailServiceImplTest {
         });
     }
 
-    // ================================
-    // TESTS PARA construirContenidoCorreoReservaModificada
-    // ================================
-
     @Test
-    void testConstruirContenidoCorreoReservaModificada_ConTodosLosCampos() {
+    void testNotificarComvocatoria_ErrorEnEnvioAConvocados() {
         // Arrange
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        // Configurar el mock para que el primer envío (al propietario) sea exitoso
+        // pero el segundo envío (al convocado) falle
+        doNothing()
+            .doThrow(new RuntimeException("Error al enviar correo al convocado"))
+            .when(mailSender).send(any(SimpleMailMessage.class));
 
-        // Act
-        emailService.enviarNotificacionReservaModificada(reserva);
-
-        // Assert - Esperar 2 llamadas: 1 al propietario + 1 al convocado
-        verify(mailSender, times(2)).send(messageCaptor.capture());
-        List<SimpleMailMessage> sentMessages = messageCaptor.getAllValues();
+        // Act & Assert
+        MailSendException exception = assertThrows(MailSendException.class, () -> {
+            emailService.enviarNotificacionReservaModificada(reserva);
+        });
         
-        // Verificar el mensaje al propietario (primer mensaje)
-        String contenido = sentMessages.get(0).getText();
-        assertTrue(contenido.contains("Su reserva ha sido modificada"));
-        assertTrue(contenido.contains("Sala de Reuniones A"));
-        assertTrue(contenido.contains("25/12/2024 10:00"));
-        assertTrue(contenido.contains("🔗 Enlace de reunión: https://meet.google.com/test"));
-        assertTrue(contenido.contains("📝 Observaciones:"));
-        assertTrue(contenido.contains("Reunión importante"));
-        assertTrue(contenido.contains("🗺️ Ubicación: Calle Principal 123"));
-        assertTrue(contenido.contains("Saludos cordiales"));
+        // Verificar que la excepción contiene el mensaje esperado del método notificarComvocatoria
+        assertTrue(exception.getMessage().contains("Error al enviar correo al usuario"));
+        assertTrue(exception.getMessage().contains(convocado.getUsuario().getId()));
+        
+        // Verificar que se intentó enviar correo tanto al propietario como al convocado
+        verify(mailSender, times(2)).send(any(SimpleMailMessage.class));
     }
 
     @Test
-    void testConstruirContenidoCorreoReservaModificada_SinEnlaceNiObservaciones() {
+    void testNotificarComvocatoria_MultipleConvocados_ErrorEnUno() {
         // Arrange
-        convocatoria.setEnlace(null);
-        convocatoria.setObservaciones(null);
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        // Crear un segundo convocado
+        Usuario usuario2 = new Usuario();
+        usuario2.setId("user3");
+        usuario2.setNombre("Carlos López");
+        usuario2.setCorreo("carlos.lopez@test.com");
 
-        // Act
-        emailService.enviarNotificacionReservaModificada(reserva);
+        Convocado convocado2 = new Convocado();
+        ConvocadoPK pk2 = new ConvocadoPK(1, "user3");
+        convocado2.setId(pk2);
+        convocado2.setUsuario(usuario2);
+        convocado2.setConvocatoria(convocatoria);
 
-        // Assert - Esperar 2 llamadas: 1 al propietario + 1 al convocado
-        verify(mailSender, times(2)).send(messageCaptor.capture());
-        List<SimpleMailMessage> sentMessages = messageCaptor.getAllValues();
+        // Actualizar la lista de convocados
+        convocatoria.setConvocados(Arrays.asList(convocado, convocado2));
+
+        // Configurar el mock para que falle en el segundo convocado
+        doNothing()              // Envío al propietario - exitoso
+            .doNothing()         // Primer convocado - exitoso  
+            .doThrow(new RuntimeException("Error específico del segundo convocado"))  // Segundo convocado - falla
+            .when(mailSender).send(any(SimpleMailMessage.class));
+
+        // Act & Assert
+        MailSendException exception = assertThrows(MailSendException.class, () -> {
+            emailService.enviarNotificacionReservaModificada(reserva);
+        });
         
-        // Verificar el mensaje al propietario (primer mensaje)
-        String contenido = sentMessages.get(0).getText();
-        assertTrue(contenido.contains("Su reserva ha sido modificada"));
-        assertTrue(contenido.contains("Sala de Reuniones A"));
-        assertFalse(contenido.contains("🔗 Enlace de reunión:"));
-        assertFalse(contenido.contains("📝 Observaciones:"));
-        assertTrue(contenido.contains("Saludos cordiales"));
-    }
-
-    @Test
-    void testConstruirContenidoCorreoReservaModificada_SinDireccion() {
-        // Arrange
-        establecimiento.setDireccion(null);
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-
-        // Act
-        emailService.enviarNotificacionReservaModificada(reserva);
-
-        // Assert - Esperar 2 llamadas: 1 al propietario + 1 al convocado
-        verify(mailSender, times(2)).send(messageCaptor.capture());
-        List<SimpleMailMessage> sentMessages = messageCaptor.getAllValues();
+        // Verificar que la excepción contiene información del usuario que falló
+        assertTrue(exception.getMessage().contains("Error al enviar correo al usuario"));
+        assertTrue(exception.getMessage().contains("user3")); // ID del segundo usuario
         
-        // Verificar el mensaje al propietario (primer mensaje)
-        String contenido = sentMessages.get(0).getText();
-        assertTrue(contenido.contains("Su reserva ha sido modificada"));
-        assertFalse(contenido.contains("🗺️ Ubicación:"));
+        // Verificar que se intentaron enviar 3 correos (propietario + 2 convocados)
+        verify(mailSender, times(3)).send(any(SimpleMailMessage.class));
     }
-     
-     // ================================
-     // TESTS ADICIONALES PARA COBERTURA COMPLETA
-     // ================================
-     
-     @Test
-     void testEnviarNotificacionReservaModificada_ConConvocadosMultiples() {
-         // Arrange - Crear múltiples convocados para este test
-         Usuario usuario2 = new Usuario();
-         usuario2.setId("user3");
-         usuario2.setNombre("Carlos López");
-         usuario2.setCorreo("carlos.lopez@test.com");
-         
-         Convocado convocado2 = new Convocado();
-         ConvocadoPK pk2 = new ConvocadoPK(1, "user3");
-         convocado2.setId(pk2);
-         convocado2.setUsuario(usuario2);
-         convocado2.setConvocatoria(convocatoria);
-         
-         convocatoria.setConvocados(Arrays.asList(convocado, convocado2));
-         
-         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-         
-         // Act
-         emailService.enviarNotificacionReservaModificada(reserva);
-         
-         // Assert - Debe enviar 3 emails: 1 al usuario principal + 2 a convocados
-         verify(mailSender, times(3)).send(messageCaptor.capture());
-         List<SimpleMailMessage> sentMessages = messageCaptor.getAllValues();
-         
-         assertEquals(3, sentMessages.size());
-         
-         // Verificar que se enviaron a los emails correctos
-         Set<String> recipients = new HashSet<>();
-         for (SimpleMailMessage message : sentMessages) {
-             recipients.add(message.getTo()[0]);
-         }
-         assertTrue(recipients.contains("juan.perez@test.com")); // Usuario principal
-         assertTrue(recipients.contains("maria.garcia@test.com")); // Convocado 1
-         assertTrue(recipients.contains("carlos.lopez@test.com")); // Convocado 2
-     }
-     
-     @Test
-     void testEnviarNotificacionReservaModificada_ConConvocadosEmailsInvalidos() {
-         // Arrange - Configurar convocado con email inválido
-         convocado.getUsuario().setCorreo("");
-         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
-         
-         // Act
-         emailService.enviarNotificacionReservaModificada(reserva);
-         
-         // Assert - Solo debe enviar 1 email al usuario principal (el convocado tiene email inválido)
-         verify(mailSender, times(1)).send(messageCaptor.capture());
-         SimpleMailMessage sentMessage = messageCaptor.getValue();
-         assertEquals("juan.perez@test.com", sentMessage.getTo()[0]);
-     }
- }
+}

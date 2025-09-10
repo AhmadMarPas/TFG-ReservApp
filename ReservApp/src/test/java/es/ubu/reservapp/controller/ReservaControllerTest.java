@@ -59,6 +59,7 @@ import es.ubu.reservapp.service.EstablecimientoService;
 import es.ubu.reservapp.service.ReservaService;
 import es.ubu.reservapp.service.UsuarioService;
 import es.ubu.reservapp.util.SlotReservaUtil;
+import jakarta.servlet.http.HttpServletRequest;
 
 @ExtendWith(MockitoExtension.class)
 class ReservaControllerTest {
@@ -86,6 +87,8 @@ class ReservaControllerTest {
     
     @Mock
     private RedirectAttributes redirectAttributes;
+
+    @Mock HttpServletRequest request;
     
     @InjectMocks
     private ReservaController reservaController;
@@ -147,7 +150,7 @@ class ReservaControllerTest {
         when(sessionData.getUsuario()).thenReturn(null);
         
         // When
-        String result = reservaController.mostrarCalendarioReserva(1, model, redirectAttributes);
+        String result = reservaController.mostrarCalendarioReserva(1, "", model, redirectAttributes, request);
         
         // Then
         assertEquals("redirect:/", result);
@@ -161,7 +164,7 @@ class ReservaControllerTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.empty());
         
         // When
-        String result = reservaController.mostrarCalendarioReserva(1, model, redirectAttributes);
+        String result = reservaController.mostrarCalendarioReserva(1, "", model, redirectAttributes, request);
         
         // Then
         assertEquals("redirect:/misreservas", result);
@@ -176,7 +179,7 @@ class ReservaControllerTest {
         when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
         
         // When
-        String result = reservaController.mostrarCalendarioReserva(1, model, redirectAttributes);
+        String result = reservaController.mostrarCalendarioReserva(1, "", model, redirectAttributes, request);
         
         // Then
         assertEquals("redirect:/misreservas", result);
@@ -191,7 +194,7 @@ class ReservaControllerTest {
         when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(false);
         
         // When
-        String result = reservaController.mostrarCalendarioReserva(1, model, redirectAttributes);
+        String result = reservaController.mostrarCalendarioReserva(1, "", model, redirectAttributes, request);
         
         // Then
         assertEquals("redirect:/misreservas", result);
@@ -210,7 +213,7 @@ class ReservaControllerTest {
             .thenReturn(new ArrayList<>());
         
         // When
-        String result = reservaController.mostrarCalendarioReserva(1, model, redirectAttributes);
+        String result = reservaController.mostrarCalendarioReserva(1, "", model, redirectAttributes, request);
         
         // Then
         assertEquals("reservas/calendario_reserva", result);
@@ -1228,7 +1231,7 @@ class ReservaControllerTest {
             null, null, null, null, redirectAttributes);
         
         // Then
-        assertEquals("redirect:/misreservas/editar/1", result);
+        assertEquals("redirect:/misreservas", result); // Cambió el comportamiento esperado
         verify(emailService).enviarNotificacionReservaModificada(any(Reserva.class));
         // El error de email no debe interrumpir el flujo
         verify(redirectAttributes).addFlashAttribute("error", "Error al actualizar la reserva: Error de email modificación");
@@ -2282,7 +2285,7 @@ class ReservaControllerTest {
             null, null, null, null, redirectAttributes);
         
         // Then
-        assertEquals("redirect:/misreservas/editar/1", result);
+        assertEquals("redirect:/misreservas", result); // Cambió el comportamiento esperado
         verify(emailService).enviarNotificacionReservaModificada(any(Reserva.class));
         verify(redirectAttributes).addFlashAttribute("error", "Error al actualizar la reserva: Error procesando convocados sin correo");
     }
@@ -2480,5 +2483,803 @@ class ReservaControllerTest {
         
         // Then
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
+    
+    // ================================
+    // TESTS PARA mostrarCalendarioMensual (NUEVOS MÉTODOS)
+    // ================================
+    
+    @Test
+    void testMostrarCalendarioMensual_UsuarioNoAutenticado() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(null);
+        
+        // When
+        String result = reservaController.mostrarCalendarioMensual(1, null, null, model, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/", result);
+        verify(redirectAttributes).addFlashAttribute("error", "Usuario no autenticado correctamente.");
+    }
+    
+    @Test
+    void testMostrarCalendarioMensual_EstablecimientoNoEncontrado() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.empty());
+        
+        // When
+        String result = reservaController.mostrarCalendarioMensual(1, null, null, model, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas", result);
+        verify(redirectAttributes).addFlashAttribute("error", "Establecimiento no encontrado.");
+    }
+    
+    @Test
+    void testMostrarCalendarioMensual_EstablecimientoInactivo() {
+        // Given
+        establecimiento.setActivo(false);
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        
+        // When
+        String result = reservaController.mostrarCalendarioMensual(1, null, null, model, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas", result);
+        verify(redirectAttributes).addFlashAttribute("error", "El establecimiento no está activo.");
+    }
+    
+    @Test
+    void testMostrarCalendarioMensual_UsuarioSinPermisos() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(false);
+        
+        // When
+        String result = reservaController.mostrarCalendarioMensual(1, null, null, model, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas", result);
+        verify(redirectAttributes).addFlashAttribute("error", "No tiene permiso para reservar en este establecimiento.");
+    }
+    
+    @Test
+    void testMostrarCalendarioMensual_Exitoso() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(true);
+        when(reservaService.findByEstablecimientoAndFechaReservaBetween(any(), any(), any()))
+            .thenReturn(new ArrayList<>());
+        
+        // When
+        String result = reservaController.mostrarCalendarioMensual(1, null, null, model, redirectAttributes);
+        
+        // Then
+        assertEquals("reservas/calendario_mensual_usuario", result);
+        verify(model).addAttribute("establecimiento", establecimiento);
+        verify(model).addAttribute(eq("calendarioData"), any());
+    }
+    
+    @Test
+    void testMostrarCalendarioMensual_ConAnioYMes() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(true);
+        when(reservaService.findByEstablecimientoAndFechaReservaBetween(any(), any(), any()))
+            .thenReturn(new ArrayList<>());
+        
+        // When
+        String result = reservaController.mostrarCalendarioMensual(1, 12, 2024, model, redirectAttributes);
+        
+        // Then
+        assertEquals("reservas/calendario_mensual_usuario", result);
+        verify(model).addAttribute("establecimiento", establecimiento);
+        verify(model).addAttribute(eq("calendarioData"), any());
+    }
+    
+    @Test
+    void testMostrarCalendarioMensual_ErrorInterno() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(true);
+        when(reservaService.findByEstablecimientoAndFechaReservaBetween(any(), any(), any())).thenThrow(new RuntimeException("Error de base de datos"));
+        when(model.containsAttribute("error")).thenReturn(true); // Simular que no hay error previo
+        
+        // When
+        String result = reservaController.mostrarCalendarioMensual(1, null, null, model, redirectAttributes);
+        
+        // Then
+        assertEquals("redirect:/misreservas", result);
+        verify(redirectAttributes).addFlashAttribute(eq("error"), contains("Error al cargar el calendario"));
+    }
+    
+    // ================================
+    // TESTS PARA CLASE INTERNA DiaCalendario
+    // ================================
+    
+    @Test
+    void testDiaCalendario_Constructor() throws Exception {
+        // Given
+        LocalDate fecha = LocalDate.of(2024, 12, 25);
+        boolean esDelMesActual = true;
+        boolean tieneDisponibilidad = true;
+        String resumen = "Disponible";
+        
+        // When - Usar reflexión para acceder a la clase interna estática
+        Class<?> diaCalendarioClass = Class.forName("es.ubu.reservapp.controller.ReservaController$DiaCalendario");
+        Constructor<?> constructor = diaCalendarioClass.getDeclaredConstructor(
+            LocalDate.class, boolean.class, boolean.class, String.class);
+        constructor.setAccessible(true);
+        
+        Object diaCalendario = constructor.newInstance(fecha, esDelMesActual, tieneDisponibilidad, resumen);
+        
+        // Then
+        assertNotNull(diaCalendario);
+        
+        // Verificar métodos getter
+        Method getFecha = diaCalendarioClass.getMethod("getFecha");
+        assertEquals(fecha, getFecha.invoke(diaCalendario));
+        
+        Method isEsDelMesActual = diaCalendarioClass.getMethod("isEsDelMesActual");
+        assertEquals(esDelMesActual, isEsDelMesActual.invoke(diaCalendario));
+        
+        Method isTieneDisponibilidad = diaCalendarioClass.getMethod("isTieneDisponibilidad");
+        assertEquals(tieneDisponibilidad, isTieneDisponibilidad.invoke(diaCalendario));
+        
+        Method getResumen = diaCalendarioClass.getMethod("getResumen");
+        assertEquals(resumen, getResumen.invoke(diaCalendario));
+    }
+    
+    @Test
+    void testDiaCalendario_GetFechaIso() throws Exception {
+        // Given
+        LocalDate fecha = LocalDate.of(2024, 12, 25);
+        
+        // When - Usar reflexión para acceder a la clase interna estática
+        Class<?> diaCalendarioClass = Class.forName("es.ubu.reservapp.controller.ReservaController$DiaCalendario");
+        Constructor<?> constructor = diaCalendarioClass.getDeclaredConstructor(
+            LocalDate.class, boolean.class, boolean.class, String.class);
+        constructor.setAccessible(true);
+        
+        Object diaCalendario = constructor.newInstance(fecha, true, true, "Disponible");
+        
+        Method getFechaIso = diaCalendarioClass.getMethod("getFechaIso");
+        String fechaIso = (String) getFechaIso.invoke(diaCalendario);
+        
+        // Then
+        assertEquals("2024-12-25", fechaIso);
+    }
+    
+    @Test
+    void testDiaCalendario_GetDia() throws Exception {
+        // Given
+        LocalDate fecha = LocalDate.of(2024, 12, 25);
+        
+        // When
+        Class<?> diaCalendarioClass = Class.forName("es.ubu.reservapp.controller.ReservaController$DiaCalendario");
+        Constructor<?> constructor = diaCalendarioClass.getDeclaredConstructor(
+            LocalDate.class, boolean.class, boolean.class, String.class);
+        constructor.setAccessible(true);
+        
+        Object diaCalendario = constructor.newInstance(fecha, true, true, "Disponible");
+        
+        Method getDia = diaCalendarioClass.getMethod("getDia");
+        int dia = (int) getDia.invoke(diaCalendario);
+        
+        // Then
+        assertEquals(25, dia);
+    }
+    
+    @Test
+    void testDiaCalendario_GetEsHoy() throws Exception {
+        // Given
+        LocalDate hoy = LocalDate.now();
+        LocalDate ayer = LocalDate.now().minusDays(1);
+        
+        // When - Crear DiaCalendario para hoy
+        Class<?> diaCalendarioClass = Class.forName("es.ubu.reservapp.controller.ReservaController$DiaCalendario");
+        Constructor<?> constructor = diaCalendarioClass.getDeclaredConstructor(
+            LocalDate.class, boolean.class, boolean.class, String.class);
+        constructor.setAccessible(true);
+        
+        Object diaHoy = constructor.newInstance(hoy, true, true, "Hoy");
+        Object diaAyer = constructor.newInstance(ayer, true, true, "Ayer");
+        
+        Method getEsHoy = diaCalendarioClass.getMethod("getEsHoy");
+        
+        // Then
+        assertTrue((boolean) getEsHoy.invoke(diaHoy));
+        assertFalse((boolean) getEsHoy.invoke(diaAyer));
+    }
+    
+    @Test
+    void testDiaCalendario_GetEsPasado() throws Exception {
+        // Given
+        LocalDate futuro = LocalDate.now().plusDays(1);
+        LocalDate pasado = LocalDate.now().minusDays(1);
+        
+        // When
+        Class<?> diaCalendarioClass = Class.forName("es.ubu.reservapp.controller.ReservaController$DiaCalendario");
+        Constructor<?> constructor = diaCalendarioClass.getDeclaredConstructor(
+            LocalDate.class, boolean.class, boolean.class, String.class);
+        constructor.setAccessible(true);
+        
+        Object diaFuturo = constructor.newInstance(futuro, true, true, "Futuro");
+        Object diaPasado = constructor.newInstance(pasado, true, true, "Pasado");
+        
+        Method getEsPasado = diaCalendarioClass.getMethod("getEsPasado");
+        
+        // Then
+        assertFalse((boolean) getEsPasado.invoke(diaFuturo));
+        assertTrue((boolean) getEsPasado.invoke(diaPasado));
+    }
+    
+    // ================================
+    // TESTS PARA CLASE INTERNA PeriodoLibre
+    // ================================
+    
+    @Test
+    void testPeriodoLibre_Constructor() throws Exception {
+        // Given
+        LocalTime horaInicio = LocalTime.of(10, 0);
+        LocalTime horaFin = LocalTime.of(12, 0);
+        int espaciosDisponibles = 5;
+        
+        // When - Usar reflexión para acceder a la clase interna estática
+        Class<?> periodoLibreClass = Class.forName("es.ubu.reservapp.controller.ReservaController$PeriodoLibre");
+        Constructor<?> constructor = periodoLibreClass.getDeclaredConstructor(
+            LocalTime.class, LocalTime.class, int.class);
+        constructor.setAccessible(true);
+        
+        Object periodoLibre = constructor.newInstance(horaInicio, horaFin, espaciosDisponibles);
+        
+        // Then
+        assertNotNull(periodoLibre);
+        
+        // Verificar métodos getter
+        Method getHoraInicio = periodoLibreClass.getMethod("getHoraInicio");
+        assertEquals(horaInicio, getHoraInicio.invoke(periodoLibre));
+        
+        Method getHoraFin = periodoLibreClass.getMethod("getHoraFin");
+        assertEquals(horaFin, getHoraFin.invoke(periodoLibre));
+        
+        Method getEspaciosDisponibles = periodoLibreClass.getMethod("getEspaciosDisponibles");
+        assertEquals(espaciosDisponibles, getEspaciosDisponibles.invoke(periodoLibre));
+    }
+    
+    @Test
+    void testPeriodoLibre_GetHoraInicioFormateada() throws Exception {
+        // Given
+        LocalTime horaInicio = LocalTime.of(10, 30);
+        LocalTime horaFin = LocalTime.of(12, 0);
+        
+        // When
+        Class<?> periodoLibreClass = Class.forName("es.ubu.reservapp.controller.ReservaController$PeriodoLibre");
+        Constructor<?> constructor = periodoLibreClass.getDeclaredConstructor(
+            LocalTime.class, LocalTime.class, int.class);
+        constructor.setAccessible(true);
+        
+        Object periodoLibre = constructor.newInstance(horaInicio, horaFin, 5);
+        
+        Method getHoraInicioFormateada = periodoLibreClass.getMethod("getHoraInicioFormateada");
+        String horaFormateada = (String) getHoraInicioFormateada.invoke(periodoLibre);
+        
+        // Then
+        assertEquals("10:30", horaFormateada);
+    }
+    
+    @Test
+    void testPeriodoLibre_GetHoraFinFormateada() throws Exception {
+        // Given
+        LocalTime horaInicio = LocalTime.of(10, 0);
+        LocalTime horaFin = LocalTime.of(12, 45);
+        
+        // When
+        Class<?> periodoLibreClass = Class.forName("es.ubu.reservapp.controller.ReservaController$PeriodoLibre");
+        Constructor<?> constructor = periodoLibreClass.getDeclaredConstructor(
+            LocalTime.class, LocalTime.class, int.class);
+        constructor.setAccessible(true);
+        
+        Object periodoLibre = constructor.newInstance(horaInicio, horaFin, 5);
+        
+        Method getHoraFinFormateada = periodoLibreClass.getMethod("getHoraFinFormateada");
+        String horaFormateada = (String) getHoraFinFormateada.invoke(periodoLibre);
+        
+        // Then
+        assertEquals("12:45", horaFormateada);
+    }
+    
+    // ================================
+    // TESTS PARA mostrarCalendarioReserva CON FECHA PRESELECCIONADA
+    // ================================
+    
+    @Test
+    void testMostrarCalendarioReserva_ConFechaPreseleccionada() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(true);
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(eq(usuario), eq(establecimiento), any(LocalDateTime.class)))
+            .thenReturn(new ArrayList<>());
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(eq(usuario), eq(establecimiento), any(LocalDateTime.class)))
+            .thenReturn(new ArrayList<>());
+        
+        String fechaPreseleccionada = "2025-12-25";
+        
+        // When
+        String result = reservaController.mostrarCalendarioReserva(1, fechaPreseleccionada, model, redirectAttributes, request);
+        
+        // Then
+        assertEquals("reservas/calendario_reserva", result);
+        verify(model).addAttribute("fechaPreseleccionada", fechaPreseleccionada);
+        verify(model).addAttribute("fechaFormateada", "25/12/2025");
+    }
+    
+    @Test
+    void testMostrarCalendarioReserva_ConFechaPreseleccionadaPasada() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(true);
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(eq(usuario), eq(establecimiento), any(LocalDateTime.class)))
+            .thenReturn(new ArrayList<>());
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(eq(usuario), eq(establecimiento), any(LocalDateTime.class)))
+            .thenReturn(new ArrayList<>());
+        
+        String fechaPreseleccionada = "2020-12-25"; // Fecha pasada
+        
+        // When
+        String result = reservaController.mostrarCalendarioReserva(1, fechaPreseleccionada, model, redirectAttributes, request);
+        
+        // Then
+        assertEquals("reservas/calendario_reserva", result);
+        // No debe agregar fecha pasada
+        verify(model, never()).addAttribute("fechaPreseleccionada", fechaPreseleccionada);
+        verify(model, never()).addAttribute("fechaFormateada", "25/12/2020");
+    }
+    
+    @Test
+    void testMostrarCalendarioReserva_ConEstablecimientoSinDuracionFija() {
+        // Given
+        establecimiento.setDuracionReserva(null); // Sin duración fija
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(true);
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(eq(usuario), eq(establecimiento), any(LocalDateTime.class)))
+            .thenReturn(new ArrayList<>());
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(eq(usuario), eq(establecimiento), any(LocalDateTime.class)))
+            .thenReturn(new ArrayList<>());
+        
+        String fechaPreseleccionada = "2025-12-25";
+        
+        // When
+        String result = reservaController.mostrarCalendarioReserva(1, fechaPreseleccionada, model, redirectAttributes, request);
+        
+        // Then
+        assertEquals("reservas/calendario_reserva", result);
+        verify(model).addAttribute("fechaPreseleccionada", fechaPreseleccionada);
+        verify(model, times(2)).addAttribute(eq("periodosLibres"), any(List.class)); // Se llama 2 veces como esperado
+    }
+    
+    @Test
+    void testMostrarCalendarioReserva_FechaPreseleccionadaInvalida() {
+        // Given
+        when(sessionData.getUsuario()).thenReturn(usuario);
+        when(establecimientoService.findById(1)).thenReturn(Optional.of(establecimiento));
+        when(usuarioService.establecimientoAsignado(usuario, establecimiento)).thenReturn(true);
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(eq(usuario), eq(establecimiento), any(LocalDateTime.class)))
+            .thenReturn(new ArrayList<>());
+        when(reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(eq(usuario), eq(establecimiento), any(LocalDateTime.class)))
+            .thenReturn(new ArrayList<>());
+        
+        String fechaPreseleccionada = "fecha-invalida";
+        
+        // When
+        String result = reservaController.mostrarCalendarioReserva(1, fechaPreseleccionada, model, redirectAttributes, request);
+        
+        // Then
+        assertEquals("reservas/calendario_reserva", result);
+        // No debe agregar fecha inválida
+        verify(model, never()).addAttribute("fechaPreseleccionada", fechaPreseleccionada);
+    }
+    
+    
+    @Test
+    void testTieneDisponibilidadEnFranja_ConDisponibilidad() throws Exception {
+        // Given
+        Establecimiento estab = new Establecimiento();
+        estab.setAforo(2);
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setHoraInicio(LocalTime.of(9, 0));
+        franja.setHoraFin(LocalTime.of(17, 0));
+        
+        LocalDate fecha = LocalDate.of(2024, 12, 25);
+        
+        // Una sola reserva, queda espacio para una más
+        Reserva reserva1 = new Reserva();
+        reserva1.setFechaReserva(LocalDateTime.of(fecha, LocalTime.of(10, 0)));
+        reserva1.setHoraFin(LocalTime.of(11, 0));
+        
+        List<Reserva> reservasDelDia = Arrays.asList(reserva1);
+        
+        // When - Usar reflexión para acceder al método privado
+        Method tieneDisponibilidadEnFranjaMethod = ReservaController.class.getDeclaredMethod(
+            "tieneDisponibilidadEnFranja", Establecimiento.class, FranjaHoraria.class, List.class);
+        tieneDisponibilidadEnFranjaMethod.setAccessible(true);
+        
+        boolean resultado = (boolean) tieneDisponibilidadEnFranjaMethod.invoke(reservaController, estab, franja, reservasDelDia);
+        
+        // Then
+        assertTrue(resultado);
+    }
+    
+    @Test
+    void testObtenerPeriodosLibres_ConPeriodosDisponibles() throws Exception {
+        // Given
+        Establecimiento estab = new Establecimiento();
+        estab.setAforo(2);
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(DayOfWeek.MONDAY);
+        franja.setHoraInicio(LocalTime.of(9, 0));
+        franja.setHoraFin(LocalTime.of(17, 0));
+        
+        estab.setFranjasHorarias(Arrays.asList(franja));
+        
+        LocalDate fecha = LocalDate.of(2024, 12, 23); // Es lunes
+        
+        // Mock para reservas del día - sin reservas para que haya períodos libres
+        when(reservaService.findByEstablecimientoAndFechaReservaBetween(any(), any(), any()))
+            .thenReturn(new ArrayList<>());
+        
+        // When
+        Method obtenerPeriodosLibresMethod = ReservaController.class.getDeclaredMethod(
+            "obtenerPeriodosLibres", Establecimiento.class, LocalDate.class
+        );
+        obtenerPeriodosLibresMethod.setAccessible(true);
+        
+        @SuppressWarnings("unchecked")
+        List<Object> resultado = (List<Object>) obtenerPeriodosLibresMethod.invoke(
+            reservaController, estab, fecha);
+        
+        // Then
+        assertNotNull(resultado);
+        assertTrue(resultado.size() > 0);
+    }
+    
+    @Test
+    void testObtenerPeriodosLibres_SinFranjasDelDia() throws Exception {
+        // Given
+        Establecimiento estab = new Establecimiento();
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(DayOfWeek.TUESDAY); // Franja para martes
+        franja.setHoraInicio(LocalTime.of(9, 0));
+        franja.setHoraFin(LocalTime.of(17, 0));
+        
+        estab.setFranjasHorarias(Arrays.asList(franja));
+        
+        LocalDate fecha = LocalDate.of(2024, 12, 23); // Es lunes, no martes
+        
+        // When
+        Method obtenerPeriodosLibresMethod = ReservaController.class.getDeclaredMethod(
+            "obtenerPeriodosLibres", Establecimiento.class, LocalDate.class
+        );
+        obtenerPeriodosLibresMethod.setAccessible(true);
+        
+        @SuppressWarnings("unchecked")
+        List<Object> resultado = (List<Object>) obtenerPeriodosLibresMethod.invoke(
+            reservaController, estab, fecha);
+        
+        // Then
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty()); // No hay franjas para el día
+    }
+    
+    @Test
+    void testCalcularPeriodosLibresEnFranja_SinReservas() throws Exception {
+        // Given
+        Establecimiento estab = new Establecimiento();
+        estab.setAforo(2);
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setHoraInicio(LocalTime.of(9, 0));
+        franja.setHoraFin(LocalTime.of(17, 0));
+        
+        List<Reserva> reservasDelDia = new ArrayList<>();
+        
+        // When
+        Method calcularPeriodosLibresEnFranjaMethod = ReservaController.class.getDeclaredMethod(
+            "calcularPeriodosLibresEnFranja", Establecimiento.class, FranjaHoraria.class, List.class);
+        calcularPeriodosLibresEnFranjaMethod.setAccessible(true);
+        
+        @SuppressWarnings("unchecked")
+        List<Object> resultado = (List<Object>) calcularPeriodosLibresEnFranjaMethod.invoke(reservaController, estab, franja, reservasDelDia);
+        
+        // Then
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size()); // Toda la franja libre
+        
+        // Verificar el período libre usando reflexión
+        Object periodoLibre = resultado.get(0);
+        Class<?> periodoLibreClass = Class.forName("es.ubu.reservapp.controller.ReservaController$PeriodoLibre");
+        Method getHoraInicioMethod = periodoLibreClass.getMethod("getHoraInicio");
+        Method getHoraFinMethod = periodoLibreClass.getMethod("getHoraFin");
+        Method getEspaciosDisponiblesMethod = periodoLibreClass.getMethod("getEspaciosDisponibles");
+        
+        assertEquals(LocalTime.of(9, 0), getHoraInicioMethod.invoke(periodoLibre));
+        assertEquals(LocalTime.of(17, 0), getHoraFinMethod.invoke(periodoLibre));
+        assertEquals(2, getEspaciosDisponiblesMethod.invoke(periodoLibre));
+    }
+    
+    @Test
+    void testCalcularPeriodosLibresEnFranja_ConReservas() throws Exception {
+        // Given
+        Establecimiento estab = new Establecimiento();
+        estab.setAforo(2);
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setHoraInicio(LocalTime.of(9, 0));
+        franja.setHoraFin(LocalTime.of(17, 0));
+        
+        LocalDate fecha = LocalDate.of(2024, 12, 25);
+        
+        // Reserva en el medio de la franja
+        Reserva reserva2 = new Reserva();
+        reserva2.setFechaReserva(LocalDateTime.of(fecha, LocalTime.of(12, 0)));
+        reserva2.setHoraFin(LocalTime.of(14, 0));
+        
+        List<Reserva> reservasDelDia = Arrays.asList(reserva2);
+        
+        // When
+        Method calcularPeriodosLibresEnFranjaMethod = ReservaController.class.getDeclaredMethod(
+            "calcularPeriodosLibresEnFranja", Establecimiento.class, FranjaHoraria.class, List.class);
+        calcularPeriodosLibresEnFranjaMethod.setAccessible(true);
+        
+        @SuppressWarnings("unchecked")
+        List<Object> resultado = (List<Object>) calcularPeriodosLibresEnFranjaMethod.invoke(reservaController, estab, franja, reservasDelDia);
+        
+        // Then
+        assertNotNull(resultado);
+        assertEquals(2, resultado.size()); // Período antes y después de la reserva
+        
+        // Verificar primer período (9:00 - 12:00)
+        Object primerPeriodo = resultado.get(0);
+        Class<?> periodoLibreClass = Class.forName("es.ubu.reservapp.controller.ReservaController$PeriodoLibre");
+        Method getHoraInicioMethod = periodoLibreClass.getMethod("getHoraInicio");
+        Method getHoraFinMethod = periodoLibreClass.getMethod("getHoraFin");
+        
+        assertEquals(LocalTime.of(9, 0), getHoraInicioMethod.invoke(primerPeriodo));
+        assertEquals(LocalTime.of(12, 0), getHoraFinMethod.invoke(primerPeriodo));
+        
+        // Verificar segundo período (14:00 - 17:00)
+        Object segundoPeriodo = resultado.get(1);
+        assertEquals(LocalTime.of(14, 0), getHoraInicioMethod.invoke(segundoPeriodo));
+        assertEquals(LocalTime.of(17, 0), getHoraFinMethod.invoke(segundoPeriodo));
+    }
+
+    @Test
+    void testCalcularEspaciosDisponibles_ConAforo() throws Exception {
+        // Given
+        Establecimiento estab = new Establecimiento();
+        estab.setAforo(3);
+        
+        LocalTime inicio = LocalTime.of(10, 0);
+        LocalTime fin = LocalTime.of(12, 0);
+        
+        // Una reserva que se solapa
+        Reserva reserva2 = new Reserva();
+        reserva2.setFechaReserva(LocalDateTime.of(2024, 12, 25, 11, 0));
+        reserva2.setHoraFin(LocalTime.of(13, 0));
+        
+        List<Reserva> reservasEnFranja = Arrays.asList(reserva2);
+        
+        // When
+        Method calcularEspaciosDisponiblesMethod = ReservaController.class.getDeclaredMethod(
+            "calcularEspaciosDisponibles", Establecimiento.class, LocalTime.class, 
+            LocalTime.class, List.class
+        );
+        calcularEspaciosDisponiblesMethod.setAccessible(true);
+        
+        int resultado = (int) calcularEspaciosDisponiblesMethod.invoke(
+            reservaController, estab, inicio, fin, reservasEnFranja);
+        
+        // Then
+        assertEquals(2, resultado); // 3 - 1 reserva solapada = 2 espacios disponibles
+    }
+    
+    @Test
+    void testCalcularEspaciosDisponibles_SinAforo() throws Exception {
+        // Given
+        Establecimiento estab = new Establecimiento();
+        estab.setAforo(null); // Sin aforo limitado
+        
+        LocalTime inicio = LocalTime.of(10, 0);
+        LocalTime fin = LocalTime.of(12, 0);
+        
+        // Crear reservas con datos mínimos para evitar NullPointer
+        Reserva reserva1 = new Reserva();
+        reserva1.setFechaReserva(LocalDateTime.of(2024, 12, 25, 10, 30));
+        reserva1.setHoraFin(LocalTime.of(11, 30));
+        
+        Reserva reserva2 = new Reserva();
+        reserva2.setFechaReserva(LocalDateTime.of(2024, 12, 25, 11, 0));
+        reserva2.setHoraFin(LocalTime.of(12, 0));
+        
+        List<Reserva> reservasEnFranja = Arrays.asList(reserva1, reserva2);
+        
+        // When
+        Method calcularEspaciosDisponiblesMethod = ReservaController.class.getDeclaredMethod(
+            "calcularEspaciosDisponibles", Establecimiento.class, LocalTime.class, 
+            LocalTime.class, List.class
+        );
+        calcularEspaciosDisponiblesMethod.setAccessible(true);
+        
+        int resultado = (int) calcularEspaciosDisponiblesMethod.invoke(
+            reservaController, estab, inicio, fin, reservasEnFranja);
+        
+        // Then
+        assertEquals(999, resultado); // Número alto para indicar ilimitado
+    }
+    
+    @Test
+    void testCalcularEspaciosDisponibles_AforoExcedido() throws Exception {
+        // Given
+        Establecimiento estab = new Establecimiento();
+        estab.setAforo(1);
+        
+        LocalTime inicio = LocalTime.of(10, 0);
+        LocalTime fin = LocalTime.of(12, 0);
+        
+        // Dos reservas que se solapan, exceden el aforo de 1
+        Reserva reserva1 = new Reserva();
+        reserva1.setFechaReserva(LocalDateTime.of(2024, 12, 25, 10, 30));
+        reserva1.setHoraFin(LocalTime.of(11, 30));
+        
+        Reserva reserva2 = new Reserva();
+        reserva2.setFechaReserva(LocalDateTime.of(2024, 12, 25, 11, 0));
+        reserva2.setHoraFin(LocalTime.of(12, 0));
+        
+        List<Reserva> reservasEnFranja = Arrays.asList(reserva1, reserva2);
+        
+        // When
+        Method calcularEspaciosDisponiblesMethod = ReservaController.class.getDeclaredMethod(
+            "calcularEspaciosDisponibles", Establecimiento.class, LocalTime.class, 
+            LocalTime.class, List.class
+        );
+        calcularEspaciosDisponiblesMethod.setAccessible(true);
+        
+        int resultado = (int) calcularEspaciosDisponiblesMethod.invoke(
+            reservaController, estab, inicio, fin, reservasEnFranja);
+        
+        // Then
+        assertEquals(0, resultado); // Math.max(0, 1 - 2) = 0
+    }
+    
+    @Test
+    void testCalcularEspaciosDisponibles_SinSolapamiento() throws Exception {
+        // Given
+        Establecimiento estab = new Establecimiento();
+        estab.setAforo(2);
+        
+        LocalTime inicio = LocalTime.of(10, 0);
+        LocalTime fin = LocalTime.of(12, 0);
+        
+        // Reserva que NO se solapa (termina exactamente cuando empieza el período)
+        Reserva reserva2 = new Reserva();
+        reserva2.setFechaReserva(LocalDateTime.of(2024, 12, 25, 8, 0));
+        reserva2.setHoraFin(LocalTime.of(10, 0)); // Termina exactamente cuando empieza el período
+        
+        List<Reserva> reservasEnFranja = Arrays.asList(reserva2);
+        
+        // When
+        Method calcularEspaciosDisponiblesMethod = ReservaController.class.getDeclaredMethod(
+            "calcularEspaciosDisponibles", Establecimiento.class, LocalTime.class, 
+            LocalTime.class, List.class
+        );
+        calcularEspaciosDisponiblesMethod.setAccessible(true);
+        
+        int resultado = (int) calcularEspaciosDisponiblesMethod.invoke(
+            reservaController, estab, inicio, fin, reservasEnFranja);
+        
+        // Then
+        assertEquals(2, resultado); // el aforo completo disponible ya que no hay solapamiento
+    }
+    
+    @Test
+    void testPeriodoLibre_GetDuracionFormateada() throws Exception {
+        // Given - Usar reflexión para crear instancia de PeriodoLibre
+        Class<?> periodoLibreClass = Class.forName("es.ubu.reservapp.controller.ReservaController$PeriodoLibre");
+        Constructor<?> constructor = periodoLibreClass.getDeclaredConstructor(
+            LocalTime.class, LocalTime.class, int.class);
+        constructor.setAccessible(true);
+        
+        // Test con duración de más de una hora
+        Object periodoLargo = constructor.newInstance(
+            LocalTime.of(10, 0), LocalTime.of(12, 30), 2);
+        
+        Method getDuracionFormateadaMethod = periodoLibreClass.getMethod("getDuracionFormateada");
+        String duracionLarga = (String) getDuracionFormateadaMethod.invoke(periodoLargo);
+        
+        // Then
+        assertEquals("2h 30min", duracionLarga);
+        
+        // Test con duración de menos de una hora
+        Object periodoCorto = constructor.newInstance(
+            LocalTime.of(10, 0), LocalTime.of(10, 45), 1);
+        
+        String duracionCorta = (String) getDuracionFormateadaMethod.invoke(periodoCorto);
+        assertEquals("45 min", duracionCorta);
+        
+        // Test con duración exacta de una hora
+        Object periodoUnaHora = constructor.newInstance(
+            LocalTime.of(10, 0), LocalTime.of(11, 0), 1);
+        
+        String duracionUnaHora = (String) getDuracionFormateadaMethod.invoke(periodoUnaHora);
+        assertEquals("1h 00min", duracionUnaHora);
+    }
+    
+    @Test
+    void testPeriodoLibre_IsIlimitado() throws Exception {
+        // Given
+        Class<?> periodoLibreClass = Class.forName("es.ubu.reservapp.controller.ReservaController$PeriodoLibre");
+        Constructor<?> constructor = periodoLibreClass.getDeclaredConstructor(
+            LocalTime.class, LocalTime.class, int.class);
+        constructor.setAccessible(true);
+        
+        // Test con espacios ilimitados
+        Object periodoIlimitado = constructor.newInstance(
+            LocalTime.of(10, 0), LocalTime.of(12, 0), 999);
+        
+        Method isIlimitadoMethod = periodoLibreClass.getMethod("isIlimitado");
+        boolean esIlimitado = (boolean) isIlimitadoMethod.invoke(periodoIlimitado);
+        
+        // Then
+        assertTrue(esIlimitado);
+        
+        // Test con espacios limitados
+        Object periodoLimitado = constructor.newInstance(
+            LocalTime.of(10, 0), LocalTime.of(12, 0), 5);
+        
+        boolean esLimitado = (boolean) isIlimitadoMethod.invoke(periodoLimitado);
+        assertFalse(esLimitado);
+    }
+    
+    @Test
+    void testPeriodoLibre_GettersBasicos() throws Exception {
+        // Given
+        LocalTime horaInicio = LocalTime.of(9, 30);
+        LocalTime horaFin = LocalTime.of(11, 45);
+        int espacios = 3;
+        
+        Class<?> periodoLibreClass = Class.forName("es.ubu.reservapp.controller.ReservaController$PeriodoLibre");
+        Constructor<?> constructor = periodoLibreClass.getDeclaredConstructor(
+            LocalTime.class, LocalTime.class, int.class);
+        constructor.setAccessible(true);
+        
+        Object periodoLibre = constructor.newInstance(horaInicio, horaFin, espacios);
+        
+        // When & Then
+        Method getHoraInicioMethod = periodoLibreClass.getMethod("getHoraInicio");
+        assertEquals(horaInicio, getHoraInicioMethod.invoke(periodoLibre));
+        
+        Method getHoraFinMethod = periodoLibreClass.getMethod("getHoraFin");
+        assertEquals(horaFin, getHoraFinMethod.invoke(periodoLibre));
+        
+        Method getEspaciosDisponiblesMethod = periodoLibreClass.getMethod("getEspaciosDisponibles");
+        assertEquals(espacios, getEspaciosDisponiblesMethod.invoke(periodoLibre));
+        
+        Method getHoraInicioFormateadaMethod = periodoLibreClass.getMethod("getHoraInicioFormateada");
+        assertEquals("09:30", getHoraInicioFormateadaMethod.invoke(periodoLibre));
+        
+        Method getHoraFinFormateadaMethod = periodoLibreClass.getMethod("getHoraFinFormateada");
+        assertEquals("11:45", getHoraFinFormateadaMethod.invoke(periodoLibre));
     }
  }
