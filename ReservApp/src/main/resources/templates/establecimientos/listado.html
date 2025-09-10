@@ -203,7 +203,7 @@
                                 Editar
                             </a>
                             <form th:action="@{/admin/establecimientos/activar/{id}(id=${establecimiento.id})}" 
-                                  method="post" class="form-inline" style="flex: 1;">
+                                  method="post" class="form-inline flex-1">
                                 <button type="submit" 
                                         class="action-btn btn-toggle w-100" 
                                         th:title="${establecimiento.activo ? 'Desactivar establecimiento' : 'Activar establecimiento'}"
@@ -213,7 +213,7 @@
                                 </button>
                             </form>
                             <form th:action="@{/admin/establecimientos/eliminar/{id}(id=${establecimiento.id})}" 
-                                  method="post" class="form-inline" style="flex: 1;">
+                                  method="post" class="form-inline flex-1">
                                 <button type="submit" 
                                         class="action-btn btn-delete w-100" 
                                         title="Eliminar establecimiento"
