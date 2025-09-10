@@ -21,6 +21,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -37,9 +38,11 @@ import es.ubu.reservapp.model.entities.Establecimiento;
 import es.ubu.reservapp.model.entities.FranjaHoraria;
 import es.ubu.reservapp.model.entities.Reserva;
 import es.ubu.reservapp.model.entities.Usuario;
-import es.ubu.reservapp.service.ReservaService.FranjaDisponibilidad;
 import es.ubu.reservapp.model.repositories.ReservaRepo;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
+import es.ubu.reservapp.service.ReservaService.DisponibilidadDia;
+import es.ubu.reservapp.service.ReservaService.FranjaDisponibilidad;
+import es.ubu.reservapp.service.ReservaService.PeriodoDisponible;
 
 /**
  * Test para la clase ReservaServiceImpl.
@@ -1159,16 +1162,10 @@ class ReservaServiceImplTest {
         
         List<Reserva> reservasDelDia = List.of(reservaAnterior, reservaPosterior);
         
-        when(reservaRepo.findReservasSolapadas(
-            eq(estab), 
-            eq(LocalDateTime.of(fecha, horaInicio)), 
-            eq(LocalDateTime.of(fecha, horaFin))
-        )).thenReturn(reservasDelDia);
+        when(reservaRepo.findReservasSolapadas(estab, LocalDateTime.of(fecha, horaInicio), LocalDateTime.of(fecha, horaFin))).thenReturn(reservasDelDia);
         
         // Act
-        boolean disponible = reservaService.verificarDisponibilidad(
-            estab, fecha, horaInicio, horaFin, null
-        );
+        boolean disponible = reservaService.verificarDisponibilidad(estab, fecha, horaInicio, horaFin, null);
         
         // Assert
         assertFalse(disponible); // El código considera solapamiento en los bordes exactos
@@ -1261,5 +1258,686 @@ class ReservaServiceImplTest {
         FranjaDisponibilidad franjaDisp = resultado.get(0);
         // Con las reservas complejas configuradas, no hay períodos disponibles
         assertTrue(franjaDisp.getPeriodosDisponibles().isEmpty());
+    }
+
+    @Test
+    void testPeriodoDisponible_Constructor() {
+        // Arrange
+        LocalTime horaInicio = LocalTime.of(9, 0);
+        LocalTime horaFin = LocalTime.of(10, 30);
+
+        // Act
+        PeriodoDisponible periodo = new PeriodoDisponible(horaInicio, horaFin);
+
+        // Assert
+        assertNotNull(periodo);
+        assertEquals(horaInicio, periodo.getHoraInicio());
+        assertEquals(horaFin, periodo.getHoraFin());
+    }
+
+    @Test
+    void testPeriodoDisponible_ConstructorConHorasExtremas() {
+        // Arrange
+        LocalTime horaInicioMinima = LocalTime.of(0, 0);
+        LocalTime horaFinMaxima = LocalTime.of(23, 59);
+
+        // Act
+        PeriodoDisponible periodo = new PeriodoDisponible(horaInicioMinima, horaFinMaxima);
+
+        // Assert
+        assertNotNull(periodo);
+        assertEquals(horaInicioMinima, periodo.getHoraInicio());
+        assertEquals(horaFinMaxima, periodo.getHoraFin());
+    }
+
+    @Test
+    void testPeriodoDisponible_ConstructorConHorasIguales() {
+        // Arrange
+        LocalTime hora = LocalTime.of(12, 0);
+
+        // Act
+        PeriodoDisponible periodo = new PeriodoDisponible(hora, hora);
+
+        // Assert
+        assertNotNull(periodo);
+        assertEquals(hora, periodo.getHoraInicio());
+        assertEquals(hora, periodo.getHoraFin());
+    }
+
+    @Test
+    void testPeriodoDisponible_GetHoraInicio() {
+        // Arrange
+        LocalTime horaInicio = LocalTime.of(14, 15);
+        LocalTime horaFin = LocalTime.of(15, 45);
+        PeriodoDisponible periodo = new PeriodoDisponible(horaInicio, horaFin);
+
+        // Act
+        LocalTime resultado = periodo.getHoraInicio();
+
+        // Assert
+        assertEquals(horaInicio, resultado);
+        assertEquals(LocalTime.of(14, 15), resultado);
+    }
+
+    @Test
+    void testPeriodoDisponible_GetHoraFin() {
+        // Arrange
+        LocalTime horaInicio = LocalTime.of(8, 30);
+        LocalTime horaFin = LocalTime.of(17, 0);
+        PeriodoDisponible periodo = new PeriodoDisponible(horaInicio, horaFin);
+
+        // Act
+        LocalTime resultado = periodo.getHoraFin();
+
+        // Assert
+        assertEquals(horaFin, resultado);
+        assertEquals(LocalTime.of(17, 0), resultado);
+    }
+
+    @Test
+    void testPeriodoDisponible_ToString() {
+        // Arrange
+        LocalTime horaInicio = LocalTime.of(9, 30);
+        LocalTime horaFin = LocalTime.of(11, 15);
+        PeriodoDisponible periodo = new PeriodoDisponible(horaInicio, horaFin);
+
+        // Act
+        String resultado = periodo.toString();
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals("09:30 - 11:15", resultado);
+        assertTrue(resultado.contains("09:30"));
+        assertTrue(resultado.contains("11:15"));
+        assertTrue(resultado.contains(" - "));
+    }
+
+    @Test
+    void testPeriodoDisponible_ToStringConHorasEnPuntoEnMinutos() {
+        // Arrange - Test con horas exactas (00 minutos)
+        LocalTime horaInicio = LocalTime.of(10, 0);
+        LocalTime horaFin = LocalTime.of(12, 0);
+        PeriodoDisponible periodo = new PeriodoDisponible(horaInicio, horaFin);
+
+        // Act
+        String resultado = periodo.toString();
+
+        // Assert
+        assertEquals("10:00 - 12:00", resultado);
+    }
+
+    @Test
+    void testPeriodoDisponible_ToStringConHorasMedioDia() {
+        // Arrange - Test con horas del mediodía
+        LocalTime horaInicio = LocalTime.of(12, 0);
+        LocalTime horaFin = LocalTime.of(13, 30);
+        PeriodoDisponible periodo = new PeriodoDisponible(horaInicio, horaFin);
+
+        // Act
+        String resultado = periodo.toString();
+
+        // Assert
+        assertEquals("12:00 - 13:30", resultado);
+    }
+
+    @Test
+    void testPeriodoDisponible_ToStringConHorasNocturnas() {
+        // Arrange - Test con horas nocturnas/tardías
+        LocalTime horaInicio = LocalTime.of(22, 45);
+        LocalTime horaFin = LocalTime.of(23, 59);
+        PeriodoDisponible periodo = new PeriodoDisponible(horaInicio, horaFin);
+
+        // Act
+        String resultado = periodo.toString();
+
+        // Assert
+        assertEquals("22:45 - 23:59", resultado);
+    }
+
+    @Test
+    void testPeriodoDisponible_ToStringConHorasTempranas() {
+        // Arrange - Test con horas muy tempranas
+        LocalTime horaInicio = LocalTime.of(0, 0);
+        LocalTime horaFin = LocalTime.of(1, 15);
+        PeriodoDisponible periodo = new PeriodoDisponible(horaInicio, horaFin);
+
+        // Act
+        String resultado = periodo.toString();
+
+        // Assert
+        assertEquals("00:00 - 01:15", resultado);
+    }
+
+    @Test
+    void testPeriodoDisponible_ToStringConPeriodoCorto() {
+        // Arrange - Test con período muy corto (15 minutos)
+        LocalTime horaInicio = LocalTime.of(14, 30);
+        LocalTime horaFin = LocalTime.of(14, 45);
+        PeriodoDisponible periodo = new PeriodoDisponible(horaInicio, horaFin);
+
+        // Act
+        String resultado = periodo.toString();
+
+        // Assert
+        assertEquals("14:30 - 14:45", resultado);
+    }
+
+    @Test
+    void testPeriodoDisponible_ToStringConHorasIguales() {
+        // Arrange - Test con horas iguales (período de duración cero)
+        LocalTime hora = LocalTime.of(16, 0);
+        PeriodoDisponible periodo = new PeriodoDisponible(hora, hora);
+
+        // Act
+        String resultado = periodo.toString();
+
+        // Assert
+        assertEquals("16:00 - 16:00", resultado);
+    }
+
+    @Test
+    void testPeriodoDisponible_InmutabilidadHoraInicio() {
+        // Arrange
+        LocalTime horaInicioOriginal = LocalTime.of(10, 0);
+        LocalTime horaFin = LocalTime.of(11, 0);
+        PeriodoDisponible periodo = new PeriodoDisponible(horaInicioOriginal, horaFin);
+
+        // Act - Obtener la hora de inicio
+        LocalTime horaInicioObtenida = periodo.getHoraInicio();
+
+        // Assert - Verificar que son la misma referencia o valor (LocalTime es inmutable)
+        assertEquals(horaInicioOriginal, horaInicioObtenida);
+        // Verificar que no se puede modificar el estado interno a través del getter
+        // (LocalTime es inmutable por naturaleza, pero es bueno verificarlo)
+        assertNotNull(horaInicioObtenida);
+    }
+
+    @Test
+    void testPeriodoDisponible_InmutabilidadHoraFin() {
+        // Arrange
+        LocalTime horaInicio = LocalTime.of(10, 0);
+        LocalTime horaFinOriginal = LocalTime.of(11, 0);
+        PeriodoDisponible periodo = new PeriodoDisponible(horaInicio, horaFinOriginal);
+
+        // Act - Obtener la hora de fin
+        LocalTime horaFinObtenida = periodo.getHoraFin();
+
+        // Assert - Verificar que son la misma referencia o valor
+        assertEquals(horaFinOriginal, horaFinObtenida);
+        assertNotNull(horaFinObtenida);
+    }
+
+    @Test
+    void testPeriodoDisponible_MultipleInstancias() {
+        // Arrange - Crear múltiples instancias para verificar independencia
+        PeriodoDisponible periodo1 = new PeriodoDisponible(LocalTime.of(9, 0), LocalTime.of(10, 0));
+        PeriodoDisponible periodo2 = new PeriodoDisponible(LocalTime.of(14, 0), LocalTime.of(15, 0));
+        PeriodoDisponible periodo3 = new PeriodoDisponible(LocalTime.of(9, 0), LocalTime.of(10, 0));
+
+        // Act & Assert - Verificar que cada instancia mantiene su estado independiente
+        assertEquals(LocalTime.of(9, 0), periodo1.getHoraInicio());
+        assertEquals(LocalTime.of(10, 0), periodo1.getHoraFin());
+        
+        assertEquals(LocalTime.of(14, 0), periodo2.getHoraInicio());
+        assertEquals(LocalTime.of(15, 0), periodo2.getHoraFin());
+        
+        assertEquals(LocalTime.of(9, 0), periodo3.getHoraInicio());
+        assertEquals(LocalTime.of(10, 0), periodo3.getHoraFin());
+        
+        // Verificar toString independiente
+        assertEquals("09:00 - 10:00", periodo1.toString());
+        assertEquals("14:00 - 15:00", periodo2.toString());
+        assertEquals("09:00 - 10:00", periodo3.toString());
+    }
+    
+    @Test
+    void testObtenerDisponibilidadDia_EstablecimientoCerrado() {
+        // Arrange
+        LocalDate fecha = LocalDate.of(2024, 1, 15); // Lunes
+        
+        // Establecimiento sin franjas horarias para ese día
+        FranjaHoraria franjaTuesday = new FranjaHoraria();
+        franjaTuesday.setDiaSemana(DayOfWeek.TUESDAY);
+        franjaTuesday.setHoraInicio(LocalTime.of(9, 0));
+        franjaTuesday.setHoraFin(LocalTime.of(17, 0));
+        
+        establecimiento.setFranjasHorarias(Arrays.asList(franjaTuesday));
+
+        // Act
+        DisponibilidadDia resultado = reservaService.obtenerDisponibilidadDia(establecimiento, fecha);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(fecha, resultado.getFecha());
+        assertFalse(resultado.isTieneHorarioApertura());
+        assertFalse(resultado.isTieneDisponibilidad());
+        assertTrue(resultado.getFranjasDisponibles().isEmpty());
+        assertEquals("Cerrado", resultado.getResumen());
+    }
+
+    @Test
+    void testObtenerDisponibilidadDia_ConDisponibilidad() {
+        // Arrange
+        LocalDate fecha = LocalDate.of(2024, 1, 15); // Lunes
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(DayOfWeek.MONDAY);
+        franja.setHoraInicio(LocalTime.of(9, 0));
+        franja.setHoraFin(LocalTime.of(17, 0));
+        
+        establecimiento.setFranjasHorarias(Arrays.asList(franja));
+        establecimiento.setAforo(5);
+        
+        LocalDateTime inicioDelDia = fecha.atStartOfDay();
+        LocalDateTime finDelDia = fecha.atTime(23, 59, 59);
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioDelDia, finDelDia))
+            .thenReturn(new ArrayList<>());
+
+        // Act
+        DisponibilidadDia resultado = reservaService.obtenerDisponibilidadDia(establecimiento, fecha);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(fecha, resultado.getFecha());
+        assertTrue(resultado.isTieneHorarioApertura());
+        assertTrue(resultado.isTieneDisponibilidad());
+        assertEquals(1, resultado.getFranjasDisponibles().size());
+        assertEquals("1 período disponible", resultado.getResumen());
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioDelDia, finDelDia);
+    }
+
+    @Test
+    void testObtenerDisponibilidadDia_SinDisponibilidad() {
+        // Arrange
+        LocalDate fecha = LocalDate.of(2024, 1, 15); // Lunes
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(DayOfWeek.MONDAY);
+        franja.setHoraInicio(LocalTime.of(9, 0));
+        franja.setHoraFin(LocalTime.of(10, 0));
+        
+        establecimiento.setFranjasHorarias(Arrays.asList(franja));
+        establecimiento.setAforo(1); // Aforo limitado
+        
+        // Reserva que ocupa toda la franja
+        Reserva reservaCompleta = new Reserva();
+        reservaCompleta.setFechaReserva(LocalDateTime.of(fecha, LocalTime.of(9, 0)));
+        reservaCompleta.setHoraFin(LocalTime.of(10, 0));
+        
+        LocalDateTime inicioDelDia = fecha.atStartOfDay();
+        LocalDateTime finDelDia = fecha.atTime(23, 59, 59);
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioDelDia, finDelDia))
+            .thenReturn(Arrays.asList(reservaCompleta));
+
+        // Act
+        DisponibilidadDia resultado = reservaService.obtenerDisponibilidadDia(establecimiento, fecha);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(fecha, resultado.getFecha());
+        assertTrue(resultado.isTieneHorarioApertura());
+        assertFalse(resultado.isTieneDisponibilidad());
+        assertEquals(1, resultado.getFranjasDisponibles().size());
+        assertEquals("Sin disponibilidad", resultado.getResumen());
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioDelDia, finDelDia);
+    }
+
+    @Test
+    void testObtenerDisponibilidadDia_VariosPeriodosDisponibles() {
+        // Arrange
+        LocalDate fecha = LocalDate.of(2024, 1, 15); // Lunes
+        
+        FranjaHoraria franja1 = new FranjaHoraria();
+        franja1.setDiaSemana(DayOfWeek.MONDAY);
+        franja1.setHoraInicio(LocalTime.of(9, 0));
+        franja1.setHoraFin(LocalTime.of(12, 0));
+        
+        FranjaHoraria franja2 = new FranjaHoraria();
+        franja2.setDiaSemana(DayOfWeek.MONDAY);
+        franja2.setHoraInicio(LocalTime.of(14, 0));
+        franja2.setHoraFin(LocalTime.of(17, 0));
+        
+        establecimiento.setFranjasHorarias(Arrays.asList(franja1, franja2));
+        establecimiento.setAforo(5);
+        
+        LocalDateTime inicioDelDia = fecha.atStartOfDay();
+        LocalDateTime finDelDia = fecha.atTime(23, 59, 59);
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioDelDia, finDelDia))
+            .thenReturn(new ArrayList<>());
+
+        // Act
+        DisponibilidadDia resultado = reservaService.obtenerDisponibilidadDia(establecimiento, fecha);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(fecha, resultado.getFecha());
+        assertTrue(resultado.isTieneHorarioApertura());
+        assertTrue(resultado.isTieneDisponibilidad());
+        assertEquals(2, resultado.getFranjasDisponibles().size());
+        assertEquals("2 períodos disponibles", resultado.getResumen());
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioDelDia, finDelDia);
+    }
+
+    // ================================
+    // TESTS PARA obtenerDisponibilidadMensual
+    // ================================
+
+    @Test
+    void testObtenerDisponibilidadMensual_MesCompleto() {
+        // Arrange
+        int anyo = 2024;
+        int mes = 1; // Enero
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(DayOfWeek.MONDAY);
+        franja.setHoraInicio(LocalTime.of(9, 0));
+        franja.setHoraFin(LocalTime.of(17, 0));
+        
+        establecimiento.setFranjasHorarias(Arrays.asList(franja));
+        establecimiento.setAforo(5);
+        
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 31).atTime(23, 59, 59);
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
+            .thenReturn(new ArrayList<>());
+
+        // Act
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(31, resultado.size()); // Enero tiene 31 días
+        
+        // Verificar algunos días específicos
+        LocalDate primerLunes = LocalDate.of(2024, 1, 1); // 1 de enero es lunes
+        DisponibilidadDia disponibilidadLunes = resultado.get(primerLunes);
+        assertNotNull(disponibilidadLunes);
+        assertTrue(disponibilidadLunes.isTieneHorarioApertura());
+        assertTrue(disponibilidadLunes.isTieneDisponibilidad());
+        
+        LocalDate primerMartes = LocalDate.of(2024, 1, 2); // 2 de enero es martes
+        DisponibilidadDia disponibilidadMartes = resultado.get(primerMartes);
+        assertNotNull(disponibilidadMartes);
+        assertFalse(disponibilidadMartes.isTieneHorarioApertura()); // No hay franja para martes
+        assertEquals("Cerrado", disponibilidadMartes.getResumen());
+        
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes);
+    }
+
+    @Test
+    void testObtenerDisponibilidadMensual_ConReservasExistentes() {
+        // Arrange
+        int anyo = 2024;
+        int mes = 2; // Febrero (mes más corto)
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(DayOfWeek.THURSDAY);
+        franja.setHoraInicio(LocalTime.of(10, 0));
+        franja.setHoraFin(LocalTime.of(12, 0));
+        
+        establecimiento.setFranjasHorarias(Arrays.asList(franja));
+        establecimiento.setAforo(1);
+        
+        // Crear una reserva para el primer jueves del mes
+        LocalDate primerJueves = LocalDate.of(2024, 2, 1); // 1 de febrero es jueves
+        Reserva reservaJueves = new Reserva();
+        reservaJueves.setFechaReserva(LocalDateTime.of(primerJueves, LocalTime.of(10, 0)));
+        reservaJueves.setHoraFin(LocalTime.of(12, 0));
+        
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 29).atTime(23, 59, 59); // 2024 es bisiesto
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
+            .thenReturn(Arrays.asList(reservaJueves));
+
+        // Act
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(29, resultado.size()); // Febrero 2024 tiene 29 días (bisiesto)
+        
+        // Verificar el primer jueves (con reserva)
+        DisponibilidadDia disponibilidadPrimerJueves = resultado.get(primerJueves);
+        assertNotNull(disponibilidadPrimerJueves);
+        assertTrue(disponibilidadPrimerJueves.isTieneHorarioApertura());
+        assertFalse(disponibilidadPrimerJueves.isTieneDisponibilidad()); // Sin disponibilidad por la reserva
+        assertEquals("Sin disponibilidad", disponibilidadPrimerJueves.getResumen());
+        
+        // Verificar el segundo jueves (sin reserva)
+        LocalDate segundoJueves = LocalDate.of(2024, 2, 8);
+        DisponibilidadDia disponibilidadSegundoJueves = resultado.get(segundoJueves);
+        assertNotNull(disponibilidadSegundoJueves);
+        assertTrue(disponibilidadSegundoJueves.isTieneHorarioApertura());
+        assertTrue(disponibilidadSegundoJueves.isTieneDisponibilidad()); // Con disponibilidad
+        assertEquals("1 período disponible", disponibilidadSegundoJueves.getResumen());
+        
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes);
+    }
+
+    @Test
+    void testObtenerDisponibilidadMensual_EstablecimientoSiempreCerrado() {
+        // Arrange
+        int anyo = 2024;
+        int mes = 3; // Marzo
+        
+        // Establecimiento sin franjas horarias
+        establecimiento.setFranjasHorarias(new ArrayList<>());
+        
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 31).atTime(23, 59, 59);
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
+            .thenReturn(new ArrayList<>());
+
+        // Act
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(31, resultado.size()); // Marzo tiene 31 días
+        
+        // Verificar que todos los días están cerrados
+        for (DisponibilidadDia disponibilidad : resultado.values()) {
+            assertFalse(disponibilidad.isTieneHorarioApertura());
+            assertFalse(disponibilidad.isTieneDisponibilidad());
+            assertEquals("Cerrado", disponibilidad.getResumen());
+        }
+        
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes);
+    }
+
+    @Test
+    void testObtenerDisponibilidadMensual_AforoIlimitado() {
+        // Arrange
+        int anyo = 2024;
+        int mes = 4; // Abril
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(DayOfWeek.WEDNESDAY);
+        franja.setHoraInicio(LocalTime.of(8, 0));
+        franja.setHoraFin(LocalTime.of(18, 0));
+        
+        establecimiento.setFranjasHorarias(Arrays.asList(franja));
+        establecimiento.setAforo(null); // Aforo ilimitado
+        
+        // Crear múltiples reservas para un miércoles
+        LocalDate primerMiercoles = LocalDate.of(2024, 4, 3);
+        Reserva reserva1 = new Reserva();
+        reserva1.setFechaReserva(LocalDateTime.of(primerMiercoles, LocalTime.of(9, 0)));
+        reserva1.setHoraFin(LocalTime.of(10, 0));
+        
+        Reserva reserva2 = new Reserva();
+        reserva2.setFechaReserva(LocalDateTime.of(primerMiercoles, LocalTime.of(11, 0)));
+        reserva2.setHoraFin(LocalTime.of(12, 0));
+        
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 30).atTime(23, 59, 59);
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
+            .thenReturn(Arrays.asList(reserva1, reserva2));
+
+        // Act
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(30, resultado.size()); // Abril tiene 30 días
+        
+        // Verificar el primer miércoles (con reservas pero aforo ilimitado)
+        DisponibilidadDia disponibilidadMiercoles = resultado.get(primerMiercoles);
+        assertNotNull(disponibilidadMiercoles);
+        assertTrue(disponibilidadMiercoles.isTieneHorarioApertura());
+        assertTrue(disponibilidadMiercoles.isTieneDisponibilidad()); // Siempre disponible con aforo ilimitado
+        assertEquals("1 período disponible", disponibilidadMiercoles.getResumen());
+        
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes);
+    }
+
+    // ================================
+    // TESTS PARA calcularDisponibilidadDiaOptimizada (método privado testeado a través del público)
+    // ================================
+
+    @Test
+    void testCalcularDisponibilidadDiaOptimizada_SinReservas() {
+        // Arrange - Testeado a través de obtenerDisponibilidadMensual
+        int anyo = 2024;
+        int mes = 5; // Mayo
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(DayOfWeek.FRIDAY);
+        franja.setHoraInicio(LocalTime.of(13, 0));
+        franja.setHoraFin(LocalTime.of(16, 0));
+        
+        establecimiento.setFranjasHorarias(Arrays.asList(franja));
+        establecimiento.setAforo(3);
+        
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 31).atTime(23, 59, 59);
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
+            .thenReturn(new ArrayList<>());
+
+        // Act
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
+
+        // Assert - Verificar que calcularDisponibilidadDiaOptimizada funciona correctamente
+        LocalDate primerViernes = LocalDate.of(2024, 5, 3);
+        DisponibilidadDia disponibilidadViernes = resultado.get(primerViernes);
+        
+        assertNotNull(disponibilidadViernes);
+        assertTrue(disponibilidadViernes.isTieneHorarioApertura());
+        assertTrue(disponibilidadViernes.isTieneDisponibilidad());
+        assertEquals(1, disponibilidadViernes.getFranjasDisponibles().size());
+        assertEquals("1 período disponible", disponibilidadViernes.getResumen());
+        
+        // Verificar un día sin horario de apertura
+        LocalDate primerSabado = LocalDate.of(2024, 5, 4);
+        DisponibilidadDia disponibilidadSabado = resultado.get(primerSabado);
+        
+        assertNotNull(disponibilidadSabado);
+        assertFalse(disponibilidadSabado.isTieneHorarioApertura());
+        assertFalse(disponibilidadSabado.isTieneDisponibilidad());
+        assertTrue(disponibilidadSabado.getFranjasDisponibles().isEmpty());
+        assertEquals("Cerrado", disponibilidadSabado.getResumen());
+        
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes);
+    }
+
+    @Test
+    void testCalcularDisponibilidadDiaOptimizada_ConReservasDelDia() {
+        // Arrange - Testeado a través de obtenerDisponibilidadMensual
+        int anyo = 2024;
+        int mes = 6; // Junio
+        
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(DayOfWeek.SATURDAY);
+        franja.setHoraInicio(LocalTime.of(10, 0));
+        franja.setHoraFin(LocalTime.of(14, 0));
+        
+        establecimiento.setFranjasHorarias(Arrays.asList(franja));
+        establecimiento.setAforo(2);
+        
+        // Reservas para diferentes sábados del mes
+        LocalDate primerSabado = LocalDate.of(2024, 6, 1);
+        Reserva reservaSabado1 = new Reserva();
+        reservaSabado1.setFechaReserva(LocalDateTime.of(primerSabado, LocalTime.of(10, 0)));
+        reservaSabado1.setHoraFin(LocalTime.of(11, 0));
+        
+        Reserva reservaSabado2 = new Reserva();
+        reservaSabado2.setFechaReserva(LocalDateTime.of(primerSabado, LocalTime.of(10, 30)));
+        reservaSabado2.setHoraFin(LocalTime.of(11, 30));
+        
+        LocalDate segundoSabado = LocalDate.of(2024, 6, 8);
+        Reserva reservaSegundoSabado = new Reserva();
+        reservaSegundoSabado.setFechaReserva(LocalDateTime.of(segundoSabado, LocalTime.of(12, 0)));
+        reservaSegundoSabado.setHoraFin(LocalTime.of(13, 0));
+        
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 30).atTime(23, 59, 59);
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
+            .thenReturn(Arrays.asList(reservaSabado1, reservaSabado2, reservaSegundoSabado));
+
+        // Act
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
+
+        // Assert - Verificar que las reservas se agrupan correctamente por fecha
+        DisponibilidadDia disponibilidadPrimerSabado = resultado.get(primerSabado);
+        assertNotNull(disponibilidadPrimerSabado);
+        assertTrue(disponibilidadPrimerSabado.isTieneHorarioApertura());
+        assertTrue(disponibilidadPrimerSabado.isTieneDisponibilidad()); // Debe tener algunos períodos disponibles
+        
+        DisponibilidadDia disponibilidadSegundoSabado = resultado.get(segundoSabado);
+        assertNotNull(disponibilidadSegundoSabado);
+        assertTrue(disponibilidadSegundoSabado.isTieneHorarioApertura());
+        assertTrue(disponibilidadSegundoSabado.isTieneDisponibilidad()); // Con menos reservas, más disponibilidad
+        
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes);
+    }
+
+    @Test
+    void testCalcularDisponibilidadDiaOptimizada_MultiplesPeridosDisponibles() {
+        // Arrange - Caso complejo con múltiples franjas
+        int año = 2024;
+        int mes = 7; // Julio
+        
+        FranjaHoraria franjaManyana = new FranjaHoraria();
+        franjaManyana.setDiaSemana(DayOfWeek.SUNDAY);
+        franjaManyana.setHoraInicio(LocalTime.of(8, 0));
+        franjaManyana.setHoraFin(LocalTime.of(12, 0));
+        
+        FranjaHoraria franjaTarde = new FranjaHoraria();
+        franjaTarde.setDiaSemana(DayOfWeek.SUNDAY);
+        franjaTarde.setHoraInicio(LocalTime.of(14, 0));
+        franjaTarde.setHoraFin(LocalTime.of(18, 0));
+        
+        establecimiento.setFranjasHorarias(Arrays.asList(franjaManyana, franjaTarde));
+        establecimiento.setAforo(4);
+        
+        // Una reserva que no ocupa completamente ninguna franja
+        LocalDate primerDomingo = LocalDate.of(2024, 7, 7);
+        Reserva reservaDomingo = new Reserva();
+        reservaDomingo.setFechaReserva(LocalDateTime.of(primerDomingo, LocalTime.of(10, 0)));
+        reservaDomingo.setHoraFin(LocalTime.of(11, 0));
+        
+        LocalDateTime inicioMes = LocalDate.of(año, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(año, mes, 31).atTime(23, 59, 59);
+        when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
+            .thenReturn(Arrays.asList(reservaDomingo));
+
+        // Act
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, año, mes);
+
+        // Assert
+        DisponibilidadDia disponibilidadDomingo = resultado.get(primerDomingo);
+        assertNotNull(disponibilidadDomingo);
+        assertTrue(disponibilidadDomingo.isTieneHorarioApertura());
+        assertTrue(disponibilidadDomingo.isTieneDisponibilidad());
+        assertEquals(2, disponibilidadDomingo.getFranjasDisponibles().size());
+        
+        // Debe tener múltiples períodos disponibles
+        long totalPeriodos = disponibilidadDomingo.getFranjasDisponibles().stream()
+            .mapToLong(franja -> franja.getPeriodosDisponibles().size())
+            .sum();
+        assertTrue(totalPeriodos > 1);
+        assertTrue(disponibilidadDomingo.getResumen().contains("períodos disponibles"));
+        
+        verify(reservaRepo).findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes);
     }
 }

@@ -1,11 +1,11 @@
 package es.ubu.reservapp.service;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -14,11 +14,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,8 +28,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ui.Model;
 
 import es.ubu.reservapp.exception.UserNotFoundException;
-import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.entities.Establecimiento;
+import es.ubu.reservapp.model.entities.Usuario;
 import es.ubu.reservapp.model.repositories.UsuarioRepo;
 
 /**
@@ -580,5 +580,313 @@ class UsuarioServiceImplTest {
         
         // Then
         assertNotNull(service);
+    }
+
+    // ================================
+    // TESTS PARA buscarUsuarioSegunQuery
+    // ================================
+
+    @Test
+    void buscarUsuarioSegunQuery_WithValidQuery_ShouldReturnMatchingUsers() {
+        // Given
+        Usuario usuario1 = new Usuario();
+        usuario1.setId("test123");
+        usuario1.setNombre("Test User");
+        
+        Usuario usuario2 = new Usuario();
+        usuario2.setId("user456");
+        usuario2.setCorreo("test@example.com");
+        
+        List<Usuario> expectedUsers = Arrays.asList(usuario1, usuario2);
+        when(usuarioRepo.findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+            "test", "test", "test", "test")).thenReturn(expectedUsers);
+
+        // When
+        List<Usuario> result = usuarioService.buscarUsuarioSegunQuery("test");
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(expectedUsers, result);
+        verify(usuarioRepo).findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+            "test", "test", "test", "test");
+    }
+
+    @Test
+    void buscarUsuarioSegunQuery_WithEmptyQuery_ShouldCallRepositoryWithEmptyString() {
+        // Given
+        List<Usuario> expectedUsers = new ArrayList<>();
+        when(usuarioRepo.findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+            "", "", "", "")).thenReturn(expectedUsers);
+
+        // When
+        List<Usuario> result = usuarioService.buscarUsuarioSegunQuery("");
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(usuarioRepo).findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+            "", "", "", "");
+    }
+
+    @Test
+    void buscarUsuarioSegunQuery_WithNullQuery_ShouldCallRepositoryWithNull() {
+        // Given
+        List<Usuario> expectedUsers = new ArrayList<>();
+        when(usuarioRepo.findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+            null, null, null, null)).thenReturn(expectedUsers);
+
+        // When
+        List<Usuario> result = usuarioService.buscarUsuarioSegunQuery(null);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(usuarioRepo).findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+            null, null, null, null);
+    }
+
+    @Test
+    void buscarUsuarioSegunQuery_WithSpecialCharacters_ShouldHandleCorrectly() {
+        // Given
+        String query = "test@domain.com";
+        Usuario usuario1 = new Usuario();
+        usuario1.setCorreo("test@domain.com");
+        
+        List<Usuario> expectedUsers = Arrays.asList(usuario1);
+        when(usuarioRepo.findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+            query, query, query, query)).thenReturn(expectedUsers);
+
+        // When
+        List<Usuario> result = usuarioService.buscarUsuarioSegunQuery(query);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(expectedUsers, result);
+        verify(usuarioRepo).findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+            query, query, query, query);
+    }
+
+    @Test
+    void buscarUsuarioSegunQuery_WithWhitespaceQuery_ShouldCallRepositoryWithWhitespace() {
+        // Given
+        String query = "   ";
+        List<Usuario> expectedUsers = new ArrayList<>();
+        when(usuarioRepo.findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+            query, query, query, query)).thenReturn(expectedUsers);
+
+        // When
+        List<Usuario> result = usuarioService.buscarUsuarioSegunQuery(query);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(usuarioRepo).findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+            query, query, query, query);
+    }
+
+    @Test
+    void buscarUsuarioSegunQuery_WithNoResults_ShouldReturnEmptyList() {
+        // Given
+        String query = "nonexistent";
+        List<Usuario> expectedUsers = new ArrayList<>();
+        when(usuarioRepo.findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+            query, query, query, query)).thenReturn(expectedUsers);
+
+        // When
+        List<Usuario> result = usuarioService.buscarUsuarioSegunQuery(query);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(usuarioRepo).findByIdContainingIgnoreCaseOrNombreContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+            query, query, query, query);
+    }
+
+    // ================================
+    // TESTS PARA findUsuariosByIds
+    // ================================
+
+    @Test
+    void findUsuariosByIds_WithValidIds_ShouldReturnMatchingUsers() {
+        // Given
+        List<String> ids = Arrays.asList("user1", "user2", "user3");
+        
+        Usuario usuario1 = new Usuario();
+        usuario1.setId("user1");
+        usuario1.setNombre("Usuario 1");
+        
+        Usuario usuario2 = new Usuario();
+        usuario2.setId("user2");
+        usuario2.setNombre("Usuario 2");
+        
+        Usuario usuario3 = new Usuario();
+        usuario3.setId("user3");
+        usuario3.setNombre("Usuario 3");
+        
+        Usuario usuario4 = new Usuario();
+        usuario4.setId("user4");
+        usuario4.setNombre("Usuario 4");
+        
+        List<Usuario> allUsers = Arrays.asList(usuario1, usuario2, usuario3, usuario4);
+        when(usuarioRepo.findAll()).thenReturn(allUsers);
+
+        // When
+        List<Usuario> result = usuarioService.findUsuariosByIds(ids);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(3, result.size());
+        assertTrue(result.contains(usuario1));
+        assertTrue(result.contains(usuario2));
+        assertTrue(result.contains(usuario3));
+        assertFalse(result.contains(usuario4));
+        verify(usuarioRepo).findAll();
+    }
+
+    @Test
+    void findUsuariosByIds_WithEmptyIdsList_ShouldReturnEmptyList() {
+        // Given
+        List<String> ids = new ArrayList<>();
+        List<Usuario> allUsers = Arrays.asList(usuario);
+        when(usuarioRepo.findAll()).thenReturn(allUsers);
+
+        // When
+        List<Usuario> result = usuarioService.findUsuariosByIds(ids);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(usuarioRepo).findAll();
+    }
+
+    @Test
+    void findUsuariosByIds_WithNonExistentIds_ShouldReturnEmptyList() {
+        // Given
+        List<String> ids = Arrays.asList("nonexistent1", "nonexistent2");
+        
+        Usuario usuario1 = new Usuario();
+        usuario1.setId("existing1");
+        
+        Usuario usuario2 = new Usuario();
+        usuario2.setId("existing2");
+        
+        List<Usuario> allUsers = Arrays.asList(usuario1, usuario2);
+        when(usuarioRepo.findAll()).thenReturn(allUsers);
+
+        // When
+        List<Usuario> result = usuarioService.findUsuariosByIds(ids);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(usuarioRepo).findAll();
+    }
+
+    @Test
+    void findUsuariosByIds_WithMixedExistentAndNonExistentIds_ShouldReturnOnlyExistentUsers() {
+        // Given
+        List<String> ids = Arrays.asList("user1", "nonexistent", "user3", "alsoNonexistent");
+        
+        Usuario usuario1 = new Usuario();
+        usuario1.setId("user1");
+        usuario1.setNombre("Usuario 1");
+        
+        Usuario usuario2 = new Usuario();
+        usuario2.setId("user2");
+        usuario2.setNombre("Usuario 2");
+        
+        Usuario usuario3 = new Usuario();
+        usuario3.setId("user3");
+        usuario3.setNombre("Usuario 3");
+        
+        List<Usuario> allUsers = Arrays.asList(usuario1, usuario2, usuario3);
+        when(usuarioRepo.findAll()).thenReturn(allUsers);
+
+        // When
+        List<Usuario> result = usuarioService.findUsuariosByIds(ids);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.contains(usuario1));
+        assertFalse(result.contains(usuario2));
+        assertTrue(result.contains(usuario3));
+        verify(usuarioRepo).findAll();
+    }
+
+    @Test
+    void findUsuariosByIds_WithDuplicateIds_ShouldReturnUniqueUsers() {
+        // Given
+        List<String> ids = Arrays.asList("user1", "user1", "user2", "user1");
+        
+        Usuario usuario1 = new Usuario();
+        usuario1.setId("user1");
+        usuario1.setNombre("Usuario 1");
+        
+        Usuario usuario2 = new Usuario();
+        usuario2.setId("user2");
+        usuario2.setNombre("Usuario 2");
+        
+        List<Usuario> allUsers = Arrays.asList(usuario1, usuario2);
+        when(usuarioRepo.findAll()).thenReturn(allUsers);
+
+        // When
+        List<Usuario> result = usuarioService.findUsuariosByIds(ids);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.contains(usuario1));
+        assertTrue(result.contains(usuario2));
+        // Verificar que cada usuario aparece solo una vez
+        long user1Count = result.stream().filter(u -> "user1".equals(u.getId())).count();
+        long user2Count = result.stream().filter(u -> "user2".equals(u.getId())).count();
+        assertEquals(1, user1Count);
+        assertEquals(1, user2Count);
+        verify(usuarioRepo).findAll();
+    }
+
+    @Test
+    void findUsuariosByIds_WithSingleId_ShouldReturnSingleUser() {
+        // Given
+        List<String> ids = Arrays.asList("user1");
+        
+        Usuario usuario1 = new Usuario();
+        usuario1.setId("user1");
+        usuario1.setNombre("Usuario 1");
+        
+        Usuario usuario2 = new Usuario();
+        usuario2.setId("user2");
+        usuario2.setNombre("Usuario 2");
+        
+        List<Usuario> allUsers = Arrays.asList(usuario1, usuario2);
+        when(usuarioRepo.findAll()).thenReturn(allUsers);
+
+        // When
+        List<Usuario> result = usuarioService.findUsuariosByIds(ids);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(usuario1, result.get(0));
+        verify(usuarioRepo).findAll();
+    }
+
+    @Test
+    void findUsuariosByIds_WithEmptyRepositoryResult_ShouldReturnEmptyList() {
+        // Given
+        List<String> ids = Arrays.asList("user1", "user2");
+        List<Usuario> allUsers = new ArrayList<>();
+        when(usuarioRepo.findAll()).thenReturn(allUsers);
+
+        // When
+        List<Usuario> result = usuarioService.findUsuariosByIds(ids);
+
+        // Then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(usuarioRepo).findAll();
     }
 }

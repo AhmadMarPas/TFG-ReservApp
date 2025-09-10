@@ -1,9 +1,11 @@
 package es.ubu.reservapp.controller;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,6 +15,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
@@ -70,6 +74,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ReservaController {
 
     // Constantes para rutas y mensajes
+	private static final String FORMATO_HORAS = "HH:mm";
+	private static final String ESTABLECIMIENTO = "establecimiento";
+	private static final String PERIODOS_LIBRES = "periodosLibres";
     private static final String REDIRECT = "redirect:/";
     private static final String REDIRECT_CALENDARIO = "reservas/calendario_reserva";
     private static final String REDIRECT_MIS_RESERVAS = REDIRECT + "misreservas";
@@ -106,37 +113,279 @@ public class ReservaController {
         this.usuarioService = usuarioService;
         this.emailService = emailService;
     }
+    
+    /**
+     * Muestra el calendario mensual de disponibilidad para un establecimiento específico.
+     *
+     * @param establecimientoId ID del establecimiento.
+     * @param mes Mes seleccionado (opcional, por defecto el mes actual).
+     * @param anio Año seleccionado (opcional, por defecto el año actual).
+     * @param model Modelo para pasar datos a la vista.
+     * @param redirectAttributes Atributos para redirección con mensajes flash.
+     * @return Nombre de la vista a mostrar.
+     */
+    @GetMapping("/calendario/{id}")
+    public String mostrarCalendarioMensual(@PathVariable("id") Integer establecimientoId,
+                                         @RequestParam(name = "mes", required = false) Integer mes,
+                                         @RequestParam(name = "anio", required = false) Integer anio,
+                                         Model model,
+                                         RedirectAttributes redirectAttributes) {
+        try {
+            log.info("=== INICIO: Solicitud de calendario mensual para establecimiento {} ===", establecimientoId);
+            
+            String errorUsuario = validarUsuarioAutenticado(redirectAttributes);
+            if (errorUsuario != null) {
+                log.warn("Usuario no autenticado para calendario mensual");
+                return errorUsuario;
+            }
+
+            Optional<Establecimiento> establecimientoOpt = validarEstablecimiento(establecimientoId, redirectAttributes);
+            if (establecimientoOpt.isEmpty()) {
+                log.warn("Establecimiento {} no encontrado", establecimientoId);
+                return REDIRECT_MIS_RESERVAS;
+            }
+            Establecimiento establecimiento = establecimientoOpt.get();
+
+            String errorPermisos = validarPermisoEstablecimiento(establecimiento, redirectAttributes);
+            if (errorPermisos != null) {
+                log.warn("Usuario sin permisos para establecimiento {}", establecimientoId);
+                return errorPermisos;
+            }
+
+            log.info("Validaciones completadas. Preparando datos del calendario...");
+
+            prepararDatosCalendarioMensual(establecimiento, mes, anio, model);
+            if (model.containsAttribute(ERROR)) {
+				log.warn("Error al preparar datos del calendario: {}", model.getAttribute(ERROR));
+				redirectAttributes.addFlashAttribute(ERROR, "Error al cargar el calendario");
+				return REDIRECT_MIS_RESERVAS;
+			}
+            
+            log.info("Calendario mensual preparado para establecimiento: {}, mes: {}, año: {}", establecimientoId, mes, anio);
+            
+            log.info("=== FIN: Redirigiendo a template calendario_mensual_usuario ===");
+            return "reservas/calendario_mensual_usuario";
+        } catch (Exception e) {
+            log.error("Error al mostrar calendario mensual para establecimiento {}: {}", establecimientoId, e.getMessage(), e);
+            redirectAttributes.addFlashAttribute(ERROR, "Error al cargar el calendario: " + e.getMessage());
+            return REDIRECT_MIS_RESERVAS;
+        }
+    }
 
     /**
-	 * Muestra el calendario de reservas para un establecimiento específico.
-	 *
-	 * @param establecimientoId ID del establecimiento.
-	 * @param model Modelo para pasar datos a la vista.
-	 * @param redirectAttributes Atributos para redirección con mensajes flash.
-	 * @return Nombre de la vista a mostrar.
-	 */
+     * Modificado para aceptar fecha preseleccionada desde el calendario mensual.
+     *
+     * @param establecimientoId ID del establecimiento.
+     * @param fechaPreseleccionada Fecha preseleccionada desde el calendario mensual (opcional).
+     * @param model Modelo para pasar datos a la vista.
+     * @param redirectAttributes Atributos para redirección con mensajes flash.
+     * @return Nombre de la vista a mostrar.
+     */
     @GetMapping("/establecimiento/{id}")
-    public String mostrarCalendarioReserva(@PathVariable("id") Integer establecimientoId, Model model, RedirectAttributes redirectAttributes) {
-        // Validar usuario autenticado
-        String errorUsuario = validarUsuarioAutenticado(redirectAttributes);
-        if (errorUsuario != null) return errorUsuario;
+	public String mostrarCalendarioReserva(@PathVariable("id") Integer establecimientoId,
+			@RequestParam(value = "fecha", required = false) String fechaPreseleccionada, Model model,
+			RedirectAttributes redirectAttributes, HttpServletRequest request) {
 
-        // Validar y obtener establecimiento
-        Optional<Establecimiento> establecimientoOpt = validarEstablecimiento(establecimientoId, redirectAttributes);
-        if (establecimientoOpt.isEmpty()) return REDIRECT_MIS_RESERVAS;
-        Establecimiento establecimiento = establecimientoOpt.get();
+		log.info("=== INICIO: mostrarCalendarioReserva ===");
+		log.info("Establecimiento ID: {}", establecimientoId);
+		log.info("Fecha preseleccionada recibida: '{}'", fechaPreseleccionada);
+		log.info("Query string completa: {}", request.getQueryString());
+		log.info("URL completa: {}",
+				request.getRequestURL() + (request.getQueryString() != null ? "?" + request.getQueryString() : ""));
 
-        // Validar permisos del usuario
-        String errorPermisos = validarPermisoEstablecimiento(establecimiento, redirectAttributes);
-        if (errorPermisos != null) {
-        	return errorPermisos;
-        }
+		String errorValidacion = realizarValidacionesIniciales(establecimientoId, redirectAttributes);
+		if (errorValidacion != null) {
+			return errorValidacion;
+		}
 
-        // Preparar datos para la vista
-        prepararDatosCalendario(establecimiento, model);
-        
-        return REDIRECT_CALENDARIO;
-    }
+		Establecimiento establecimiento = obtenerEstablecimientoValidado(establecimientoId);
+		prepararDatosCalendario(establecimiento, model);
+		model.addAttribute(PERIODOS_LIBRES, new ArrayList<>());
+
+		procesarFechaPreseleccionada(fechaPreseleccionada, establecimiento, model);
+
+		return REDIRECT_CALENDARIO;
+	}
+
+    /**
+	 * Realiza las validaciones iniciales comunes para los endpoints que requieren establecimiento.
+	 * 
+	 * @param establecimientoId ID del establecimiento a validar.
+	 * @param redirectAttributes Atributos para redirección con mensajes flash.
+	 * @return Mensaje de error si hay alguna validación fallida, o null si ttodo es correcto.
+	 */
+	private String realizarValidacionesIniciales(Integer establecimientoId, RedirectAttributes redirectAttributes) {
+		String errorUsuario = validarUsuarioAutenticado(redirectAttributes);
+		if (errorUsuario != null) {
+			return errorUsuario;
+		}
+
+		Optional<Establecimiento> establecimientoOpt = validarEstablecimiento(establecimientoId, redirectAttributes);
+		if (establecimientoOpt.isEmpty()) {
+			return REDIRECT_MIS_RESERVAS;
+		}
+
+		return validarPermisoEstablecimiento(establecimientoOpt.get(), redirectAttributes);
+	}
+
+	/**
+	 * Prepara los datos necesarios para el calendario mensual.
+	 * 
+	 * @param establecimiento Establecimiento para el cual se muestra el calendario.
+	 * @param mes Mes seleccionado (1-12), o null para el mes actual.
+	 * @param anio Año seleccionado, o null para el año actual.
+	 * @param model Modelo para pasar datos a la vista.
+	 */
+	private Establecimiento obtenerEstablecimientoValidado(Integer establecimientoId) {
+		return validarEstablecimiento(establecimientoId, null).get();
+	}
+
+	/**
+	 * Prepara los datos necesarios para el calendario mensual.
+	 * 
+	 * @param establecimiento Establecimiento para el cual se muestra el calendario.
+	 * @param mes Mes seleccionado (1-12), o null para el mes actual.
+	 * @param anio Año seleccionado, o null para el año actual.
+	 * @param model Modelo para pasar datos a la vista.
+	 */
+	private void procesarFechaPreseleccionada(String fechaPreseleccionada, Establecimiento establecimiento,
+			Model model) {
+		if (esFechaPreseleccionadaValida(fechaPreseleccionada)) {
+			return;
+		}
+
+		try {
+			log.info("=== PROCESANDO FECHA PRESELECCIONADA: '{}' ===", fechaPreseleccionada);
+			LocalDate fecha = LocalDate.parse(fechaPreseleccionada);
+			log.info("Fecha parseada correctamente: {}", fecha);
+
+			procesarFechaParseada(fecha, establecimiento, model, fechaPreseleccionada);
+
+		} catch (Exception e) {
+			log.error("Error al procesar fecha preseleccionada '{}': {}", fechaPreseleccionada, e.getMessage());
+		}
+	}
+
+	/**
+	 * Prepara los datos necesarios para el calendario mensual.
+	 * 
+	 * @param establecimiento Establecimiento para el cual se muestra el calendario.
+	 * @param mes Mes seleccionado (1-12), o null para el mes actual.
+	 * @param anio Año seleccionado, o null para el año actual.
+	 * @param model Modelo para pasar datos a la vista.
+	 */
+	private boolean esFechaPreseleccionadaValida(String fechaPreseleccionada) {
+		boolean esInvalida = fechaPreseleccionada == null || fechaPreseleccionada.trim().isEmpty();
+		if (esInvalida) {
+			log.info("No hay fecha preseleccionada o está vacía: '{}'", fechaPreseleccionada);
+		}
+		return esInvalida;
+	}
+
+	/**
+	 * Prepara los datos necesarios para el calendario mensual.
+	 * 
+	 * @param establecimiento Establecimiento para el cual se muestra el calendario.
+	 * @param mes Mes seleccionado (1-12), o null para el mes actual.
+	 * @param anio Año seleccionado, o null para el año actual.
+	 * @param model Modelo para pasar datos a la vista.
+	 */
+	private void procesarFechaParseada(LocalDate fecha, Establecimiento establecimiento, Model model,
+			String fechaPreseleccionada) {
+		if (fecha.isBefore(LocalDate.now())) {
+			log.warn("Fecha preseleccionada es pasada: {}", fecha);
+			return;
+		}
+
+		configurarFechaEnModelo(fecha, fechaPreseleccionada, model);
+		procesarPeriodosLibresSiEsNecesario(establecimiento, fecha, model);
+	}
+
+	/**
+	 * Prepara los datos necesarios para el calendario mensual.
+	 * 
+	 * @param establecimiento Establecimiento para el cual se muestra el calendario.
+	 * @param mes Mes seleccionado (1-12), o null para el mes actual.
+	 * @param anio Año seleccionado, o null para el año actual.
+	 * @param model Modelo para pasar datos a la vista.
+	 */
+	private void configurarFechaEnModelo(LocalDate fecha, String fechaPreseleccionada, Model model) {
+		model.addAttribute("fechaPreseleccionada", fechaPreseleccionada);
+		model.addAttribute("fechaFormateada", fecha.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+		log.info("Fecha preseleccionada desde calendario mensual: {}", fechaPreseleccionada);
+	}
+
+	/**
+	 * Prepara los datos necesarios para el calendario mensual.
+	 * 
+	 * @param establecimiento Establecimiento para el cual se muestra el calendario.
+	 * @param mes Mes seleccionado (1-12), o null para el mes actual.
+	 * @param anio Año seleccionado, o null para el año actual.
+	 * @param model Modelo para pasar datos a la vista.
+	 */
+	private void procesarPeriodosLibresSiEsNecesario(Establecimiento establecimiento, LocalDate fecha, Model model) {
+		Integer duracion = establecimiento.getDuracionReserva();
+		log.info("Duración del establecimiento: {}", duracion);
+
+		if (tieneEstrategiaSinDuracionFija(duracion)) {
+			procesarEstablecimientoSinDuracionFija(establecimiento, fecha, model);
+		} else {
+			procesarEstablecimientoConDuracionFija(duracion, model);
+		}
+	}
+
+	/**
+	 * Verifica si el establecimiento utiliza la estrategia de reserva sin duración fija.
+	 * 
+	 * @param duracion Duración de la reserva en minutos (puede ser null).
+	 * @return true si la estrategia es sin duración fija, false si es con duración fija.
+	 */
+	private boolean tieneEstrategiaSinDuracionFija(Integer duracion) {
+		return duracion == null || duracion <= 0;
+	}
+
+	/**
+	 * Obtiene los períodos libres para un establecimiento en una fecha específica.
+	 * 
+	 * @param establecimiento Establecimiento para el cual se obtienen los períodos.
+	 * @param fecha Fecha para la cual se obtienen los períodos.
+	 * @return Lista de períodos libres.
+	 */
+	private void procesarEstablecimientoSinDuracionFija(Establecimiento establecimiento, LocalDate fecha, Model model) {
+		log.info("Establecimiento SIN duración fija - calculando períodos libres");
+		List<PeriodoLibre> periodosLibres = obtenerPeriodosLibres(establecimiento, fecha);
+		model.addAttribute(PERIODOS_LIBRES, periodosLibres);
+
+		logPeriodosLibresCalculados(periodosLibres, fecha);
+	}
+
+	/**
+	 * Obtiene los períodos libres para un establecimiento en una fecha específica.
+	 * 
+	 * @param establecimiento Establecimiento para el cual se obtienen los períodos.
+	 * @param fecha Fecha para la cual se obtienen los períodos.
+	 * @return Lista de períodos libres.
+	 */
+	private void procesarEstablecimientoConDuracionFija(Integer duracion, Model model) {
+		model.addAttribute(PERIODOS_LIBRES, new ArrayList<>());
+		log.info("Establecimiento con duración fija ({} min) - no se muestran períodos libres", duracion);
+	}
+
+	/**
+	 * Obtiene los períodos libres para un establecimiento en una fecha específica.
+	 * 
+	 * @param establecimiento Establecimiento para el cual se obtienen los períodos.
+	 * @param fecha Fecha para la cual se obtienen los períodos.
+	 * @return Lista de períodos libres.
+	 */
+	private void logPeriodosLibresCalculados(List<PeriodoLibre> periodosLibres, LocalDate fecha) {
+		log.info("=== PERÍODOS LIBRES CALCULADOS: {} períodos para {} ===", periodosLibres.size(), fecha);
+		for (int i = 0; i < periodosLibres.size(); i++) {
+			PeriodoLibre periodo = periodosLibres.get(i);
+			log.info("  Período {}: {} - {} ({} espacios)", i + 1, periodo.getHoraInicioFormateada(),
+					periodo.getHoraFinFormateada(), periodo.getEspaciosDisponibles());
+		}
+	}
 
     /**
      * Crea una nueva reserva para un establecimiento específico.
@@ -165,7 +414,6 @@ public class ReservaController {
         log.info("Creando reserva para establecimiento: {}, fecha: {}, horaInicio: {}, horaFin: {}, slot: {}", 
                 establecimientoId, fechaStr, horaInicioStr, horaFinStr, slotSeleccionado);
 
-        // Pipeline de validaciones
 		String errorUsuario = validarUsuarioAutenticado(redirectAttributes);
 		if (errorUsuario != null) {
 			return errorUsuario;
@@ -192,7 +440,6 @@ public class ReservaController {
 			return errorFranja;
 		}
 
-		// NUEVA VALIDACIÓN: Verificar disponibilidad considerando aforo
 		String errorAforo = validarDisponibilidadAforo(establecimiento, horario, null, redirectAttributes);
 		if (errorAforo != null) {
 			return errorAforo;
@@ -253,7 +500,6 @@ public class ReservaController {
             @RequestParam(required = false) Integer reservaId) {
         
         try {
-            // Validar usuario autenticado
             if (sessionData.getUsuario() == null) {
                 return ResponseEntity.badRequest().build();
             }
@@ -267,18 +513,15 @@ public class ReservaController {
             LocalDate fechaReserva = LocalDate.parse(fecha);
             DayOfWeek diaSemana = fechaReserva.getDayOfWeek();
 
-            // Obtener reservas del día
             LocalDateTime inicioDelDia = fechaReserva.atStartOfDay();
             LocalDateTime finDelDia = fechaReserva.atTime(23, 59, 59);
             List<Reserva> reservasDelDia = reservaService.findByEstablecimientoAndFechaReservaBetween(establecimiento, inicioDelDia, finDelDia);
             
-            // Excluir la reserva actual si se está editando
             if (reservaId != null) {
                 reservasDelDia = reservasDelDia.stream()
                     .filter(reserva -> !reserva.getId().equals(reservaId)).toList();
             }
 
-            // Generar slots para el día específico
             List<SlotReservaUtil.SlotTiempo> slotsDisponibles = new ArrayList<>();
             
             for (FranjaHoraria franja : establecimiento.getFranjasHorarias()) {
@@ -288,7 +531,6 @@ public class ReservaController {
                 }
             }
 
-            // Ordenar slots por hora
             slotsDisponibles.sort(Comparator.comparing(SlotReservaUtil.SlotTiempo::getHoraInicio));
 
             SlotsDisponiblesResponse response = new SlotsDisponiblesResponse();
@@ -313,17 +555,13 @@ public class ReservaController {
      */
     @GetMapping("/franjas-disponibles")
     @ResponseBody
-    public ResponseEntity<FranjasDisponiblesResponse> obtenerFranjasDisponibles(
-            @RequestParam Integer establecimientoId,
-            @RequestParam String fecha) {
+    public ResponseEntity<FranjasDisponiblesResponse> obtenerFranjasDisponibles(@RequestParam Integer establecimientoId, @RequestParam String fecha) {
         
         try {
-            // Validar usuario autenticado
             if (sessionData.getUsuario() == null) {
                 return ResponseEntity.badRequest().build();
             }
 
-            // Obtener establecimiento
             Optional<Establecimiento> establecimientoOpt = establecimientoService.findById(establecimientoId);
             if (establecimientoOpt.isEmpty()) {
                 return ResponseEntity.notFound().build();
@@ -332,9 +570,7 @@ public class ReservaController {
             Establecimiento establecimiento = establecimientoOpt.get();
             LocalDate fechaReserva = LocalDate.parse(fecha);
 
-            // Obtener franjas disponibles
-            List<ReservaService.FranjaDisponibilidad> franjasDisponibles = 
-                reservaService.obtenerFranjasDisponibles(establecimiento, fechaReserva);
+            List<ReservaService.FranjaDisponibilidad> franjasDisponibles = reservaService.obtenerFranjasDisponibles(establecimiento, fechaReserva);
 
             FranjasDisponiblesResponse response = new FranjasDisponiblesResponse();
             response.setFranjas(franjasDisponibles);
@@ -365,7 +601,6 @@ public class ReservaController {
         
         String queryLower = query.toLowerCase().trim();
         
-        // OPTIMIZACIÓN: Usar búsqueda optimizada en base de datos en lugar de cargar todos los usuarios
         List<Usuario> usuarios = usuarioService.buscarUsuarioSegunQuery(queryLower);
         
         return usuarios.stream()
@@ -373,11 +608,7 @@ public class ReservaController {
                     usuario.getNombre() + " " + usuario.getApellidos(), 
                     usuario.getCorreo()))
                 .toList();
-    }
-
-    // ================================
-    // MÉTODOS PRIVADOS DE VALIDACIÓN
-    // ================================
+	}
 
     /**
      * Valida que el usuario esté autenticado.
@@ -575,10 +806,8 @@ public class ReservaController {
         configurarReserva(reserva, establecimiento, horario);
 
         try {
-            // Guardar la reserva primero
             Reserva reservaGuardada = reservaService.save(reserva);
             
-            // Crear convocatorias si hay usuarios seleccionados
             if (usuariosConvocados != null && usuariosConvocados.length > 0) {
                 crearConvocatorias(reservaGuardada, usuariosConvocados);
             }
@@ -599,13 +828,11 @@ public class ReservaController {
 	 * @param reservaGuardada Reserva de la que se envía el correo.
 	 */
 	private void enviarCorreoAlPropioUsuario(Reserva reservaGuardada) {
-		// Enviar correo de confirmación al usuario que crea la reserva
 		try {
 		    emailService.enviarNotificacionReservaCreada(reservaGuardada);
 		    log.info("Correo de confirmación de reserva enviado al usuario: {}", reservaGuardada.getUsuario().getCorreo());
 		} catch (Exception e) {
 		    log.error("Error al enviar correo de confirmación de reserva: {}", e.getMessage(), e);
-		    // No interrumpir el flujo, solo registrar el error
 		}
 	}
 
@@ -629,24 +856,20 @@ public class ReservaController {
      * Reutiliza convocatorias existentes (incluso las marcadas como inválidas) o crea nuevas.
      */
     private void gestionarConvocatorias(Reserva reserva, String[] usuariosConvocados) {
-        // Eliminar todas las convocatorias existentes
         convocatoriaService.deleteByReserva(reserva);
         
-        // Si no hay usuarios convocados, no hacer nada más
         if (usuariosConvocados == null || usuariosConvocados.length == 0) {
             return;
         }
         
         List<Convocado> convocatoriasActivas = new ArrayList<>();
         
-        // Crear siempre una nueva convocatoria para evitar conflictos
         Convocatoria nuevaConvocatoria = new Convocatoria();
         nuevaConvocatoria.setReserva(reserva);
         reserva.setConvocatoria(nuevaConvocatoria);
         nuevaConvocatoria.setConvocados(new ArrayList<>());
         log.info("Creando nueva convocatoria para reserva: {}", reserva.getId());
         
-        // OPTIMIZACIÓN: Filtrar IDs válidos y cargar usuarios en una sola consulta
         List<String> idsValidos = new ArrayList<>();
         for (String usuarioId : usuariosConvocados) {
             if (usuarioId != null && !usuarioId.trim().isEmpty()) {
@@ -655,7 +878,6 @@ public class ReservaController {
         }
         
         if (!idsValidos.isEmpty()) {
-            // Cargar todos los usuarios de una vez en lugar de consultas individuales
             List<Usuario> usuarios = usuarioService.findUsuariosByIds(idsValidos);
             Map<String, Usuario> usuariosMap = usuarios.stream()
                     .collect(Collectors.toMap(Usuario::getId, u -> u));
@@ -669,7 +891,6 @@ public class ReservaController {
                     convocado.setConvocatoria(nuevaConvocatoria);
                     convocado.setUsuario(usuario);
                     
-                    // Añadir el convocado a la lista de la convocatoria
                     nuevaConvocatoria.getConvocados().add(convocado);
                     convocatoriasActivas.add(convocado);
                     log.info("Convocado creado para usuario: {} en reserva: {}", usuario.getId(), reserva.getId());
@@ -677,11 +898,9 @@ public class ReservaController {
             }
         }
         
-        // Guardar la convocatoria solo si hay convocados
         if (!convocatoriasActivas.isEmpty()) {
             convocatoriaService.save(nuevaConvocatoria);
             
-            // Enviar notificaciones por correo electrónico
             try {
                 emailService.enviarNotificacionesConvocatoria(convocatoriasActivas, reserva);
                 log.info("Notificaciones de convocatoria enviadas para {} usuarios", convocatoriasActivas.size());
@@ -701,7 +920,6 @@ public class ReservaController {
     private void crearConvocatorias(Reserva reserva, String[] usuariosConvocados) {
         List<Convocado> convocatoriasCreadas = new ArrayList<>();
         
-        // Crear convocatoria solo si no existe y hay usuarios convocados
         Convocatoria convocatoria = reserva.getConvocatoria();
         if (convocatoria == null) {
             convocatoria = new Convocatoria();
@@ -709,12 +927,10 @@ public class ReservaController {
             reserva.setConvocatoria(convocatoria);
         }
         
-        // Inicializar lista de convocados si no existe
         if (convocatoria.getConvocados() == null) {
             convocatoria.setConvocados(new ArrayList<>());
         }
         
-        // OPTIMIZACIÓN: Filtrar IDs válidos y cargar usuarios en una sola consulta
         List<String> idsValidos = new ArrayList<>();
         for (String usuarioId : usuariosConvocados) {
             if (usuarioId != null && !usuarioId.trim().isEmpty()) {
@@ -723,7 +939,6 @@ public class ReservaController {
         }
         
         if (!idsValidos.isEmpty()) {
-            // Cargar todos los usuarios de una vez en lugar de consultas individuales
              List<Usuario> usuarios = usuarioService.findUsuariosByIds(idsValidos);
              Map<String, Usuario> usuariosMap = usuarios.stream()
                      .collect(Collectors.toMap(Usuario::getId, u -> u));
@@ -737,7 +952,6 @@ public class ReservaController {
                     convocado.setConvocatoria(convocatoria);
                     convocado.setUsuario(usuario);
 
-                    // Añadir el convocado a la lista de la convocatoria
                     convocatoria.getConvocados().add(convocado);
                     convocatoriasCreadas.add(convocado);
                     log.info("Convocatoria creada para usuario: {} en reserva: {}", usuario.getId(), reserva.getId());
@@ -745,7 +959,6 @@ public class ReservaController {
             }
         }
         
-        // Guardar la convocatoria solo una vez al final (el cascade guardará los convocados)
         if (!convocatoriasCreadas.isEmpty()) {
             convocatoriaService.save(convocatoria);
         }
@@ -760,14 +973,12 @@ public class ReservaController {
      * @param convocatoriasCreadas Lista de convocatorias creadas.
 	 */
 	private void enviarConvocatoria(Reserva reserva, List<Convocado> convocatoriasCreadas) {
-		// Enviar notificaciones por correo electrónico
         if (!convocatoriasCreadas.isEmpty()) {
             try {
                 emailService.enviarNotificacionesConvocatoria(convocatoriasCreadas, reserva);
                 log.info("Notificaciones de convocatoria enviadas para {} usuarios", convocatoriasCreadas.size());
             } catch (Exception e) {
                 log.error("Error al enviar notificaciones de convocatoria: {}", e.getMessage(), e);
-                // No interrumpir el flujo, solo registrar el error
             }
         }
 	}
@@ -792,7 +1003,6 @@ public class ReservaController {
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEditar(@PathVariable("id") Integer reservaId, Model model, RedirectAttributes redirectAttributes) {
         try {
-            // Validar usuario autenticado
             String errorUsuario = validarUsuarioAutenticado(redirectAttributes);
             if (errorUsuario != null) return errorUsuario;
             
@@ -804,7 +1014,6 @@ public class ReservaController {
                 return REDIRECT_MIS_RESERVAS;
             }
             
-            // Log para depuración
             log.info("Reserva cargada para edición - ID: {}, tiene convocatoria: {}", 
                     reservaId, reserva.getConvocatoria() != null);
             if (reserva.getConvocatoria() != null) {
@@ -814,31 +1023,25 @@ public class ReservaController {
                         reserva.getConvocatoria().getConvocados() != null ? reserva.getConvocatoria().getConvocados().size() : 0);
             }
             
-            // Verificar que la reserva pertenece al usuario autenticado
             if (!reserva.getUsuario().getId().equals(usuario.getId())) {
                 redirectAttributes.addFlashAttribute(ERROR, "No tienes permisos para editar esta reserva.");
                 return REDIRECT_MIS_RESERVAS;
             }
             
-            // Verificar que la reserva es futura
             if (reserva.getFechaReserva().isBefore(LocalDateTime.now())) {
                 redirectAttributes.addFlashAttribute(ERROR, "No se pueden editar reservas pasadas.");
                 return REDIRECT_RESERVAS_ESTABLECIMIENTO + reserva.getEstablecimiento().getId();
             }
             
-            // Preparar datos para el formulario
-            // No llamar a crearReservaConConvocatorias para edición, ya que la reserva ya existe
             model.addAttribute("reserva", reserva);
-            model.addAttribute("establecimiento", reserva.getEstablecimiento());
+            model.addAttribute(ESTABLECIMIENTO, reserva.getEstablecimiento());
             model.addAttribute("isEdit", true);
 			
-			// Manejar convocatoria si existe (independientemente de si tiene convocados)
 			if (reserva.getConvocatoria() != null) {
 				log.info("Agregando convocatoria al modelo para edición - enlace: {}, observaciones: {}", 
 						reserva.getConvocatoria().getEnlace(), reserva.getConvocatoria().getObservaciones());
 				model.addAttribute("convocatoria", reserva.getConvocatoria());
 				
-				// Agregar convocados si existen
 				if (reserva.getConvocatoria().getConvocados() != null && 
 				    !reserva.getConvocatoria().getConvocados().isEmpty()) {
 					List<UsuarioSimpleDTO> convocados = reserva.getConvocatoria().getConvocados().stream()
@@ -857,16 +1060,13 @@ public class ReservaController {
 				log.info("No hay convocatoria asociada a la reserva");
 			}
             
-            // Obtener franjas horarias del establecimiento
             List<FranjaHoraria> franjasActivas = obtenerFranjasActivas(reserva.getEstablecimiento());
             model.addAttribute("franjasHorarias", franjasActivas);
             
-            // Generar slots dinámicos si el establecimiento requiere slots predefinidos
             SlotsData slotsData = generarSlotsData(reserva.getEstablecimiento(), franjasActivas);
             model.addAttribute("requiereSlotsPredefinidos", slotsData.isRequiereSlots());
             model.addAttribute("slotsDisponibles", slotsData.getSlotsDisponibles());
             
-            // Si requiere slots predefinidos, calcular el slot actual de la reserva
             if (slotsData.isRequiereSlots()) {
                 String slotActual = calcularSlotActual(reserva);
                 model.addAttribute("slotActual", slotActual);
@@ -875,7 +1075,7 @@ public class ReservaController {
             return "reservas/editar_reserva";
             
         } catch (Exception e) {
-            log.error("Error al mostrar formulario de edición de reserva: ", e);
+            log.error("Error al cargar formulario de edición de reserva: ", e);
             redirectAttributes.addFlashAttribute(ERROR, "Error al cargar la reserva para edición.");
             return REDIRECT_MIS_RESERVAS;
         }
@@ -906,7 +1106,6 @@ public class ReservaController {
                                    @RequestParam(value = "usuariosConvocados", required = false) String[] usuariosConvocados,
                                    RedirectAttributes redirectAttributes) {
         try {
-            // Validar usuario autenticado
             String errorUsuario = validarUsuarioAutenticado(redirectAttributes);
             if (errorUsuario != null) return errorUsuario;
             
@@ -918,13 +1117,11 @@ public class ReservaController {
                 return REDIRECT_MIS_RESERVAS;
             }
             
-            // Verificar permisos
             if (!reservaExistente.getUsuario().getId().equals(usuario.getId())) {
                 redirectAttributes.addFlashAttribute(ERROR, "No tienes permisos para editar esta reserva.");
                 return REDIRECT_MIS_RESERVAS;
             }
             
-            // Verificar que la reserva es futura
             if (reservaExistente.getFechaReserva().isBefore(LocalDateTime.now())) {
                 redirectAttributes.addFlashAttribute(ERROR, "No se pueden editar reservas pasadas.");
                 return REDIRECT_RESERVAS_ESTABLECIMIENTO + reservaExistente.getEstablecimiento().getId();
@@ -932,25 +1129,21 @@ public class ReservaController {
             
             Establecimiento establecimiento = reservaExistente.getEstablecimiento();
             
-            // Procesar horarios
             HorarioReserva horario = parsearHorarios(fechaStr, horaInicioStr, horaFinStr, slotSeleccionado, redirectAttributes);
             if (horario == null) {
                 return REDIRECT_MIS_RESERVAS_EDITAR + reservaId;
             }
             
-            // Validar franja horaria
             String errorFranja = validarFranjaHoraria(establecimiento, horario, redirectAttributes);
             if (errorFranja != null) {
                 return REDIRECT_MIS_RESERVAS_EDITAR + reservaId;
             }
             
-            // Verificar disponibilidad considerando aforo
             String errorAforo = validarDisponibilidadAforo(establecimiento, horario, reservaExistente, redirectAttributes);
             if (errorAforo != null) {
                 return errorAforo;
             }
             
-            // Actualizar la reserva
             reservaExistente.setFechaReserva(LocalDateTime.of(horario.getFecha(), horario.getHoraInicio()));
             reservaExistente.setHoraFin(horario.getHoraFin());
             
@@ -958,25 +1151,19 @@ public class ReservaController {
 			boolean tieneConvocatoria = StringUtils.isNotBlank(enlaceReunion) || StringUtils.isNotBlank(observaciones)
 					|| (usuariosConvocados != null && usuariosConvocados.length > 0);
             
-            // SIEMPRE limpiar la referencia de convocatoria antes de guardar para evitar problemas de cascada
             reservaExistente.setConvocatoria(null);
             
-            // Eliminar convocatorias existentes ANTES de guardar la reserva
             convocatoriaService.deleteByReserva(reservaExistente);
             
-            // Guardar la reserva actualizada sin referencias a convocatorias
             Reserva reservaActualizada = reservaService.save(reservaExistente);
             
-            // Solo crear/actualizar convocatoria si hay datos de convocatoria o usuarios convocados
             if (tieneConvocatoria) {
-                // Crear nueva convocatoria
                 Convocatoria convocatoria = new Convocatoria();
                 convocatoria.setReserva(reservaActualizada);
                 convocatoria.setEnlace(enlaceReunion);
                 convocatoria.setObservaciones(observaciones);
                 reservaActualizada.setConvocatoria(convocatoria);
                 
-                // Gestionar convocatorias con soft delete
                 gestionarConvocatorias(reservaActualizada, usuariosConvocados);
                 reservaActualizada.setConvocatoria(convocatoriaService.save(convocatoria));
             }
@@ -989,7 +1176,7 @@ public class ReservaController {
         } catch (Exception e) {
             log.error("Error al actualizar reserva: ", e);
             redirectAttributes.addFlashAttribute(ERROR, "Error al actualizar la reserva: " + e.getMessage());
-            return REDIRECT_MIS_RESERVAS_EDITAR + reservaId;
+            return REDIRECT_MIS_RESERVAS;
         }
     }
 
@@ -1004,39 +1191,32 @@ public class ReservaController {
     @PostMapping("/anular/{id}")
     public String anularReserva(@PathVariable("id") Integer reservaId, RedirectAttributes redirectAttributes) {
         try {
-            // Validar usuario autenticado
             String errorUsuario = validarUsuarioAutenticado(redirectAttributes);
             if (errorUsuario != null) return errorUsuario;
             
             Usuario usuario = sessionData.getUsuario();
             
-            // Buscar la reserva
             Reserva reserva = reservaService.findById(reservaId);
             if (reserva == null) {
                 redirectAttributes.addFlashAttribute(ERROR, RESERVA_NO_ENCONTRADA);
                 return REDIRECT_MIS_RESERVAS;
             }
             
-            // Verificar que el usuario es el propietario de la reserva
             if (!reserva.getUsuario().getId().equals(usuario.getId())) {
                 redirectAttributes.addFlashAttribute(ERROR, "No tiene permisos para anular esta reserva.");
                 return REDIRECT_MIS_RESERVAS;
             }
             
-            // Verificar que la reserva es futura
             if (reserva.getFechaReserva().isBefore(LocalDateTime.now())) {
                 redirectAttributes.addFlashAttribute(ERROR, "No se pueden anular reservas pasadas.");
                 return String.format("redirect:/misreservas/establecimiento/%d", reserva.getEstablecimiento().getId());
             }
             
-            // Obtener información para el correo antes de eliminar
             Establecimiento establecimiento = reserva.getEstablecimiento();
             List<String> correosNotificacion = new ArrayList<>();
             
-            // Agregar correo del usuario que hizo la reserva
             correosNotificacion.add(usuario.getCorreo());
             
-            // Agregar correos de usuarios convocados si existen
             if (reserva.getConvocatoria() != null && reserva.getConvocatoria().getConvocados() != null) {
                 reserva.getConvocatoria().getConvocados().forEach(convocado -> {
                     if (convocado.getUsuario() != null && convocado.getUsuario().getCorreo() != null) {
@@ -1047,7 +1227,6 @@ public class ReservaController {
             
             notificarAnulacion(reservaId, reserva, correosNotificacion);
             
-            // Eliminar la reserva
             reservaService.delete(reserva);
             
             log.info("Reserva {} anulada exitosamente por usuario {}", reservaId, usuario.getId());
@@ -1070,18 +1249,12 @@ public class ReservaController {
 	 * @param correosNotificacion Lista de correos electrónicos a los que enviar la notificación
 	 */
 	private void notificarAnulacion(Integer reservaId, Reserva reserva, List<String> correosNotificacion) {
-		// Enviar notificaciones por correo
 		try {
 		    emailService.enviarNotificacionAnulacion(reserva, correosNotificacion);
 		} catch (Exception e) {
 		    log.warn("Error al enviar notificaciones de anulación para reserva {}: {}", reservaId, e.getMessage());
-		    // Continuar con la anulación aunque falle el envío de correos
 		}
 	}
-
-    // ================================
-    // MÉTODOS PRIVADOS DE PREPARACIÓN DE DATOS
-    // ================================
 
     /**
      * Prepara todos los datos necesarios para mostrar el calendario de reservas.
@@ -1092,17 +1265,392 @@ public class ReservaController {
     private void prepararDatosCalendario(Establecimiento establecimiento, Model model) {
         Usuario usuario = sessionData.getUsuario();
         
-        // Obtener franjas horarias activas
         List<FranjaHoraria> franjasActivas = obtenerFranjasActivas(establecimiento);
         
-        // Obtener reservas del usuario
         ReservasUsuario reservasUsuario = obtenerReservasUsuario(usuario, establecimiento);
         
-        // Generar slots si es necesario
         SlotsData slotsData = generarSlotsData(establecimiento, franjasActivas);
         
-        // Configurar modelo
         configurarModeloCalendario(model, establecimiento, franjasActivas, reservasUsuario, slotsData);
+    }
+
+    /**
+     * Prepara los datos necesarios para mostrar el calendario mensual de disponibilidad.
+     * 
+     * @param establecimiento Establecimiento para el cual mostrar el calendario
+     * @param mes Mes seleccionado (null para el mes actual)
+     * @param anio Año seleccionado (null para el año actual)
+     * @param model Modelo para pasar datos a la vista
+     */
+    private void prepararDatosCalendarioMensual(Establecimiento establecimiento, Integer mes, Integer anio, Model model) {
+        try {
+            LocalDate hoy = LocalDate.now();
+            int mesActual = (mes != null) ? mes : hoy.getMonthValue();
+            int anioActual = (anio != null) ? anio : hoy.getYear();
+            
+            log.info("Preparando calendario para establecimiento: {}, mes: {}, año: {}", establecimiento.getId(), mesActual, anioActual);
+            
+            YearMonth yearMonth = YearMonth.of(anioActual, mesActual);
+            LocalDate primerDiaMes = yearMonth.atDay(1);
+            LocalDate ultimoDiaMes = yearMonth.atEndOfMonth();
+            
+            List<Reserva> reservasMes = reservaService.findByEstablecimientoAndFechaReservaBetween(
+                establecimiento, 
+                primerDiaMes.atStartOfDay(), 
+                ultimoDiaMes.plusDays(1).atStartOfDay()
+            );
+            
+            log.info("Encontradas {} reservas para el mes {}/{}", reservasMes.size(), mesActual, anioActual);
+
+            CalendarioData calendarioData = generarCalendarioConDisponibilidad(establecimiento, yearMonth, reservasMes);
+            
+            log.info("Calendario generado con {} semanas", calendarioData.getSemanas().size());
+            
+            model.addAttribute(ESTABLECIMIENTO, establecimiento);
+            model.addAttribute("calendarioData", calendarioData);
+            model.addAttribute("yearMonth", yearMonth);
+            model.addAttribute("mesActual", mesActual);
+            model.addAttribute("anioActual", anioActual);
+            
+            // Navegación entre meses
+            YearMonth mesPrevio = yearMonth.minusMonths(1);
+            YearMonth mesSiguiente = yearMonth.plusMonths(1);
+            model.addAttribute("mesPrevio", mesPrevio.getMonthValue());
+            model.addAttribute("anioPrevio", mesPrevio.getYear());
+            model.addAttribute("mesSiguiente", mesSiguiente.getMonthValue());
+            model.addAttribute("anioSiguiente", mesSiguiente.getYear());
+            
+            log.info("Datos del calendario mensual preparados exitosamente");
+        } catch (Exception e) {
+            log.error("Error al preparar datos del calendario mensual: {}", e.getMessage(), e);
+			model.addAttribute(ERROR, "Error al cargar el calendario mensual.");
+		}
+    }
+
+    /**
+     * Genera los datos del calendario mensual con información de disponibilidad.
+     * 
+     * @param establecimiento Establecimiento para el cual generar el calendario
+     * @param yearMonth Mes y año del calendario
+     * @param reservasMes Lista de reservas del mes
+     * @return Datos del calendario con disponibilidad
+     */
+	private CalendarioData generarCalendarioConDisponibilidad(Establecimiento establecimiento, YearMonth yearMonth, List<Reserva> reservasMes) {
+		RangoCalendario rango = calcularRangoCalendario(yearMonth);
+		List<List<DiaCalendario>> semanas = generarSemanas(establecimiento, yearMonth, reservasMes, rango);
+		String nombreMes = obtenerNombreMes(yearMonth.getMonthValue());
+
+		return new CalendarioData(semanas, nombreMes, yearMonth.getYear(), yearMonth.getMonthValue());
+	}
+
+	/**
+	 * Calcula el rango de fechas a mostrar en el calendario, incluyendo días del mes anterior y siguiente para completar semanas.
+	 * 
+	 * @param yearMonth Mes y año del calendario
+	 * @return Rango de fechas para el calendario
+	 */
+	private RangoCalendario calcularRangoCalendario(YearMonth yearMonth) {
+		LocalDate primerDiaMes = yearMonth.atDay(1);
+		LocalDate ultimoDiaMes = yearMonth.atEndOfMonth();
+
+		LocalDate primerDiaCalendario = encontrarPrimerLunesAnterior(primerDiaMes);
+		LocalDate ultimoDiaCalendario = encontrarUltimoDomingoPosterior(ultimoDiaMes);
+
+		return new RangoCalendario(primerDiaCalendario, ultimoDiaCalendario);
+	}
+
+	/**
+	 * Encuentra el primer lunes anterior o igual a la fecha dada.
+	 * 
+	 * @param fecha Fecha de referencia
+	 * @return Primer lunes anterior o igual a la fecha
+	 */
+	private LocalDate encontrarPrimerLunesAnterior(LocalDate fecha) {
+		LocalDate resultado = fecha;
+		while (resultado.getDayOfWeek() != DayOfWeek.MONDAY) {
+			resultado = resultado.minusDays(1);
+		}
+		return resultado;
+	}
+
+	/**
+	 * Encuentra el último domingo posterior o igual a la fecha dada.
+	 * 
+	 * @param fecha Fecha de referencia
+	 * @return Último domingo posterior o igual a la fecha
+	 */
+	private LocalDate encontrarUltimoDomingoPosterior(LocalDate fecha) {
+		LocalDate resultado = fecha;
+		while (resultado.getDayOfWeek() != DayOfWeek.SUNDAY) {
+			resultado = resultado.plusDays(1);
+		}
+		return resultado;
+	}
+
+	/**
+	 * Obtiene el nombre del mes en español.
+	 * 
+	 * @param mes Número del mes (1-12)
+	 * @return Nombre del mes en español
+	 */
+	private List<List<DiaCalendario>> generarSemanas(Establecimiento establecimiento, YearMonth yearMonth,
+			List<Reserva> reservasMes, RangoCalendario rango) {
+		List<List<DiaCalendario>> semanas = new ArrayList<>();
+		LocalDate fechaActual = rango.getFechaInicio();
+
+		while (!fechaActual.isAfter(rango.getFechaFin())) {
+			List<DiaCalendario> semana = generarSemana(establecimiento, yearMonth, reservasMes, fechaActual);
+			semanas.add(semana);
+			fechaActual = fechaActual.plusWeeks(1);
+		}
+
+		return semanas;
+	}
+
+	/**
+	 * Genera una semana del calendario con información de disponibilidad para cada día.
+	 * 
+	 * @param establecimiento Establecimiento para el cual generar la semana
+	 * @param yearMonth Mes y año del calendario
+	 * @param reservasMes Lista de reservas del mes
+	 * @param inicioSemana Fecha de inicio de la semana (lunes)
+	 * @return Lista de días con información de disponibilidad para la semana
+	 */
+	private List<DiaCalendario> generarSemana(Establecimiento establecimiento, YearMonth yearMonth,
+			List<Reserva> reservasMes, LocalDate inicioSemana) {
+		List<DiaCalendario> semana = new ArrayList<>();
+		LocalDate fechaDia = inicioSemana;
+
+		for (int i = 0; i < 7; i++) {
+			DiaCalendario dia = crearDiaCalendario(establecimiento, yearMonth, reservasMes, fechaDia);
+			semana.add(dia);
+			fechaDia = fechaDia.plusDays(1);
+		}
+
+		return semana;
+	}
+
+	/**
+	 * Crea un objeto DiaCalendario con información de disponibilidad para un día específico.
+	 * 
+	 * @param establecimiento Establecimiento para el cual generar el día
+	 * @param yearMonth Mes y año del calendario
+	 * @param reservasMes Lista de reservas del mes
+	 * @param fecha Fecha del día a crear
+	 * @return Objeto DiaCalendario con información de disponibilidad
+	 */
+	private DiaCalendario crearDiaCalendario(Establecimiento establecimiento, YearMonth yearMonth,
+			List<Reserva> reservasMes, LocalDate fecha) {
+		boolean esDelMesActual = perteneceAlMesActual(fecha, yearMonth);
+		boolean tieneDisponibilidad = false;
+		String resumen = "";
+
+		if (esDiaValidoParaReserva(fecha, esDelMesActual)) {
+			DisponibilidadDia disponibilidad = calcularDisponibilidadDia(establecimiento, fecha, reservasMes);
+			tieneDisponibilidad = disponibilidad.tieneDisponibilidad();
+			resumen = disponibilidad.getResumen();
+		}
+
+		return new DiaCalendario(fecha, esDelMesActual, tieneDisponibilidad, resumen);
+	}
+
+	/**
+	 * Verifica si una fecha pertenece al mes y año especificados.
+	 * 
+	 * @param fecha Fecha a verificar
+	 * @param yearMonth Mes y año de referencia
+	 * @return true si la fecha pertenece al mes y año, false en caso contrario
+	 */
+	private boolean perteneceAlMesActual(LocalDate fecha, YearMonth yearMonth) {
+		return fecha.getMonth() == yearMonth.getMonth() && fecha.getYear() == yearMonth.getYear();
+	}
+
+	/**
+	 * Verifica si un día es válido para realizar reservas (dentro del mes actual y no en el pasado).
+	 * 
+	 * @param fecha Fecha a verificar
+	 * @param esDelMesActual true si la fecha pertenece al mes actual
+	 * @return true si el día es válido para reservas, false en caso contrario
+	 */
+	private boolean esDiaValidoParaReserva(LocalDate fecha, boolean esDelMesActual) {
+		return esDelMesActual && !fecha.isBefore(LocalDate.now());
+	}
+
+	/**
+	 * Calcula la disponibilidad y resumen de reservas para un día específico.
+	 * 
+	 * @param establecimiento Establecimiento a verificar
+	 * @param fecha           Fecha del día a verificar
+	 * @param reservasMes     Lista de reservas del mes
+	 * @return Objeto DisponibilidadDia con información de disponibilidad y resumen
+	 */
+	private DisponibilidadDia calcularDisponibilidadDia(Establecimiento establecimiento, LocalDate fecha, List<Reserva> reservasMes) {
+		long reservasDelDia = contarReservasDelDia(reservasMes, fecha);
+		boolean tieneDisponibilidad = verificarDisponibilidadDia(establecimiento, fecha, reservasMes);
+		String resumen = generarResumenReservas(reservasDelDia);
+
+		return new DisponibilidadDia(tieneDisponibilidad, resumen);
+	}
+
+	/**
+	 * Cuenta el número de reservas en un día específico.
+	 * 
+	 * @param reservasMes Lista de reservas del mes
+	 * @param fecha Fecha del día a contar
+	 * @return Número de reservas en el día
+	 */
+	private long contarReservasDelDia(List<Reserva> reservasMes, LocalDate fecha) {
+		return reservasMes.stream().filter(reserva -> reserva.getFechaReserva().toLocalDate().equals(fecha)).count();
+	}
+
+	/**
+	 * Genera un resumen textual del número de reservas en un día.
+	 * 
+	 * @param reservasDelDia Número de reservas en el día
+	 * @return Resumen textual (e.g., "3 reservas" o "1 reserva"), o cadena vacía si
+	 *         no hay reservas
+	 */
+	private String generarResumenReservas(long reservasDelDia) {
+		if (reservasDelDia > 0) {
+			return reservasDelDia + " reserva" + (reservasDelDia > 1 ? "s" : "");
+		}
+		return "";
+	}
+
+	// Clases auxiliares para mejorar la legibilidad y encapsulación
+
+	/** Clase que representa un día en el calendario con su disponibilidad */
+	private static class RangoCalendario {
+		private final LocalDate fechaInicio;
+		private final LocalDate fechaFin;
+
+		public RangoCalendario(LocalDate fechaInicio, LocalDate fechaFin) {
+			this.fechaInicio = fechaInicio;
+			this.fechaFin = fechaFin;
+		}
+
+		public LocalDate getFechaInicio() {
+			return fechaInicio;
+		}
+
+		public LocalDate getFechaFin() {
+			return fechaFin;
+		}
+	}
+
+	/** Clase que representa la disponibilidad de un día específico */
+	private static class DisponibilidadDia {
+		private final boolean tieneDisponibilidad;
+		private final String resumen;
+
+		public DisponibilidadDia(boolean tieneDisponibilidad, String resumen) {
+			this.tieneDisponibilidad = tieneDisponibilidad;
+			this.resumen = resumen;
+		}
+
+		public boolean tieneDisponibilidad() {
+			return tieneDisponibilidad;
+		}
+
+		public String getResumen() {
+			return resumen;
+		}
+	}
+
+    /**
+     * Verifica si hay disponibilidad para reservar en un día específico.
+     * 
+     * @param establecimiento Establecimiento a verificar
+     * @param fecha Fecha a verificar
+     * @param reservasMes Lista de todas las reservas del mes
+     * @return true si hay disponibilidad, false en caso contrario
+     */
+    private boolean verificarDisponibilidadDia(Establecimiento establecimiento, LocalDate fecha, List<Reserva> reservasMes) {
+        DayOfWeek diaSemana = fecha.getDayOfWeek();
+        
+        List<FranjaHoraria> franjasDelDia = establecimiento.getFranjasHorarias().stream()
+            .filter(franja -> franja.getDiaSemana().equals(diaSemana))
+            .toList();
+        
+        if (franjasDelDia.isEmpty()) {
+            log.debug("Establecimiento {} cerrado el día {}", establecimiento.getId(), fecha);
+            return false;
+        }
+        
+        List<Reserva> reservasDelDia = reservasMes.stream()
+            .filter(reserva -> reserva.getFechaReserva().toLocalDate().equals(fecha))
+            .toList();
+        
+        log.debug("Verificando disponibilidad para {} el {}. Reservas del día: {}, Aforo: {}", 
+                establecimiento.getNombre(), fecha, reservasDelDia.size(), establecimiento.getAforo());
+        
+        if (establecimiento.getAforo() == null || establecimiento.getAforo() <= 0) {
+            log.debug("Establecimiento sin aforo limitado - siempre disponible");
+            return true;
+        }
+        
+        for (FranjaHoraria franja : franjasDelDia) {
+            boolean disponibleEnFranja = tieneDisponibilidadEnFranja(establecimiento, franja, reservasDelDia);
+            log.debug("Franja {}-{}: disponible = {}", franja.getHoraInicio(), franja.getHoraFin(), disponibleEnFranja);
+            if (disponibleEnFranja) {
+                return true;
+            }
+        }
+        
+        log.debug("No hay disponibilidad en ninguna franja para el día {}", fecha);
+        return false;
+    }
+    
+    /**
+     * Verifica si hay disponibilidad en una franja horaria específica.
+     * 
+     * @param establecimiento Establecimiento a verificar
+     * @param franja Franja horaria a verificar
+     * @param reservasDelDia Lista de reservas del día
+     * @return true si hay disponibilidad en la franja, false en caso contrario
+     */
+    private boolean tieneDisponibilidadEnFranja(Establecimiento establecimiento, FranjaHoraria franja, List<Reserva> reservasDelDia) {
+        LocalTime inicioFranja = franja.getHoraInicio();
+        LocalTime finFranja = franja.getHoraFin();
+        
+        LocalTime horaActual = inicioFranja;
+        while (horaActual.isBefore(finFranja)) {
+            final LocalTime inicioSlot = horaActual;
+            final LocalTime finSlot = horaActual.plusMinutes(30).isAfter(finFranja) ? 
+                                     finFranja : horaActual.plusMinutes(30);
+            
+            long reservasSolapadas = reservasDelDia.stream()
+                .filter(reserva -> {
+                    LocalTime inicioReserva = reserva.getFechaReserva().toLocalTime();
+                    LocalTime finReserva = reserva.getHoraFin();
+                    
+                    return !(finReserva.isBefore(inicioSlot) || inicioReserva.isAfter(finSlot) || 
+                            finReserva.equals(inicioSlot) || inicioReserva.equals(finSlot));
+                })
+                .count();
+            
+            if (reservasSolapadas < establecimiento.getAforo()) {
+                return true;
+            }
+            
+            horaActual = horaActual.plusMinutes(30);
+        }
+        
+        return false;
+    }
+
+    /**
+     * Obtiene el nombre del mes en español.
+     * 
+     * @param numeroMes Número del mes (1-12)
+     * @return Nombre del mes en español
+     */
+    private String obtenerNombreMes(int numeroMes) {
+        String[] meses = {
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        };
+        return meses[numeroMes - 1];
     }
 
     /**
@@ -1125,13 +1673,9 @@ public class ReservaController {
     private ReservasUsuario obtenerReservasUsuario(Usuario usuario, Establecimiento establecimiento) {
         LocalDateTime fechaActual = LocalDateTime.now();
         
-        // OPTIMIZACIÓN: Limitar reservas pasadas a las últimas 50 para evitar cargar demasiados datos
         List<Reserva> reservasPasadas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual);
         List<Reserva> reservasFuturas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
         
-        // Las consultas optimizadas ya vienen ordenadas desde la base de datos
-        // reservasPasadas ya vienen ordenadas por fecha descendente
-        // reservasFuturas se ordenan aquí si es necesario
         reservasFuturas.sort(Comparator.comparing(Reserva::getFechaReserva));
         
         return new ReservasUsuario(reservasPasadas, reservasFuturas);
@@ -1177,8 +1721,8 @@ public class ReservaController {
         
         // Formatear como "HH:mm - HH:mm"
          return String.format("%s - %s", 
-             horaInicio.format(DateTimeFormatter.ofPattern("HH:mm")),
-             horaFin.format(DateTimeFormatter.ofPattern("HH:mm")));
+             horaInicio.format(DateTimeFormatter.ofPattern(FORMATO_HORAS)),
+             horaFin.format(DateTimeFormatter.ofPattern(FORMATO_HORAS)));
      }
 
     /**
@@ -1193,7 +1737,7 @@ public class ReservaController {
     private void configurarModeloCalendario(Model model, Establecimiento establecimiento, 
                                            List<FranjaHoraria> franjasActivas, ReservasUsuario reservasUsuario, 
                                            SlotsData slotsData) {
-        model.addAttribute("establecimiento", establecimiento);
+        model.addAttribute(ESTABLECIMIENTO, establecimiento);
         model.addAttribute("franjasHorarias", franjasActivas);
         model.addAttribute("reserva", new Reserva());
         model.addAttribute("reservasPasadas", reservasUsuario.getPasadas());
@@ -1296,7 +1840,6 @@ public class ReservaController {
 
             LocalDateTime fechaActual = LocalDateTime.now();
             
-            // Obtener reservas futuras paginadas
             List<Reserva> todasReservasFuturas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaGreaterThanEqual(usuario, establecimiento, fechaActual);
             todasReservasFuturas.sort(Comparator.comparing(Reserva::getFechaReserva));
             
@@ -1305,7 +1848,6 @@ public class ReservaController {
             List<Reserva> reservasFuturas = inicioFuturas < todasReservasFuturas.size() ? todasReservasFuturas.subList(inicioFuturas, finFuturas) : new ArrayList<>();
             boolean hayMasReservasFuturas = finFuturas < todasReservasFuturas.size();
             
-            // Obtener reservas pasadas paginadas
             List<Reserva> todasReservasPasadas = reservaService.findByUsuarioAndEstablecimientoAndFechaReservaBefore(usuario, establecimiento, fechaActual);
             todasReservasPasadas.sort(Comparator.comparing(Reserva::getFechaReserva).reversed());
             
@@ -1558,5 +2100,213 @@ public class ReservaController {
         
         public UsuarioSimpleDTO getUsuario() { return usuario; }
         public void setUsuario(UsuarioSimpleDTO usuario) { this.usuario = usuario; }
+    }
+    
+    /**
+     * Clase auxiliar para encapsular los datos del calendario mensual.
+     */
+    public static class CalendarioData {
+        private final List<List<DiaCalendario>> semanas;
+        private final String nombreMes;
+        private final int anyo;
+        private final int mes;
+
+        public CalendarioData(List<List<DiaCalendario>> semanas, String nombreMes, int anyo, int mes) {
+            this.semanas = semanas;
+            this.nombreMes = nombreMes;
+            this.anyo = anyo;
+            this.mes = mes;
+        }
+
+        public List<List<DiaCalendario>> getSemanas() { return semanas; }
+        public String getNombreMes() { return nombreMes; }
+        public int getAnyo() { return anyo; }
+        public int getMes() { return mes; }
+    }
+
+    /**
+     * Clase auxiliar para representar un día en el calendario.
+     */
+    public static class DiaCalendario {
+        private final LocalDate fecha;
+        private final boolean esDelMesActual;
+        private final boolean tieneDisponibilidad;
+        private final String resumen;
+
+        public DiaCalendario(LocalDate fecha, boolean esDelMesActual, boolean tieneDisponibilidad, String resumen) {
+            this.fecha = fecha;
+            this.esDelMesActual = esDelMesActual;
+            this.tieneDisponibilidad = tieneDisponibilidad;
+            this.resumen = resumen;
+        }
+
+        public LocalDate getFecha() { return fecha; }
+        public String getResumen() { return resumen; }
+        public int getDia() { return fecha.getDayOfMonth(); }
+        public boolean getEsHoy() { return fecha.equals(LocalDate.now()); }
+        public boolean getEsPasado() { return fecha.isBefore(LocalDate.now()); }
+        
+        public boolean isEsDelMesActual() { return esDelMesActual; }
+        public boolean isTieneDisponibilidad() { return tieneDisponibilidad; }
+        public boolean esHoy() { return fecha.equals(LocalDate.now()); }
+        public boolean esPasado() { return fecha.isBefore(LocalDate.now()); }
+        
+        public String getFechaIso() { return fecha.toString(); }
+    }
+    
+    /**
+     * Obtiene los períodos libres para un establecimiento en una fecha específica.
+     * Solo se usa para establecimientos sin duración fija.
+     * 
+     * @param establecimiento Establecimiento a verificar
+     * @param fecha Fecha para la cual obtener períodos libres
+     * @return Lista de períodos libres
+     */
+    private List<PeriodoLibre> obtenerPeriodosLibres(Establecimiento establecimiento, LocalDate fecha) {
+        List<PeriodoLibre> periodosLibres = new ArrayList<>();
+        DayOfWeek diaSemana = fecha.getDayOfWeek();
+        
+        List<FranjaHoraria> franjasDelDia = establecimiento.getFranjasHorarias().stream()
+            .filter(franja -> franja.getDiaSemana().equals(diaSemana))
+            .toList();
+        
+        if (franjasDelDia.isEmpty()) {
+            return periodosLibres;
+        }
+        
+        LocalDateTime inicioDelDia = fecha.atStartOfDay();
+        LocalDateTime finDelDia = fecha.atTime(23, 59, 59);
+        List<Reserva> reservasDelDia = reservaService.findByEstablecimientoAndFechaReservaBetween(establecimiento, inicioDelDia, finDelDia);
+        
+        for (FranjaHoraria franja : franjasDelDia) {
+            List<PeriodoLibre> periodosEnFranja = calcularPeriodosLibresEnFranja(establecimiento, franja, reservasDelDia);
+            periodosLibres.addAll(periodosEnFranja);
+        }
+        
+        periodosLibres.sort(Comparator.comparing(PeriodoLibre::getHoraInicio));
+        
+        return periodosLibres;
+    }
+    
+    /**
+     * Calcula los períodos libres dentro de una franja horaria específica.
+     * 
+     * @param establecimiento Establecimiento
+     * @param franja Franja horaria
+     * @param reservasDelDia Reservas del día
+     * @return Lista de períodos libres en la franja
+     */
+    private List<PeriodoLibre> calcularPeriodosLibresEnFranja(Establecimiento establecimiento, 
+                                                            FranjaHoraria franja, 
+                                                            List<Reserva> reservasDelDia) {
+        List<PeriodoLibre> periodosLibres = new ArrayList<>();
+        
+        List<Reserva> reservasEnFranja = reservasDelDia.stream()
+            .filter(reserva -> {
+                LocalTime inicioReserva = reserva.getFechaReserva().toLocalTime();
+                LocalTime finReserva = reserva.getHoraFin();
+                
+                return !(finReserva.isBefore(franja.getHoraInicio()) || 
+                        inicioReserva.isAfter(franja.getHoraFin()) ||
+                        finReserva.equals(franja.getHoraInicio()) || 
+                        inicioReserva.equals(franja.getHoraFin()));
+            })
+            .sorted(Comparator.comparing(reserva -> reserva.getFechaReserva().toLocalTime()))
+            .toList();
+        
+        LocalTime horaActual = franja.getHoraInicio();
+        
+        for (Reserva reserva : reservasEnFranja) {
+            LocalTime inicioReserva = reserva.getFechaReserva().toLocalTime();
+            
+            if (horaActual.isBefore(inicioReserva)) {
+                int espaciosLibres = calcularEspaciosDisponibles(establecimiento, horaActual, inicioReserva, reservasEnFranja);
+                if (espaciosLibres > 0) {
+                    periodosLibres.add(new PeriodoLibre(horaActual, inicioReserva, espaciosLibres));
+                }
+            }
+            
+            horaActual = reserva.getHoraFin().isAfter(horaActual) ? reserva.getHoraFin() : horaActual;
+        }
+        
+        if (horaActual.isBefore(franja.getHoraFin())) {
+            int espaciosLibres = calcularEspaciosDisponibles(establecimiento, horaActual, franja.getHoraFin(), reservasEnFranja);
+            if (espaciosLibres > 0) {
+                periodosLibres.add(new PeriodoLibre(horaActual, franja.getHoraFin(), espaciosLibres));
+            }
+        }
+        
+        return periodosLibres;
+    }
+    
+    /**
+     * Calcula cuántos espacios están disponibles en un período específico.
+     * 
+     * @param establecimiento Establecimiento
+     * @param inicio Hora de inicio del período
+     * @param fin Hora de fin del período
+     * @param reservasEnFranja Reservas en la franja
+     * @return Número de espacios disponibles
+     */
+    private int calcularEspaciosDisponibles(Establecimiento establecimiento, LocalTime inicio, 
+                                           LocalTime fin, List<Reserva> reservasEnFranja) {
+        if (establecimiento.getAforo() == null || establecimiento.getAforo() <= 0) {
+            return 999;
+        }
+        
+        long reservasSolapadas = reservasEnFranja.stream()
+            .filter(reserva -> {
+                LocalTime inicioReserva = reserva.getFechaReserva().toLocalTime();
+                LocalTime finReserva = reserva.getHoraFin();
+                
+                return !(finReserva.isBefore(inicio) || inicioReserva.isAfter(fin) ||
+                        finReserva.equals(inicio) || inicioReserva.equals(fin));
+            })
+            .count();
+        
+        return Math.max(0, establecimiento.getAforo() - (int)reservasSolapadas);
+    }
+    
+    /**
+     * Clase para representar un período libre en el establecimiento.
+     */
+    public static class PeriodoLibre {
+        private final LocalTime horaInicio;
+        private final LocalTime horaFin;
+        private final int espaciosDisponibles;
+        
+        public PeriodoLibre(LocalTime horaInicio, LocalTime horaFin, int espaciosDisponibles) {
+            this.horaInicio = horaInicio;
+            this.horaFin = horaFin;
+            this.espaciosDisponibles = espaciosDisponibles;
+        }
+        
+        public LocalTime getHoraInicio() { return horaInicio; }
+        public LocalTime getHoraFin() { return horaFin; }
+        public int getEspaciosDisponibles() { return espaciosDisponibles; }
+        
+        public String getHoraInicioFormateada() {
+            return horaInicio.format(DateTimeFormatter.ofPattern(FORMATO_HORAS));
+        }
+        
+        public String getHoraFinFormateada() {
+            return horaFin.format(DateTimeFormatter.ofPattern(FORMATO_HORAS));
+        }
+        
+        public String getDuracionFormateada() {
+            Duration duracion = Duration.between(horaInicio, horaFin);
+            long horas = duracion.toHours();
+            long minutos = duracion.toMinutes() % 60;
+            
+            if (horas > 0) {
+                return String.format("%dh %02dmin", horas, minutos);
+            } else {
+                return String.format("%d min", minutos);
+            }
+        }
+        
+        public boolean isIlimitado() {
+            return espaciosDisponibles >= 999;
+        }
     }
 }

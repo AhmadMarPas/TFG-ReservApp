@@ -1,5 +1,6 @@
 package es.ubu.reservapp.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,5 +69,14 @@ public interface EstablecimientoService {
      */
     @Transactional
     void deleteById(Integer id);
+
+    /**
+	 * Verifica si un establecimiento está abierto en una fecha específica.
+	 * 
+	 * @param establecimiento el establecimiento a verificar.
+	 * @param fecha la fecha a comprobar.
+	 * @return true si el establecimiento está abierto en la fecha dada, false en caso contrario.
+	 */
+	boolean estaAbiertoEnFecha(Establecimiento establecimiento, LocalDate fecha);
 
 }

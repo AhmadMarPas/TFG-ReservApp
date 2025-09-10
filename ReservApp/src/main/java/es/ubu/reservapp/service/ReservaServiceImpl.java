@@ -5,8 +5,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -196,6 +199,67 @@ public class ReservaServiceImpl implements ReservaService {
 	    return reservaRepo.findReservasSolapadas(establecimiento, fechaInicio, fechaFin );
 	}
 
+	@Override
+	public DisponibilidadDia obtenerDisponibilidadDia(Establecimiento establecimiento, LocalDate fecha) {
+	    // Verificar si el establecimiento tiene horario de apertura para este día
+	    boolean tieneHorarioApertura = establecimiento.getFranjasHorarias().stream()
+	        .anyMatch(franja -> franja.getDiaSemana().equals(fecha.getDayOfWeek()));
+	    
+	    if (!tieneHorarioApertura) {
+	        return new DisponibilidadDia(fecha, false, false, List.of(), "Cerrado");
+	    }
+	    
+	    // Obtener franjas disponibles para el día
+	    List<FranjaDisponibilidad> franjasDisponibles = obtenerFranjasDisponibles(establecimiento, fecha);
+	    
+	    // Verificar si hay disponibilidad
+	    boolean tieneDisponibilidad = franjasDisponibles.stream()
+	        .anyMatch(FranjaDisponibilidad::isTieneDisponibilidad);
+	    
+	    // Generar resumen
+	    String resumen;
+	    if (!tieneDisponibilidad) {
+	        resumen = "Sin disponibilidad";
+	    } else {
+	        long totalPeriodos = franjasDisponibles.stream()
+	            .mapToLong(franja -> franja.getPeriodosDisponibles().size())
+	            .sum();
+	        resumen = totalPeriodos == 1 ? "1 período disponible" : totalPeriodos + " períodos disponibles";
+	    }
+	    
+	    return new DisponibilidadDia(fecha, tieneHorarioApertura, tieneDisponibilidad, franjasDisponibles, resumen);
+	}
+
+	@Override
+	public Map<LocalDate, DisponibilidadDia> obtenerDisponibilidadMensual(Establecimiento establecimiento, int anyo, int mes) {
+	    Map<LocalDate, DisponibilidadDia> disponibilidadMensual = new HashMap<>();
+	    
+	    // Obtener el primer y último día del mes
+	    LocalDate primerDia = LocalDate.of(anyo, mes, 1);
+	    LocalDate ultimoDia = primerDia.withDayOfMonth(primerDia.lengthOfMonth());
+	    
+	    // Obtener todas las reservas del mes de una sola vez para optimizar
+	    LocalDateTime inicioMes = primerDia.atStartOfDay();
+	    LocalDateTime finMes = ultimoDia.atTime(23, 59, 59);
+	    List<Reserva> reservasDelMes = reservaRepo.findReservasByEstablecimientoAndFecha(
+	        establecimiento, inicioMes, finMes);
+	    
+	    // Agrupar reservas por fecha para optimizar consultas
+	    Map<LocalDate, List<Reserva>> reservasPorFecha = reservasDelMes.stream()
+	        .collect(Collectors.groupingBy(reserva -> reserva.getFechaReserva().toLocalDate()));
+	    
+	    // Calcular disponibilidad para cada día del mes
+	    LocalDate fechaActual = primerDia;
+	    while (!fechaActual.isAfter(ultimoDia)) {
+	        DisponibilidadDia disponibilidad = calcularDisponibilidadDiaOptimizada(
+	            establecimiento, fechaActual, reservasPorFecha.getOrDefault(fechaActual, List.of()));
+	        disponibilidadMensual.put(fechaActual, disponibilidad);
+	        fechaActual = fechaActual.plusDays(1);
+	    }
+	    
+	    return disponibilidadMensual;
+	}
+
 	/**
 	 * Calcula los períodos disponibles dentro de una franja horaria considerando
 	 * las reservas existentes y el aforo. Si el aforo es ilimitado, devuelve toda
@@ -220,6 +284,55 @@ public class ReservaServiceImpl implements ReservaService {
 	    List<LocalTime> puntosDeTime = obtenerPuntosDeTiempoOrdenados(franja, reservasEnFranja);
 	    
 	    return calcularPeriodosEntreIntervalos(puntosDeTime, reservasEnFranja, aforo);
+	}
+
+	/**
+	 * Calcula la disponibilidad de un día específico usando las reservas ya cargadas.
+	 * Versión optimizada que evita consultas adicionales a la base de datos.
+	 * 
+	 * @param establecimiento Establecimiento a verificar
+	 * @param fecha Fecha a verificar
+	 * @param reservasDelDia Reservas ya cargadas para ese día
+	 * @return Información de disponibilidad del día
+	 */
+	private DisponibilidadDia calcularDisponibilidadDiaOptimizada(Establecimiento establecimiento, 
+	                                                             LocalDate fecha, 
+	                                                             List<Reserva> reservasDelDia) {
+	    // Verificar si el establecimiento tiene horario de apertura para este día
+	    boolean tieneHorarioApertura = establecimiento.getFranjasHorarias().stream()
+	        .anyMatch(franja -> franja.getDiaSemana().equals(fecha.getDayOfWeek()));
+	    
+	    if (!tieneHorarioApertura) {
+	        return new DisponibilidadDia(fecha, false, false, List.of(), "Cerrado");
+	    }
+	    
+	    // Calcular franjas disponibles usando las reservas ya cargadas
+	    List<FranjaDisponibilidad> franjasDisponibles = new ArrayList<>();
+	    Integer aforo = establecimiento.getAforo();
+	    
+	    for (FranjaHoraria franja : establecimiento.getFranjasHorarias()) {
+	        if (franja.getDiaSemana().equals(fecha.getDayOfWeek())) {
+	            List<PeriodoDisponible> periodosDisponibles = calcularPeriodosDisponibles(franja, reservasDelDia, aforo);
+	            franjasDisponibles.add(new FranjaDisponibilidad(franja, periodosDisponibles));
+	        }
+	    }
+	    
+	    // Verificar si hay disponibilidad
+	    boolean tieneDisponibilidad = franjasDisponibles.stream()
+	        .anyMatch(FranjaDisponibilidad::isTieneDisponibilidad);
+	    
+	    // Generar resumen
+	    String resumen;
+	    if (!tieneDisponibilidad) {
+	        resumen = "Sin disponibilidad";
+	    } else {
+	        long totalPeriodos = franjasDisponibles.stream()
+	            .mapToLong(franja -> franja.getPeriodosDisponibles().size())
+	            .sum();
+	        resumen = totalPeriodos == 1 ? "1 período disponible" : totalPeriodos + " períodos disponibles";
+	    }
+	    
+	    return new DisponibilidadDia(fecha, tieneHorarioApertura, tieneDisponibilidad, franjasDisponibles, resumen);
 	}
 
 	/**
