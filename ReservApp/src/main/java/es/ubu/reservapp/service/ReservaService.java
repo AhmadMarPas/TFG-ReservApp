@@ -163,12 +163,12 @@ public interface ReservaService {
      * Obtiene un resumen de disponibilidad para un mes completo.
      * 
      * @param establecimiento Establecimiento para verificar disponibilidad
-     * @param año Año del mes a consultar
+     * @param anyo Año del mes a consultar
      * @param mes Mes a consultar (1-12)
      * @return Mapa con la disponibilidad de cada día del mes
      */
     @Transactional(readOnly = true)
-    Map<LocalDate, DisponibilidadDia> obtenerDisponibilidadMensual(Establecimiento establecimiento, int año, int mes);
+    Map<LocalDate, DisponibilidadDia> obtenerDisponibilidadMensual(Establecimiento establecimiento, int anyo, int mes);
 
     /**
      * Clase auxiliar para representar la disponibilidad de una franja horaria.

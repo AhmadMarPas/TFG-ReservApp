@@ -1162,16 +1162,10 @@ class ReservaServiceImplTest {
         
         List<Reserva> reservasDelDia = List.of(reservaAnterior, reservaPosterior);
         
-        when(reservaRepo.findReservasSolapadas(
-            eq(estab), 
-            eq(LocalDateTime.of(fecha, horaInicio)), 
-            eq(LocalDateTime.of(fecha, horaFin))
-        )).thenReturn(reservasDelDia);
+        when(reservaRepo.findReservasSolapadas(estab, LocalDateTime.of(fecha, horaInicio), LocalDateTime.of(fecha, horaFin))).thenReturn(reservasDelDia);
         
         // Act
-        boolean disponible = reservaService.verificarDisponibilidad(
-            estab, fecha, horaInicio, horaFin, null
-        );
+        boolean disponible = reservaService.verificarDisponibilidad(estab, fecha, horaInicio, horaFin, null);
         
         // Assert
         assertFalse(disponible); // El código considera solapamiento en los bordes exactos
@@ -1631,7 +1625,7 @@ class ReservaServiceImplTest {
     @Test
     void testObtenerDisponibilidadMensual_MesCompleto() {
         // Arrange
-        int año = 2024;
+        int anyo = 2024;
         int mes = 1; // Enero
         
         FranjaHoraria franja = new FranjaHoraria();
@@ -1642,13 +1636,13 @@ class ReservaServiceImplTest {
         establecimiento.setFranjasHorarias(Arrays.asList(franja));
         establecimiento.setAforo(5);
         
-        LocalDateTime inicioMes = LocalDate.of(año, mes, 1).atStartOfDay();
-        LocalDateTime finMes = LocalDate.of(año, mes, 31).atTime(23, 59, 59);
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 31).atTime(23, 59, 59);
         when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
             .thenReturn(new ArrayList<>());
 
         // Act
-        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, año, mes);
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
 
         // Assert
         assertNotNull(resultado);
@@ -1673,7 +1667,7 @@ class ReservaServiceImplTest {
     @Test
     void testObtenerDisponibilidadMensual_ConReservasExistentes() {
         // Arrange
-        int año = 2024;
+        int anyo = 2024;
         int mes = 2; // Febrero (mes más corto)
         
         FranjaHoraria franja = new FranjaHoraria();
@@ -1690,13 +1684,13 @@ class ReservaServiceImplTest {
         reservaJueves.setFechaReserva(LocalDateTime.of(primerJueves, LocalTime.of(10, 0)));
         reservaJueves.setHoraFin(LocalTime.of(12, 0));
         
-        LocalDateTime inicioMes = LocalDate.of(año, mes, 1).atStartOfDay();
-        LocalDateTime finMes = LocalDate.of(año, mes, 29).atTime(23, 59, 59); // 2024 es bisiesto
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 29).atTime(23, 59, 59); // 2024 es bisiesto
         when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
             .thenReturn(Arrays.asList(reservaJueves));
 
         // Act
-        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, año, mes);
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
 
         // Assert
         assertNotNull(resultado);
@@ -1723,19 +1717,19 @@ class ReservaServiceImplTest {
     @Test
     void testObtenerDisponibilidadMensual_EstablecimientoSiempreCerrado() {
         // Arrange
-        int año = 2024;
+        int anyo = 2024;
         int mes = 3; // Marzo
         
         // Establecimiento sin franjas horarias
         establecimiento.setFranjasHorarias(new ArrayList<>());
         
-        LocalDateTime inicioMes = LocalDate.of(año, mes, 1).atStartOfDay();
-        LocalDateTime finMes = LocalDate.of(año, mes, 31).atTime(23, 59, 59);
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 31).atTime(23, 59, 59);
         when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
             .thenReturn(new ArrayList<>());
 
         // Act
-        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, año, mes);
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
 
         // Assert
         assertNotNull(resultado);
@@ -1754,7 +1748,7 @@ class ReservaServiceImplTest {
     @Test
     void testObtenerDisponibilidadMensual_AforoIlimitado() {
         // Arrange
-        int año = 2024;
+        int anyo = 2024;
         int mes = 4; // Abril
         
         FranjaHoraria franja = new FranjaHoraria();
@@ -1775,13 +1769,13 @@ class ReservaServiceImplTest {
         reserva2.setFechaReserva(LocalDateTime.of(primerMiercoles, LocalTime.of(11, 0)));
         reserva2.setHoraFin(LocalTime.of(12, 0));
         
-        LocalDateTime inicioMes = LocalDate.of(año, mes, 1).atStartOfDay();
-        LocalDateTime finMes = LocalDate.of(año, mes, 30).atTime(23, 59, 59);
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 30).atTime(23, 59, 59);
         when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
             .thenReturn(Arrays.asList(reserva1, reserva2));
 
         // Act
-        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, año, mes);
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
 
         // Assert
         assertNotNull(resultado);
@@ -1804,7 +1798,7 @@ class ReservaServiceImplTest {
     @Test
     void testCalcularDisponibilidadDiaOptimizada_SinReservas() {
         // Arrange - Testeado a través de obtenerDisponibilidadMensual
-        int año = 2024;
+        int anyo = 2024;
         int mes = 5; // Mayo
         
         FranjaHoraria franja = new FranjaHoraria();
@@ -1815,13 +1809,13 @@ class ReservaServiceImplTest {
         establecimiento.setFranjasHorarias(Arrays.asList(franja));
         establecimiento.setAforo(3);
         
-        LocalDateTime inicioMes = LocalDate.of(año, mes, 1).atStartOfDay();
-        LocalDateTime finMes = LocalDate.of(año, mes, 31).atTime(23, 59, 59);
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 31).atTime(23, 59, 59);
         when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
             .thenReturn(new ArrayList<>());
 
         // Act
-        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, año, mes);
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
 
         // Assert - Verificar que calcularDisponibilidadDiaOptimizada funciona correctamente
         LocalDate primerViernes = LocalDate.of(2024, 5, 3);
@@ -1849,7 +1843,7 @@ class ReservaServiceImplTest {
     @Test
     void testCalcularDisponibilidadDiaOptimizada_ConReservasDelDia() {
         // Arrange - Testeado a través de obtenerDisponibilidadMensual
-        int año = 2024;
+        int anyo = 2024;
         int mes = 6; // Junio
         
         FranjaHoraria franja = new FranjaHoraria();
@@ -1875,13 +1869,13 @@ class ReservaServiceImplTest {
         reservaSegundoSabado.setFechaReserva(LocalDateTime.of(segundoSabado, LocalTime.of(12, 0)));
         reservaSegundoSabado.setHoraFin(LocalTime.of(13, 0));
         
-        LocalDateTime inicioMes = LocalDate.of(año, mes, 1).atStartOfDay();
-        LocalDateTime finMes = LocalDate.of(año, mes, 30).atTime(23, 59, 59);
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 30).atTime(23, 59, 59);
         when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
             .thenReturn(Arrays.asList(reservaSabado1, reservaSabado2, reservaSegundoSabado));
 
         // Act
-        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, año, mes);
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
 
         // Assert - Verificar que las reservas se agrupan correctamente por fecha
         DisponibilidadDia disponibilidadPrimerSabado = resultado.get(primerSabado);
@@ -1903,17 +1897,17 @@ class ReservaServiceImplTest {
         int año = 2024;
         int mes = 7; // Julio
         
-        FranjaHoraria franjaMañana = new FranjaHoraria();
-        franjaMañana.setDiaSemana(DayOfWeek.SUNDAY);
-        franjaMañana.setHoraInicio(LocalTime.of(8, 0));
-        franjaMañana.setHoraFin(LocalTime.of(12, 0));
+        FranjaHoraria franjaManyana = new FranjaHoraria();
+        franjaManyana.setDiaSemana(DayOfWeek.SUNDAY);
+        franjaManyana.setHoraInicio(LocalTime.of(8, 0));
+        franjaManyana.setHoraFin(LocalTime.of(12, 0));
         
         FranjaHoraria franjaTarde = new FranjaHoraria();
         franjaTarde.setDiaSemana(DayOfWeek.SUNDAY);
         franjaTarde.setHoraInicio(LocalTime.of(14, 0));
         franjaTarde.setHoraFin(LocalTime.of(18, 0));
         
-        establecimiento.setFranjasHorarias(Arrays.asList(franjaMañana, franjaTarde));
+        establecimiento.setFranjasHorarias(Arrays.asList(franjaManyana, franjaTarde));
         establecimiento.setAforo(4);
         
         // Una reserva que no ocupa completamente ninguna franja

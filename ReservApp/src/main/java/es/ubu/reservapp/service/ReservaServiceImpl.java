@@ -231,11 +231,11 @@ public class ReservaServiceImpl implements ReservaService {
 	}
 
 	@Override
-	public Map<LocalDate, DisponibilidadDia> obtenerDisponibilidadMensual(Establecimiento establecimiento, int año, int mes) {
+	public Map<LocalDate, DisponibilidadDia> obtenerDisponibilidadMensual(Establecimiento establecimiento, int anyo, int mes) {
 	    Map<LocalDate, DisponibilidadDia> disponibilidadMensual = new HashMap<>();
 	    
 	    // Obtener el primer y último día del mes
-	    LocalDate primerDia = LocalDate.of(año, mes, 1);
+	    LocalDate primerDia = LocalDate.of(anyo, mes, 1);
 	    LocalDate ultimoDia = primerDia.withDayOfMonth(primerDia.lengthOfMonth());
 	    
 	    // Obtener todas las reservas del mes de una sola vez para optimizar
