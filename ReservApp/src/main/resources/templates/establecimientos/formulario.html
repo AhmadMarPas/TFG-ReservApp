@@ -2,36 +2,13 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/_common_head :: common_head(pageTitle=(${isEdit} ? 'ReservApp - Editar Establecimiento' : 'ReservApp - Crear Establecimiento'), customLinks=~{:: #page-specific-links})}">
     <th:block id="page-specific-links">
+        <link rel="stylesheet" th:href="@{/css/form.css}" />
         <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding-top: 20px;
-        }
-
-        .main-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            padding: 20px;
-        }
-
-        .form-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .form-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
         }
 
         .form-icon {
@@ -42,35 +19,6 @@
 
         .form-body {
             padding: 30px;
-        }
-
-        .form-section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 25px;
-            border-left: 4px solid #667eea;
-        }
-
-        .section-title {
-            color: #2c3e50;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            font-size: 1.2rem;
-        }
-
-        .section-title i {
-            margin-right: 10px;
-            color: #667eea;
-        }
-
-        .form-label {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
-            display: block;
         }
 
         .form-control, .form-select {
