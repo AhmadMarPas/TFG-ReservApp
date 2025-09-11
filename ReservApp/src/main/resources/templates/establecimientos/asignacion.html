@@ -20,17 +20,24 @@
             font-weight: 600;
             font-size: 2rem;
         }
-        .user-info {
-            background-color: #fff;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
         }
-        .user-info h3 {
-            color: #4e73df;
-            margin-bottom: 15px;
+        .section-title {
+            color: #2c3e50;
             font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+        .section-title i {
+            margin-right: 10px;
+            color: #667eea;
         }
         .user-details {
             display: grid;
@@ -43,8 +50,16 @@
         }
         .user-detail i {
             margin-right: 10px;
-            color: #4e73df;
+            color: #667eea;
             width: 20px;
+        }
+        .user-detail span {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        .user-detail strong {
+            color: #495057;
+            font-weight: 600;
         }
         .establishments-form {
             background-color: #fff;
@@ -74,7 +89,7 @@
         .establishment-card {
             border: 2px solid #e9ecef;
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px 20px 20px 20px;
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
@@ -90,11 +105,12 @@
         }
         .establishment-checkbox {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 10px;
+            right: 10px;
             width: 20px;
             height: 20px;
             accent-color: #4e73df;
+            z-index: 10;
         }
         .establishment-header {
             margin-bottom: 15px;
@@ -213,8 +229,11 @@
         </h1>
         
         <!-- Información del usuario -->
-        <div class="user-info">
-            <h3><i class="fas fa-user"></i> Información del Usuario</h3>
+        <div class="form-section">
+            <h4 class="section-title">
+                <i class="fas fa-user"></i>
+                Información del Usuario
+            </h4>
             <div class="user-details">
                 <div class="user-detail">
                     <i class="fas fa-id-card"></i>

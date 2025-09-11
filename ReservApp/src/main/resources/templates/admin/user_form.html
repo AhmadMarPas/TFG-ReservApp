@@ -2,91 +2,8 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/_common_head :: common_head(pageTitle=(${isEdit} ? 'ReservApp - Editar Usuario' : 'ReservApp - Crear Usuario'), customLinks=~{:: #page-specific-links})}">
     <th:block id="page-specific-links">
+        <link rel="stylesheet" th:href="@{/css/form.css}" />
         <style>
-
-
-        .main-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            padding: 20px;
-        }
-        
-        .form-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        
-        /* Estilos para el encabezado del formulario con icono y descripción */
-        .form-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .form-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            opacity: 0.9;
-            color: white;
-            display: block;
-        }
-        
-        .form-header h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: white;
-            margin-bottom: 0;
-        }
-        
-        .form-header p {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1rem;
-        }
-        
-        .form-section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 25px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .section-title {
-            color: #2c3e50;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            font-size: 1.2rem;
-        }
-        
-        .section-title i {
-            margin-right: 10px;
-            color: #667eea;
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
-            display: block;
-        }
-        
-        .form-control-user-form {
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 12px 15px;
-            transition: all 0.3s ease;
-            background: white;
-            width: 100%;
-        }
         
         .form-control-user-form:focus {
             border-color: #667eea;
@@ -118,9 +35,7 @@
             text-align: center;
             border-top: 1px solid #e9ecef;
         }
-        
 
-        
         .btn-info-custom {
             background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
             border: none;
