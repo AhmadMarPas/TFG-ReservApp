@@ -1894,7 +1894,7 @@ class ReservaServiceImplTest {
     @Test
     void testCalcularDisponibilidadDiaOptimizada_MultiplesPeridosDisponibles() {
         // Arrange - Caso complejo con múltiples franjas
-        int año = 2024;
+        int anyo = 2024;
         int mes = 7; // Julio
         
         FranjaHoraria franjaManyana = new FranjaHoraria();
@@ -1916,13 +1916,13 @@ class ReservaServiceImplTest {
         reservaDomingo.setFechaReserva(LocalDateTime.of(primerDomingo, LocalTime.of(10, 0)));
         reservaDomingo.setHoraFin(LocalTime.of(11, 0));
         
-        LocalDateTime inicioMes = LocalDate.of(año, mes, 1).atStartOfDay();
-        LocalDateTime finMes = LocalDate.of(año, mes, 31).atTime(23, 59, 59);
+        LocalDateTime inicioMes = LocalDate.of(anyo, mes, 1).atStartOfDay();
+        LocalDateTime finMes = LocalDate.of(anyo, mes, 31).atTime(23, 59, 59);
         when(reservaRepo.findReservasByEstablecimientoAndFecha(establecimiento, inicioMes, finMes))
             .thenReturn(Arrays.asList(reservaDomingo));
 
         // Act
-        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, año, mes);
+        Map<LocalDate, DisponibilidadDia> resultado = reservaService.obtenerDisponibilidadMensual(establecimiento, anyo, mes);
 
         // Assert
         DisponibilidadDia disponibilidadDomingo = resultado.get(primerDomingo);
