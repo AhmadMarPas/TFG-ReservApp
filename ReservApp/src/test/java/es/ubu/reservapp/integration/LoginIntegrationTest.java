@@ -84,11 +84,6 @@ class LoginIntegrationTest {
         // La fecha de último acceso debe haber sido actualizada
         assertNotNull(usuario.getFechaUltimoAcceso());
         
-        // El usuario debe haber sido guardado (verificamos que save fue llamado)
-        // y que se estableció en la sesión
-        // Nota: En un test de integración real, verificaríamos que se guardó en BD
-        
-        // Si llegamos aquí sin excepción, el test es exitoso
         assertEquals(username, usuario.getId());
         assertNotNull(usuario.getFechaUltimoAcceso());
         assertTrue(fechaAnterior.isBefore(usuario.getFechaUltimoAcceso()));
@@ -100,18 +95,9 @@ class LoginIntegrationTest {
      */
     @Test
     void testEntidadInfoInterceptor_handlesNullSessionGracefully() {
-        // Este test verifica indirectamente que el interceptor ya no falla
-        // cuando SessionData.getUsuario() retorna null
-        
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setId("newUser");
         nuevoUsuario.setNombre("New User");
-        
-        // Si el interceptor funciona correctamente, este usuario debería poder
-        // ser procesado sin errores, estableciendo "SYSTEM" como usuario creador/modificador
-        
-        // En un escenario real, esto se ejecutaría durante usuarioService.save()
-        // y el interceptor establecería los campos de auditoría automáticamente
         
         assertNotNull(nuevoUsuario.getId());
         assertNotNull(nuevoUsuario.getNombre());
