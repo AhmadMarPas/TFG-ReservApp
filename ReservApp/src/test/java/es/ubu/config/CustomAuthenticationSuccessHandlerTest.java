@@ -4,12 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,12 +96,16 @@ class CustomAuthenticationSuccessHandlerTest {
     
     /**
      * Test de onAuthenticationSuccess con usuario encontrado.
-     * Verifica que se establece correctamente el usuario en SessionData.
+     * Verifica que se establece correctamente el usuario en SessionData,
+     * se actualiza la fecha de último acceso y se guarda el usuario.
      */
     @Test
     void testOnAuthenticationSuccessWithUserFound() throws IOException, ServletException {
         // Given
         String username = "testUser";
+        LocalDateTime fechaAnterior = LocalDateTime.now().minusDays(1);
+        usuario.setFechaUltimoAcceso(fechaAnterior);
+        
         when(authentication.getName()).thenReturn(username);
         when(usuarioService.findUsuarioById(username)).thenReturn(usuario);
         
@@ -108,6 +114,10 @@ class CustomAuthenticationSuccessHandlerTest {
         
         // Then
         verify(usuarioService).findUsuarioById(username);
+        verify(usuarioService).save(argThat(savedUser -> 
+            savedUser.getFechaUltimoAcceso() != null && 
+            savedUser.getFechaUltimoAcceso().isAfter(fechaAnterior)
+        ));
         verify(sessionData).setUsuario(usuario);
         verify(response).sendRedirect("/menuprincipal");
     }
@@ -128,6 +138,7 @@ class CustomAuthenticationSuccessHandlerTest {
         
         // Then
         verify(usuarioService).findUsuarioById(username);
+        verify(usuarioService, never()).save(any());
         verify(sessionData, never()).setUsuario(any());
         verify(response).sendRedirect("/menuprincipal");
     }
@@ -149,6 +160,7 @@ class CustomAuthenticationSuccessHandlerTest {
         });
         
         verify(usuarioService).findUsuarioById(username);
+        verify(usuarioService, never()).save(any());
         verify(sessionData, never()).setUsuario(any());
     }
     
@@ -170,6 +182,7 @@ class CustomAuthenticationSuccessHandlerTest {
         });
         
         verify(usuarioService).findUsuarioById(username);
+        verify(usuarioService).save(any());
         verify(sessionData).setUsuario(usuario);
     }
     
@@ -198,5 +211,50 @@ class CustomAuthenticationSuccessHandlerTest {
         assertThrows(NullPointerException.class, () -> {
             successHandler.onAuthenticationSuccess(request, null, authentication);
         });
+    }
+    
+    /**
+     * Test para verificar que la fecha de último acceso se actualiza correctamente.
+     * Verifica que se establece una fecha de último acceso posterior a la fecha anterior.
+     */
+    @Test
+    void testFechaUltimoAccesoUpdate() throws IOException, ServletException {
+        // Given
+        String username = "testUser";
+        LocalDateTime fechaAnterior = LocalDateTime.now().minusHours(1);
+        usuario.setFechaUltimoAcceso(fechaAnterior);
+        
+        when(authentication.getName()).thenReturn(username);
+        when(usuarioService.findUsuarioById(username)).thenReturn(usuario);
+        
+        // When
+        successHandler.onAuthenticationSuccess(request, response, authentication);
+        
+        // Then
+        verify(usuarioService).save(argThat(savedUser -> {
+            LocalDateTime fechaUltimoAcceso = savedUser.getFechaUltimoAcceso();
+            return fechaUltimoAcceso != null && fechaUltimoAcceso.isAfter(fechaAnterior);
+        }));
+    }
+    
+    /**
+     * Test para verificar que se establece fecha de último acceso cuando el usuario no la tenía.
+     */
+    @Test
+    void testFechaUltimoAccesoFirstTime() throws IOException, ServletException {
+        // Given
+        String username = "testUser";
+        usuario.setFechaUltimoAcceso(null); // Primera vez que se logea
+        
+        when(authentication.getName()).thenReturn(username);
+        when(usuarioService.findUsuarioById(username)).thenReturn(usuario);
+        
+        // When
+        successHandler.onAuthenticationSuccess(request, response, authentication);
+        
+        // Then
+        verify(usuarioService).save(argThat(savedUser -> 
+            savedUser.getFechaUltimoAcceso() != null
+        ));
     }
 }
