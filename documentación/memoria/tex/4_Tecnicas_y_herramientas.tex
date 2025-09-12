@@ -3,9 +3,22 @@
 \section{Metodologías}\label{metodologias}
 
 \subsection{Scrum}\label{scrum}
-Como marco de trabajo para la gestión del proyecto, se ha aplicado la metodología ágil Scrum. Scrum permite abordar el desarrollo de forma iterativa e incremental, facilitando la adaptación a los cambios y la mejora continua del producto. Mediante la planificación en \emph{sprints} de corta duración, se ha podido llevar a cabo la organización del trabajo de manera efectiva, asegurando que cada fase del proyecto se revisa y ajusta constantemente.
+Para gestionar el proyecto, se utilizó Scrum, que es un enfoque ágil que permite trabajar por etapas cortas (llamadas \emph{sprints}). Así, se avanza paso a paso, revisando y mejorando el producto en cada fase. Esto ayuda a adaptarse rápidamente a los cambios y a mantener el trabajo bien organizado.
 
 \section{Gestión del proyecto}\label{gestion-del-proyecto}
+
+\subsection{Control de versiones}\label{control-de-versiones}
+
+\begin{itemize}
+\tightlist
+\item
+  Herramientas consideradas: \href{https://git-scm.com/}{Git} y
+  \href{https://subversion.apache.org/}{Subversion}.
+\item
+  Opción elegida: \href{https://git-scm.com/}{Git}.
+\end{itemize}
+
+En este proyecto, se decidió utilizar Git porque es el sistema de control de versiones más utilizado y, por experiencia, el que mejor se adapta a cualquier tipo de desarrollo. Lo que ha resultado más útil es que permite crear ramas para probar nuevas funcionalidades sin tocar el código principal; es decir, si algo sale mal, no afecta a lo que ya funciona. Otra ventaja es que, al ser distribuido, en un equipo con varios integrantes, cada uno tiene una copia completa del proyecto en su máquina, permitiendo seguir trabajando incluso cuando haya problemas con la conexión a Internet. Además, como cliente de Git, se ha utilizado TortoiseGit~\cite{tortoisegit} para todo lo referente a la documentación del proyecto.
 
 \subsection{Repositorio}\label{repositorio}
 
@@ -19,28 +32,13 @@ Como marco de trabajo para la gestión del proyecto, se ha aplicado la metodolog
   Opción elegida: \href{https://github.com/}{GitHub}.
 \end{itemize}
 
-GitHub trabaja sobre un repositorio Git que lleva un control de versiones robusto y que permite documentar todo el proceso de desarrollo del proyecto académico, además ofrece la posibilidad de integración nativa con herramientas de CI/CD~\cite{ci-cd} facilitando la demostración de las buenas prácticas de desarrollo llevadas a cabo en el actual trabajo.
-Además, GitHub ofrece la posibilidad de trabajar con \emph{issues} para organizar las diferentes tareas, pudiendo organizarlas por etiquetas o prioridades, así como la opción de \emph{taggear} las diferentes versiones o \emph{releases} que se alcanzan durante el desarrollo del proyecto.
-
-\subsection{Control de versiones}\label{control-de-versiones}
-
-\begin{itemize}
-\tightlist
-\item
-  Herramientas consideradas: \href{https://git-scm.com/}{Git} y
-  \href{https://subversion.apache.org/}{Subversion}.
-\item
-  Opción elegida: \href{https://git-scm.com/}{Git}.
-\end{itemize}
-
-Git es un sistema de control de versiones estándar en la industria que ha demostrado robustez y flexibilidad en todo tipo de desarrollos. Su capacidad de ramificación y fusión eficiente permite experimentar con diferentes funcionalidades sin afectar el código principal, y por su naturaleza distribuida garantiza múltiples respaldos del proyecto, permitiendo trabajar offline, aspecto muy útil para el desarrollo de cualquier tipo de proyecto.
-Además, como cliente de Git, se ha utilizado TortoiseGit~\cite{tortoisegit} para todo lo referente a la documentación del proyecto.
+En este proyecto, se optó por usar GitHub porque, además de basarse en Git, ofrece herramientas extra que han facilitado mucho el trabajo. Por un lado, la integración con CI/CD~\cite{ci-cd} permitió automatizar pruebas y despliegues, algo que el tutor pidió demostrar como parte de las buenas prácticas. Por ejemplo, cada vez que se subía código a la rama principal, se ejecutaban automáticamente los \emph{tests}, lo que ayudó a detectar errores antes de la entrega. También ofrece el uso de los \emph{issues} de GitHub para organizar las tareas: se asignaban etiquetas según el tipo de trabajo (\emph{bug}, mejora, documentación, etc.). Así, de un simple vistazo siempre se puede saber en qué se estaba trabajando en cada momento. Otra cosa que resultó útil fue la opción de marcar versiones importantes con \emph{tags}, sobre todo cuando se terminaba una fase del proyecto y se quería guardar un ``punto de control'' antes de seguir avanzando.
 
 \subsection{Integración continua y análisis de calidad}\label{integracion-continua-analisis-calidad}
 GitHub Actions por su integración nativa con el repositorio permite automatizar el \emph{pipeline} de CI/CD directamente desde GitHub. Su facilidad de configuración mediante archivos YAML~\cite{yaml} permite habilitar la ejecución de diferentes \emph{workflows} para la compilación y empaquetado del proyecto, así como la comunicación con SonarCloud para el análisis estático del código para identificar bugs, vulnerabilidades y \emph{code smells} automáticamente. Su integración con GitHub Actions para análisis continuo en cada \emph{commit}, y el hecho de proporcionar métricas objetivas de calidad (cobertura de código, complejidad ciclomática, duplicación de código, etc...) enriquecen significativamente la documentación técnica del proyecto, ofreciendo un enfoque profesional de cara a la calidad del software.
 
 \subsection{Documentación}\label{documentacion}
-Para la documentación del proyecto se ha elegido \LaTeX{} desde la plataforma Overleaf~\cite{overleaf} por su capacidad de generar documentos académicos de una notable calidad con formatos consistentes y alta calidad tipográfica. La colaboración en tiempo real en la nube permite trabajar desde cualquier dispositivo y compartir fácilmente con los tutores para las revisiones. Por otro lado, la gestión automática de referencias bibliográficas y numeración elimina errores manuales y garantiza el cumplimiento de los estándares académicos.
+Para documentar el proyecto, se utilizó \LaTeX{} a través de la plataforma Overleaf~\cite{overleaf}. Esta combinación fue propuesta por los tutores, ya que permite generar documentos académicos con un formato profesional y una tipografía de alta calidad, aspectos esenciales para cumplir con los requisitos de presentación. Al estar basado en la nube, Overleaf facilita el trabajo colaborativo en tiempo real desde cualquier dispositivo, lo que simplificó las revisiones con los tutores. Además, la gestión automática de referencias bibliográficas y la numeración de secciones redujeron significativamente los errores manuales, asegurando que el documento final cumpliera con los estándares académicos establecidos.
 
 \section{Patrones de diseño}\label{patron-de-diseño}
 
