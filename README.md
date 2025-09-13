@@ -81,6 +81,7 @@ Este proyecto forma parte del Trabajo de Fin de Grado (TFG) de Ingeniería Infor
 	*   Copia el archivo `.env.dev` a `.env` y modifica las variables de entorno con la configuración de tu base de datos (URL, usuario y contraseña).
 
 3.  **Compilar y ejecutar el proyecto:**
+    * Se debe tener instalado y configurado un JDK 21 o superior.
     * Si se quiere ejecutar la aplicación contra la base de datos local, se debe ejecutar el siguiente comando:
     ```bash
     ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
@@ -90,7 +91,7 @@ Este proyecto forma parte del Trabajo de Fin de Grado (TFG) de Ingeniería Infor
     ./mvnw spring-boot:run -Dspring-boot.run.profiles=prod
     ```
 
-4.  **Acceder a la aplicación:**
+5.  **Acceder a la aplicación:**
     Abre tu navegador y ve a `http://localhost:8090`.
 ---
 
