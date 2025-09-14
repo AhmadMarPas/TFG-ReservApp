@@ -1,6 +1,7 @@
 package es.ubu.config;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -26,31 +27,41 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
+	/** sessionData: para almacenar el usuario autenticado en la sesión. */
     private final SessionData sessionData;
+    /** usuarioService: para manejar operaciones relacionadas con Usuario. */
     private final UsuarioService usuarioService;
 
+    /**
+	 * Constructor para inyección de dependencias.
+	 * 
+	 * @param sessionData  El objeto SessionData para almacenar el usuario autenticado.
+	 * @param usuarioService El servicio para manejar operaciones relacionadas con Usuario.
+	 */
     public CustomAuthenticationSuccessHandler(SessionData sessionData, UsuarioService usuarioService) {
         this.sessionData = sessionData;
         this.usuarioService = usuarioService;
     }
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
-        
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication) throws IOException, ServletException {
+
         String username = authentication.getName();
         log.info("Usuario autenticado exitosamente: {}", username);
         
-        // Buscar el usuario en la base de datos y establecerlo en SessionData
         Usuario usuario = usuarioService.findUsuarioById(username);
         if (usuario != null) {
-            sessionData.setUsuario(usuario);
-            log.info("Usuario establecido en SessionData: {}", usuario.getNombre());
+        	sessionData.setUsuario(usuario);
+        	log.info("Usuario establecido en SessionData: {}", usuario.getNombre());
+
+        	usuario.setFechaUltimoAcceso(LocalDateTime.now());
+            usuarioService.save(usuario);
+            log.info("Fecha de último acceso actualizada para usuario: {}", username);
         } else {
             log.warn("No se pudo encontrar el usuario en la base de datos: {}", username);
         }
         
-        // Redirigir al menú principal
         response.sendRedirect("/menuprincipal");
     }
 }

@@ -2012,3 +2012,122 @@ body:has(header.main-header) .hero-section {
 .slot-option.disabled::before {
 	display: none;
 }
+
+/* Estilos de user_management.html */
+.stats-admin {
+    background: var(--warning-gradient);
+}
+
+.stats-blocked {
+    background: var(--danger-gradient);
+}
+
+.table-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+    overflow: hidden;
+}
+
+.table-header-custom {
+    background: #f8f9fa;
+    color: #2c3e50;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.table-header-custom h5 {
+    font-weight: 600;
+}
+
+.table thead th {
+    background: #e9ecef;
+    border: none;
+    font-weight: 600;
+    color: #2c3e50;
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-color: #e9ecef;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+.status-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.badge-admin {
+    background: var(--warning-gradient);
+    color: white;
+}
+
+.badge-user {
+    background: var(--success-gradient);
+    color: white;
+}
+
+.badge-blocked {
+    background: var(--danger-gradient);
+    color: white;
+}
+
+.badge-active {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+}
+
+.filter-btn {
+    background: #f8f9fa;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #495057;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    flex: 1;
+    text-align: center;
+}
+
+.filter-btn:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+}
+
+@media (max-width: 768px) {
+    .menu-header .text-end.mt-md-n3 {
+        top: 0 !important;
+        margin-top: 1rem !important;
+    }
+}
+
+.flex-1 {
+	flex: 1;
+}

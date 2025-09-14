@@ -32,6 +32,7 @@ public class ReservApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ReservApplication.class, args);
 		log.info("Inicializando base de datos...");
+		log.info("Aplicación iniciada.");
 	}
 
 }

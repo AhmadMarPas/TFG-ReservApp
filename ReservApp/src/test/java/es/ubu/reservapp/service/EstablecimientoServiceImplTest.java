@@ -98,11 +98,142 @@ class EstablecimientoServiceImplTest {
 
         // When
         Establecimiento result = establecimientoService.save(establecimiento);
-
+        
         // Then
         assertNotNull(result);
         assertEquals(establecimiento, result);
         verify(establecimientoRepo).save(establecimiento);
+    }
+    
+    @Test
+    void estaAbiertoEnFecha_WhenEstablecimientoIsNull_ShouldReturnFalse() {
+        // Given
+        Establecimiento establecimientoNull = null;
+        java.time.LocalDate fecha = java.time.LocalDate.now();
+        
+        // When
+        boolean result = establecimientoService.estaAbiertoEnFecha(establecimientoNull, fecha);
+        
+        // Then
+        assertFalse(result);
+    }
+    
+    @Test
+    void estaAbiertoEnFecha_WhenFechaIsNull_ShouldReturnFalse() {
+        // Given
+        java.time.LocalDate fechaNull = null;
+        
+        // When
+        boolean result = establecimientoService.estaAbiertoEnFecha(establecimiento, fechaNull);
+        
+        // Then
+        assertFalse(result);
+    }
+    
+    @Test
+    void estaAbiertoEnFecha_WhenFranjasHorariasIsNull_ShouldReturnFalse() {
+        // Given
+        Establecimiento establecimientoSinFranjas = new Establecimiento();
+        establecimientoSinFranjas.setFranjasHorarias(null);
+        java.time.LocalDate fecha = java.time.LocalDate.now();
+        
+        // When
+        boolean result = establecimientoService.estaAbiertoEnFecha(establecimientoSinFranjas, fecha);
+        
+        // Then
+        assertFalse(result);
+    }
+    
+    @Test
+    void estaAbiertoEnFecha_WhenNoFranjasForDayOfWeek_ShouldReturnFalse() {
+        // Given
+        Establecimiento establecimientoConFranjas = new Establecimiento();
+        List<FranjaHoraria> franjas = new ArrayList<>();
+        
+        // Crear franja para un día diferente al de la fecha de prueba
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(DayOfWeek.MONDAY);
+        franjas.add(franja);
+        
+        establecimientoConFranjas.setFranjasHorarias(franjas);
+        
+        // Usar un día que no sea lunes para la prueba
+        java.time.LocalDate fechaMartes = java.time.LocalDate.now();
+        while (fechaMartes.getDayOfWeek() == DayOfWeek.MONDAY) {
+            fechaMartes = fechaMartes.plusDays(1);
+        }
+        
+        // When
+        boolean result = establecimientoService.estaAbiertoEnFecha(establecimientoConFranjas, fechaMartes);
+        
+        // Then
+        assertFalse(result);
+    }
+    
+    @Test
+    void estaAbiertoEnFecha_WhenFranjaExistsForDayOfWeek_ShouldReturnTrue() {
+        // Given
+        Establecimiento establecimientoConFranjas = new Establecimiento();
+        List<FranjaHoraria> franjas = new ArrayList<>();
+        
+        // Obtener el día de la semana actual
+        java.time.LocalDate fechaHoy = java.time.LocalDate.now();
+        DayOfWeek diaHoy = fechaHoy.getDayOfWeek();
+        
+        // Crear franja para el día actual
+        FranjaHoraria franja = new FranjaHoraria();
+        franja.setDiaSemana(diaHoy);
+        franjas.add(franja);
+        
+        establecimientoConFranjas.setFranjasHorarias(franjas);
+        
+        // When
+        boolean result = establecimientoService.estaAbiertoEnFecha(establecimientoConFranjas, fechaHoy);
+        
+        // Then
+        assertTrue(result);
+    }
+    
+    @Test
+    void estaAbiertoEnFecha_WhenMultipleFranjasExistForDifferentDays_ShouldReturnTrueForMatchingDay() {
+        // Given
+        Establecimiento establecimientoConFranjas = new Establecimiento();
+        List<FranjaHoraria> franjas = new ArrayList<>();
+        
+        // Crear franjas para varios días
+        for (DayOfWeek dia : DayOfWeek.values()) {
+            FranjaHoraria franja = new FranjaHoraria();
+            franja.setDiaSemana(dia);
+            franjas.add(franja);
+        }
+        
+        establecimientoConFranjas.setFranjasHorarias(franjas);
+        
+        // Probar con un día específico
+        java.time.LocalDate fechaMiercoles = java.time.LocalDate.now();
+        while (fechaMiercoles.getDayOfWeek() != DayOfWeek.WEDNESDAY) {
+            fechaMiercoles = fechaMiercoles.plusDays(1);
+        }
+        
+        // When
+        boolean result = establecimientoService.estaAbiertoEnFecha(establecimientoConFranjas, fechaMiercoles);
+        
+        // Then
+        assertTrue(result);
+    }
+    
+    @Test
+     void estaAbiertoEnFecha_WhenEmptyFranjasHorarias_ShouldReturnFalse() {
+         // Given
+         Establecimiento establecimientoConFranjasVacias = new Establecimiento();
+         establecimientoConFranjasVacias.setFranjasHorarias(new ArrayList<>());
+         java.time.LocalDate fecha = java.time.LocalDate.now();
+         
+         // When
+         boolean result = establecimientoService.estaAbiertoEnFecha(establecimientoConFranjasVacias, fecha);
+         
+         // Then
+         assertFalse(result);
     }
 
     @Test
