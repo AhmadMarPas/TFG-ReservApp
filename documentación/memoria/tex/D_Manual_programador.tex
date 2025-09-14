@@ -4,7 +4,7 @@
 En este apartado se proporciona la documentación técnica para los programadores que quieran trabajar en el proyecto \textit{ReservApp}. El objetivo es servir como una guía de referencia completa que abarca desde la configuración del entorno de desarrollo hasta la compilación, ejecución y prueba del sistema.
 
 \section{Estructura de directorios}
-Todo el código del proyecto está contenido dentro del directorio ReservApp/ y sigue la estructura estándar de un proyecto Maven, de modo que la ubicación del código fuente, los recursos y las pruebas sigue el estándar de un proyecto Java con Spring Boot y Maven.
+El código del proyecto está contenido dentro del directorio ``ReservApp/'' y sigue la estructura estándar de un proyecto Maven, de modo que la ubicación del código fuente, los recursos y las pruebas sigue el estándar de un proyecto Java con Spring Boot y Maven.
 
 
 \begin{itemize}
@@ -39,8 +39,8 @@ Para poder instalar y configurar el entorno de desarrollo, es necesario tener in
 \begin{itemize}
    \item \textbf{IDE}: En este caso se ha utilizado el \textit{Eclipse}, pero se puede utilizar cualquier IDE.
    \item \textbf{Java Development Kit (JDK)}: Versión 21.
-   \item \textbf{Apache Maven}: Versión 3.9 o superior, para la gestión de dependencias y la compilación.
-   \item \textbf{Git}: Para clonar el código fuente desde el repositorio.
+   \item \textbf{Apache Maven}: Versión 3.9 o superior, para, entre otras cosas, la gestión de dependencias, la compilación, empaquetado y ejecución de la aplicación.
+   \item \textbf{Git}: Para clonar el código fuente desde el repositorio y poder trabajar con control de versiones.
    \item \textbf{MySQL}: Una instancia de base de datos MySQL, ya sea local o remota.
    \item \textbf{Docker y Docker Compose}: Es opcional, en el caso de querer tener un entorno containerizado.
    \item \textbf{Lombok}: Librería que será necesaria para que \textit{Eclipse} reconozca las anotaciones que ofrece y que el IDE reconozca.
@@ -66,57 +66,56 @@ artificial para sugerir código que permite acelerar el desarrollo~\ref{fig:plug
 
 \end{itemize}
 
-
 Una vez instalado y configurado el entorno de desarrollo, para obtener el código fuente del proyecto se debe descargar del repositorio de GitHub. Para obtener el código es necesario iniciar el terminal de \textbf{Git} y situarse en la carpeta donde se quiera descargar el proyecto. Una vez hecho esto, se debe ejecutar el siguiente comando:
 \begin{verbatim}
    git clone https://github.com/AhmadMarPas/TFG-ReservApp.git
 \end{verbatim}
-Después, desde el \textit{Eclipse}, se debe elegir la opción de menú \emph{File -> import ->} y se selecciona la opción \emph{``General -> Existing Projects into workspace''}. Una vez seleccionada dicha opción, se presentará un diálogo para seleccionar la carpeta del proyecto, y en ese caso se debe buscar la carpeta donde se descargó el proyecto y seleccionar la subcarpeta ``TFG-ReservApp/ReservApp'' que es donde se encuentra el código propio del proyecto. Tras seleccionar la carpeta, se pulsa el botón ''\emph{Finish}''. Al finalizar, el \textit{Eclipse} mostrará el proyecto dentro del \emph{workspace}.
+Después, desde el \textit{Eclipse}, se debe elegir la opción de menú \emph{File -> import ->} y se selecciona la opción \emph{``General -> Existing Projects into workspace''}. Una vez seleccionada dicha opción, se presentará un diálogo para seleccionar la carpeta del proyecto, y en ese caso se debe buscar la carpeta donde se descargó el proyecto y seleccionar la subcarpeta ``TFG-ReservApp/ReservApp'' que es donde se encuentra el código propio del proyecto. Tras seleccionar la carpeta, se pulsa el botón ``\emph{Finish}''. Al finalizar, el \textit{Eclipse} mostrará el proyecto dentro del \emph{workspace}.
 
 \subsection{Configuración del \textit{Eclipse}}
-Antes de poder trabajar utilizando el \textit{Eclipse} sobre el proyecto, es necesario configurar la librería \textit{Lombok} para que reconozca las anotaciones que ésta ofrece y evitar de esta forma que el \textit{Eclipse} muestre errores de compilación. Para ello, será necesario editar el archivo \emph{''eclipse.ini''} que se encuentra en la raíz de instalación del \textit{Eclipse} y añadir la siguiente línea para que apunte a la localización de la librería (\emph{``lombok.jar''}):
+Antes de poder trabajar utilizando el \textit{Eclipse} sobre el proyecto, es recomendable configurar la librería \textit{Lombok} para que el IDE reconozca las anotaciones que ésta ofrece y evitar de esta forma que el \textit{Eclipse} muestre errores de compilación. Para ello, será necesario editar el archivo ``\emph{eclipse.ini}'' que se encuentra en la raíz de instalación del \textit{Eclipse} y añadir la siguiente línea para que apunte a la localización de la librería (``\emph{lombok.jar}''):
 \begin{verbatim}
    -javaagent:<RUTA_LOMBOK_JAR>
 \end{verbatim}
 
 \section{Compilación, instalación y ejecución del proyecto}
 
-Una vez realizados los pasos anteriormente indicados, para compilar el código fuente, ejecutar las pruebas y empaquetar la aplicación en un archivo JAR, se debe utilizar el siguiente comando de Maven desde la raíz del directorio \emph{``ReservApp/''}:
+Una vez realizados los pasos anteriormente indicados, para compilar el código fuente, ejecutar las pruebas y empaquetar la aplicación en un archivo JAR, se debe utilizar el siguiente comando de Maven desde la raíz del directorio ``\emph{ReservApp/}'':
 \begin{verbatim}
    mvn clean install
 \end{verbatim}
 
-La forma equivalente de realizar las mismas acciones desde el \textit{Eclipse} es pulsando con el botón derecho sobre la raíz del proyecto en la vista de \emph{``Project Explorer''} y seleccionando del menú contextual que aparece la opción de \emph{``Run As -> Run Configurations...''} que mostrará un cuadro de diálogo en el que se deberá indicar en \emph{``Goals''} el comando \emph{``clean install''} tal y como se muestra en la figura~\ref{fig:eclipse_clean_install} para finalmente pulsar \emph{Run} y con ello desencadenar todo el ciclo de vida de compilación de Maven. Este proceso desencadena la ejecución de las fases de limpieza, compilación e instalación del artefacto resultante en el repositorio local.
+La forma equivalente de realizar las mismas acciones desde el \textit{Eclipse} es pulsando con el botón derecho sobre la raíz del proyecto en la vista de ``\emph{Project Explorer}'' y seleccionando del menú contextual que aparece la opción de ``\emph{Run As -> Run Configurations...}'' que mostrará un cuadro de diálogo en el que se deberá indicar en ``\emph{Goals}'' el comando ``\emph{clean install}'' tal y como se muestra en la figura~\ref{fig:eclipse_clean_install} para finalmente pulsar ``\emph{Run}'' y con ello desencadenar todo el ciclo de vida de compilación de Maven. Este proceso desencadena la ejecución de las fases de limpieza, compilación, empaquetado e instalación del artefacto resultante en el repositorio local.
 
 \imagen{eclipse_clean_install}{Diálogo con las instrucciones para compilar y empaquetar el proyecto.}
 
-Tanto si se realizan los pasos anteriormente indicados desde la consola de comandos como si se realiza desde \textit{Eclipse}, se lanzará el proceso de descarga de todas las dependencias necesarias y, si tiene éxito, generará el archivo reservApp-1.0.0-RELEASE.jar en el directorio \emph{``target/''}.
+Tanto si se realizan los pasos anteriormente indicados desde la consola de comandos como si se realiza desde \textit{Eclipse}, se lanzará el proceso de descarga de todas las dependencias necesarias y, si tiene éxito, generará el archivo reservApp-1.0.0-RELEASE.jar en el directorio ``\emph{target/}''.
 
-\subsection{Ejecución del proyecto}
+\subsection{Ejecución de la aplicación}
 
-Para la ejecución del proyecto desde el entorno de desarrollo, se han configurado dos entornos sobre los que es posible ejecutarse según sea necesario:
+Para la ejecución de la aplicación desde el entorno de desarrollo, se han configurado dos entornos sobre los que es posible ejecutarse según sea necesario:
 \begin{itemize}
    \item \textbf{Entorno de desarollo (dev)}: Es un entorno local con una base de datos MySQL desplegada en el propio equipo. Para desplegar dicho entorno, se puede hacer utilizando el \emph{plugin} \textit{Spring Tools} ejecutando la tarea que se puede ver en la siguiente figura~\ref{fig:spring_boot_dev}.
 
    \imagen{spring_boot_dev}{Opciones de Spring Tools para ejecutar el entorno de desarrollo (dev).}
    
-   \item \textbf{Entorno de producción (prod)}: Es un entorno local pero con una base de datos MySQL externa. En este caso la base de datos está desplegada en la plataforma Aiven~\cite{aiven} manteniendo con ello la base de datos aislada de las modificaciones que se realizan en desarrollo. Para desplegar dicho entorno, se debe proceder de la misma forma que el caso anterior pero eligiendo el perfil \emph{``prod''}, tal y como se puede ver en la siguiente figura~\ref{fig:spring_boot_prod}.
+   \item \textbf{Entorno de producción (prod)}: Es un entorno local pero con una base de datos MySQL externa. En este caso la base de datos está desplegada en la plataforma Aiven~\cite{aiven} manteniendo con ello la base de datos aislada de las modificaciones que se realizan en desarrollo. Para desplegar dicho entorno, se debe proceder de la misma forma que el caso anterior pero eligiendo el perfil ``\emph{prod}'', tal y como se puede ver en la siguiente figura~\ref{fig:spring_boot_prod}.
 
    \imagen{spring_boot_prod}{Opciones de Spring Tools para ejecutar el entorno de desarrollo (prod).}
 \end{itemize}
 
 \section{Pruebas del sistema}
-La implementación de testing asegura la estabilidad del sistema, facilita el mantenimiento del código y proporciona confianza para futuras modificaciones y extensiones del proyecto.
+La implementación de \emph{testing} asegura la estabilidad del sistema, facilita el mantenimiento del código y proporciona confianza para futuras modificaciones y extensiones del proyecto.
 
-Para validar el sistema ReservApp, se ha seguido mediante una estrategia de aseguramiento de la calidad (QA) que se compone de pruebas unitarias y de integración. La implementación de este plan de pruebas se basó en el uso de herramientas de testing automatizado, que proporciona el \emph{framework} de \textit{Spring Boot}, y en la aplicación de estándares de codificación para garantizar la integridad del código y la cobertura de los requisitos funcionales.
+Para validar el sistema ReservApp, se ha seguido mediante una estrategia de aseguramiento de la calidad (QA) que se compone de pruebas unitarias y de integración. La implementación de este plan de pruebas se basó en el uso de herramientas de \emph{testing} automatizado, que proporciona el \emph{framework} de \textit{Spring Boot}, y en la aplicación de estándares de codificación para garantizar la integridad del código y la cobertura del código.
 
 Estos son los tipos de pruebas que se han utilizado:
 \begin{itemize}
    \item \textbf{Test Unitarios}: Son pruebas que se centran en verificar el correcto funcionamiento de componentes individuales (clases y métodos). Se utiliza Mockito para aislar los componentes a probar mediante la simulación de sus dependencias. Se ha utilizado principalmente para testear las siguientes clases:
       \begin{itemize}
       \item Tests de entidades con validaciones \emph{Bean Validation}.
-      \item Tests de servicios con mocks de repositorios.
-      \item Tests de controladores con mocks de servicios.
+      \item Tests de servicios con \emph{mocks} de repositorios.
+      \item Tests de controladores con \emph{mocks} de servicios.
       \item Tests de utilidades y componentes auxiliares.
    \end{itemize}
    \item \textbf{Test de Integración}: Este tipo de pruebas se enfocan en verificar la correcta interacción entre diferentes partes del sistema, como los controladores, los servicios y la capa de persistencia. Se utiliza el \emph{framework} de \textit{Spring Boot Test} para cargar un contexto de aplicación y realizar pruebas más completas. Se ha utilizado principalmente para testear las siguientes clases:
@@ -129,8 +128,8 @@ Estos son los tipos de pruebas que se han utilizado:
 
 Para la implementación de los \emph{tests} se han utilizado las siguientes librerías:
 \begin{itemize}
-   \item \textbf{JUnit 5}: Es el \emph{framework} estándar para la implementación y ejecución de pruebas en Java.
-   \item \textbf{Mockito}: Para la creación de objetos tipo \emph{mock} y emph{stub}.
+   \item \textbf{JUnit 5}: Es el \emph{framework} estándar por excelencia para la implementación y ejecución de pruebas en Java.
+   \item \textbf{Mockito}: Para la creación de objetos tipo \emph{mock} y \emph{stub}.
    \item \textbf{H2 Database}: Es una base de datos en memoria que se emplea durante la fase de pruebas para simular la capa de persistencia sin depender de una instancia real de MySQL.
 \end{itemize}
 
@@ -146,7 +145,7 @@ Al ejecutar la cobertura desde Eclipse, se obtienen los valores que aparecen en 
 \subsubsection{Automatización de \emph{Testing}}
 Más allá de la automatización de \emph{tests} mediante el ciclo de vida de Maven, se ha configurado un flujo de integración continua (CI) utilizando \textit{GitHub Actions}. Esta solución de \emph{pipeline} conecta el repositorio de \textit{GitHub} con la plataforma \textit{SonarCloud} para el análisis de código estático, de modo que cada nuevo \emph{commit} o \emph{pull request} desencadene un análisis estático del código. Esta configuración permite automatizar el análisis del código con cada nueva subida, lo que proporciona métricas detalladas y en tiempo real sobre la calidad, seguridad, fiabilidad y mantenibilidad del proyecto. Este enfoque asegura que el cumplimiento de los estándares de código se valide de forma automática y se obtenga un \emph{feedback} inmediato.
 
-El pipeline de integración continua (CI) para GitHub Actions ha sido configurado a través de un archivo \textit{YAML} disponible en:~\cite{github_action_ci}. En dicho fichero, creado en GitHub Actions, se automatizan las distintas fases del ciclo de construcción del proyecto. Como se puede ver en el flujo de tareas de la imagen~\ref{fig:github-workflow}, este proceso abarca desde la limpieza del entorno y la descarga de dependencias hasta la compilación, el empaquetado y la ejecución de análisis para obtener las diferentes métricas del sistema. Como resultado del último análisis estático de código, se ha generado un informe que refleja el estado general del proyecto, tal como se ilustra en la imagen~\ref{fig:sonarcloud_summary}, en la que se pueden apreciar los diferentes valores que la plataforma ofrece.
+El pipeline de integración continua (CI) para GitHub Actions ha sido configurado a través de un archivo \textit{YAML} disponible en:~\cite{github_action_ci}. En dicho fichero, creado en GitHub Actions, se automatizan las distintas fases del ciclo de construcción del proyecto. Como se puede ver en el flujo de tareas de la imagen~\ref{fig:github-workflow}, este proceso abarca desde la limpieza del entorno y la descarga de dependencias hasta la compilación, el empaquetado y la ejecución de \emph{tests} y el análisis para obtener las diferentes métricas del sistema. Como resultado del último análisis estático de código, se ha generado un informe que refleja el estado general del proyecto, tal como se ilustra en la imagen~\ref{fig:sonarcloud_summary}, en la que se pueden apreciar los diferentes valores que la plataforma ofrece.
 
 \imagen{github-workflow}{Secuencia con las distintas tareas del Workflow.}
 
@@ -163,7 +162,7 @@ En SonarCloud permite ver la evolución de las \emph{issues} que se detectan en 
 \subsubsection{Conclusiones la Validación del Sistema}
 El sistema ha sido validado mediante pruebas funcionales y de calidad, lo que ha permitido:
 \begin{itemize}
-   \item \textbf{Optimización del desarrollo}: La detección de fallos en las primeras fases del desarrollo ha permitido la corrección temprana reduciendo significativamente los costos y el tiempo de corrección.
+   \item \textbf{Optimización del desarrollo}: La detección de fallos en las primeras fases del desarrollo ha permitido la corrección temprana reduciendo significativamente los costes y el tiempo de corrección.
    \item \textbf{Garantía de la calidad del código}: Se alcanzó una alta cobertura de pruebas, así como altos índices de calidad, seguridad, fiabilidad y mantenibilidad, lo que se ha verificado mediante el análisis de código estático de SonarCloud.
 \end{itemize}
 
