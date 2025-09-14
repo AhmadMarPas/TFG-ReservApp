@@ -4,14 +4,14 @@ En este capítulo se describe cómo se establece la base del proyecto, demostran
 
 \section{Sistemas de Gestión de Reservas}
 
-El sistema de gestión de reservas es una herramienta que facilita la asignación de recursos, como salas de reuniones. Aunque este fue el punto de partida, la aplicación ha sido diseñada para ser adaptable. Se puede utilizar en diferentes sectores, como restaurantes, servicios y para la gestión de citas.
+El sistema de gestión de reservas es una herramienta que facilita la asignación de recursos, como salas de reuniones. Aunque éste fue el punto de partida, la aplicación ha sido diseñada para ser adaptable; se puede utilizar en diferentes sectores, como restaurantes, servicios y para la gestión de citas.
 
-Los sistemas de reservas buscan optimizar la utilización de los recursos disponibles y reducir los conflictos derivados de dobles reservas y mejorar la eficiencia operativa. Un buen sistema debe incluir funcionalidades como la gestión de disponibilidad en tiempo real, la modificación de reservas, la integración con calendarios empresariales y la autenticación de usuarios.
+Los sistemas de reservas buscan optimizar la utilización de los recursos disponibles y reducir los conflictos derivados de dobles reservas y mejorar la eficiencia operativa. Un buen sistema debe permitir la gestión de reservas en tiempo real, la modificación de reservas, la integración con calendarios empresariales y la autenticación de usuarios.
 
 En el contexto de este TFG, para que la experiencia de reserva fuera lo más intuitiva posible, se ha introducido el concepto de \textbf{``slots''} o intervalos de tiempo. De modo que se han diferenciado los espacios de reserva en dos tipos para que el usuario pueda elegir el que mejor se adapte a su necesidad:
 \begin{itemize}
 \tightlist
-   \item \textbf{Duración variable}: Es la opción que ofrece flexibilidad, permitiéndos al usuario elegir la hora de inicio y fin de su reserva.
+   \item \textbf{Duración variable}: Es la opción que ofrece flexibilidad, permitiendo al usuario elegir la hora de inicio y fin de su reserva.
    \item \textbf{Duración fija}: Para estos casos, la aplicación muestra una serie de horarios preestablecidos (los ``slots''), facilitando al usuario la selección de un intervalo de tiempo ya definido, agilizando con ello el proceso.
 \end{itemize}
 
@@ -52,7 +52,7 @@ Es un sistema de gestión de bases de datos relacional de código abierto que of
 \section{Arquitectura de Aplicaciones Web}
 
 \subsubsection{Patrones de Arquitectura}
-La aplicación sigue el patrón Modelo-Vista-Controlador (MVC)~\cite{modelo-vista-controrlador}, de forma estructurada y desacoplada, aprovechando al máximo las características del ecosistema de Spring para crear una aplicación web sólida y fácil de mantener, separando mediante capas la lógica de negocio, la de presentación y la de control de la aplicación:
+Para el desarrollo de la aplicación se ha aplicado el conocido patrón Modelo-Vista-Controlador (MVC)~\cite{modelo-vista-controrlador}, consiguiendo una solución estructurada y desacoplada, y para ello se ha aprovechado las características del ecosistema Spring obteniendo una aplicación web sólida y fácil de mantener, separando mediante capas la lógica de negocio, la de presentación y la de control de la aplicación:
 \begin{itemize}
 \tightlist
    \item \textbf{Modelo}: Gestiona los datos y la lógica de negocio. Implementado en Spring Boot con acceso a la base de datos MySQL.
