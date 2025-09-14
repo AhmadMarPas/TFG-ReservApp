@@ -106,7 +106,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 \item
 \textbf{RF-002 - Registro de Usuarios}: El sistema debe permitir el registro de nuevos usuarios con validación de datos.
 \item
-\textbf{RF-003 - Gestión de Establecimientos}: El sistema debe permitir la gestión completa de establecimientos con configuración de horarios.
+\textbf{RF-003 - Gestión de Establecimientos}: El sistema debe permitir la gestión completa de establecimientos con configuración de horarios fijo y variable.
 \item
 \textbf{RF-004 - Sistema de Reservas}: El sistema debe permitir crear, modificar y anular reservas con validación de disponibilidad.
 \item
@@ -118,7 +118,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 \item
 \textbf{RF-008 - Visualización de Reservas Administrativas}: El sistema debe proporcionar vista administrativa de reservas por establecimiento.
 \item
-\textbf{RF-009 - Gestión de Perfiles}: El sistema debe permitir la gestión de perfiles con menús asociados.
+\textbf{RF-009 - Gestión de Perfiles}: El sistema debe permitir la gestión de perfiles.
 \item
 \textbf{RF-010 - Notificaciones por Email}: El sistema debe enviar notificaciones por email para los diferentes eventos de reservas.
 \end{itemize}
@@ -184,9 +184,9 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 		\textbf{Nombre:} 			  & \textbf{Administrador} \\
 		\textbf{Versión}              & 1.0    \\
 		\textbf{Autor}                & \nombre \\
-		\textbf{Descripción}          & Persona que rol de Administrador que interactúa con la aplicación ReservApp para las diferentes opciones de administración que en ella se ofrecen. \\
+		\textbf{Descripción}          & Persona con rol de Administrador que interactúa con la aplicación para las diferentes opciones de administración que en ella se ofrecen. \\
 		\textbf{Tipo}                 & Usuario \\
-		\textbf{Objetivo}             & Crear, modificar o anular reservas, crear, modificar o anular convocatorias. \\
+		\textbf{Objetivo}             & Crear, modificar o anular establecimientos, usuarios, perfiles y reservas. \\
 		\textbf{Responsabilidades}    & 
 		\begin{itemize}
 			\tightlist
@@ -225,6 +225,8 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 	\caption{A03 - Sistema de Email}
 	\label{actor:sistema-email}
 \end{table}
+
+\newpage
 
 \subsection{Casos de uso general}
 

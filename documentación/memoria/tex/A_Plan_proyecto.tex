@@ -1,24 +1,24 @@
 \apendice{Plan de Proyecto Software}
 
 \section{Introducción}
-En el presente plan de proyecto software se define la estrategia de desarrollo que se ha llevado a cabo para la implementación de un sistema web de gestión de reservas de salas de reuniones. Este anexo establece el marco organizativo y metodológico que se llevó a cabo durante el proceso de desarrollo, desde la concepción inicial hasta la puesta en producción del sistema. La planificación que aquí se presenta contempla una estimación temporal realista de las diferentes fases del proyecto, considerando las actividades de análisis, diseño, implementación, pruebas y despliegue. Asimismo, se evalúa la viabilidad del proyecto desde una perspectiva económica y legal, analizando los costes asociados al desarrollo, los recursos necesarios y el cumplimiento de la normativa aplicable en materia de protección de datos y propiedad intelectual.
+En el presente plan de proyecto software se define la estrategia de desarrollo que se ha llevado a cabo para el desarrollo de un sistema web de gestión de reservas de salas de reuniones. Este anexo establece el marco organizativo y metodológico que se llevó a cabo durante el proceso de desarrollo, desde la concepción inicial hasta la puesta en producción del sistema. La planificación que aquí se presenta contempla una estimación temporal realista de las diferentes fases del proyecto, considerando las actividades de análisis, diseño, implementación, pruebas y despliegue. Asimismo, se evalúa la viabilidad del proyecto desde una perspectiva económica y legal, analizando los costes asociados al desarrollo, los recursos necesarios y el cumplimiento de la normativa aplicable en materia de protección de datos y propiedad intelectual.
 
 \section{Planificación temporal}
-Para el desarrollo de la aplicación de gestión de reservas de salas de reuniones se ha adoptado la metodología ágil Scrum como marco de trabajo principal. Esta elección se basa en la naturaleza iterativa e incremental que requiere el proyecto, permitiendo una adaptación continua a los requisitos cambiantes y una entrega de valor constante a lo largo del proceso de desarrollo.
+Para el desarrollo de la aplicación se ha adoptado la metodología ágil Scrum como marco de trabajo principal. Esta elección se basa en la naturaleza iterativa e incremental que requiere este proyecto, permitiendo una adaptación continua a los requisitos cambiantes y una entrega de valor constante a lo largo del proceso de desarrollo.
 
-Scrum proporciona un marco estructurado que facilita la organización del trabajo en iteraciones cortas llamadas sprints, que se realizan normalmente en un periodo de 2 semanas de duración. Scrum permite una mayor flexibilidad en la gestión de cambios, una mejor comunicación con los tutores y una entrega más predecible de funcionalidades. Además, la transparencia inherente a Scrum facilita la identificación temprana de impedimentos y riesgos, permitiendo su resolución antes de que impacten significativamente en el proyecto.
+Scrum proporciona un marco estructurado que facilita la organización del trabajo en iteraciones cortas llamadas sprints, que se realizan normalmente en un período de 2 semanas de duración. Scrum permite una mayor flexibilidad en la gestión de cambios, una mejor comunicación con los tutores y una entrega más predecible de funcionalidades. Además, la transparencia inherente a Scrum facilita la identificación temprana de impedimentos y riesgos, permitiendo su resolución antes de que impacten significativamente en el proyecto.
 
-La gestión y seguimiento de los sprints se ha realizado utilizando Zube~\cite{zube}, que es una plataforma especializada en la gestión de proyectos ágiles y que se integra perfectamente con el repositorio de GitHub. Además, Zube ofrece funcionalidades específicas para la implementación de Scrum, que incluyen:
+La gestión y seguimiento de los sprints se ha realizado utilizando Zube~\cite{zube}, que es una plataforma especializada en la gestión de proyectos con metodologías ágiles y que se integra perfectamente con GitHub. Además, Zube ofrece funcionalidades que incluyen:
 
 \begin{itemize}
 \tightlist
 \item
-\textbf{Tableros Kanban personalizables}: Permiten visualizar el flujo de trabajo desde el backlog hasta la finalización de las tareas. Como ejemplo de ello se puede observa la figura ~\ref{fig:Zube-Kanban}.
+\textbf{Tableros Kanban personalizables}: Permiten visualizar el flujo de trabajo desde el backlog hasta la finalización de las tareas. Como muestra de ello se puede observar la figura ~\ref{fig:Zube-Kanban}.
 
 \imagen{Zube-Kanban}{Ejemplo de las tarjetas de un sprint en Zube con los diferentes estados en los que se puede encontrar.}
 
 \item
-\textbf{Gestión de sprints}: Dispone de herramientas para la planificación, seguimiento y retrospectivas de cada iteración.
+\textbf{Gestión de sprints}: Dispone de funcionalidades para la planificación, seguimiento y retrospectivas de cada iteración.
 \item
 \textbf{Métricas de rendimiento}: Incluyen gráficos de \emph{burndown charts}, \emph{velocity tracking} y análisis de ciclo de vida de las tareas. En la figura ~\ref{fig:Zube-Burndown} se puede observar un ejemplo de gráfica de \emph{burndown}.
 
@@ -28,7 +28,7 @@ La gestión y seguimiento de los sprints se ha realizado utilizando Zube~\cite{z
 \textbf{Integración nativa con GitHub}: Permite la sincronización automática con \emph{issues}, \emph{pull requests} y \emph{commits}.
 \end{itemize}
 
-La elección de Zube se debe a su capacidad de proporcionar una visión global del progreso del proyecto, facilitando con ello tanto la planificación a corto plazo como el seguimiento de objetivos a largo plazo. Su interfaz es intuitiva y permite una gestión eficiente del \emph{product backlog} y la asignación de tareas a cada sprint.
+La elección de Zube se debe a su capacidad de proporcionar una visión global del progreso del proyecto, facilitando con ello tanto la planificación a corto plazo como el seguimiento de objetivos a largo plazo. Su interfaz es intuitiva, permitiendo poder hacer un seguimiento del \emph{product backlog} y la asignación de tareas a cada sprint.
 
 Complementariamente al uso de Zube, se ha utilizado el sistema de \emph{issues} de GitHub para el registro detallado de todas las tareas, errores, mejoras y funcionalidades del proyecto. Esta integración dual proporciona varios beneficios:
 
@@ -41,28 +41,28 @@ Complementariamente al uso de Zube, se ha utilizado el sistema de \emph{issues} 
 \item
 \textbf{Colaboración eficiente}: Facilita la comunicación sobre aspectos técnicos específicos y la revisión de código.
 \item
-\textbf{Historial detallado}: Mantiene un registro completo de la evolución del proyecto y las decisiones tomadas.
+\textbf{Historial detallado}: Mantiene un registro completo de la evolución de la tarea y las decisiones tomadas.
 \end{itemize}
 
 \imagen{GitHub-Issue3}{Ejemplo del histórico de una \emph{issue}.}
 
 \subsection{Estructura y Duración del Proyecto}
-El proyecto se ha estructurado en 11 sprints de 2 semanas cada uno, resultando en una duración total de 22 semanas (aproximadamente 6 meses). Esta planificación se ha diseñado considerando la complejidad del sistema a desarrollar y los recursos disponibles, permitiendo un desarrollo incremental y sostenible.
+El proyecto se ha estructurado en 12 sprints de 2 semanas cada uno, resultando en una duración total de 20 semanas (aproximadamente 6 meses). Esta planificación se ha realizado considerando la complejidad del sistema a desarrollar y los recursos disponibles, permitiendo un desarrollo incremental y sostenible.
 
-Cabe señalar que la distribución temporal del proyecto no ha seguido un patrón estrictamente lineal debido a interrupciones planificadas relacionadas con el calendario académico que ha requerido pausas en el desarrollo del proyecto, adaptando la planificación a las exigencias del curso académico. Esta variabilidad temporal ha sido gestionada mediante la flexibilidad que ofrece la metodología Scrum, permitiendo ajustar la duración de algunos sprints y redistribuir las cargas de trabajo según la disponibilidad. A pesar de estas interrupciones, se ha mantenido la estructura de 11 sprints planificada, asegurando que los objetivos de cada iteración se cumplieran independientemente de las fluctuaciones en el ritmo de trabajo, quédando resumida la planificación en los siguientes puntos:
+Cabe señalar que la distribución temporal del proyecto no ha seguido un patrón estrictamente lineal debido a interrupciones relacionadas con el calendario académico que han requerido pausas en el desarrollo del proyecto, adaptando la planificación a las exigencias del curso académico. Esta variabilidad temporal ha sido gestionada mediante la flexibilidad que ofrece la metodología Scrum, permitiendo ajustar la duración de algunos sprints y redistribuir las cargas de trabajo según la disponibilidad. A pesar de estas interrupciones, se ha mantenido la estructura de 12 sprints planificados, asegurando que los objetivos de cada iteración se cumplieran independientemente de las fluctuaciones en el ritmo de trabajo, quedando resumida la planificación en los siguientes puntos:
 
 \begin{itemize}
 \tightlist
 \item
-\textbf{Duración total del proyecto}: 22 semanas.
+\textbf{Duración total del proyecto}: 20 semanas.
 \item
-\textbf{Número de sprints}: 11.
+\textbf{Número de sprints}: 12.
 \item
-\textbf{Duración de cada sprint}: 2 semanas.
+\textbf{Duración de cada sprint}: 2 semanas (en su mayoría).
 \item
 \textbf{Eventos Scrum}: Planificación de sprint, \emph{daily standups}, revisión y retrospectiva.
 \item
-\textbf{Período de desarrollo activo}: 19 semanas.
+\textbf{Período de desarrollo activo}: 17 semanas.
 \item
 \textbf{Período de cierre y documentación}: 3 semanas.
 \end{itemize}
@@ -103,7 +103,6 @@ Integración con SonarCloud mediante 'sonar-project.properties' para análisis c
 \item
 Implementación de 'ReservApplication' como clase principal con configuración de componentes
 \end{itemize}
-
 
 \subsubsection{Sprint 1 - Modelo de Datos y Entidades Base (31/03/2025 – 13/04/2025)} 
 En este sprint se diseñó e implementó el modelo de datos completo del sistema, creando las entidades principales que sustentan la funcionalidad de reservas. Se desarrolló una jerarquía de entidades con 'EntidadInfo' como clase base que proporciona auditoría automática, y se implementaron las entidades principales: 'Usuario', 'Establecimiento', 'Reserva', 'Perfil' y 'Menu'. Se establecieron las relaciones entre entidades usando JPA annotations, implementando validaciones con Bean Validation y configurando índices de base de datos para optimizar las consultas más frecuentes. También se creó el sistema de claves primarias personalizadas con 'EntidadPK' y 'EntidadID'.
@@ -398,7 +397,32 @@ Implementación de SSL/TLS para conexiones seguras.
 Testing de conectividad y rendimiento en entorno de producción.
 \end{itemize}
 
-\subsubsection{Sprint 10 - Despliegue y Documentación Final (01/09/2025 – 14/09/2025)} 
+\subsubsection{Sprint 10 - Documentación de la memoria y anexos (25/08/2025 – 31/08/2025)} 
+En este sprint se retoma la documentación para avanzar en la redacción de la memoria y los anexos.
+
+\textbf{Objetivos principales}:
+\begin{itemize}
+\tightlist
+\item
+Completar la redacción de la memoria.
+\item
+Completar documentación técnica y de usuario.
+\item
+Preparación de materiales de entrega.
+\end{itemize}
+
+\textbf{Actividades realizadas}:
+\begin{itemize}
+\tightlist
+\item
+Creación del documento de la memoria.
+\item
+Creación de documentación completa de usuario y administrador.
+\item
+Preparación de manual de instalación y mantenimiento.
+\end{itemize}
+
+\subsubsection{Sprint 11 - Despliegue y Documentación Final (01/09/2025 – 14/09/2025)} 
 En este sprint final se deja definitivamente la aplicación desplegada en el entorno de producción y se finaliza por completar la memoria y anexos correspondientes a la documentación del TFG.
 
 \textbf{Objetivos principales}:
@@ -429,11 +453,10 @@ Preparación de manual de instalación y mantenimiento.
 Validación final del sistema en producción.
 \end{itemize}
 
-
 \section{Estudio de viabilidad}
-El presente estudio de viabilidad analiza la factibilidad económica y legal del desarrollo del proyecto ReservApp, un sistema web de gestión de reservas desarrollado con tecnologías Java/Spring Boot. Este análisis considera los costes asociados al desarrollo, implementación y mantenimiento del sistema, así como las implicaciones legales derivadas del uso de las tecnologías y herramientas seleccionadas.
+En la presente sección se analiza la viabilidad económica y legal del desarrollo del proyecto ReservApp. Este análisis considera los costes asociados al desarrollo, implementación y mantenimiento del sistema, así como las implicaciones legales derivadas del uso de las tecnologías y herramientas seleccionadas.
 
-El proyecto se ha desarrollado siguiendo una metodología ágil distribuida en 11 sprints, con una duración total aproximada de 6 meses de desarrollo, considerando un equipo de desarrollo compuesto por un desarrollador full-stack senior y soporte técnico especializado.
+El proyecto se ha desarrollado siguiendo una metodología ágil distribuida en 12 sprints, con una duración total aproximada de 6 meses de desarrollo, considerando un equipo de desarrollo compuesto por un desarrollador full-stack senior.
 
 \subsection{Viabilidad económica}
 \subsubsection{Coste de personal}
@@ -480,7 +503,7 @@ Para calcular los costes de los equipos, se han considerado equipos de gama medi
 	\textbf{Equipo} & \textbf{Características} & \textbf{P. Unitario} & \textbf{Coste total}\\ % Cabecera
 }
 {%
-	Sobremesa & Ryzen 7, 32 GB RAM, 1TB & 600€ & 75€\\
+	Sobremesa & Ryzen 7, 32 GB RAM, 1 TB & 600 € & 75 €\\
 	Monitor & HP 24" & 200€ & 2,5€\\
     \midrule
 	\textbf{Total Coste} & \textbf{Hardware} & & \textbf{77,5€} \\ 
@@ -512,9 +535,9 @@ La siguiente tabla recoge el total de costes contemplados:
 	\textbf{Concepto} & \textbf{Coste total}\\ % Cabecera
 }
 {%
-	Coste de Personal & 12.151€\\
-	Coste de Hardware & 77,5€\\
-	Coste de Software & 50€\\
+	Coste de Personal & 12.151 €\\
+	Coste de Hardware & 77,5 €\\
+	Coste de Software & 50 €\\
     \midrule
 	\textbf{Coste Total} & \textbf{12.278,5€} \\ 
 }
@@ -531,26 +554,26 @@ Para el desarrollo del proyecto ReservApp se ha intentado utilizar en lo posible
 	\textbf{Dependencia} & \textbf{Licencia} & \textbf{Observaciones}\\ % Cabecera
 }
 {%
-	Apache Maven 3.9.x & Apache License 2.0 & Uso comercial libre\\
-    Spring Boot 3.4.x & Apache License 2.0 & Uso comercial libre\\
-	Spring Data JPA 3.x & Apache License 2.0 & Uso comercial libre\\
-	Spring Security 6.x & Apache License 2.0 & Uso comercial libre\\
-    Hibernate 6.x & Apache License 2.0 & Uso comercial libre\\
-    Thymeleaf 3.x & Apache License 2.0 & Uso comercial libre\\
-    MySQL 8.x & GPL 2.0 & Uso condicionado\\
-    H2 Database 2.x & MPL 2.0 / EPL 1.0 & Uso comercial libre\\
-    Bootstrap 5.3.x & MIT License & Uso comercial libre\\
-    Bootstrap Icons 1.13.x & MIT License & Uso comercial libre\\
-    Font Awesome 6.x & Font Awesome Free License & Iconos gratuitos limitados\\
-    JQuery 3.x & MIT License & Uso comercial libre\\
-    JUnit 5.x & Eclipse Public License 2.0 & Uso comercial libre\\
-    Mockito 5.14.x & MIT License & Uso comercial libre\\
-    JaCoCo 0.8.x & Eclipse Public License 2.0 & Uso comercial libre\\
-    Lombok 1.18.x & MIT License & Uso comercial libre\\
+	Apache Maven 3.9.x     & Apache License 2.0         & Uso comercial libre\\
+    Spring Boot 3.4.x      & Apache License 2.0         & Uso comercial libre\\
+	Spring Data JPA 3.x    & Apache License 2.0         & Uso comercial libre\\
+	Spring Security 6.x    & Apache License 2.0         & Uso comercial libre\\
+    Hibernate 6.x          & Apache License 2.0         & Uso comercial libre\\
+    Thymeleaf 3.x          & Apache License 2.0         & Uso comercial libre\\
+    MySQL 8.x              & GPL 2.0                    & Uso condicionado\\
+    H2 Database 2.x        & MPL 2.0 / EPL 1.0          & Uso comercial libre\\
+    Bootstrap 5.3.x        & MIT License                & Uso comercial libre\\
+    Bootstrap Icons 1.13.x & MIT License                & Uso comercial libre\\
+    Font Awesome 6.x       & Font Awesome Free License  & Iconos gratuitos limitados\\
+    JQuery 3.x             & MIT License                & Uso comercial libre\\
+    JUnit 5.x              & Eclipse Public License 2.0 & Uso comercial libre\\
+    Mockito 5.14.x         & MIT License                & Uso comercial libre\\
+    JaCoCo 0.8.x           & Eclipse Public License 2.0 & Uso comercial libre\\
+    Lombok 1.18.x          & MIT License                & Uso comercial libre\\
     \midrule
-    Eclipse 2025-06 & Eclipse Public License 2.0 & Uso comercial libre\\
-    GitHub & Términos de Servicio & versión limitada\\
-    SonarCloud & SaaS Comercial & versión limitada\\
+    Eclipse 2025-06        & Eclipse Public License 2.0 & Uso comercial libre\\
+    GitHub                 & Términos de Servicio       & versión limitada\\
+    SonarCloud             & SaaS Comercial             & versión limitada\\
 }
 
 Dado que MySQL está bajo la GPL (en su versión libre), y esta licencia exige que el software derivado también sea GPL, la única manera de cumplir con todas las condiciones es licenciar la aplicación completa bajo la \textbf{GNU General Public License (GPL)}. Esto asegura que se cumplan con los requisitos de MySQL, mientras que las licencias Apache, MIT, MPL y EPL son lo suficientemente permisivas o tienen mecanismos de compatibilidad que permiten su uso dentro de un proyecto GPL.

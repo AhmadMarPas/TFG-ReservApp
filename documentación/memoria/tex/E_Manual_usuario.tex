@@ -1,7 +1,7 @@
 \apendice{Documentación de usuario}
 
 \section{Introducción}
-Esta memoria presenta la documentación completa de usuario para ReservApp, un sistema integral de gestión de reservas desarrollado con tecnología Java Spring Boot. ReservApp está diseñado para facilitar la administración y reserva de establecimientos, proporcionando una plataforma intuitiva tanto para usuarios finales como para administradores del sistema.
+En esta sección se presenta la documentación completa de usuario para ReservApp, un sistema integral de gestión de reservas desarrollado con tecnología Java Spring Boot. ReservApp está diseñado para facilitar la administración y reserva de establecimientos, proporcionando una plataforma intuitiva tanto para usuarios finales como para administradores del sistema.
 
 El sistema permite a los usuarios realizar reservas en establecimientos asignados, gestionar convocatorias de reuniones y administrar sus perfiles personales. Los administradores pueden gestionar usuarios, establecimientos, perfiles del sistema y supervisar todas las reservas realizadas.
 
@@ -12,8 +12,6 @@ El acceso a la aplicación está condicionado únicamente a la disponibilidad de
 
 \section{Instalación}
 Dado que se trata de una aplicación web, no es necesaria ninguna instalación local. Se puede acceder a la aplicación de forma inmediata a través del enlace \url{https://reservapp-1u8c.onrender.com/}.
-
-\newpage
 
 \section{Manual del usuario}
 A continuación se detallan las operaciones que se pueden realizar en la aplicación.
@@ -28,7 +26,7 @@ A continuación se detallan las operaciones que se pueden realizar en la aplicac
 \end{figure}
 
 \subsubsection{Registro de un nuevo usuario}
-Nada más acceder a la aplicación, se mostrará por defecto la página de inicio, tal y como se puede ver en la figura ~\ref{fig:reservapp_login}. Si es la primera vez que se utiliza la aplicación, será necesario crear una cuenta para poder acceder a las funcionalidades de reserva. Estos son los pasos a seguir:
+Nada más acceder a la aplicación, se mostrará por defecto la página de inicio, tal y como se puede ver en la figura ~\ref{fig:reservapp_login}. Si es la primera vez que se accede a la aplicación, será necesario crear una cuenta para poder acceder a las funcionalidades de reserva. Estos son los pasos a seguir:
 
 \begin{enumerate}
    \item \textbf{Acceder a la página de registro}:
@@ -103,9 +101,11 @@ En caso de tener un usuario previamente creado se podrá acceder a la aplicació
 Pulsando el botón de ``Cerrar Sesión'', provocará el cierre de la sesión actual de forma segura. Estos son los pasos a seguir:
 
 \begin{enumerate}
-   \item Desde cualquier página del sistema, hacer clic en el botón ``Cerrar Sesión'' en la barra de navegación.
+   \item Desde cualquier página del sistema, hacer clic en el botón ``Cerrar Sesión'' en la sección superior.
    \item El sistema cerrará la sesión y redirigirá a la página de login.
 \end{enumerate}
+
+\newpage
 
 \subsection{Navegación Principal}
 
@@ -114,14 +114,14 @@ El menú principal es el centro de control del sistema, organizado en secciones 
 
 \begin{figure}[H]
 	\centering
-		\includegraphics[width=0.9\linewidth]{reservapp_menu_principal_admin}
+		\includegraphics[width=1.0\linewidth]{reservapp_menu_principal_admin}
 	\caption{Menú Principal para usuario administrador.}
 	\label{fig:reservapp_menu_principal_admin}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-		\includegraphics[width=0.9\linewidth]{reservapp_menu_principal_no_admin}
+		\includegraphics[width=1.0\linewidth]{reservapp_menu_principal_no_admin}
 	\caption{Menú Principal para usuario no administrador.}
 	\label{fig:reservapp_menu_principal_no_admin}
 \end{figure}
@@ -156,14 +156,16 @@ El menú principal es el centro de control del sistema, organizado en secciones 
    \end{itemize}
 \end{itemize}
 
-\subsection{Gestión de Resrervas}
+\newpage
+
+\subsection{Gestión de Reservas}
 
 \subsubsection{Visualizar Mis Reservas}
 Permite consultar los establecimientos disponibles para realizar reservas, tal y como se ilustra en la figura~\ref{fig:reservapp_mis_reservas}. Estos son los pasos a seguir:
 
 \begin{figure}[H]
 	\centering
-		\includegraphics[width=0.5\linewidth]{reservapp_mis_reservas}
+		\includegraphics[width=0.75\linewidth]{reservapp_mis_reservas}
 	\caption{Página de ``Mis Reservas'' donde se muestran los establecimientos asignados.}
 	\label{fig:reservapp_mis_reservas}
 \end{figure}
@@ -187,13 +189,22 @@ Permite consultar los establecimientos disponibles para realizar reservas, tal y
    \end{itemize}
 \end{enumerate}
 
+\newpage
+
 \subsubsection{Crear Nueva Reserva}
 Permite crear una nueva reserva para un establecimiento en concreto, después de haber seleccionado el establecimiento en la página como la que se ilustra en la figura~\ref{fig:reservapp_mis_reservas}. Estos son los pasos a seguir:
 
 \begin{figure}[H]
 	\centering
+	\includegraphics[width=0.85\linewidth]{reservapp_calendario}
+	\caption{Página con el calendario del mes actual mostrando la disponibilidad.}
+	\label{fig:reservapp_calendario}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
 		\includegraphics[width=0.5\linewidth]{reservapp_establecimiento_reserva}
-	\caption{Página con la información del establecimiento y el regimen horario que tiene.}
+	\caption{Página con la información del establecimiento y el régimen horario que tiene.}
 	\label{fig:reservapp_establecimiento_reserva}
 \end{figure}
 
@@ -201,10 +212,11 @@ Permite crear una nueva reserva para un establecimiento en concreto, después de
    \item \textbf{Acceder al calendario de reservas}:
    \begin{itemize}
       \item Desde ``Mis Reservas'', seleccionar un establecimiento.
-      \item Se mostrará la información del establecimiento con su regimen horario, tal y como se muestra en la figura~\ref{fig:reservapp_establecimiento_reserva}.
+      \item Se muestra un calendario con el mes en curso con la disponibilidad de días para poder concretar una reserva, tal y como se muestra en la figura~\ref{fig:reservapp_calendario}.
    \end{itemize}
-   \item \textbf{Revisar información del establecimiento}:
+   \item \textbf{Seleccionar un día con disponibilidad}:
    \begin{itemize}
+      \item Se mostrará la información del establecimiento con su régimen horario, tal y como se muestra en la figura~\ref{fig:reservapp_establecimiento_reserva}.
       \item \textbf{Detalles}: Dirección, teléfono, estado.
       \item \textbf{Aforo}: Número máximo de personas por horario (si aplica).
       \item \textbf{Horarios de apertura}: Días y horas disponibles para reservas.
@@ -215,7 +227,7 @@ Permite crear una nueva reserva para un establecimiento en concreto, después de
       \item \textbf{Horario}: Dependiendo del establecimiento:
       \begin{itemize}
          \item \textbf{Slots predefinidos}: Seleccionar de una lista de horarios disponibles, tal y como se muestra en la figura~\ref{fig:reservapp_reserva_slot}.
-         \item \textbf{Horario libre}: Introducir hora de inicio y fin manualmente, tal y como se muestra en la figura~\ref{fig:reservapp_reserva}.
+         \item \textbf{Horario libre}: Permite escoger entre los periodos variables disponibles, tal y como se muestra en la figura~\ref{fig:reservapp_periodos}, o bien introducir hora de inicio y fin manualmente, tal y como se muestra en la figura~\ref{fig:reservapp_reserva}.
       \end{itemize}
    \end{itemize}
 
@@ -225,6 +237,13 @@ Permite crear una nueva reserva para un establecimiento en concreto, después de
 	\caption{Sección donde se introducen los datos de la reserva con duración fija.}
 	\label{fig:reservapp_reserva_slot}
    \end{figure}
+
+   \begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\linewidth]{reservapp_periodos}
+	\caption{Sección donde se muestran los periodos variables disponibles.}
+	\label{fig:reservapp_periodos}
+\end{figure}
 
    \begin{figure}[H]
 	\centering
