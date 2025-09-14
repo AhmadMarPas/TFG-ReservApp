@@ -1,0 +1,446 @@
+\apendice{Especificación de diseño}
+
+\section{Introducción}
+
+En esta sección se detalla la especificación de diseño de la aplicación ``ReservApp''. El objetivo de este documento es proporcionar una visión clara y detallada de la arquitectura de software, el diseño de la base de datos y los flujos de procedimiento de las funcionalidades principales de la aplicación.
+
+``ReservApp'' es una aplicación web desarrollada con el \emph{framework} Spring Boot, diseñada para la gestión de reservas en diversos tipos de establecimientos. Permite a los usuarios registrarse, buscar establecimientos, realizar reservas y gestionar convocatorias asociadas a dichas reservas.
+
+El sistema está diseñado siguiendo principios de arquitectura en capas, separación de responsabilidades y buenas prácticas de desarrollo con Spring Framework.
+
+El propósito de esta memoria es servir como guía técnica para un equipo de desarrollo y mantenimiento, facilitando la comprensión del sistema y sirviendo como base para futuras evoluciones del mismo.
+
+\section{Diseño de datos}
+
+El modelo de datos de la aplicación ``ReservApp'' está compuesto por un conjunto de entidades que representan los conceptos del dominio del problema. A continuación se describen las entidades principales, sus atributos y las relaciones que existen entre ellas.
+
+\subsection{Descripción de Entidades}
+
+\begin{itemize}
+	\item \textbf{Usuario}(\ref{dd:usuario}): Representa a una persona que utiliza la aplicación. Puede ser un cliente que realiza reservas o un administrador del sistema.
+	\begin{itemize}
+       \item \textbf{id (PK):} Identificador único del usuario (String).
+       \item \textbf{nombre:} Nombre del usuario.
+       \item \textbf{apellidos:} Apellidos del usuario.
+       \item \textbf{email:} Dirección de correo electrónico (única).
+       \item \textbf{password:} Contraseña para la autenticación.
+       \item \textbf{telefono:} Número de teléfono de contacto.
+       \item \textbf{administrador:} Flag booleano que indica si el usuario tiene privilegios de administrador.
+       \item \textbf{bloqueado:} Flag booleano para restringir el acceso al usuario.
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Establecimiento}(\ref{dd:establecimiento}): Representa un lugar físico o recurso que puede ser reservado por los usuarios.
+	\begin{itemize}
+       \item \textbf{id (PK):} Identificador numérico autoincremental.
+       \item \textbf{nombre:} Nombre del establecimiento.
+       \item \textbf{descripcion:} Descripción detallada del establecimiento.
+       \item \textbf{aforo:} Determina el número de reservas simultáneas que se pueden realizar.
+       \item \textbf{duracionReserva:} Duración estándar en minutos de una reserva.
+       \item \textbf{capacidad:} Capacidad máxima de personas por reserva.
+       \item \textbf{tipo:} Tipo de establecimiento.
+       \item \textbf{direccion:} Dirección del establecimiento.
+       \item \textbf{telefono:} Teléfono del establecimiento.
+       \item \textbf{email:} Email del establecimiento.
+       \item \textbf{activo:} Flag booleano que indica si el establecimiento está disponible para nuevas reservas.
+	\end{itemize}
+\end{itemize}
+
+\newpage
+
+\begin{itemize}
+	\item \textbf{FranjaHoraria}(\ref{dd:franja-horaria}): Define los períodos de tiempo en los que un establecimiento está abierto y disponible para ser reservado.
+	\begin{itemize}
+       \item \textbf{id (PK):} Identificador numérico autoincremental.
+       \item \textbf{idEstablecimiento (FK):} Establecimiento al que está vinculado la franja horaria.
+       \item \textbf{diaSemana:} Día de la semana (Lunes, Martes, etc.).
+       \item \textbf{horaInicio:} Hora de inicio de la franja.
+       \item \textbf{horaFin:} Hora de fin de la franja.
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Reserva}(\ref{dd:reserva}): Representa una reserva realizada por un usuario en un establecimiento para una fecha y hora específicas.
+	\begin{itemize}
+       \item \textbf{id (PK):} Identificador numérico autoincremental.
+       \item \textbf{idUsuario (FK):} Identificador del usuario que ha realizado la reserva.
+       \item \textbf{idEstablecimiento (FK):} Identificador del establecimiento de la reserva.
+       \item \textbf{fechaReserva:} Fecha y hora de inicio de la reserva.
+       \item \textbf{horaFin:} Hora de finalización de la reserva.
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Convocatoria}(\ref{dd:convocatoria}): Representa una invitación o evento asociado a una reserva, permitiendo registrar a varios participantes.
+	\begin{itemize}
+       \item \textbf{idReserva (PK, FK):} Identificador de la reserva asociada.
+       \item \textbf{enlace:} Un enlace externo asociado a la convocatoria (ej. para una videollamada).
+       \item \textbf{observaciones:} Notas o comentarios adicionales.
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Convocado}(\ref{dd:convocado}): Entidad intermedia que asocia un `Usuario` con una `Convocatoria`.
+	\begin{itemize}
+       \item \textbf{idReserva (PK, FK):} Identificador de la reserva asociada.
+       \item \textbf{idUsuario (PK, FK):} Identificador del usuario convocado.
+	\end{itemize}
+\end{itemize}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.20\columnwidth} }
+		\toprule
+		\textbf{Usuario} &                  & \\
+		\toprule
+		\textbf{PK}      & \textbf{id}              & varchar \\
+		\toprule
+                         & \textbf{nombre}          & varchar \\
+                         & \textbf{apellidos}       & varchar \\
+                         & \textbf{email}           & varchar \\
+                         & \textbf{password}        & varchar \\
+                         & \textbf{telefono}        & varchar \\
+                         & \textbf{administrador}   & bit \\
+                         & \textbf{bloqueado}       & bit \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Entidad Usuario}
+	\label{dd:usuario}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.20\columnwidth} }
+		\toprule
+		\textbf{Establecimiento} &                  & \\
+		\toprule
+		\textbf{PK}      & \textbf{id}              & integer \\
+		\toprule
+                         & \textbf{nombre}          & varchar \\
+                         & \textbf{descripcion}     & varchar \\
+                         & \textbf{aforo}           & integer \\
+                         & \textbf{duracionReserva} & integer \\
+                         & \textbf{capacidad}       & integer \\
+                         & \textbf{tipo}            & varchar \\
+                         & \textbf{direccion}       & varchar \\
+                         & \textbf{telefono}        & varchar \\
+                         & \textbf{email}           & varchar \\
+                         & \textbf{activo}          & bit \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Entidad Establecimiento}
+	\label{dd:establecimiento}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.20\columnwidth} }
+		\toprule
+		\textbf{FranjaHoraria} &                      & \\
+		\toprule
+		\textbf{PK}      & \textbf{id}                & integer \\
+		\toprule
+        \textbf{FK}      & \textbf{idEstablecimiento} & \\
+                         & \textbf{diaSemana}         & varchar \\
+                         & \textbf{horaInicio}        & time \\
+                         & \textbf{horaFin}           & time \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Entidad FranjaHoraria}
+	\label{dd:franja-horaria}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.20\columnwidth} }
+		\toprule
+		\textbf{Reserva} &                            & \\
+		\toprule
+		\textbf{PK}      & \textbf{id}                & integer \\
+		\toprule
+        \textbf{FK}      & \textbf{idUsuario}         & \\
+        \textbf{FK}      & \textbf{idEstablecimiento} & \\
+                         & \textbf{fechaReserva}      & datetime \\
+                         & \textbf{horaFin}           & time \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Entidad Reserva}
+	\label{dd:reserva}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.20\columnwidth} }
+		\toprule
+		\textbf{Convocatoria} &                          & \\
+		\toprule
+		\textbf{PK, FK}       & \textbf{idReserva}       &\\
+		\toprule
+		                     & \textbf{enlace}          & String \\
+			                 & \textbf{observaciones}   & String \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Entidad Convocatoria}
+	\label{dd:convocatoria}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.20\columnwidth} }
+		\toprule
+		\textbf{Convocado}    &                     & \\
+		\toprule
+		\textbf{PK, FK1}      & \textbf{idReserva}  & \\
+		\textbf{PK, FK2}      & \textbf{idUsuario}  & \\
+		\bottomrule
+	\end{tabularx}
+	\caption{Entidad Convocado}
+	\label{dd:convocado}
+\end{table}
+
+\subsection{Relaciones entre Entidades}
+\begin{itemize}
+    \item Un \textbf{Usuario} puede realiza múltiples \textbf{Reservas} (1:0..N).
+    \item Un \textbf{Establecimiento} puede tener múltiples \textbf{Reservas} (1:0..N).
+    \item Un \textbf{Establecimiento} tiene una o varias \textbf{Franjas Horarias} (1:1..N).
+    \item Una \textbf{Reserva} está asociada a un único \textbf{Usuario} y un único \textbf{Establecimiento}.
+    \item Una \textbf{Reserva} puede tener una única \textbf{Convocatoria} (1:0..1).
+    \item Una \textbf{Convocatoria} puede agrupar a múltiples \textbf{Usuarios} a través de la entidad \textbf{Convocado} (1:0..N).
+\end{itemize}
+
+\newpage
+
+\subsection{Diagrama Entidad-Relación}
+
+A continuación se muestra el diagrama Entidad-Relación (ERD) que representa visualmente las entidades y sus relaciones.
+
+\imagen{diagrama_er_chen}{Diagrama Entidad - Relación de las principales entidades.}
+
+\newpage
+
+\subsection{Diagrama Relacional}
+
+El siguiente diagrama muestra el esquema relacional de la base de datos, incluyendo las tablas, claves primarias y foráneas.
+
+\imagen{diagrama_relacional}{Diagrama Relacional de las principales entidades.}
+
+\newpage
+
+\subsection{Índices y Optimizaciones}
+
+El sistema implementa varios índices para optimizar las consultas más frecuentes:
+
+\begin{itemize}
+	\item \textbf{Índices en Usuario}.
+	\begin{itemize}
+       \item \textbf{idx\_usuario\_correo} en el campo correo.
+       \item \textbf{idx\_usuario\_correo} en el campo teléfono.
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Índices en Establecimiento}.
+	\begin{itemize}
+       \item \textbf{idx\_establecimiento\_nombre} en el campo nombre.
+       \item \textbf{idx\_establecimiento\_tipo} en el campo tipo.
+       \item \textbf{idx\_establecimiento\_activo} en el campo activo.
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Índices en Reserva}.
+	\begin{itemize}
+       \item \textbf{idx\_reserva\_fecha} en el campo fechaReserva.
+       \item \textbf{idx\_reserva\_usuario} en el campo idUsuaio.
+       \item \textbf{idx\_reserva\_establecimiento} en el campo idEstablecimiento.
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Índices en FranjaHoraria}.
+	\begin{itemize}
+       \item \textbf{idx\_franja\_dia\_semana} en el campo diaSemanaidEstablecimiento
+       \item \textbf{idx\_franja\_dia\_establecimiento} en el campo idUsuaio.
+       \item \textbf{idx\_franja\_horaria} en los campos horaInicio y horaFin.
+	\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{Índices en Convocatoria}.
+	\begin{itemize}
+       \item \textbf{idx\_convocatoria\_reserva} en el campo idReserva.
+	\end{itemize}
+\end{itemize}
+
+\newpage
+
+\section{Diseño arquitectónico}
+
+\textit{ReservApp} implementa una arquitectura en capas basada en el patrón MVC (Model-View-Controller) de Spring Boot organizada de forma modular y proporcionando con ello una separación de responsabilidades, mantenibilidad y escalabilidad.
+
+Las diferentes capas que componen la estructura de la aplicación, en este nivel de abstracción, pueden verse en la figura~\ref{fig:arquitectura_capas}, donde cada una de las diferentes capas agrupa componentes con responsabilidades concretas. En la figura~\ref{fig:arquitectura_paquetes} se muestran los diferentes paquetes con las clases que contienen.
+
+\imagen{arquitectura_capas}{Diagrama arquitectónico de capas y paquetes.}
+
+\imagen{arquitectura_paquetes}{Diagrama arquitectónico con las paquetes y clases.}
+
+\subsection{Capas del sistema}
+\begin{itemize}
+	\item \textbf{Capa de Presentación}: Es responsable de gestionar la interfaz de usuario y la interacción con el cliente. Depende de la capa de servicio para ejecutar la lógica de negocio y del paquete \emph{shared} para acceder a datos de sesión. Sus componentes principales son:
+    	\begin{itemize}
+            \item \textbf{Controladores}: Gestionan las peticiones HTTP y coordinan las respuestas. Algunos ejemplos son:
+        	\begin{itemize}
+                \item \textbf{ReservaController}: Gestión de reservas y convocatorias.
+                \item \textbf{UsuarioController}: Gestión de usuarios.
+                \item \textbf{EstablecimientoController}: Gestión de establecimientos.
+                \item \textbf{AdminReservaController}: Administración de reservas.
+                \item \textbf{LoginController}: Autenticación y autorización.
+                \item \textbf{HomeController}: Página principal y navegación.
+             \end{itemize}
+
+            \item \textbf{Plantillas Thymeleaf}: Generación dinámica de HTML. Algunos ejemplos son:
+            \begin{itemize}
+               \item \textbf{calendario\_reserva.html}: Interfaz de reservas.
+               \item \textbf{menuprincipal.html}: Panel principal de usuario.
+               \item \textbf{login.html}: Formulario de autenticación.
+            \end{itemize}
+
+            \item \textbf{Recursos Estáticos}: Generación dinámica de HTML. Algunos ejemplos son:
+            \begin{itemize}
+               \item CSS personalizado (style.css).
+               \item Bootstrap para diseño responsivo.
+               \item Bootstrap Icons para iconografía.
+               \item JavaScript para interactividad (AJAX, validaciones).
+            \end{itemize}
+
+         \end{itemize}
+
+	\item \textbf{Capa de Lógica de Negocio}: Implementa las reglas de negocio y procesos del dominio. Actúa como intermediario entre los controladores y la capa de persistencia. Utiliza los repositories para interactuar con la base de datos y las entities como modelo de datos. Sus componentes principales son:
+    	\begin{itemize}
+            \item \textbf{Servicios}: Implementan la lógica de negocio. Algunos ejemplos son:
+        	\begin{itemize}
+                \item \textbf{ReservaService}: Lógica de reservas y disponibilidad.
+                \item \textbf{UsuarioService}: Gestión de usuarios.
+                \item \textbf{EstablecimientoService}: Gestión de establecimientos.
+                \item \textbf{ConvocatoriaService}: Gestión de convocatorias.
+                \item \textbf{EmailService}: Servicio de notificaciones por correo.
+                \item \textbf{PerfilService}: Gestión de perfiles.
+             \end{itemize}
+
+            \item \textbf{Utilidades}: Clases de utilidades con diferentes fines.
+        	\begin{itemize}
+                \item \textbf{SlotReservaUtil}: Cálculo de slots de tiempo disponibles.
+                \item \textbf{FechaUtil}: Utilidades para manejo de fechas.
+             \end{itemize}
+
+            \item \textbf{Gestión de Sesión}: Implementa las necesidades para la sesión del usuario.
+        	\begin{itemize}
+                \item \textbf{SessionData}: Bean de sesión para datos del usuario actual.
+             \end{itemize}
+         \end{itemize}
+
+	\item \textbf{Capa de Acceso a Datos}: Responsable de gestionar el acceso y persistencia de datos. Es el corazón del dominio de la aplicación. Sus componentes principales son:
+    	\begin{itemize}
+            \item \textbf{Repositorios}: Recoge las interfaces JPA para acceso a datos. Algunos ejemplos son:
+        	\begin{itemize}
+                \item \textbf{ReservaRepo}: Consultas específicas de reservas con optimizaciones.
+                \item \textbf{UsuarioRepo}: Gestión de usuarios y búsquedas.
+                \item \textbf{EstablecimientoRepo}: Gestión de establecimientos.
+                \item \textbf{ConvocatoriaRepo}: Gestión de convocatorias.
+                \item \textbf{PerfilRepo}: Gestión de perfiles.
+                \item \textbf{MenuRepo}: Gestión de Menús.
+             \end{itemize}
+
+            \item \textbf{Entidades JPA}: Para el mapeo objeto-relacional.
+        	\begin{itemize}
+                \item Todas las entidades extienden de EntidadInfo<E> para auditoría.
+                \item Implementación de soft delete.
+                \item Validaciones con Bean Validation.
+             \end{itemize}
+         \end{itemize}
+
+	\item \textbf{Capa de Configuración y Seguridad}: Responsable de la configuración del sistema y las opciones de seguridad. Sus componentes principales son:
+    	\begin{itemize}
+            \item \textbf{Configuración de Seguridad}: Recoge las interfaces JPA para acceso a datos.
+        	\begin{itemize}
+                \item \textbf{SecurityConfig}: Configuración de las opciones de Spring Security.
+                \item \textbf{CustomUserDetailsService}: Servicio personalizado de autenticación.
+                \item \textbf{CustomAuthenticationSuccessHandler}: Manejo de login exitoso.
+                \item \textbf{CustomUserDetails}: Detalles personalizados del usuario.
+             \end{itemize}
+
+            \item \textbf{Configuración JPA}: Para la configuración de opciones correspondientes a la persistencia.
+        	\begin{itemize}
+                \item \textbf{JpaAuditingConfig}: Configuración de auditoría automática.
+                \item \textbf{EntidadInfoInterceptor}: Interceptor para campos de auditoría.
+            \end{itemize}
+
+            \item \textbf{Configuración Web}: Para la gestión de diferentes opciones web.
+        	\begin{itemize}
+                \item \textbf{WebConfig}: Configuración general de Spring MVC.
+             \end{itemize}
+         \end{itemize}
+
+	\item \textbf{Capa de Persistencia}: Responsable de la gestión de la base de datos y transacciones. Sus componentes principales son:
+    	\begin{itemize}
+            \item \textbf{Base de Datos MySQL}: Almacenamiento persistente.
+            \item \textbf{Hibernate/JPA}: ORM para mapeo objeto-relacional.
+            \item \textbf{Gestión de Transacciones}: Control automático con \emph{@Transactionl}.
+            \item \textbf{Pool de Conexiones}: Gestión de conexiones a BD.
+         \end{itemize}
+\end{itemize}
+
+\subsection{Patrones de diseño utilizados}
+La aplicación ``ReservApp'' se ha desarrollado siguiendo una arquitectura de software robusta y escalable, basada en patrones de diseño ampliamente extendidos y utilizados en la industria del software. A continuación, se enumeran algunos de los patrones de diseño utilizados:
+
+\begin{itemize}
+    \item \textbf{Patrón Modelo-Vista-Controlador (MVC)}~\cite{patron-mvc}: Es el patrón principal por el que se rige la arquitectura de la aplicación y tiene como objetivo organizar la aplicación en tres capas o componentes interconectados, separando por un lado el modelo de datos para la gestión y la lógica de negocio, por otro lado, la presentación para la intreacción del usuario, y finalmente el controlador que actúa como intermediario recibiendo las entradas del usuario y actualizando tanto el modelo como la vista en función de cada solicitud.
+    \item \textbf{Patrón Repositorio}~\cite{patron-repository}: Se utiliza en la capa de persistencia para abstraerse del acceso a los datos. Spring Data JPA implementa este patrón, proporcionando una interfaz sencilla para realizar operaciones CRUD (Crear, Leer, Actualizar, Borrar) sobre las entidades.
+    \item \textbf{Patrón Capa de Servicio}~\cite{patron-service}: Es el responsable de la encapsulación de la lógica de negocio en servicios permitiendo la transaccionalidad y reutilización de código.
+    \item \textbf{Patrón Objeto de Transferencia de Datos (DTO)}~\cite{patron-dto}: busca la utilización de objetos simples cuya finalidad es la transferencia de datos entre capas de una aplicación, como de la capa de servicio a la capa de presentación. Su propósito es agrupar datos y reducir el número de llamadas remotas, mejorando el rendimiento. Es un objeto plano, sin lógica de negocio, que solo contiene campos, constructores y \emph{getters/setters}.
+    \item \textbf{Patrón \emph{Template Method}}~\cite{patron-template}: Se trata de un patrón de diseño de comportamiento que define el esqueleto de una clase base (la ``plantilla''), pero permite a las subclases redefinir ciertos pasos sin cambiar la estructura general, permitiendo con ello que las subclases puedan implementar sus propias variaciones. De esta forma, la clase padre (plantilla) permanece inalterada.
+    \item \textbf{Patrón \emph{Strategy}}~\cite{patron-strategy}: Es otro patrón de diseño de comportamiento que permite definir una familia de algoritmos, encapsular cada uno de ellos y hacerlos intercambiables. El patrón separa el comportamiento de una clase en una jerarquía de clases de estrategia, permitiendo que el algoritmo se seleccione en tiempo de ejecución. Esto facilita el hecho de poder añadir nuevas estrategias sin modificar el código del objeto cliente.
+\end{itemize}
+
+\subsection{Principios arquitectónicos aplicados}
+A continuación, se enumeran algunos de los principios de buenas prácticas utilizados:
+
+\begin{itemize}
+    \item \textbf{Separación de Responsabilidades (SRP)}~\cite{principio-srp}: O también conocido como el principio de responsabilidad única, parte del acrónimo SOLID, que establece que una clase debe tener una sola razón para cambiar. Esto significa que cada clase o módulo debe tener una única responsabilidad bien definida dentro de la aplicación. Al adherirse a este principio, se reduce la complejidad del código, se mejora su legibilidad y se facilita el mantenimiento, ya que los cambios en una responsabilidad no afectarán a otras clases.
+    \item \textbf{Inversión de Dependencias (DIP)}~\cite{patron-repository}: Es un principio de diseño de software que establece que los módulos de alto nivel no deben depender de los módulos de bajo nivel; ambos deben depender de abstracciones. Esto significa que las clases deben depender de interfaces o clases abstractas, no de implementaciones concretas. El objetivo es desacoplar las partes del sistema, facilitando la prueba, el mantenimiento y la extensión.
+    \item \textbf{Principio Abierto/Cerrado (OCP)}~\cite{principio-ocp}: El principio establece que las entidades de software (clases, módulos, funciones, etc.) deben estar abiertas a la extensión (poder ser heredadas), pero cerradas a la modificación. Esto significa que permite agregar nuevas funcionalidades sin tener que cambiar el código existente de la entidad. Para lograr esto, el principio fomenta el uso de abstracciones, como interfaces y clases abstractas, permitiendo que las nuevas funcionalidades se implementen en clases separadas.
+    \item \textbf{No te repitas (DRY)}~\cite{principio-dry}: Es una directriz de desarrollo de software que establece que cada pieza de conocimiento o dato en un sistema debe tener una representación única y autorizada. El objetivo es evitar el código duplicado, lo que facilita el mantenimiento, reduce los errores y hace que las actualizaciones sean más eficientes. En lugar de copiar y pegar, el DRY fomenta la reutilización de código a través de funciones, clases o bibliotecas.
+\end{itemize}
+
+\newpage
+
+\section{Diseño procedimental}
+
+En esta sección se describen algunos de los procesos que se llevan a cabo en ReservApp mediante diagramas de secuencia que muestran la interacción entre diferentes componentes del sistema.
+
+\subsection{Proceso de registro de un nuevo usuario}
+
+El diagrama de la figura~\ref{fig:sec_registro} muestra el proceso que sigue un usuario para registrarse en la aplicación y que corresponde al caso de uso~\ref{cu:registro-usuario}.
+
+\imagen{sec_registro}{Diagrama de Secuencia - Registro de un nuevo usuario.}
+
+\newpage
+
+\subsection{Proceso de creación de una nueva reserva}
+
+El diagrama de la figura~\ref{fig:sec_crea_reserva} muestra el flujo para la creación de una reserva por parte de un usuario autenticado y que corresponde al caso de uso~\ref{cu:crear-reserva}.
+
+\imagen{sec_crea_reserva}{Diagrama de Secuencia - Creación de una nueva reserva.}
+
+\subsection{Proceso de búsqueda de usuarios}
+
+El diagrama de la figura~\ref{fig:sec_buscar_usuarios} muestra el flujo correspondiente a la búsuqueda de usuarios que se realiza a la hora de conformar una convocatoria de reserva y que corresponde al caso de uso~\ref{cu:buscar-usuarios}.
+
+\imagen{sec_buscar_usuarios}{Diagrama de Secuencia - Búsqueda de usuarios para convocatoria.}
+
+\subsection{Proceso de envío de notificaciones}
+
+El diagrama de la figura~\ref{fig:sec_envio_notificaciones} muestra la secuencia correspondiente al envío de notificaciones por correo y que corresponde al caso de uso~\ref{cu:enviar-notificaciones}.
+
+\imagen{sec_envio_notificaciones}{Diagrama de Secuencia - Envío de notificaciones.}

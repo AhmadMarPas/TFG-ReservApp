@@ -1,19 +1,19 @@
 # Se Configuran los servicios de contenedores como la base de datos MySQL que interactúa con una aplicación Spring Boot.
 services:
   db:
-    # Imagen de Docker que se utilizará, en este caso MySQL versión 8.4.5
-    image: mysql:8.4.5
+    # Imagen de Docker que se utilizará, en este caso MySQL versión 8.4.6
+    image: mysql:8.4.6
     # Indica que el contenedor se reiniciará automáticamente si falla
     restart: always
     environment:
       # Nombre de la base de datos que se creará al iniciar el contenedor
-      MYSQL_DATABASE: 'reservapp'
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
       # Usuario que se creará para acceder a la base de datos
-      MYSQL_USER: 'reservapp'
+      MYSQL_USER: ${MYSQL_USER}
       # Contraseña del usuario creado
-      MYSQL_PASSWORD: 'reservapp'
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       # Contraseña del usuario root de MySQL
-      MYSQL_ROOT_PASSWORD: 'admin'
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       # Mapea el puerto 3306 del contenedor al puerto 3306 del anfitrión
       - '3306:3306'

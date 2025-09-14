@@ -168,8 +168,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 		boolean asignado = false;
 		usuario = findUsuarioById(usuario.getId());
 		if (usuario != null) {
-			List<Establecimiento> establecimientos = usuario.getLstEstablecimientos().stream().toList();
-			asignado = establecimientos.contains(establecimiento);
+			asignado = usuario.getLstEstablecimientos().stream().anyMatch(e -> e.getId().equals(establecimiento.getId()));
 		}
 		return asignado;
 	}

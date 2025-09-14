@@ -1,0 +1,74 @@
+\capitulo{7}{Conclusiones y Líneas de trabajo futuras}
+
+El desarrollo de la aplicación web de gestión de reservas de salas de reuniones ha constituido una experiencia completa que ha permitido abordar un problema real del entorno empresarial mediante la aplicación de tecnologías y metodologías modernas de desarrollo de software. En este apartado se presentan las conclusiones obtenidas tras la finalización del proyecto, tanto desde la perspectiva de los resultados funcionales alcanzados como desde el punto de vista técnico y metodológico. Asimismo, se identifican las líneas de trabajo futuras que podrían dar continuidad y evolución al sistema desarrollado.
+
+\section{Conclusiones relacionadas con los resultados del proyecto}\label{conclusiones-relacionadas-resultados-proyecto}
+\subsection{Cumplimiento de objetivos funcionales}\label{cumplimiento-objetivos-funcionales}
+El proyecto ha logrado cumplir satisfactoriamente los objetivos planteados inicialmente, materializándose en una aplicación web completamente funcional que resuelve eficazmente los problemas de gestión de reservas identificados en el entorno laboral. La centralización de la gestión de reservas se ha conseguido mediante una plataforma web accesible que elimina la informalidad previa en la asignación de salas, proporcionando visibilidad completa sobre la disponibilidad de recursos y evitando los conflictos de solapamiento que anteriormente generaban pérdida de tiempo y confusión entre los empleados.
+
+La evolución del sistema hacia un modelo colaborativo ha superado las expectativas iniciales. Lo que comenzó como un sistema básico de reservas individuales evolucionó hacia una plataforma de gestión de convocatorias que permite la invitación de participantes y la notificación automática por correo electrónico. Esta funcionalidad ha demostrado ser especialmente valiosa en el contexto laboral, ya que integra la gestión de espacios con la coordinación de equipos, proporcionando una solución más completa y alineada con las necesidades de la empresa.
+
+La flexibilidad en la gestión temporal mediante el sistema híbrido que soporta tanto duraciones libres como slots predefinidos ha demostrado ser una decisión acertada. Esta característica permite que el sistema se adapte a diferentes tipos de reuniones y políticas organizacionales, desde reuniones rápidas de coordinación hasta sesiones de trabajo extensas, manteniendo siempre la coherencia en la prevención de conflictos.
+
+\section{Conclusiones técnicas}\label{conclusiones-tecncicas}
+\subsection{Arquitectura y patrones de diseño}\label{arquitectura-patrones-diseño}
+La utilización del patrón MVC combinado con arquitectura por capas ha demostrado ser una decisión arquitectónica sólida que ha facilitado tanto el desarrollo como el mantenimiento del sistema. La separación clara de responsabilidades ha permitido evolucionar diferentes aspectos de la aplicación de forma independiente, como se evidenció durante la incorporación de funcionalidades colaborativas sin afectar a la lógica de presentación o el acceso a datos.
+
+La implementación de patrones empresariales como \emph{Repository}, \emph{Service Layer} y DTO ha proporcionado una base de código robusta y mantenible. El patrón \emph{Repository}, en particular, ha facilitado significativamente el testing mediante la creación de \emph{mocks}, mientras que el \emph{Service Layer} ha centralizado la lógica de negocio, simplificando la gestión de transacciones y validaciones complejas.
+
+La decisión de utilizar borrado lógico en lugar de eliminación física de registros ha demostrado ser una solución interesante para mantener la integridad y trazabilidad de los datos. Esta aproximación ha proporcionado capacidades de auditoría que son interesantes en un entorno empresarial, permitiendo la recuperación de datos que ha resultado valiosa durante las fases de \emph{testing} y validación.
+
+\subsection{Tecnologías y herramientas}\label{tencologias-herramientas}
+La elección de Spring Boot como \emph{framework} principal ha demostrado ser acertada, proporcionando un ecosistema completo y bien integrado que ha simplificado significativamente el desarrollo. La configuración automática, la gestión de dependencias y la integración nativa con herramientas como Spring Security y Spring Data JPA han permitido concentrar los esfuerzos en la lógica de negocio específica del problema.
+
+El cambio de JSF con PrimeFaces hacia Thymeleaf resultó ser una decisión apropiada para el éxito del proyecto. Aunque inicialmente representó un retraso en el cronograma, la integración óptima con Spring Boot y la menor complejidad de configuración compensaron ampliamente esta inversión de tiempo. La capacidad de crear plantillas HTML válidas que pueden visualizarse sin el procesamiento por parte del servidor facilitó considerablemente el desarrollo y \emph{debug} de la interfaz de usuario.
+
+La configuración de CI/CD con GitHub Actions y SonarCloud ha proporcionado un nivel de profesionalización al proyecto que excede las expectativas típicas de un TFG. La automatización de \emph{tests}, análisis de calidad y despliegue ha garantizado la consistencia del código y ha proporcionado métricas objetivas de calidad que han sido enriquecedoras para la validación técnica del proyecto.
+
+\subsection{Metodología de desarrollo}\label{metodologias-desarrollo}
+La gestión mediante Scrum adaptado al contexto académico ha demostrado ser efectiva para gestionar la complejidad y evolución del proyecto. La organización en \emph{sprints} alineados con las revisiones académicas permitió una gestión equilibrada entre el desarrollo funcional y los requisitos de documentación. La flexibilidad inherente a las metodologías ágiles fue apropiada para incorporar cambios significativos como la evolución hacia el modelo colaborativo de reservas.
+
+La gestión de riesgos técnicos mediante la identificación temprana de problemas potenciales y la implementación de estrategias de mitigación (como los perfiles específicos para \emph{testing} y la configuración de servicios MySQL en CI/CD) evitó bloqueos significativos en el desarrollo y mantuvo el proyecto dentro de los plazos académicos establecidos.
+
+\section{Análisis crítico y áreas de mejora}\label{analisis-critico-areas-mejora}
+\subsection{Limitaciones identificadas}\label{limitaciones-identificadas}
+A pesar de los resultados positivos obtenidos, el análisis retrospectivo permite identificar varias áreas de mejora que podrían ser abordadas en futuras iteraciones. La interfaz de usuario, aunque funcional e intuitiva, podría beneficiarse de un diseño más moderno y responsive que aproveche mejor las capacidades de los dispositivos móviles. La dependencia de navegadores web para todas las interacciones limita la experiencia del usuario en contextos donde el acceso rápido desde dispositivos móviles podría ser preferible.
+
+La gestión de concurrencia en reservas simultáneas, aunque funcional, podría ser más sofisticada. El sistema actual previene efectivamente los conflictos de solapamiento, pero no optimiza la experiencia del usuario cuando múltiples personas intentan reservar recursos en horarios contiguos. Un sistema de sugerencias inteligentes podría mejorar significativamente esta situación.
+
+El sistema de notificaciones, aunque cumple su función básica, carece de personalización avanzada. Los usuarios no pueden configurar sus preferencias de notificación o elegir diferentes canales de comunicación según el tipo de convocatoria, lo que limita su adaptabilidad a diferentes estilos de trabajo y preferencias organizacionales.
+
+\subsection{Aspectos técnicos a mejorar}\label{aspectos-tecnicos-mejorar}
+Desde el punto de vista técnico, la arquitectura monolítica actual, aunque apropiada para el alcance del proyecto, podría constituir una limitación para la escalabilidad futura en organizaciones grandes. La separación en microservicios podría proporcionar mejor escalabilidad y mantenibilidad a largo plazo.
+
+La gestión de sesiones y autenticación podría beneficiarse de mecanismos más avanzados como autenticación multifactor o integración con sistemas de identidad corporativos (LDAP, Active Directory)~\cite{ldap-active-directory}. Actualmente, el sistema depende de autenticación básica con credenciales propias, lo que puede no ser suficiente para organizaciones con políticas de seguridad estrictas.
+
+\section{Líneas de trabajo futuras}\label{lineas-trabajo-futuras}
+\subsection{Mejoras funcionales inmediatas}\label{mejoras-funcionales-inmediatas}
+\textbf{Aplicación móvil nativa}: El desarrollo de una aplicación móvil complementaria podría mejorar significativamente la accesibilidad del sistema. Una app nativa permitiría notificaciones \emph{push}, acceso \emph{offline} a reservas personales y funcionalidades específicas como \emph{check-in} automáticas basadas en geolocalización.
+
+\textbf{Dashboard analítico}: La implementación de un dashboard con métricas de uso proporcionaría información valiosa sobre patrones de utilización de salas, permitiendo optimizaciones de recursos y planificación de espacios. Métricas como ocupación promedio, patrones temporales de uso y análisis de demanda podrían ayudar a la toma de decisiones sobre la gestión de instalaciones.
+
+\textbf{Sistema de aprobaciones}: Para organizaciones con estructuras jerárquicas, un sistema de \emph{workflow} de aprobaciones podría añadir control administrativo sobre ciertas reservas o recursos especiales, permitiendo diferentes niveles de autorización según el tipo de usuario y/o el recurso solicitado.
+
+\subsection{Evoluciones tecnológicas}\label{evoluciones-tecnologicas}
+\textbf{Integración con sistemas de calendario}: La sincronización bidireccional con sistemas como Outlook, Google Calendar o calendarios corporativos eliminaría la duplicidad en la gestión de eventos y mejoraría significativamente la adopción del sistema.
+
+\textbf{API REST pública}: El desarrollo de una API REST completa facilitaría integraciones con otros sistemas empresariales como ERPs, sistemas de RRHH o plataformas de videoconferencia, ampliando el ecosistema de funcionalidades disponibles.
+
+\textbf{Inteligencia artificial}: La implementación de algoritmos de \emph{machine learning} podría proporcionar funcionalidades avanzadas como predicción de demanda, sugerencias inteligentes de horarios basadas en patrones históricos y optimización automática de asignación de recursos.
+
+\textbf{Migración hacia microservicios}: Una evolución natural del proyecto sería la separación en microservicios especializados (gestión de usuarios, reservas, notificaciones, análisis) que permitiría una escalabilidad independiente y mejor mantenibilidad en entornos empresariales grandes.
+
+\textbf{Containerización y orquestación}: La implementación con Docker y Kubernetes proporcionaría capacidades de despliegue más robustas y escalables, facilitando la adopción en diferentes entornos de infraestructura.
+
+\textbf{Reservas de recursos diversos}: La expansión más allá de salas de reunión hacia equipamiento técnico, espacios de trabajo flexibles, vehículos corporativos o instalaciones deportivas convertiría el sistema en una plataforma integral de gestión de recursos organizacionales.
+
+\section{Conclusiones finales}\label{conclusiones-finales}
+El desarrollo de este Trabajo de Fin de Grado ha cumplido satisfactoriamente tanto los objetivos académicos como los funcionales planteados inicialmente. La aplicación resultante constituye una solución robusta y escalable que aborda efectivamente los problemas de gestión de reservas identificados en el entorno laboral.
+
+Desde el punto de vista académico, el proyecto ha permitido la aplicación práctica de conocimientos teóricos en un contexto real, demostrando la viabilidad de tecnologías y metodologías modernas de desarrollo de software. La experiencia adquirida en la gestión de proyectos ágiles, implementación de arquitecturas empresariales y configuración de \emph{pipelines} de CI/CD constituye una base sólida para el desarrollo profesional.
+
+La identificación de líneas de trabajo futuras evidencia el potencial de evolución del proyecto hacia una solución empresarial completa, con posibilidades reales de comercialización y escalabilidad. El fundamento técnico sólido establecido facilita estas evoluciones futuras y posiciona el proyecto como una base viable para emprendimientos tecnológicos en el sector de gestión de recursos empresariales.
+
+En definitiva, este TFG ha demostrado que es posible desarrollar soluciones tecnológicas profesionales que combinen rigor académico con aplicabilidad práctica, estableciendo una solución valiosa tanto para futuros proyectos académicos como para iniciativas empresariales en el ámbito de la digitalización de procesos organizacionales.

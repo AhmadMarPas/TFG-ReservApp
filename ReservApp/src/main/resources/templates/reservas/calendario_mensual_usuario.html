@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_common_head :: common_head(pageTitle='Calendario de Disponibilidad', customLinks=~{:: #page-specific-links})}">
+    <th:block id="page-specific-links">
+        <style>
+            .calendario-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+                border-radius: 20px;
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            }
+            
+            .calendario-header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding: 20px;
+                background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                color: white;
+                border-radius: 15px;
+                box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+            }
+            
+            .calendario-header h1 {
+                margin: 0;
+                font-size: 2.2em;
+                font-weight: 600;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+            
+            .establecimiento-info {
+                background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 25px;
+                border-left: 4px solid #007bff;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+            
+            .establecimiento-info h3 {
+                color: #495057;
+                margin-bottom: 15px;
+                font-weight: 600;
+            }
+            
+            .navegacion-mes {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+                padding: 15px 20px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+            
+            .btn-navegacion {
+                display: inline-flex;
+                align-items: center;
+                padding: 10px 20px;
+                background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                transition: all 0.3s ease;
+                font-weight: 500;
+                box-shadow: 0 3px 10px rgba(108,117,125,0.3);
+            }
+            
+            .btn-navegacion:hover {
+                background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(108,117,125,0.4);
+                color: white;
+                text-decoration: none;
+            }
+            
+            .mes-actual {
+                font-size: 1.5em;
+                font-weight: 600;
+                color: #495057;
+                text-transform: capitalize;
+            }
+            
+            .calendario-grid {
+                background: white;
+                border-radius: 15px;
+                padding: 20px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                margin-bottom: 30px;
+            }
+            
+            .dias-semana {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 2px;
+                margin-bottom: 10px;
+                padding: 15px 0;
+                border-bottom: 2px solid #e9ecef;
+            }
+            
+            .dia-semana-header {
+                text-align: center;
+                font-weight: 600;
+                color: #495057;
+                padding: 10px;
+                font-size: 0.9em;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            
+            .semana {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 2px;
+                margin-bottom: 2px;
+            }
+            
+            .dia {
+                aspect-ratio: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding: 8px;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                position: relative;
+                min-height: 80px;
+                border: 2px solid transparent;
+            }
+            
+            .dia-numero {
+                font-size: 1.1em;
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
+            
+            .dia-resumen {
+                font-size: 0.7em;
+                text-align: center;
+                line-height: 1.2;
+                opacity: 0.8;
+            }
+            
+            /* Estilos para diferentes tipos de días */
+            .dia.otro-mes {
+                background: #f8f9fa;
+                color: #adb5bd;
+                cursor: not-allowed;
+            }
+            
+            .dia.pasado {
+                background: #e9ecef;
+                color: #6c757d;
+                cursor: not-allowed;
+                opacity: 0.6;
+            }
+            
+            .dia.cerrado {
+                background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+                color: #721c24;
+                cursor: not-allowed;
+            }
+            
+            .dia.sin-disponibilidad {
+                background: linear-gradient(135deg, #fff3cd 0%, #fef9e7 100%);
+                color: #856404;
+                cursor: not-allowed;
+            }
+            
+            .dia.disponible {
+                background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+                color: #155724;
+                cursor: pointer;
+                border-color: #28a745;
+            }
+            
+            .dia.disponible:hover {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+                border-color: #28a745;
+            }
+            
+            .dia.hoy {
+                border-color: #007bff !important;
+                border-width: 3px !important;
+                box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+            }
+            
+            .dia.hoy .dia-numero {
+                color: #007bff;
+                font-weight: 700;
+            }
+            
+            /* Leyenda */
+            .leyenda {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 25px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                border: 1px solid #e9ecef;
+            }
+            
+            .leyenda h4 {
+                color: #2c3e50;
+                margin-bottom: 15px;
+                font-weight: 600;
+                font-size: 1.1em;
+            }
+            
+            .leyenda-items {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+            
+            .leyenda-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 0.95em;
+                color: #2c3e50;
+                font-weight: 500;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+                padding: 5px;
+                border-radius: 5px;
+                transition: background-color 0.2s ease;
+            }
+            
+            .leyenda-item:hover {
+                background-color: #f8f9fa;
+            }
+            
+            .leyenda-color {
+                width: 22px;
+                height: 22px;
+                border-radius: 5px;
+                border: 2px solid #dee2e6;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .leyenda-disponible {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                border-color: #1e7e34;
+            }
+            
+            .leyenda-sin-disponibilidad {
+                background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+                border-color: #e0a800;
+            }
+            
+            .leyenda-cerrado {
+                background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+                border-color: #bd2130;
+            }
+            
+            .leyenda-pasado {
+                background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+                border-color: #545b62;
+            }
+            
+            .leyenda-hoy {
+                background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                border: 3px solid #004085;
+                box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+            }
+            
+            /* Enlaces de navegación */
+            .back-links {
+                text-align: center;
+                margin-top: 30px;
+                padding-top: 25px;
+                border-top: 2px solid #e9ecef;
+            }
+            
+            .back-link {
+                display: inline-flex;
+                align-items: center;
+                padding: 12px 24px;
+                background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+                color: white;
+                text-decoration: none;
+                border-radius: 10px;
+                transition: all 0.3s ease;
+                font-weight: 500;
+                box-shadow: 0 3px 10px rgba(108,117,125,0.3);
+                margin: 0 10px;
+            }
+            
+            .back-link:hover {
+                background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(108,117,125,0.4);
+                color: white;
+                text-decoration: none;
+            }
+            
+            .back-link i {
+                margin-right: 8px;
+            }
+            
+            /* Responsive */
+            @media (max-width: 768px) {
+                .calendario-container {
+                    padding: 15px;
+                    margin: 10px;
+                }
+                
+                .dia {
+                    min-height: 60px;
+                    padding: 4px;
+                }
+                
+                .dia-numero {
+                    font-size: 1em;
+                }
+                
+                .dia-resumen {
+                    font-size: 0.6em;
+                }
+                
+                .navegacion-mes {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+                
+                .leyenda-items {
+                    grid-template-columns: 1fr;
+                }
+            }
+            
+            /* Animaciones */
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            
+            .dia.disponible:active {
+                animation: pulse 0.3s ease;
+            }
+        </style>
+    </th:block>
+</head>
+
+<body class="gradient-body-with-header">
+    <div th:replace="~{fragments/_header :: header(pageTitle='Calendario de Disponibilidad')}"></div>
+
+    <div class="calendario-container">
+        <div class="calendario-header">
+            <h1>
+                <i class="fas fa-calendar-alt"></i>
+                Calendario de Disponibilidad
+            </h1>
+            <p th:text="${establecimiento.nombre}" style="margin: 10px 0 0 0; font-size: 1.2em; opacity: 0.9;">Nombre del Establecimiento</p>
+        </div>
+
+        <!-- Mensajes de error y éxito -->
+        <div th:if="${param.error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${param.error}">Error</span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${error}">Error</span>
+        </div>
+        <div th:if="${exito}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${exito}">Éxito</span>
+        </div>
+
+        <!-- Información del establecimiento -->
+        <div class="establecimiento-info">
+            <h3><i class="fas fa-store"></i> Información del Establecimiento</h3>
+            <p><strong><i class="fas fa-map-marker-alt"></i> Dirección: </strong> 
+               <span th:text="${establecimiento.direccion ?: 'No disponible'}">Dirección</span></p>
+            <p><strong><i class="fas fa-phone"></i> Teléfono: </strong> 
+               <span th:text="${establecimiento.telefono ?: 'No disponible'}">Teléfono</span></p>
+            <div th:if="${establecimiento.aforo != null and establecimiento.aforo > 0}">
+                <p><strong><i class="fas fa-users"></i> Aforo máximo: </strong> 
+                   <span th:text="${establecimiento.aforo}">1</span> 
+                   <span th:text="${establecimiento.aforo == 1 ? 'persona' : 'personas'}">  persona </span> por horario</p>
+            </div>
+            <div th:if="${establecimiento.aforo == null or establecimiento.aforo <= 0}">
+                <p><strong><i class="fas fa-infinity"></i> Aforo:</strong> Sin límite</p>
+            </div>
+        </div>
+
+        <!-- Navegación del mes -->
+        <div class="navegacion-mes">
+            <a th:href="@{/misreservas/calendario/{id}(id=${establecimiento.id}, anio=${anioPrevio}, mes=${mesPrevio})}" 
+               class="btn-navegacion">
+                <i class="fas fa-chevron-left"></i>
+                Mes Anterior
+            </a>
+            
+            <div class="mes-actual">
+                <span th:text="${calendarioData.nombreMes}">Mes</span> <span th:text="${anioActual}">2024</span>
+            </div>
+            
+            <a th:href="@{/misreservas/calendario/{id}(id=${establecimiento.id}, anio=${anioSiguiente}, mes=${mesSiguiente})}" 
+               class="btn-navegacion">
+                Mes Siguiente
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+
+        <!-- Leyenda -->
+        <div class="leyenda">
+            <h4><i class="fas fa-info-circle"></i> Leyenda</h4>
+            <div class="leyenda-items">
+                <div class="leyenda-item">
+                    <div class="leyenda-color leyenda-disponible"></div>
+                    <span>Disponible para reservar</span>
+                </div>
+                <div class="leyenda-item">
+                    <div class="leyenda-color leyenda-sin-disponibilidad"></div>
+                    <span>Sin disponibilidad</span>
+                </div>
+                <div class="leyenda-item">
+                    <div class="leyenda-color leyenda-cerrado"></div>
+                    <span>Establecimiento cerrado</span>
+                </div>
+                <div class="leyenda-item">
+                    <div class="leyenda-color leyenda-pasado"></div>
+                    <span>Fecha pasada</span>
+                </div>
+                <div class="leyenda-item">
+                    <div class="leyenda-color leyenda-hoy"></div>
+                    <span>Día actual</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendario -->
+        <div class="calendario-grid">
+            <!-- Cabeceras de días de la semana -->
+            <div class="dias-semana">
+                <div class="dia-semana-header">Lun</div>
+                <div class="dia-semana-header">Mar</div>
+                <div class="dia-semana-header">Mié</div>
+                <div class="dia-semana-header">Jue</div>
+                <div class="dia-semana-header">Vie</div>
+                <div class="dia-semana-header">Sáb</div>
+                <div class="dia-semana-header">Dom</div>
+            </div>
+
+            <!-- Semanas del calendario -->
+            <div th:each="semana : ${calendarioData.semanas}" class="semana">
+                <div th:each="dia : ${semana}" 
+                     th:class="${'dia' + 
+                               (dia.isEsDelMesActual() ? '' : ' otro-mes') + 
+                               (dia.getEsPasado() ? ' pasado' : '') + 
+                               (dia.getEsHoy() ? ' hoy' : '') + 
+                               (dia.isEsDelMesActual() and !dia.getEsPasado() ? 
+                                 (dia.isTieneDisponibilidad() ? ' disponible' : 
+                                  (dia.getResumen() == 'Cerrado' ? ' cerrado' : ' sin-disponibilidad')) : '')}"
+                     th:data-fecha="${dia.fechaIso}"
+                     th:data-establecimiento="${establecimiento.id}"
+                     th:data-clickeable="${dia.isEsDelMesActual() and !dia.getEsPasado() and dia.isTieneDisponibilidad()}"
+                     th:title="${dia.isEsDelMesActual() ? dia.getResumen() : ''}">
+                    
+                    <div class="dia-numero" th:text="${dia.getDia()}">1</div>
+                    <div class="dia-resumen" th:if="${dia.isEsDelMesActual()}" th:text="${dia.getResumen()}">Disponible</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enlaces de navegación -->
+        <div class="back-links">
+            <a th:href="@{/misreservas}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Volver a Mis Reservas
+            </a>
+            <a th:href="@{/menuprincipal}" class="back-link">
+                <i class="fas fa-home"></i> Menú Principal
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script th:inline="javascript">
+        // Auto-ocultar alertas después de 5 segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    alert.style.opacity = '0';
+                    setTimeout(function() {
+                        alert.style.display = 'none';
+                    }, 300);
+                }, 5000);
+            });
+            
+            // Agregar event listeners para los días clickeables
+            document.querySelectorAll('.dia').forEach(function(dia) {
+                const esClickeable = dia.getAttribute('data-clickeable') === 'true';
+                const fecha = dia.getAttribute('data-fecha');
+                const establecimientoId = dia.getAttribute('data-establecimiento');
+                
+                if (esClickeable && fecha && establecimientoId) {
+                    dia.style.cursor = 'pointer';
+                    dia.addEventListener('click', function() {
+                        console.log('Fecha seleccionada:', fecha);
+                        console.log('Establecimiento ID:', establecimientoId);
+                        
+                        const url = `/misreservas/establecimiento/${establecimientoId}?fecha=${fecha}`;
+                        console.log('Redirigiendo a:', url);
+                        window.location.href = url;
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

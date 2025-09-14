@@ -1,5 +1,7 @@
 package es.ubu.reservapp.service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -71,6 +73,21 @@ public class EstablecimientoServiceImpl implements EstablecimientoService {
             }
         }
 		return establecimientos;
+	}
+
+	@Override
+	public boolean estaAbiertoEnFecha(Establecimiento establecimiento, LocalDate fecha) {
+		if (establecimiento == null || fecha == null || establecimiento.getFranjasHorarias() == null) {
+			return false;
+		}
+		
+		DayOfWeek diaSemanaFecha = fecha.getDayOfWeek();
+		
+		return establecimiento.getFranjasHorarias().stream()
+				.anyMatch(franja -> {
+					DayOfWeek diaFranja = franja.getDiaSemana();
+					return diaFranja != null && diaFranja.equals(diaSemanaFecha);
+				});
 	}
 
 }
