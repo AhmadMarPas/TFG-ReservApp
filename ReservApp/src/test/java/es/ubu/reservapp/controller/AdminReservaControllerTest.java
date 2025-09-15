@@ -12,11 +12,13 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -281,5 +283,60 @@ class AdminReservaControllerTest {
         verify(model).addAttribute("establecimiento", establecimiento1);
         verify(model).addAttribute("fechaSeleccionada", fechaSeleccionada);
         assertEquals("admin/reservas/detalle_dia", viewName);
+    }
+
+    @Test
+    void testMostrarCalendarioReservasFiltradoPorDia() {
+        // Given
+        Integer establecimientoId = 1;
+        Integer mes = 1;
+        Integer anio = 2024;
+        Establecimiento est = establecimiento1;
+        // Reserva el día 10
+        Reserva reservaDia10 = new Reserva();
+        reservaDia10.setId(3);
+        reservaDia10.setUsuario(usuario);
+        reservaDia10.setEstablecimiento(est);
+        reservaDia10.setFechaReserva(LocalDateTime.of(2024, 1, 10, 9, 0));
+        reservaDia10.setHoraFin(LocalTime.of(10, 0));
+        // Reserva el día 15
+        Reserva reservaDia15 = new Reserva();
+        reservaDia15.setId(4);
+        reservaDia15.setUsuario(usuario);
+        reservaDia15.setEstablecimiento(est);
+        reservaDia15.setFechaReserva(LocalDateTime.of(2024, 1, 15, 12, 0));
+        reservaDia15.setHoraFin(LocalTime.of(13, 0));
+        // Reserva el día 31
+        Reserva reservaDia31 = new Reserva();
+        reservaDia31.setId(5);
+        reservaDia31.setUsuario(usuario);
+        reservaDia31.setEstablecimiento(est);
+        reservaDia31.setFechaReserva(LocalDateTime.of(2024, 1, 31, 18, 0));
+        reservaDia31.setHoraFin(LocalTime.of(19, 0));
+        List<Reserva> reservasMes = List.of(reservaDia10, reservaDia15, reservaDia31);
+        when(establecimientoService.findById(establecimientoId)).thenReturn(Optional.of(est));
+        when(reservaService.findByEstablecimientoAndFechaReservaBetween(eq(est), any(), any())).thenReturn(reservasMes);
+
+        // When
+        String viewName = adminReservaController.mostrarCalendarioReservas(establecimientoId, mes, anio, model, redirectAttributes);
+
+        // Then
+        verify(establecimientoService).findById(establecimientoId);
+        verify(reservaService).findByEstablecimientoAndFechaReservaBetween(eq(est), any(), any());
+        verify(model).addAttribute(eq("establecimiento"), eq(est));
+        verify(model).addAttribute(eq("mesActual"), eq(mes));
+        verify(model).addAttribute(eq("anioActual"), eq(anio));
+        // Verifica que el mapa reservasPorDia contiene las reservas agrupadas correctamente
+        // (captura el argumento del modelo)
+        ArgumentCaptor<Map<Integer, List<Reserva>>> captor = ArgumentCaptor.forClass(Map.class);
+        verify(model).addAttribute(eq("reservasPorDia"), captor.capture());
+        Map<Integer, List<Reserva>> reservasPorDia = captor.getValue();
+        assertEquals(1, reservasPorDia.get(10).size());
+        assertEquals(reservaDia10, reservasPorDia.get(10).get(0));
+        assertEquals(1, reservasPorDia.get(15).size());
+        assertEquals(reservaDia15, reservasPorDia.get(15).get(0));
+        assertEquals(1, reservasPorDia.get(31).size());
+        assertEquals(reservaDia31, reservasPorDia.get(31).get(0));
+        assertEquals("admin/reservas/calendario_mensual", viewName);
     }
 }
