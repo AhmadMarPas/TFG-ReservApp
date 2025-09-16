@@ -107,17 +107,17 @@ El siguiente diagrama muestra el esquema relacional de la base de datos, incluye
 	\centering
 	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.50\columnwidth} }
 		\toprule
-		\textbf{Usuario} &                  & \\
+		\textbf{Usuario} &                          & \\
 		\toprule
 		\textbf{PK}      & \textbf{id}              & varchar \\
 		\toprule
-		& \textbf{nombre}          & varchar \\
-		& \textbf{apellidos}       & varchar \\
-		& \textbf{email}           & varchar \\
-		& \textbf{password}        & varchar \\
-		& \textbf{telefono}        & varchar \\
-		& \textbf{administrador}   & bit \\
-		& \textbf{bloqueado}       & bit \\
+						 & \textbf{nombre}          & varchar \\
+						 & \textbf{apellidos}       & varchar \\
+						 & \textbf{email}           & varchar \\
+						 & \textbf{password}        & varchar \\
+						 & \textbf{telefono}        & varchar \\
+						 & \textbf{administrador}   & bit \\
+						 & \textbf{bloqueado}       & bit \\
 		\bottomrule
 	\end{tabularx}
 	\caption{Entidad Usuario}
@@ -128,20 +128,20 @@ El siguiente diagrama muestra el esquema relacional de la base de datos, incluye
 	\centering
 	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.50\columnwidth} }
 		\toprule
-		\textbf{Establecimiento} &                  & \\
+		\textbf{Establecimiento} &                          & \\
 		\toprule
-		\textbf{PK}      & \textbf{id}              & integer \\
+		\textbf{PK}              & \textbf{id}              & integer \\
 		\toprule
-		& \textbf{nombre}          & varchar \\
-		& \textbf{descripcion}     & varchar \\
-		& \textbf{aforo}           & integer \\
-		& \textbf{duracionReserva} & integer \\
-		& \textbf{capacidad}       & integer \\
-		& \textbf{tipo}            & varchar \\
-		& \textbf{direccion}       & varchar \\
-		& \textbf{telefono}        & varchar \\
-		& \textbf{email}           & varchar \\
-		& \textbf{activo}          & bit \\
+		                         & \textbf{nombre}          & varchar \\
+		                         & \textbf{descripcion}     & varchar \\
+		                         & \textbf{aforo}           & integer \\
+		                         & \textbf{duracionReserva} & integer \\
+		                         & \textbf{capacidad}       & integer \\
+		                         & \textbf{tipo}            & varchar \\
+		                         & \textbf{direccion}       & varchar \\
+		                         & \textbf{telefono}        & varchar \\
+		                         & \textbf{email}           & varchar \\
+		                         & \textbf{activo}          & bit \\
 		\bottomrule
 	\end{tabularx}
 	\caption{Entidad Establecimiento}
@@ -152,14 +152,14 @@ El siguiente diagrama muestra el esquema relacional de la base de datos, incluye
 	\centering
 	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.30\columnwidth} p{0.50\columnwidth} }
 		\toprule
-		\textbf{FranjaHoraria} &                      & \\
+		\textbf{FranjaHoraria} &                            & \\
 		\toprule
-		\textbf{PK}      & \textbf{id}                & integer \\
+		\textbf{PK}            & \textbf{id}                & integer \\
 		\toprule
-		\textbf{FK}      & \textbf{idEstablecimiento} & referencia a Establecimiento\\
-		& \textbf{diaSemana}         & varchar \\
-		& \textbf{horaInicio}        & time \\
-		& \textbf{horaFin}           & time \\
+		\textbf{FK}            & \textbf{idEstablecimiento} & referencia a Establecimiento\\
+							   & \textbf{diaSemana}         & varchar \\
+							   & \textbf{horaInicio}        & time \\
+							   & \textbf{horaFin}           & time \\
 		\bottomrule
 	\end{tabularx}
 	\caption{Entidad FranjaHoraria}
@@ -176,8 +176,8 @@ El siguiente diagrama muestra el esquema relacional de la base de datos, incluye
 		\toprule
 		\textbf{FK}      & \textbf{idUsuario}         & referencia a Usuario\\
 		\textbf{FK}      & \textbf{idEstablecimiento} & referencia a Establecimiento\\
-		& \textbf{fechaReserva}      & datetime \\
-		& \textbf{horaFin}           & time \\
+						 & \textbf{fechaReserva}      & datetime \\
+						 & \textbf{horaFin}           & time \\
 		\bottomrule
 	\end{tabularx}
 	\caption{Entidad Reserva}
@@ -192,8 +192,8 @@ El siguiente diagrama muestra el esquema relacional de la base de datos, incluye
 		\toprule
 		\textbf{PK, FK}       & \textbf{idReserva}       & referencia a Reserva\\
 		\toprule
-		& \textbf{enlace}          & String \\
-		& \textbf{observaciones}   & String \\
+							  & \textbf{enlace}          & String \\
+							  & \textbf{observaciones}   & String \\
 		\bottomrule
 	\end{tabularx}
 	\caption{Entidad Convocatoria}
@@ -204,11 +204,11 @@ El siguiente diagrama muestra el esquema relacional de la base de datos, incluye
 	\centering
 	\begin{tabularx}{\linewidth}{ p{0.20\columnwidth} p{0.40\columnwidth} p{0.40\columnwidth} }
 		\toprule
-		\textbf{Convocado}    &                     & \\
+		\textbf{Convocado}    &                               & \\
 		\toprule
-		\textbf{FK}      & \textbf{idReserva}  & referencia a Reserva\\
-		\textbf{FK}      & \textbf{idUsuario}  & referencia a Usuario\\
-		\textbf{PK}      & \textbf{idReserva, idUsuario}  & \\
+		\textbf{FK}           & \textbf{idReserva}            & referencia a Reserva\\
+		\textbf{FK}           & \textbf{idUsuario}            & referencia a Usuario\\
+		\textbf{PK}           & \textbf{idReserva, idUsuario} & \\
 		\bottomrule
 	\end{tabularx}
 	\caption{Entidad Convocado}
@@ -222,7 +222,7 @@ El siguiente diagrama muestra el esquema relacional de la base de datos, incluye
 	\item Un \textbf{Establecimiento} tiene una o varias \textbf{Franjas Horarias} (1:1..N).
 	\item Una \textbf{Reserva} está asociada a un único \textbf{Usuario} y un único \textbf{Establecimiento}.
 	\item Una \textbf{Reserva} puede tener una única \textbf{Convocatoria} (1:0..1).
-	\item Una \textbf{Convocatoria} puede agrupar a múltiples \textbf{Usuarios} a través de la entidad \textbf{Convocado} (1:0..N).
+	\item Una \textbf{Convocatoria} puede agrupar a múltiples \textbf{Usuarios} a través de la entidad \textbf{Convocado} (N:M).
 \end{itemize}
 
 \newpage
