@@ -66,7 +66,7 @@ Nada más acceder a la aplicación, se mostrará por defecto la página de inici
 \begin{itemize}
    \item El ID de usuario y el correo electrónico deben ser únicos en el sistema.
    \item Todos los campos son obligatorios.
-   \item El sistema encripta automáticamente las contraseñas.
+   \item El sistema \emph{hashea} automáticamente las contraseñas.
 \end{itemize}
 
 \subsubsection{Inicio de sesión (login)}
@@ -218,7 +218,7 @@ Permite crear una nueva reserva para un establecimiento en concreto, después de
    \begin{itemize}
       \item Se mostrará la información del establecimiento con su régimen horario, tal y como se muestra en la figura~\ref{fig:reservapp_establecimiento_reserva}.
       \item \textbf{Detalles}: Dirección, teléfono, estado.
-      \item \textbf{Aforo}: Número máximo de personas por horario (si aplica).
+      \item \textbf{Aforo}: Número de reservas simultáneas o concurrentes.
       \item \textbf{Horarios de apertura}: Días y horas disponibles para reservas.
    \end{itemize}
    \item \textbf{Seleccionar fecha y hora}:
@@ -939,7 +939,7 @@ Permite ver el detalle de una reserva en concreto, tal y como se ilustra en la f
    \end{itemize}
 \end{enumerate}
 
-\subsection{Resolución de problemas comumes}
+\subsection{Resolución de problemas comunes}
 
 \begin{itemize}
    \item \textbf{Problemas de Acceso}:

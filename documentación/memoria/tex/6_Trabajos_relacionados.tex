@@ -28,35 +28,34 @@ Si bien las arquitecturas distribuidas pueden ser más complejas de lo que un si
 En los sistemas de gestión empresarial, la experiencia del usuario es importante para que las personas adopten la herramienta y se sientan cómodas usándola. Factores como que el proceso de reserva sea sencillo, que la disponibilidad se muestre de forma clara y que sea fácil hacer cambios sin perderse, pueden marcar la diferencia.
 Teniendo esto en cuenta, en este proyecto se han incorporado mejoras como calendarios visuales para ver la disponibilidad de un vistazo, formularios que dan respuesta inmediata a las acciones del usuario y flujos de trabajo más simples para las tareas que se realizan con mayor frecuencia.
 
-\section{Frameworks y metodologías de desarrollo}\label{frameworks-metodologias-desarrollo}
-\subsection{Spring Boot en aplicaciones empresariales}\label{spring-boot-aplicaciones-empresariales}
-La adopción de Spring Boot en el desarrollo de aplicaciones web empresariales ha demostrado ventajas significativas en términos de productividad y mantenibilidad. Habiendo analizado diferentes modelos arquitectónicos, se ha observado que la combinación de Spring Boot con una arquitectura por capas resulta útil para la creación de sistemas más robustos y fáciles de mantener. Estas conclusiones han servido de apoyo para las decisiones arquitectónicas adoptadas en el presente TFG, especialmente en cuanto al uso de patrones como \emph{Repository}, \emph{Service Layer} y la integración con Spring Security para la gestión de autenticación y autorización.
-
-\subsection{Metodologías ágiles en contextos académicos}\label{metodologias-agiles-contextos-academicos}
-La aplicación de metodologías ágiles en el contexto específico de proyectos académicos ha demostrado beneficios en la gestión de proyectos evolutivos. Los enfoques que ofrece Scrum se adaptan a los principios ágiles para las restricciones específicas de proyectos educativos, incluyendo la gestión de revisiones con los tutores y la documentación académica requerida. Esta metodología ha sido influyente en la planificación del presente proyecto, especialmente en la definición de \emph{sprints} alineados con las revisiones y la gestión del \emph{backlog} considerando tanto objetivos funcionales como requisitos de documentación.
+\newpage
 
 \section{Posicionamiento del proyecto desarrollado}\label{posicionamiento-proyecto-desarrollado}
-Frente a las soluciones analizadas, el presente proyecto se posiciona como una alternativa que combina las siguientes características:
+Frente a las soluciones analizadas, el presente proyecto se posiciona como una alternativa que combina las siguientes características que se muestran la siguiente tabla comparativa:
 
-\begin{itemize}
-\tightlist
-\item
-\textbf{Control y flexibilidad}: Al ser una solución de código abierto, permite personalización completa sin restricciones comerciales.
-\item
-\textbf{Arquitectura moderna}: Utiliza tecnologías actuales y patrones de diseño consolidados.
-\item
-\textbf{Enfoque híbrido}: Combina simplicidad de uso con funcionalidades avanzadas según sea necesario.
-\item
-\textbf{Escalabilidad progresiva}: Diseño que permite evolución gradual según crecen las necesidades
-\item
-\textbf{Sistema híbrido de duración}: Flexibilidad para manejar tanto reservas libres como slots predefinidos.
-\item
-\textbf{Gestión colaborativa}: Funcionalidades de convocatoria con notificaciones integradas.
-\item
-\textbf{Arquitectura educativa}: Implementación que sirve como caso de estudio para futuros desarrollos.
-\item
-\textbf{Metodología adaptada}: Aplicación práctica de Scrum en un contexto académico.
-\end{itemize}
+\begin{table}[h]
+	\centering
+	\renewcommand{\arraystretch}{1.5} % Controla el espaciado entre las líneas
+	\rowcolors{2}{gray!20}{white} % Alterna colores de fondo en las filas
+	\resizebox{\textwidth}{!}{ % Ajusta el tamaño de la tabla al ancho de la página
+		\begin{tabular}{m{4.5cm} >{\centering\arraybackslash}m{1.8cm} >{\centering\arraybackslash}m{2.3cm} >{\centering\arraybackslash}m{1.0cm} >{\centering\arraybackslash}m{1.8cm}} % Ajustamos los anchos de las columnas
+			\toprule  
+			\textbf{Característica} & \textbf{Microsoft Booking} & \textbf{Google Worskpace} & \textbf{Robin} & \textbf{\textit{ReservApp}} \\
+			\midrule
+			Control y flexibilidad      & Sí & Sí & Sí & Sí \\
+			Arquitectura moderna        & Sí & Sí & No & Sí \\
+			Enfoque híbrido             & No & No & No & Sí \\
+			Escalabilidad progresiva    & Sí & Sí & Sí & Sí \\
+			Gestión colaborativa        & Sí & Sí & Sí & Sí \\
+			Arquitectura educativa      & No & No & No & Sí \\
+			Metodología adaptada        & No & No & No & Sí \\
+			Licenciamiento gratuito     & No & Sí & No & Sí \\
+			\bottomrule
+		\end{tabular}
+	}
+	\caption{Comparativa de aplicaciones}
+	\label{herramientasporcaracteristica}
+\end{table}
 
 \subsection{Limitaciones y contexto}\label{limitaciones-contexto}
 Es importante reconocer las limitaciones del proyecto actual:

@@ -138,7 +138,7 @@ Implementación de validaciones con '@NotNull', '@Email', '@Pattern'.
 \end{itemize}
 
 \subsubsection{Sprint 2 - Seguridad y Autenticación (14/04/2025 – 27/04/2025)} 
-Este sprint se centró en implementar un sistema de seguridad robusto utilizando Spring Security y, para ello, se desarrolló un sistema de autenticación personalizado con 'CustomUserDetailsService' y 'CustomAuthenticationSuccessHandler', implementando encriptación de contraseñas con BCrypt y control de acceso basado en roles (USER/ADMIN). Se configuró la seguridad web con páginas de login personalizadas, protección contra ataques comunes (CSRF, \emph{session fixation}, \emph{clickjacking}) y manejo de sesiones. También se implementó el sistema de registro de usuarios con validación de email y tokens de confirmación, y se estableció un sistema de gestión de sesiones con timeout configurable y logout seguro.
+Este sprint se centró en implementar un sistema de seguridad robusto utilizando Spring Security y, para ello, se desarrolló un sistema de autenticación personalizado con 'CustomUserDetailsService' y 'CustomAuthenticationSuccessHandler', implementando el \emph{hashing} de contraseñas con BCrypt y control de acceso basado en roles (USER/ADMIN). Se configuró la seguridad web con páginas de login personalizadas, protección contra ataques comunes (CSRF, \emph{session fixation}, \emph{clickjacking}) y manejo de sesiones. También se implementó el sistema de registro de usuarios con validación de email y tokens de confirmación, y se estableció un sistema de gestión de sesiones con timeout configurable y logout seguro.
 
 \textbf{Objetivos principales}:
 \begin{itemize}
@@ -150,7 +150,7 @@ Crear sistema de roles y permisos.
 \item
 Desarrollar páginas de login y registro personalizadas.
 \item
-Configurar encriptación de contraseñas.
+Configurar \emph{hashing} de contraseñas.
 \item
 Implementar control de sesiones y logout
 \end{itemize}
@@ -366,8 +366,10 @@ Configuración de perfiles de aplicación para diferentes entornos.
 Preparación de configuración de despliegue y monitoreo.
 \end{itemize}
 
-\subsubsection{Sprint 9 - Despliegue en Render~\cite{render} con Base de Datos en Aiven~\cite{aiven} (18/08/2025 – 24/08/2025)} 
-En el sprint final se investigaron diferentes opciones para el hosting de la aplicación. Entre las diferentes opciones consultadas, finalmente se decantó por la ofrecida por Render ya que ha resultado ser la única gratuita.
+\newpage
+
+\subsubsection{Sprint 9 - Despliegue en Render con Base de Datos en Aiven (18/08/2025 – 24/08/2025)} 
+En el sprint final se investigaron diferentes opciones para el hosting de la aplicación. Entre las diferentes opciones consultadas, finalmente se decantó por la ofrecida por Render~\cite{render} ya que ha resultado ser la única gratuita.
 
 \textbf{Objetivos principales}:
 \begin{itemize}
@@ -375,7 +377,7 @@ En el sprint final se investigaron diferentes opciones para el hosting de la apl
 \item
 Configuración de hosting en Render para la aplicación web.
 \item
-Configuración de base de datos MySQL en Aiven.
+Configuración de base de datos MySQL en Aiven~\cite{aiven}.
 \item
 Establecimiento de conexión segura entre ambos servicios.
 \item

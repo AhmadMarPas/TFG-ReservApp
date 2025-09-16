@@ -129,7 +129,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
 \item
 \textbf{RNF-001 - Rendimiento}: El sistema debe mantener tiempos de respuesta razonables de modo que la interacción o experiencia de usuario no se vea perjudicada. Los tiempos de carga y la respuesta de las operaciones deben ser aceptables.
 \item
-\textbf{RNF-002 - Seguridad}: El sistema debe implementar medidas de seguridad robustas, utilizando para ello un sistema de encriptación para las contraseñas, así como establecer una protección contra ataques. Del mismo modo, se debe establecer un control de acceso basado en roles y establecer un timeout de sesión automático.
+\textbf{RNF-002 - Seguridad}: El sistema debe implementar medidas de seguridad robustas, utilizando para ello un sistema de \emph{hashing} para las contraseñas, así como establecer una protección contra ataques. Del mismo modo, se debe establecer un control de acceso basado en roles y establecer un timeout de sesión automático.
 \item
 \textbf{RNF-003 - Usabilidad}: El sistema debe ser intuitiva y accesible, con un diseño adaptable a dispositivos móviles. La navegación principal estará optimizada para que el usuario acceda a las funciones principales en solo tres clics. Para una mejor interacción, se mostrarán mensajes de error claros y se ofrecerá un feedback visual instantáneo, asegurando que el diseño sea coherente en todas las páginas.
 
@@ -298,7 +298,7 @@ En este apartado se enumeran los requisitos de la aplicación, organizándose é
             \item Usuario confirma contraseña y pulsa en registrar.
             \item Sistema valida formato de datos.
             \item Sistema verifica unicidad de ID y email.
-            \item Sistema encripta contraseña.
+            \item Sistema \emph{hashea} contraseña.
             \item Sistema guarda usuario en base de datos.
             \item Sistema envía email de confirmación.
             \item Sistema muestra mensaje de éxito.
