@@ -138,7 +138,7 @@ Implementación de validaciones con '@NotNull', '@Email', '@Pattern'.
 \end{itemize}
 
 \subsubsection{Sprint 2 - Seguridad y Autenticación (14/04/2025 – 27/04/2025)} 
-Este sprint se centró en implementar un sistema de seguridad robusto utilizando Spring Security y, para ello, se desarrolló un sistema de autenticación personalizado con 'CustomUserDetailsService' y 'CustomAuthenticationSuccessHandler', implementando encriptación de contraseñas con BCrypt y control de acceso basado en roles (USER/ADMIN). Se configuró la seguridad web con páginas de login personalizadas, protección contra ataques comunes (CSRF, \emph{session fixation}, \emph{clickjacking}) y manejo de sesiones. También se implementó el sistema de registro de usuarios con validación de email y tokens de confirmación, y se estableció un sistema de gestión de sesiones con timeout configurable y logout seguro.
+Este sprint se centró en implementar un sistema de seguridad robusto utilizando Spring Security y, para ello, se desarrolló un sistema de autenticación personalizado con 'CustomUserDetailsService' y 'CustomAuthenticationSuccessHandler', implementando el \emph{hashing} de contraseñas con BCrypt y control de acceso basado en roles (USER/ADMIN). Se configuró la seguridad web con páginas de login personalizadas, protección contra ataques comunes (CSRF, \emph{session fixation}, \emph{clickjacking}) y manejo de sesiones. También se implementó el sistema de registro de usuarios con validación de email y tokens de confirmación, y se estableció un sistema de gestión de sesiones con timeout configurable y logout seguro.
 
 \textbf{Objetivos principales}:
 \begin{itemize}
@@ -150,7 +150,7 @@ Crear sistema de roles y permisos.
 \item
 Desarrollar páginas de login y registro personalizadas.
 \item
-Configurar encriptación de contraseñas.
+Configurar \emph{hashing} de contraseñas.
 \item
 Implementar control de sesiones y logout
 \end{itemize}
