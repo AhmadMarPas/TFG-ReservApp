@@ -198,7 +198,7 @@ public class ReservaController {
 			return errorValidacion;
 		}
 
-		Establecimiento establecimiento = obtenerEstablecimientoValidado(establecimientoId);
+		Establecimiento establecimiento = obtenerEstablecimientoValidado(establecimientoId, redirectAttributes);
 		prepararDatosCalendario(establecimiento, model);
 		model.addAttribute(PERIODOS_LIBRES, new ArrayList<>());
 
@@ -231,13 +231,15 @@ public class ReservaController {
 	/**
 	 * Prepara los datos necesarios para el calendario mensual.
 	 * 
-	 * @param establecimiento Establecimiento para el cual se muestra el calendario.
-	 * @param mes Mes seleccionado (1-12), o null para el mes actual.
-	 * @param anio Año seleccionado, o null para el año actual.
-	 * @param model Modelo para pasar datos a la vista.
+	 * @param establecimientoId Establecimiento para el cual se muestra el calendario.
+	 * @param redirectAttributes Atributos para redirección con mensajes flash.
 	 */
-	private Establecimiento obtenerEstablecimientoValidado(Integer establecimientoId) {
-		return validarEstablecimiento(establecimientoId, null).get();
+	private Establecimiento obtenerEstablecimientoValidado(Integer establecimientoId, RedirectAttributes redirectAttributes) {
+	    Optional<Establecimiento> establecimientoOpt = validarEstablecimiento(establecimientoId, redirectAttributes);
+	    if (establecimientoOpt.isPresent()) {
+	        return establecimientoOpt.get();
+	    }
+	    throw new IllegalArgumentException("Establecimiento no encontrado");
 	}
 
 	/**
@@ -248,8 +250,7 @@ public class ReservaController {
 	 * @param anio Año seleccionado, o null para el año actual.
 	 * @param model Modelo para pasar datos a la vista.
 	 */
-	private void procesarFechaPreseleccionada(String fechaPreseleccionada, Establecimiento establecimiento,
-			Model model) {
+	private void procesarFechaPreseleccionada(String fechaPreseleccionada, Establecimiento establecimiento, Model model) {
 		if (esFechaPreseleccionadaValida(fechaPreseleccionada)) {
 			return;
 		}
