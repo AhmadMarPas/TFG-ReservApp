@@ -506,21 +506,27 @@
                 console.log('Campo fecha encontrado. Valor inicial:', fechaInput.value);
                 console.log('Fecha preseleccionada del servidor:', fechaPreseleccionada);
                 
+                // Si requiere slots predefinidos, manejar cambio de fecha
+                if (requiereSlotsPredefinidos) {
+                    fechaInput.addEventListener('change', function() {
+                        actualizarSlotsDisponibles();
+                    });
+                }
+                
                 // Establecer fecha preseleccionada si existe
                 if (fechaPreseleccionada) {
                     fechaInput.value = fechaPreseleccionada;
                     // Disparar evento change para actualizar otros componentes
                     fechaInput.dispatchEvent(new Event('change'));
                     console.log('Fecha preseleccionada establecida. Nuevo valor:', fechaInput.value);
+                    
+                    // Si requiere slots predefinidos, cargar automáticamente los slots para la fecha preseleccionada
+                    if (requiereSlotsPredefinidos) {
+                        console.log('Establecimiento requiere slots predefinidos - cargando slots para fecha preseleccionada');
+                        actualizarSlotsDisponibles();
+                    }
                 } else {
                     console.log('No hay fecha preseleccionada para establecer');
-                }
-                
-                // Si requiere slots predefinidos, manejar cambio de fecha
-                if (requiereSlotsPredefinidos) {
-                    fechaInput.addEventListener('change', function() {
-                        actualizarSlotsDisponibles();
-                    });
                 }
             }
             

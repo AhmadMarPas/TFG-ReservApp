@@ -323,9 +323,9 @@ class AdminReservaControllerTest {
         // Then
         verify(establecimientoService).findById(establecimientoId);
         verify(reservaService).findByEstablecimientoAndFechaReservaBetween(eq(est), any(), any());
-        verify(model).addAttribute(eq("establecimiento"), eq(est));
-        verify(model).addAttribute(eq("mesActual"), eq(mes));
-        verify(model).addAttribute(eq("anioActual"), eq(anio));
+        verify(model).addAttribute("establecimiento", est);
+        verify(model).addAttribute("mesActual", mes);
+        verify(model).addAttribute("anioActual", anio);
         // Verifica que el mapa reservasPorDia contiene las reservas agrupadas correctamente
         // (captura el argumento del modelo)
         ArgumentCaptor<Map<Integer, List<Reserva>>> captor = ArgumentCaptor.forClass(Map.class);

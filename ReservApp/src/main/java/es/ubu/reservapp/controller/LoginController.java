@@ -59,8 +59,7 @@ public class LoginController {
 	}
 	
 	@GetMapping("/login")
-    public String loginPage(Model model, @RequestParam(value = "error", required = false) String error,
-                           @RequestParam(value = "logout", required = false) String logout) {
+    public String loginPage(Model model, @RequestParam(value = "error", required = false) String error, @RequestParam(value = "logout", required = false) String logout) {
         if (error != null) {
             model.addAttribute(ERROR, "Usuario o contraseña incorrectos.");
         }
@@ -108,13 +107,10 @@ public class LoginController {
         usuario.setConfirmationToken(token);
         usuario.setEmailVerified(false); // Establecer explícitamente, aunque sea el valor por defecto
 
-        // TODO: Quizás es pronto para guardarlo puesto que no está confirmado todavía 
         sessionData.setUsuario(usuario);
         
         // Registrar el nuevo usuario
         userService.save(usuario);
-        
-        // TODO: Enviar email de confirmación con el token
         
         redirectAttributes.addFlashAttribute(EXITO, "Usuario registrado correctamente. Por favor, revisa tu email para confirmar tu cuenta.");
         return REDIRECT_INICIO; // O redirigir a una página que informe sobre la necesidad de confirmar el email
