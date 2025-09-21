@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
@@ -552,10 +553,88 @@ class UserManagementControllerTest {
         assertEquals("admin/user_form", result);
     }
 
-    
-    
-    
-    
+    @Test
+    void testSaveOrUpdateUser_NewUser_IdErrorSoloNull() {
+        Usuario newUser = new Usuario();
+        newUser.setId("newuser");
+        newUser.setCorreo("test@test.com");
+        newUser.setPassword("password");
+        // Simular error solo en id, errorCount=1, rejectedValue=null
+        BindingResult mockResult = org.mockito.Mockito.mock(BindingResult.class);
+        FieldError idError = org.mockito.Mockito.mock(FieldError.class);
+        when(mockResult.hasErrors()).thenReturn(true);
+        when(mockResult.getFieldError("id")).thenReturn(idError);
+        when(mockResult.getErrorCount()).thenReturn(1);
+        when(idError.getRejectedValue()).thenReturn(null);
+        when(usuarioService.existeId("newuser")).thenReturn(false);
+        when(usuarioService.findUsuarioByCorreo("test@test.com")).thenReturn(null);
+        String result = userManagementController.saveOrUpdateUser(newUser, mockResult, false, model, mockRedirectAttributes);
+        // Debe permitir guardar (retorna redirect)
+        verify(usuarioService).save(newUser);
+        assertEquals("redirect:/admin/usuarios", result);
+    }
+
+    @Test
+    void testSaveOrUpdateUser_ExistingUser_IdErrorVacio() {
+        Usuario existingUser = new Usuario();
+        existingUser.setId("existinguser");
+        existingUser.setCorreo("test@test.com");
+        existingUser.setPassword("password");
+        // Simular error en id, rejectedValue=""
+        BindingResult mockResult = org.mockito.Mockito.mock(BindingResult.class);
+        FieldError idError = org.mockito.Mockito.mock(FieldError.class);
+        when(mockResult.hasErrors()).thenReturn(true);
+        when(mockResult.getFieldError("id")).thenReturn(idError);
+        when(idError.getRejectedValue()).thenReturn("");
+        when(usuarioService.existeId("existinguser")).thenReturn(true);
+        when(usuarioService.findUsuarioByCorreo("test@test.com")).thenReturn(null);
+        String result = userManagementController.saveOrUpdateUser(existingUser, mockResult, true, model, mockRedirectAttributes);
+        // Debe permitir guardar (retorna redirect)
+        verify(usuarioService).save(existingUser);
+        assertEquals("redirect:/admin/usuarios", result);
+    }
+
+    @Test
+    void testSaveOrUpdateUser_NewUser_IdErrorNoNull() {
+        Usuario newUser = new Usuario();
+        newUser.setId("newuser");
+        newUser.setCorreo("test@test.com");
+        newUser.setPassword("password");
+        // Simular error en id, errorCount=2, rejectedValue=null
+        BindingResult mockResult = org.mockito.Mockito.mock(BindingResult.class);
+        FieldError idError = org.mockito.Mockito.mock(FieldError.class);
+        when(mockResult.hasErrors()).thenReturn(true);
+        when(mockResult.getFieldError("id")).thenReturn(idError);
+        when(mockResult.getErrorCount()).thenReturn(2);
+        when(idError.getRejectedValue()).thenReturn(null);
+        when(usuarioService.existeId("newuser")).thenReturn(false);
+        when(usuarioService.findUsuarioByCorreo("test@test.com")).thenReturn(null);
+        String result = userManagementController.saveOrUpdateUser(newUser, mockResult, false, model, mockRedirectAttributes);
+        // No debe permitir guardar (retorna form)
+        verify(model).addAttribute("isEdit", false);
+        assertEquals("admin/user_form", result);
+    }
+
+    @Test
+    void testSaveOrUpdateUser_ExistingUser_IdErrorNoVacio() {
+        Usuario existingUser = new Usuario();
+        existingUser.setId("existinguser");
+        existingUser.setCorreo("test@test.com");
+        existingUser.setPassword("password");
+        // Simular error en id, rejectedValue="notempty"
+        BindingResult mockResult = org.mockito.Mockito.mock(BindingResult.class);
+        FieldError idError = org.mockito.Mockito.mock(FieldError.class);
+        when(mockResult.hasErrors()).thenReturn(true);
+        when(mockResult.getFieldError("id")).thenReturn(idError);
+        when(idError.getRejectedValue()).thenReturn("notempty");
+        when(usuarioService.existeId("existinguser")).thenReturn(true);
+        when(usuarioService.findUsuarioByCorreo("test@test.com")).thenReturn(null);
+        String result = userManagementController.saveOrUpdateUser(existingUser, mockResult, true, model, mockRedirectAttributes);
+        // No debe permitir guardar (retorna form)
+        verify(model).addAttribute("isEdit", true);
+        assertEquals("admin/user_form", result);
+    }
+
     @Test
     void testDeleteUserSuccess() throws UserNotFoundException {
         // Arrange

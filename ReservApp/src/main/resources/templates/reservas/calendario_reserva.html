@@ -2,167 +2,6 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/_common_head :: common_head(pageTitle='Calendario de Reserva', customLinks=~{:: #page-specific-links})}">
     <th:block id="page-specific-links">
-        <style>
-            .calendar-container {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 20px;
-            }
-
-            /* Estilos para períodos libres */
-            .periodos-libres-container {
-                background: white;
-                border-radius: 12px;
-                padding: 25px;
-                margin-bottom: 30px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                border: 1px solid #e9ecef;
-            }
-            
-            .periodos-libres-container h2 {
-                color: #2c3e50;
-                margin-bottom: 20px;
-                font-weight: 600;
-                font-size: 1.4em;
-            }
-            
-            .fecha-seleccionada {
-                background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-                padding: 15px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-                color: #1565c0;
-                font-weight: 500;
-                border-left: 4px solid #2196f3;
-            }
-            
-            .periodos-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 20px;
-                margin-bottom: 25px;
-            }
-            
-            .periodo-libre-card {
-                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                border: 2px solid #dee2e6;
-                border-radius: 10px;
-                padding: 20px;
-                transition: all 0.3s ease;
-                position: relative;
-                overflow: hidden;
-            }
-            
-            .periodo-libre-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-                border-color: #28a745;
-            }
-            
-            .periodo-horario {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-bottom: 10px;
-                font-size: 1.3em;
-                font-weight: 600;
-                color: #2c3e50;
-            }
-            
-            .hora-inicio, .hora-fin {
-                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-                color: white;
-                padding: 5px 12px;
-                border-radius: 5px;
-                font-weight: 700;
-            }
-            
-            .separador {
-                margin: 0 10px;
-                color: #6c757d;
-                font-weight: bold;
-            }
-            
-            .periodo-duracion {
-                text-align: center;
-                color: #6c757d;
-                font-size: 0.9em;
-                margin-bottom: 15px;
-                font-style: italic;
-            }
-            
-            .periodo-disponibilidad {
-                text-align: center;
-                margin-bottom: 15px;
-                font-size: 0.9em;
-            }
-            
-            .disponibilidad-ilimitada {
-                color: #28a745;
-                font-weight: 600;
-            }
-            
-            .disponibilidad-limitada {
-                color: #ffc107;
-                font-weight: 600;
-            }
-            
-            .btn-seleccionar-periodo {
-                width: 100%;
-                background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-                color: white;
-                border: none;
-                padding: 12px;
-                border-radius: 6px;
-                font-weight: 600;
-                transition: all 0.3s ease;
-                cursor: pointer;
-            }
-            
-            .btn-seleccionar-periodo:hover {
-                background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-                transform: translateY(-1px);
-            }
-            
-            .periodo-personalizado-toggle {
-                text-align: center;
-                padding-top: 20px;
-                border-top: 2px dashed #dee2e6;
-            }
-            
-            .periodo-personalizado-toggle button {
-                background: white;
-                color: #007bff;
-                border: 2px solid #007bff;
-                padding: 12px 25px;
-                border-radius: 25px;
-                font-weight: 600;
-                transition: all 0.3s ease;
-            }
-            
-            .periodo-personalizado-toggle button:hover {
-                background: #007bff;
-                color: white;
-                transform: translateY(-1px);
-                box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-            }
-            
-            /* Responsive */
-            @media (max-width: 768px) {
-                .periodos-grid {
-                    grid-template-columns: 1fr;
-                }
-                
-                .periodo-horario {
-                    font-size: 1.1em;
-                }
-            }
-            
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        </style>
     </th:block>
 </head>
 
@@ -462,7 +301,7 @@
                 <div class="form-group">
                     <label for="usuariosSeleccionados"><i class="fas fa-user-friends"></i> Usuarios Invitados:</label>
                     <div id="usuariosSeleccionados" class="usuarios-seleccionados">
-                        <p class="text-muted">No hay usuarios seleccionados</p>
+                        <!-- Los usuarios seleccionados aparecerán aquí como tags -->
                     </div>
                 </div>
             </div>
@@ -506,21 +345,27 @@
                 console.log('Campo fecha encontrado. Valor inicial:', fechaInput.value);
                 console.log('Fecha preseleccionada del servidor:', fechaPreseleccionada);
                 
+                // Si requiere slots predefinidos, manejar cambio de fecha
+                if (requiereSlotsPredefinidos) {
+                    fechaInput.addEventListener('change', function() {
+                        actualizarSlotsDisponibles();
+                    });
+                }
+                
                 // Establecer fecha preseleccionada si existe
                 if (fechaPreseleccionada) {
                     fechaInput.value = fechaPreseleccionada;
                     // Disparar evento change para actualizar otros componentes
                     fechaInput.dispatchEvent(new Event('change'));
                     console.log('Fecha preseleccionada establecida. Nuevo valor:', fechaInput.value);
+                    
+                    // Si requiere slots predefinidos, cargar automáticamente los slots para la fecha preseleccionada
+                    if (requiereSlotsPredefinidos) {
+                        console.log('Establecimiento requiere slots predefinidos - cargando slots para fecha preseleccionada');
+                        actualizarSlotsDisponibles();
+                    }
                 } else {
                     console.log('No hay fecha preseleccionada para establecer');
-                }
-                
-                // Si requiere slots predefinidos, manejar cambio de fecha
-                if (requiereSlotsPredefinidos) {
-                    fechaInput.addEventListener('change', function() {
-                        actualizarSlotsDisponibles();
-                    });
                 }
             }
             
@@ -797,24 +642,18 @@
         function actualizarUsuariosSeleccionados() {
             const container = document.getElementById('usuariosSeleccionados');
             
-            if (usuariosSeleccionados.length === 0) {
-                container.innerHTML = '<p class="text-muted">No hay usuarios seleccionados</p>';
-            } else {
-                const html = usuariosSeleccionados.map(usuario => `
-                    <div class="usuario-seleccionado">
-                        <div class="usuario-info">
-                            <strong>${usuario.nombre}</strong>
-                            <small>${usuario.correo}</small>
-                            <span class="usuario-id">ID: ${usuario.id}</span>
-                        </div>
-                        <button type="button" class="btn-remove" onclick="removerUsuario('${usuario.id}')">
-                            <i class="fas fa-times"></i>
+            container.innerHTML = usuariosSeleccionados.map(usuario => {
+                const nombreCompleto = `${usuario.nombre || ''}`.trim();
+                return `
+                    <div class="usuario-tag">
+                        <span>${nombreCompleto}</span>
+                        <button type="button" class="remove-btn" onclick="removerUsuario('${usuario.id}')">
+                            ×
                         </button>
                         <input type="hidden" name="usuariosConvocados" value="${usuario.id}">
                     </div>
-                `).join('');
-                container.innerHTML = html;
-            }
+                `;
+            }).join('');
         }
         
         // Variables para scroll infinito

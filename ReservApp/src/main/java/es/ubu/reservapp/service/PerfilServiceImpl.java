@@ -79,7 +79,6 @@ public class PerfilServiceImpl implements PerfilService {
     @Override
     @Transactional
     public void deleteById(Integer id) {
-        // TODO: Verificar si el perfil existe antes de eliminarlo
         perfilRepo.deleteById(id);
     }
     
