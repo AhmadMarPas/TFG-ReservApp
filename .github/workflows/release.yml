@@ -17,8 +17,16 @@ jobs:
           java-version: '21'
           distribution: 'zulu'
 
+      - name: Comprobar estructura de carpetas
+        run: |
+          pwd
+          ls -la ..
+          ls -la ../ReservApp
+
       - name: Build with Maven
-        run: cd ../ReservApp && mvn clean package -DskipTests
+        run: |
+          cd ../ReservApp
+          mvn clean package -DskipTests
 
       - name: Rename JAR with release version
         run: |
