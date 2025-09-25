@@ -18,7 +18,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Build with Maven
-        run: mvn clean package
+        run: cd ReservApp && mvn clean install -DskipTests
 
       - name: Rename JAR with release version
         run: mv target/TFG-ReservApp.jar target/TFG-ReservApp-${{ github.event.release.tag_name }}.jar
