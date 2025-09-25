@@ -18,8 +18,7 @@ jobs:
           distribution: 'zulu'
 
       - name: Build with Maven
-        run: mvn clean package
-        working-directory: ../ReservApp
+        run: cd ../ReservApp && mvn clean package -DskipTests
 
       - name: Rename JAR with release version
         run: |
