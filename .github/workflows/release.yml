@@ -28,10 +28,15 @@ jobs:
         run: |
           cd ReservApp
           mvn clean package -DskipTests
+      - name: Extraer versión del pom.xml
+        id: get_version
+        run: |
+          cd ./ReservApp
+          echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Rename JAR with release version
         run: |
-          mv ../ReservApp/target/ReservApp.jar ../ReservApp/target/ReservApp-${{ github.event.release.tag_name }}.jar
+          mv ./ReservApp/target/reservApp-$VERSION.jar ./ReservApp/target/ReservApp-${{ github.event.release.tag_name }}.jar
 
       - name: Upload JAR to Release
         uses: actions/upload-release-asset@v1
@@ -39,6 +44,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ../ReservApp/target/ReservApp-${{ github.event.release.tag_name }}.jar
+          asset_path: ./ReservApp/target/ReservApp-${{ github.event.release.tag_name }}.jar
           asset_name: ReservApp-${{ github.event.release.tag_name }}.jar
           asset_content_type: application/java-archive
