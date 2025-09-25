@@ -3,6 +3,8 @@ name: Release JAR
 on:
   release:
     types: [created]
+permissions:
+  contents: write
 
 jobs:
   build-and-upload:
