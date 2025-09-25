@@ -19,7 +19,7 @@ jobs:
 
       - name: Build with Maven
         run: |
-          cd ReservApp
+          cd ./ReservApp
           mvn clean package -DskipTests
       - name: Extraer versión del pom.xml
         id: get_version
