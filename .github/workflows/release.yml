@@ -21,8 +21,8 @@ jobs:
       - name: Comprobar estructura de carpetas
         run: |
           pwd
-          ls -la ..
-          ls -la ../ReservApp
+          ls -la .
+          ls -la ./ReservApp
 
       - name: Build with Maven
         run: |
