@@ -1,9 +1,8 @@
 name: Release JAR
 
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [created]
 
 jobs:
   build-and-upload:
@@ -17,12 +16,6 @@ jobs:
         with:
           java-version: '21'
           distribution: 'zulu'
-
-      - name: Comprobar estructura de carpetas
-        run: |
-          pwd
-          ls -la .
-          ls -la ./ReservApp
 
       - name: Build with Maven
         run: |
