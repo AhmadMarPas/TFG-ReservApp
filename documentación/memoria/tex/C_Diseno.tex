@@ -219,7 +219,7 @@ El siguiente diagrama muestra el esquema relacional de la base de datos, incluye
 \begin{itemize}
 	\item Un \textbf{Usuario} puede realiza múltiples \textbf{Reservas} (1:0..N).
 	\item Un \textbf{Establecimiento} puede tener múltiples \textbf{Reservas} (1:0..N).
-	\item Un \textbf{Establecimiento} tiene una o varias \textbf{Franjas Horarias} (1:1..N).
+	\item Un \textbf{Establecimiento} tiene cero o varias \textbf{Franjas Horarias} (1:0..N).
 	\item Una \textbf{Reserva} está asociada a un único \textbf{Usuario} y un único \textbf{Establecimiento}.
 	\item Una \textbf{Reserva} puede tener una única \textbf{Convocatoria} (1:0..1).
 	\item Una \textbf{Convocatoria} puede agrupar a múltiples \textbf{Usuarios} a través de la entidad \textbf{Convocado} (N:M).
