@@ -3,42 +3,32 @@ name: Release JAR
 on:
   release:
     types: [created]
-permissions:
-  contents: write
 
 jobs:
-  build-and-upload:
+  upload-jar-to-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - name: Descargar artefacto JAR del workflow de build
+        uses: actions/download-artifact@v4
         with:
-          java-version: '21'
-          distribution: 'zulu'
+          name: build-artifacts
 
-      - name: Build with Maven
-        run: |
-          cd ./ReservApp
-          mvn clean package -DskipTests
-      - name: Extraer versión del pom.xml
+      - name: Obtener versión del pom.xml
         id: get_version
         run: |
-          cd ./ReservApp
-          echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+          VERSION=$(mvn -f ReservApp/pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Rename JAR with release version
+      - name: Renombrar JAR para la release
         run: |
-          mv ./ReservApp/target/reservApp-$VERSION.jar ./ReservApp/target/ReservApp-${{ github.event.release.tag_name }}.jar
+          mv reservApp-$VERSION.jar ReservApp-${{ github.event.release.tag_name }}.jar
 
-      - name: Upload JAR to Release
+      - name: Subir JAR a la release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./ReservApp/target/ReservApp-${{ github.event.release.tag_name }}.jar
+          asset_path: ReservApp-${{ github.event.release.tag_name }}.jar
           asset_name: ReservApp-${{ github.event.release.tag_name }}.jar
           asset_content_type: application/java-archive
