@@ -19,7 +19,7 @@
 ![License](https://img.shields.io/badge/license-GNU%20GPL%20v3-blue.svg?style=plastic)
 [![GitHub issues](https://img.shields.io/github/issues-closed/AhmadMarPas/TFG-ReservApp)](https://github.com/AhmadMarPas/TFG-ReservApp/issues)
 ![GitHub Release](https://img.shields.io/github/v/release/AhmadMarPas/TFG-ReservApp?label=Release)
-[![Workflow Status](https://github.com/AhmadMarPas/TFG-ReservApp/actions/workflows/maven.yml/badge.svg)](https://github.com/AhmadMarPas/TFG-ReservApp/actions)
+[![Wiki](https://img.shields.io/badge/wiki-available-brightgreen)](https://github.com/AhmadMarPas/TFG-ReservApp/wiki)
 [![Zube](https://img.shields.io/badge/zube-managed-blue?logo=zube)](https://zube.io/)
 
 ---
